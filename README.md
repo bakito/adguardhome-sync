@@ -4,8 +4,6 @@
 
 Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to a replica instance.
 
-This is still work in progress. Changes on how parameters are provided will change.
-
 ## Current sync features
 
 - Filters
