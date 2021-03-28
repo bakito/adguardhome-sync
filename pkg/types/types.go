@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -120,11 +121,98 @@ func (s Services) Sort() {
 func (s Services) Equals(o Services) bool {
 	s.Sort()
 	o.Sort()
-	if len(s) != len(o) {
+	return equals(s, o)
+}
+
+type Clients struct {
+	Clients     []Client `json:"clients"`
+	AutoClients []struct {
+		IP        string `json:"ip"`
+		Name      string `json:"name"`
+		Source    string `json:"source"`
+		WhoisInfo struct {
+		} `json:"whois_info"`
+	} `json:"auto_clients"`
+	SupportedTags []string `json:"supported_tags"`
+}
+
+type Client struct {
+	Ids             []string `json:"ids"`
+	Tags            []string `json:"tags"`
+	BlockedServices []string `json:"blocked_services"`
+	Upstreams       []string `json:"upstreams"`
+
+	UseGlobalSettings        bool   `json:"use_global_settings"`
+	UseGlobalBlockedServices bool   `json:"use_global_blocked_services"`
+	Name                     string `json:"name"`
+	FilteringEnabled         bool   `json:"filtering_enabled"`
+	ParentalEnabled          bool   `json:"parental_enabled"`
+	SafesearchEnabled        bool   `json:"safesearch_enabled"`
+	SafebrowsingEnabled      bool   `json:"safebrowsing_enabled"`
+	Disallowed               bool   `json:"disallowed"`
+	DisallowedRule           string `json:"disallowed_rule"`
+}
+
+func (cl *Client) Sort() {
+	sort.Strings(cl.Ids)
+	sort.Strings(cl.Tags)
+	sort.Strings(cl.BlockedServices)
+	sort.Strings(cl.Upstreams)
+}
+
+func (cl *Client) Equal(o *Client) bool {
+	cl.Sort()
+	o.Sort()
+
+	a, _ := json.Marshal(cl)
+	b, _ := json.Marshal(o)
+	return string(a) == string(b)
+}
+
+func (clients *Clients) Merge(other *Clients) ([]Client, []Client, []Client) {
+	current := make(map[string]Client)
+	for _, client := range clients.Clients {
+		current[client.Name] = client
+	}
+
+	expected := make(map[string]Client)
+	for _, client := range other.Clients {
+		expected[client.Name] = client
+	}
+
+	var adds []Client
+	var removes []Client
+	var updates []Client
+
+	for _, cl := range expected {
+		if oc, ok := current[cl.Name]; ok {
+			if !cl.Equal(&oc) {
+				updates = append(updates, cl)
+			}
+			delete(current, cl.Name)
+		} else {
+			adds = append(adds, cl)
+		}
+	}
+
+	for _, rr := range current {
+		removes = append(removes, rr)
+	}
+
+	return adds, updates, removes
+}
+
+type ClientUpdate struct {
+	Name string `json:"name"`
+	Data Client `json:"data"`
+}
+
+func equals(a []string, b []string) bool {
+	if len(a) != len(b) {
 		return false
 	}
-	for i, v := range s {
-		if v != o[i] {
+	for i, v := range a {
+		if v != b[i] {
 			return false
 		}
 	}

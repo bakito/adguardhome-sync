@@ -2,11 +2,12 @@ package client
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
-	"net/url"
 )
 
 var (
@@ -50,6 +51,11 @@ type Client interface {
 
 	Services() (types.Services, error)
 	SetServices(services types.Services) error
+
+	Clients() (*types.Clients, error)
+	AddClients(client ...types.Client) error
+	UpdateClients(client ...types.Client) error
+	DeleteClients(client ...types.Client) error
 }
 
 type client struct {
@@ -174,4 +180,43 @@ func (cl *client) SetServices(services types.Services) error {
 	cl.log.With("services", len(services)).Info("Set services")
 	_, err := cl.client.R().EnableTrace().SetBody(&services).Post("/blocked_services/set")
 	return err
+}
+
+func (cl *client) Clients() (*types.Clients, error) {
+	clients := &types.Clients{}
+	_, err := cl.client.R().EnableTrace().SetResult(clients).Get("/clients")
+	return clients, err
+}
+
+func (cl *client) AddClients(clients ...types.Client) error {
+	for _, client := range clients {
+		cl.log.With("name", client.Name).Info("Add client")
+		_, err := cl.client.R().EnableTrace().SetBody(&client).Post("/clients/add")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cl *client) UpdateClients(clients ...types.Client) error {
+	for _, client := range clients {
+		cl.log.With("name", client.Name).Info("Update client")
+		_, err := cl.client.R().EnableTrace().SetBody(&types.ClientUpdate{Name: client.Name, Data: client}).Post("/clients/update")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cl *client) DeleteClients(clients ...types.Client) error {
+	for _, client := range clients {
+		cl.log.With("name", client.Name).Info("Delete client")
+		_, err := cl.client.R().EnableTrace().SetBody(&client).Post("/clients/delete")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

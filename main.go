@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/client"
 	"os"
+
+	"github.com/bakito/adguardhome-sync/pkg/client"
 )
 
 const (
@@ -15,7 +16,6 @@ const (
 )
 
 func main() {
-	// Create a Resty Client
 
 	origin, err := client.New(os.Getenv(envOriginApiURL), os.Getenv(envOriginUsername), os.Getenv(envOriginPassword))
 	if err != nil {
@@ -24,6 +24,20 @@ func main() {
 	replica, err := client.New(os.Getenv(envReplicaApiURL), os.Getenv(envReplicaUsername), os.Getenv(envOReplicaPassword))
 	if err != nil {
 		panic(err)
+	}
+
+	os, err := origin.Status()
+	if err != nil {
+		panic(err)
+	}
+
+	rs, err := replica.Status()
+	if err != nil {
+		panic(err)
+	}
+
+	if os.Version != rs.Version {
+		panic("Versions do not match")
 	}
 
 	err = syncRewrites(origin, replica)
@@ -40,7 +54,10 @@ func main() {
 		panic(err)
 	}
 
-	// POST http://192.168.2.207/control/dns_config {"protection_enabled":false}
+	err = syncClients(origin, replica)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func syncServices(origin client.Client, replica client.Client) error {
@@ -130,6 +147,30 @@ func syncRewrites(origin client.Client, replica client.Client) error {
 		return err
 	}
 	if err = replica.DeleteRewriteEntries(r...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func syncClients(origin client.Client, replica client.Client) error {
+	oc, err := origin.Clients()
+	if err != nil {
+		return err
+	}
+	rc, err := replica.Clients()
+	if err != nil {
+		return err
+	}
+
+	a, u, r := rc.Merge(oc)
+
+	if err = replica.AddClients(a...); err != nil {
+		return err
+	}
+	if err = replica.UpdateClients(u...); err != nil {
+		return err
+	}
+	if err = replica.DeleteClients(r...); err != nil {
 		return err
 	}
 	return nil
