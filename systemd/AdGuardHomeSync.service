@@ -1,0 +1,28 @@
+[Unit]
+Description=AdGuard Home Sync service
+ConditionFileIsExecutable=/opt/AdGuardHomeSync/adguardhome-sync
+
+Requires=network.target
+After=network-online.target syslog.target
+
+[Service]
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart=/opt/AdGuardHomeSync/adguardhome-sync "run" "--config" "/opt/AdGuardHomeSync/adguardhome-sync.yaml"
+WorkingDirectory=/opt/AdGuardHome
+
+
+Restart=on-success
+SuccessExitStatus=1 2 8 SIGKILL
+RestartSec=120
+EnvironmentFile=-/etc/sysconfig/GoServiceExampleLogging
+
+
+
+StandardOutput=file:/var/log/AdGuardHomeSync.out
+StandardError=file:/var/log/AdGuardHomeSync.err
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
