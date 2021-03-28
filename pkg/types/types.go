@@ -9,8 +9,26 @@ import (
 )
 
 type Config struct {
-	Origin  AdGuardInstance `json:"origin" yaml:"origin"`
-	Replica AdGuardInstance `json:"replica" yaml:"replica"`
+	Origin   AdGuardInstance   `json:"origin" yaml:"origin"`
+	Replica  *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replicas []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	Cron     string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+}
+
+func (cfg *Config) UniqueReplicas() []AdGuardInstance {
+	dedup := make(map[string]AdGuardInstance)
+	if cfg.Replica != nil {
+		dedup[cfg.Replica.Key()] = *cfg.Replica
+	}
+	for _, replica := range cfg.Replicas {
+		dedup[replica.Key()] = replica
+	}
+
+	var r []AdGuardInstance
+	for _, replica := range dedup {
+		r = append(r, replica)
+	}
+	return r
 }
 
 type AdGuardInstance struct {
@@ -19,6 +37,10 @@ type AdGuardInstance struct {
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
+}
+
+func (i *AdGuardInstance) Key() string {
+	return fmt.Sprintf("%s%s", i.URL, i.APIPath)
 }
 
 type Status struct {
@@ -131,10 +153,10 @@ func (s Services) Sort() {
 	sort.Strings(s)
 }
 
-func (s Services) Equals(o Services) bool {
+func (s *Services) Equals(o *Services) bool {
 	s.Sort()
 	o.Sort()
-	return equals(s, o)
+	return equals(*s, *o)
 }
 
 type Clients struct {

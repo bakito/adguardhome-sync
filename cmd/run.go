@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/sync"
 	"github.com/bakito/adguardhome-sync/pkg/types"
@@ -24,21 +23,7 @@ var doCmd = &cobra.Command{
 			return
 		}
 
-		origin, err := client.New(cfg.Origin)
-		if err != nil {
-			logger.Error(err)
-			return
-		}
-		replica, err := client.New(cfg.Replica)
-		if err != nil {
-			logger.Error(err)
-			return
-		}
-		err = sync.Sync(origin, replica)
-		if err != nil {
-			logger.Error(err)
-			return
-		}
+		sync.Sync(cfg)
 	},
 }
 

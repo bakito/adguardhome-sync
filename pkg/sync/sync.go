@@ -3,73 +3,118 @@ package sync
 import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/pkg/types"
+	"go.uber.org/zap"
 )
 
 // Sync config from origin to replica
-func Sync(origin client.Client, replica client.Client) error {
-
-	l := log.GetLogger("sync").With("from", origin.Host(), "to", replica.Host())
-	l.Info("Start sync")
-
-	os, err := origin.Status()
+func Sync(cfg *types.Config) {
+	l := log.GetLogger("sync")
+	oc, err := client.New(cfg.Origin)
 	if err != nil {
-		return err
+		l.With("error", err, "url", cfg.Origin.URL).Error("Error creating origin client")
+		return
 	}
 
-	rs, err := replica.Status()
+	l = l.With("from", oc.Host())
+
+	o := &origin{}
+
+	o.status, err = oc.Status()
 	if err != nil {
-		return err
+		l.With("error", err).Error("Error getting origin status")
+		return
 	}
 
-	if os.Version != rs.Version {
-		panic("Versions do not match")
-	}
-
-	err = syncRewrites(origin, replica)
+	o.rewrites, err = oc.RewriteList()
 	if err != nil {
-		return err
+		l.With("error", err).Error("Error getting origin rewrites")
+		return
 	}
-	err = syncFilters(origin, replica)
+
+	o.services, err = oc.Services()
 	if err != nil {
-		return err
+		l.With("error", err).Error("Error getting origin services")
+		return
 	}
 
-	err = syncServices(origin, replica)
+	o.filters, err = oc.Filtering()
 	if err != nil {
-		return err
+		l.With("error", err).Error("Error getting origin filters")
+		return
+	}
+	o.clients, err = oc.Clients()
+	if err != nil {
+		l.With("error", err).Error("Error getting origin clients")
+		return
 	}
 
-	if err = syncClients(origin, replica); err != nil {
-		return err
+	replicas := cfg.UniqueReplicas()
+	for _, replica := range replicas {
+		syncTo(l, o, replica)
 	}
-
-	l.Info("Sync done")
-	return nil
 }
 
-func syncServices(origin client.Client, replica client.Client) error {
-	os, err := origin.Services()
+func syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
+
+	rc, err := client.New(replica)
 	if err != nil {
-		return err
+		l.With("error", err, "url", replica.URL).Error("Error creating replica client")
 	}
+
+	rl := l.With("to", rc.Host())
+	rl.Info("Start sync")
+
+	rs, err := rc.Status()
+	if err != nil {
+		l.With("error", err).Error("Error getting replica status")
+		return
+	}
+
+	if o.status.Version != rs.Version {
+		l.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
+	}
+
+	err = syncRewrites(o.rewrites, rc)
+	if err != nil {
+		l.With("error", err).Error("Error syncing rewrites")
+		return
+	}
+	err = syncFilters(o.filters, rc)
+	if err != nil {
+		l.With("error", err).Error("Error syncing filters")
+		return
+	}
+
+	err = syncServices(o.services, rc)
+	if err != nil {
+		l.With("error", err).Error("Error syncing services")
+		return
+	}
+
+	if err = syncClients(o.clients, rc); err != nil {
+		l.With("error", err).Error("Error syncing clients")
+		return
+	}
+
+	rl.Info("Sync done")
+}
+
+func syncServices(os *types.Services, replica client.Client) error {
 	rs, err := replica.Services()
 	if err != nil {
 		return err
 	}
 
 	if !os.Equals(rs) {
-		if err := replica.SetServices(os); err != nil {
+		if err := replica.SetServices(*os); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func syncFilters(origin client.Client, replica client.Client) error {
-	of, err := origin.Filtering()
-	if err != nil {
-		return err
-	}
+func syncFilters(of *types.FilteringStatus, replica client.Client) error {
 	rf, err := replica.Filtering()
 	if err != nil {
 		return err
@@ -118,17 +163,14 @@ func syncFilters(origin client.Client, replica client.Client) error {
 	return nil
 }
 
-func syncRewrites(origin client.Client, replica client.Client) error {
-	originRewrites, err := origin.RewriteList()
-	if err != nil {
-		return err
-	}
+func syncRewrites(or *types.RewriteEntries, replica client.Client) error {
+
 	replicaRewrites, err := replica.RewriteList()
 	if err != nil {
 		return err
 	}
 
-	a, r := replicaRewrites.Merge(originRewrites)
+	a, r := replicaRewrites.Merge(or)
 
 	if err = replica.AddRewriteEntries(a...); err != nil {
 		return err
@@ -139,11 +181,7 @@ func syncRewrites(origin client.Client, replica client.Client) error {
 	return nil
 }
 
-func syncClients(origin client.Client, replica client.Client) error {
-	oc, err := origin.Clients()
-	if err != nil {
-		return err
-	}
+func syncClients(oc *types.Clients, replica client.Client) error {
 	rc, err := replica.Clients()
 	if err != nil {
 		return err
@@ -161,4 +199,12 @@ func syncClients(origin client.Client, replica client.Client) error {
 		return err
 	}
 	return nil
+}
+
+type origin struct {
+	status   *types.Status
+	rewrites *types.RewriteEntries
+	services *types.Services
+	filters  *types.FilteringStatus
+	clients  *types.Clients
 }
