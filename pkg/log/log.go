@@ -19,7 +19,7 @@ func init() {
 		Development:      false,
 		Encoding:         "console",
 		EncoderConfig:    zap.NewDevelopmentEncoderConfig(),
-		OutputPaths:      []string{"stderr"},
+		OutputPaths:      []string{"stdout"},
 		ErrorOutputPaths: []string{"stderr"},
 	}
 
