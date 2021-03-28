@@ -34,3 +34,37 @@ adguardhome-sync run
 # run as daemon
 adguardhome-sync run --cron "*/10 * * * *"
 ```
+
+### Config file
+
+location: $HOME/.adguardhome-sync.yaml
+
+```yaml
+# cron expression to run in daemon mode. (default; "" = runs only once)
+cron: "*/10 * * * *"
+
+origin:
+  # url of the origin instance
+  url: https://192.168.1.2:3000
+  # apiPath: define an api path if other than "/control"
+  # insecureSkipVerify: true # disable tls check
+  username: username
+  password: password
+
+# replica instance (optional, if only one)
+replica:
+  # url of the replica instance
+  url: http://192.168.1.3
+  username: username
+  password: password
+
+# replicas instances (optional, if more than one)
+replicas:
+  # url of the replica instance
+  - url: http://192.168.1.3
+    username: username
+    password: password
+  - url: http://192.168.1.4
+    username: username
+    password: password
+```
