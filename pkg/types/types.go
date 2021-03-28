@@ -13,6 +13,13 @@ type Config struct {
 	Replica  *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
 	Replicas []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 	Cron     string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	API      API               `json:"api,omitempty" yaml:"api,omitempty"`
+}
+
+type API struct {
+	Port     int    `json:"port,omitempty" yaml:"port,omitempty"`
+	Username string `json:"username,omitempty" yaml:"username,omitempty"`
+	Password string `json:"password,omitempty" yaml:"password,omitempty"`
 }
 
 func (cfg *Config) UniqueReplicas() []AdGuardInstance {

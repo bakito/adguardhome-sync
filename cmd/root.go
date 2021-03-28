@@ -16,6 +16,10 @@ import (
 const (
 	configCron = "cron"
 
+	configAPIPort     = "api.port"
+	configAPIUsername = "api.username"
+	configAPIPassword = "api.password"
+
 	configOriginURL                = "origin.url"
 	configOriginAPIPath            = "origin.apiPath"
 	configOriginUsername           = "origin.username"

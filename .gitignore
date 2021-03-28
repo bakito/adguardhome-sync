@@ -3,3 +3,4 @@ coverage.out
 dist
 adguardhome-sync
 main
+.adguardhome-sync.yaml

@@ -14,27 +14,50 @@ var (
 
 // Sync config from origin to replica
 func Sync(cfg *types.Config) {
+	w := &worker{
+		cfg: cfg,
+	}
 	if cfg.Cron != "" {
-		c := cron.New()
+		w.cron = cron.New()
 		cl := l.With("cron", cfg.Cron)
-		_, err := c.AddFunc(cfg.Cron, func() {
-			sync(cfg)
+		_, err := w.cron.AddFunc(cfg.Cron, func() {
+			w.sync()
 		})
 		if err != nil {
-			cl.With("error", err).Error("Error creating cron job")
+			cl.With("error", err).Error("Error during cron job setup")
 			return
 		}
-		cl.Info("Starting cronjob")
-		c.Run()
+		cl.Info("Setup cronjob")
+		if cfg.API.Port != 0 {
+			w.cron.Start()
+		} else {
+			w.cron.Run()
+		}
 	} else {
-		sync(cfg)
+		w.sync()
+	}
+	if cfg.API.Port != 0 {
+		w.listenAndServe()
 	}
 }
 
-func sync(cfg *types.Config) {
-	oc, err := client.New(cfg.Origin)
+type worker struct {
+	cfg     *types.Config
+	running bool
+	cron    *cron.Cron
+}
+
+func (w *worker) sync() {
+	if w.running {
+		l.Info("Sync already running")
+		return
+	}
+	w.running = true
+	defer func() { w.running = false }()
+
+	oc, err := client.New(w.cfg.Origin)
 	if err != nil {
-		l.With("error", err, "url", cfg.Origin.URL).Error("Error creating origin client")
+		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		return
 	}
 
@@ -71,13 +94,13 @@ func sync(cfg *types.Config) {
 		return
 	}
 
-	replicas := cfg.UniqueReplicas()
+	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
-		syncTo(sl, o, replica)
+		w.syncTo(sl, o, replica)
 	}
 }
 
-func syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
+func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
 
 	rc, err := client.New(replica)
 	if err != nil {
@@ -97,24 +120,24 @@ func syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
 		l.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
 	}
 
-	err = syncRewrites(o.rewrites, rc)
+	err = w.syncRewrites(o.rewrites, rc)
 	if err != nil {
 		l.With("error", err).Error("Error syncing rewrites")
 		return
 	}
-	err = syncFilters(o.filters, rc)
+	err = w.syncFilters(o.filters, rc)
 	if err != nil {
 		l.With("error", err).Error("Error syncing filters")
 		return
 	}
 
-	err = syncServices(o.services, rc)
+	err = w.syncServices(o.services, rc)
 	if err != nil {
 		l.With("error", err).Error("Error syncing services")
 		return
 	}
 
-	if err = syncClients(o.clients, rc); err != nil {
+	if err = w.syncClients(o.clients, rc); err != nil {
 		l.With("error", err).Error("Error syncing clients")
 		return
 	}
@@ -122,7 +145,7 @@ func syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
 	rl.Info("Sync done")
 }
 
-func syncServices(os *types.Services, replica client.Client) error {
+func (w *worker) syncServices(os *types.Services, replica client.Client) error {
 	rs, err := replica.Services()
 	if err != nil {
 		return err
@@ -136,7 +159,7 @@ func syncServices(os *types.Services, replica client.Client) error {
 	return nil
 }
 
-func syncFilters(of *types.FilteringStatus, replica client.Client) error {
+func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) error {
 	rf, err := replica.Filtering()
 	if err != nil {
 		return err
@@ -185,7 +208,7 @@ func syncFilters(of *types.FilteringStatus, replica client.Client) error {
 	return nil
 }
 
-func syncRewrites(or *types.RewriteEntries, replica client.Client) error {
+func (w *worker) syncRewrites(or *types.RewriteEntries, replica client.Client) error {
 
 	replicaRewrites, err := replica.RewriteList()
 	if err != nil {
@@ -203,7 +226,7 @@ func syncRewrites(or *types.RewriteEntries, replica client.Client) error {
 	return nil
 }
 
-func syncClients(oc *types.Clients, replica client.Client) error {
+func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
 	rc, err := replica.Clients()
 	if err != nil {
 		return err
