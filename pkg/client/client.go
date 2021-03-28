@@ -47,6 +47,9 @@ type Client interface {
 	ToggleSaveBrowsing(enable bool) error
 	ToggleParental(enable bool) error
 	ToggleSafeSearch(enable bool) error
+
+	Services() (types.Services, error)
+	SetServices(services types.Services) error
 }
 
 type client struct {
@@ -158,5 +161,17 @@ func (cl *client) SetCustomRules(rules types.UserRules) error {
 func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
 	_, err := cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{Enabled: enabled, Interval: interval}).Post("/filtering/config")
+	return err
+}
+
+func (cl *client) Services() (types.Services, error) {
+	svcs := &types.Services{}
+	_, err := cl.client.R().EnableTrace().SetResult(svcs).Get("/blocked_services/list")
+	return *svcs, err
+}
+
+func (cl *client) SetServices(services types.Services) error {
+	cl.log.With("services", len(services)).Info("Set services")
+	_, err := cl.client.R().EnableTrace().SetBody(&services).Post("/blocked_services/set")
 	return err
 }

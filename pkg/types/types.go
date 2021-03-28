@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -73,8 +74,8 @@ type FilteringStatus struct {
 
 type UserRules []string
 
-func (ur *UserRules) String() string {
-	return strings.Join(*ur, "\n")
+func (ur UserRules) String() string {
+	return strings.Join(ur, "\n")
 }
 
 type FilteringConfig struct {
@@ -108,4 +109,24 @@ func (fs *Filters) Merge(other Filters) (Filters, Filters) {
 	}
 
 	return adds, removes
+}
+
+type Services []string
+
+func (s Services) Sort() {
+	sort.Strings(s)
+}
+
+func (s Services) Equals(o Services) bool {
+	s.Sort()
+	o.Sort()
+	if len(s) != len(o) {
+		return false
+	}
+	for i, v := range s {
+		if v != o[i] {
+			return false
+		}
+	}
+	return true
 }

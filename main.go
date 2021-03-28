@@ -26,11 +26,16 @@ func main() {
 		panic(err)
 	}
 
-	err = syncRewrites(err, origin, replica)
+	err = syncRewrites(origin, replica)
 	if err != nil {
 		panic(err)
 	}
-	err = syncFilters(err, origin, replica)
+	err = syncFilters(origin, replica)
+	if err != nil {
+		panic(err)
+	}
+
+	err = syncServices(origin, replica)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +43,25 @@ func main() {
 	// POST http://192.168.2.207/control/dns_config {"protection_enabled":false}
 }
 
-func syncFilters(err error, origin client.Client, replica client.Client) error {
+func syncServices(origin client.Client, replica client.Client) error {
+	os, err := origin.Services()
+	if err != nil {
+		return err
+	}
+	rs, err := replica.Services()
+	if err != nil {
+		return err
+	}
+
+	if !os.Equals(rs) {
+		if err := replica.SetServices(os); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func syncFilters(origin client.Client, replica client.Client) error {
 	of, err := origin.Filtering()
 	if err != nil {
 		return err
@@ -91,7 +114,7 @@ func syncFilters(err error, origin client.Client, replica client.Client) error {
 	return nil
 }
 
-func syncRewrites(err error, origin client.Client, replica client.Client) error {
+func syncRewrites(origin client.Client, replica client.Client) error {
 	originRewrites, err := origin.RewriteList()
 	if err != nil {
 		return err
