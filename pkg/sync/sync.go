@@ -10,7 +10,6 @@ func Sync(origin client.Client, replica client.Client) error {
 
 	l := log.GetLogger("sync").With("from", origin.Host(), "to", replica.Host())
 	l.Info("Start sync")
-	defer func() { l.Info("Sync done") }()
 
 	os, err := origin.Status()
 	if err != nil {
@@ -40,7 +39,12 @@ func Sync(origin client.Client, replica client.Client) error {
 		return err
 	}
 
-	return syncClients(origin, replica)
+	if err = syncClients(origin, replica); err != nil {
+		return err
+	}
+
+	l.Info("Sync done")
+	return nil
 }
 
 func syncServices(origin client.Client, replica client.Client) error {

@@ -22,12 +22,12 @@ go get -u github.com/bakito/adguardhome-sync
 ## Run
 
 ```bash
-export ORIGIN_API_URL=https://192.168.1.2:3000/control
+export ORIGIN_URL=https://192.168.1.2:3000
 export ORIGIN_USERNAME=username
 export ORIGIN_PASSWORD=password
-export REPLICA_API_URL=http://192.168.1.3/control
+export REPLICA_URL=http://192.168.1.3
 export REPLICA_USERNAME=username
 export REPLICA_PASSWORD=password
 
-adguardhome-sync
+adguardhome-sync run
 ```

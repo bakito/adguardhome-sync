@@ -8,6 +8,19 @@ import (
 	"time"
 )
 
+type Config struct {
+	Origin  AdGuardInstance `json:"origin" yaml:"origin"`
+	Replica AdGuardInstance `json:"replica" yaml:"replica"`
+}
+
+type AdGuardInstance struct {
+	URL                string `json:"url" yaml:"url"`
+	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
+	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
+	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
+	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
+}
+
 type Status struct {
 	DNSAddresses      []string `json:"dns_addresses"`
 	DNSPort           int      `json:"dns_port"`

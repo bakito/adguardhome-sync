@@ -1,8 +1,10 @@
 package client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/url"
+	"path"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
@@ -14,16 +16,27 @@ var (
 	l = log.GetLogger("client")
 )
 
-func New(apiURL string, username string, password string) (Client, error) {
+func New(config types.AdGuardInstance) (Client, error) {
 
-	cl := resty.New().SetHostURL(apiURL).SetDisableWarn(true)
-	if username != "" && password != "" {
-		cl = cl.SetBasicAuth(username, password)
+	var apiURL string
+	if config.APIPath == "" {
+		apiURL = fmt.Sprintf("%s/control", config.URL)
+	} else {
+		apiURL = fmt.Sprintf("%s/%s", config.URL, config.APIPath)
 	}
-
 	u, err := url.Parse(apiURL)
 	if err != nil {
 		return nil, err
+	}
+	u.Path = path.Clean(u.Path)
+	cl := resty.New().SetHostURL(u.String()).SetDisableWarn(true)
+
+	if config.InsecureSkipVerify {
+		cl.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+
+	if config.Username != "" && config.Password != "" {
+		cl = cl.SetBasicAuth(config.Username, config.Password)
 	}
 
 	return &client{
