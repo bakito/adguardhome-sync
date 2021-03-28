@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"github.com/bakito/adguardhome-sync/pkg/log"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 )
 
@@ -15,6 +17,10 @@ const (
 	envOReplicaPassword = "REPLICA_PASSWORD"
 )
 
+var (
+	l = log.GetLogger("main")
+)
+
 func main() {
 
 	origin, err := client.New(os.Getenv(envOriginApiURL), os.Getenv(envOriginUsername), os.Getenv(envOriginPassword))
@@ -25,6 +31,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	logger := l.With("from", origin.Host(), "to", replica.Host())
+
+	logger.Info("Start sync")
+	defer func() { logger.Info("Sync done") }()
 
 	os, err := origin.Status()
 	if err != nil {

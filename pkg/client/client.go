@@ -27,12 +27,15 @@ func New(apiURL string, username string, password string) (Client, error) {
 	}
 
 	return &client{
+		host:   u.Host,
 		client: cl,
 		log:    l.With("host", u.Host),
 	}, nil
 }
 
 type Client interface {
+	Host() string
+
 	Status() (*types.Status, error)
 	RewriteList() (*types.RewriteEntries, error)
 	AddRewriteEntries(e ...types.RewriteEntry) error
@@ -61,8 +64,12 @@ type Client interface {
 type client struct {
 	client *resty.Client
 	log    *zap.SugaredLogger
+	host   string
 }
 
+func (cl *client) Host() string {
+	return cl.host
+}
 func (cl *client) Status() (*types.Status, error) {
 	status := &types.Status{}
 	_, err := cl.client.R().EnableTrace().SetResult(status).Get("status")
