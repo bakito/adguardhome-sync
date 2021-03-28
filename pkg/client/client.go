@@ -38,6 +38,7 @@ type Client interface {
 	DeleteRewriteEntries(e ...types.RewriteEntry) error
 
 	Filtering() (*types.FilteringStatus, error)
+	ToggleFiltering(enabled bool, interval int) error
 	AddFilters(whitelist bool, e ...types.Filter) error
 	DeleteFilters(whitelist bool, e ...types.Filter) error
 	RefreshFilters(whitelist bool) error
@@ -151,5 +152,11 @@ func (cl *client) RefreshFilters(whitelist bool) error {
 func (cl *client) SetCustomRules(rules types.UserRules) error {
 	cl.log.With("rules", len(rules)).Info("Set user rules")
 	_, err := cl.client.R().EnableTrace().SetBody(rules.String()).Post("/filtering/set_rules")
+	return err
+}
+
+func (cl *client) ToggleFiltering(enabled bool, interval int) error {
+	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
+	_, err := cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{Enabled: enabled, Interval: interval}).Post("/filtering/config")
 	return err
 }

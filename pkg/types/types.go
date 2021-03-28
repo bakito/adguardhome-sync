@@ -65,8 +65,7 @@ type Filter struct {
 }
 
 type FilteringStatus struct {
-	Enabled          bool      `json:"enabled"`
-	Interval         int       `json:"interval"`
+	FilteringConfig
 	Filters          Filters   `json:"filters"`
 	WhitelistFilters Filters   `json:"whitelist_filters"`
 	UserRules        UserRules `json:"user_rules"`
@@ -76,6 +75,11 @@ type UserRules []string
 
 func (ur *UserRules) String() string {
 	return strings.Join(*ur, "\n")
+}
+
+type FilteringConfig struct {
+	Enabled  bool `json:"enabled"`
+	Interval int  `json:"interval"`
 }
 
 type RefreshFilter struct {

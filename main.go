@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
-	"github.com/bakito/adguardhome-sync/pkg/log"
 	"os"
 )
 
@@ -13,10 +12,6 @@ const (
 	envReplicaApiURL    = "REPLICA_API_URL"
 	envReplicaUsername  = "REPLICA_USERNAME"
 	envOReplicaPassword = "REPLICA_PASSWORD"
-)
-
-var (
-	l = log.GetLogger("main")
 )
 
 func main() {
@@ -40,7 +35,6 @@ func main() {
 		panic(err)
 	}
 
-	// POST http://192.168.2.207/control/filtering/config {"interval":24,"enabled":false}
 	// POST http://192.168.2.207/control/dns_config {"protection_enabled":false}
 }
 
@@ -56,38 +50,32 @@ func syncFilters(err error, origin client.Client, replica client.Client) error {
 
 	fa, fd := rf.Filters.Merge(of.Filters)
 
-	err = replica.AddFilters(false, fa...)
-	if err != nil {
+	if err = replica.AddFilters(false, fa...); err != nil {
 		return err
 	}
 
 	if len(fa) > 0 {
-		err = replica.RefreshFilters(false)
-		if err != nil {
+		if err = replica.RefreshFilters(false); err != nil {
 			return err
 		}
 	}
 
-	err = replica.DeleteFilters(false, fd...)
-	if err != nil {
+	if err = replica.DeleteFilters(false, fd...); err != nil {
 		return err
 	}
 
 	fa, fd = rf.WhitelistFilters.Merge(of.WhitelistFilters)
-	err = replica.AddFilters(true, fa...)
-	if err != nil {
+	if err = replica.AddFilters(true, fa...); err != nil {
 		return err
 	}
 
 	if len(fa) > 0 {
-		err = replica.RefreshFilters(true)
-		if err != nil {
+		if err = replica.RefreshFilters(true); err != nil {
 			return err
 		}
 	}
 
-	err = replica.DeleteFilters(true, fd...)
-	if err != nil {
+	if err = replica.DeleteFilters(true, fd...); err != nil {
 		return err
 	}
 
@@ -95,6 +83,11 @@ func syncFilters(err error, origin client.Client, replica client.Client) error {
 		return replica.SetCustomRules(of.UserRules)
 	}
 
+	if of.Enabled != rf.Enabled || of.Interval != rf.Interval {
+		if err = replica.ToggleFiltering(of.Enabled, of.Interval); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -110,13 +103,11 @@ func syncRewrites(err error, origin client.Client, replica client.Client) error 
 
 	a, r := replicaRewrites.Merge(originRewrites)
 
-	err = replica.AddRewriteEntries(a...)
-	if err != nil {
+	if err = replica.AddRewriteEntries(a...); err != nil {
 		return err
 	}
-	err = replica.DeleteRewriteEntries(r...)
-	if err != nil {
+	if err = replica.DeleteRewriteEntries(r...); err != nil {
 		return err
 	}
-	return err
+	return nil
 }
