@@ -4,54 +4,76 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
+)
+
+var (
+	l = log.GetLogger("sync")
 )
 
 // Sync config from origin to replica
 func Sync(cfg *types.Config) {
-	l := log.GetLogger("sync")
+	if cfg.Cron != "" {
+		c := cron.New()
+		cl := l.With("cron", cfg.Cron)
+		_, err := c.AddFunc(cfg.Cron, func() {
+			sync(cfg)
+		})
+		if err != nil {
+			cl.With("error", err).Error("Error creating cron job")
+			return
+		}
+		cl.Info("Starting cronjob")
+		c.Run()
+	} else {
+		sync(cfg)
+	}
+}
+
+func sync(cfg *types.Config) {
 	oc, err := client.New(cfg.Origin)
 	if err != nil {
 		l.With("error", err, "url", cfg.Origin.URL).Error("Error creating origin client")
 		return
 	}
 
-	l = l.With("from", oc.Host())
+	sl := l.With("from", oc.Host())
 
 	o := &origin{}
 
 	o.status, err = oc.Status()
 	if err != nil {
-		l.With("error", err).Error("Error getting origin status")
+		sl.With("error", err).Error("Error getting origin status")
 		return
 	}
 
 	o.rewrites, err = oc.RewriteList()
 	if err != nil {
-		l.With("error", err).Error("Error getting origin rewrites")
+		sl.With("error", err).Error("Error getting origin rewrites")
 		return
 	}
 
 	o.services, err = oc.Services()
 	if err != nil {
-		l.With("error", err).Error("Error getting origin services")
+		sl.With("error", err).Error("Error getting origin services")
 		return
 	}
 
 	o.filters, err = oc.Filtering()
 	if err != nil {
-		l.With("error", err).Error("Error getting origin filters")
+		sl.With("error", err).Error("Error getting origin filters")
 		return
 	}
 	o.clients, err = oc.Clients()
 	if err != nil {
-		l.With("error", err).Error("Error getting origin clients")
+		sl.With("error", err).Error("Error getting origin clients")
 		return
 	}
 
 	replicas := cfg.UniqueReplicas()
 	for _, replica := range replicas {
-		syncTo(l, o, replica)
+		syncTo(sl, o, replica)
 	}
 }
 

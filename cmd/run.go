@@ -29,6 +29,8 @@ var doCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(doCmd)
+	doCmd.PersistentFlags().String("cron", "", "The cron expression to run in daemon mode")
+	_ = viper.BindPFlag(configCron, doCmd.PersistentFlags().Lookup("cron"))
 
 	doCmd.PersistentFlags().String("origin-url", "", "Origin instance url")
 	_ = viper.BindPFlag(configOriginURL, doCmd.PersistentFlags().Lookup("origin-url"))

@@ -14,6 +14,8 @@ import (
 )
 
 const (
+	configCron = "cron"
+
 	configOriginURL                = "origin.url"
 	configOriginAPIPath            = "origin.apiPath"
 	configOriginUsername           = "origin.username"
