@@ -50,15 +50,19 @@ func (i *AdGuardInstance) Key() string {
 	return fmt.Sprintf("%s%s", i.URL, i.APIPath)
 }
 
+type Protection struct {
+	ProtectionEnabled bool `json:"protection_enabled"`
+}
+
 type Status struct {
-	DNSAddresses      []string `json:"dns_addresses"`
-	DNSPort           int      `json:"dns_port"`
-	HTTPPort          int      `json:"http_port"`
-	ProtectionEnabled bool     `json:"protection_enabled"`
-	DhcpAvailable     bool     `json:"dhcp_available"`
-	Running           bool     `json:"running"`
-	Version           string   `json:"version"`
-	Language          string   `json:"language"`
+	Protection
+	DNSAddresses  []string `json:"dns_addresses"`
+	DNSPort       int      `json:"dns_port"`
+	HTTPPort      int      `json:"http_port"`
+	DhcpAvailable bool     `json:"dhcp_available"`
+	Running       bool     `json:"running"`
+	Version       string   `json:"version"`
+	Language      string   `json:"language"`
 }
 
 type RewriteEntries []RewriteEntry
@@ -121,9 +125,13 @@ func (ur UserRules) String() string {
 	return strings.Join(ur, "\n")
 }
 
+type FeatureStatus struct {
+	Enabled bool `json:"enabled"`
+}
+
 type FilteringConfig struct {
-	Enabled  bool `json:"enabled"`
-	Interval int  `json:"interval"`
+	FeatureStatus
+	Interval int `json:"interval"`
 }
 
 type RefreshFilter struct {

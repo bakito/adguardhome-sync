@@ -6,6 +6,7 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 
 ## Current sync features
 
+- General Settings
 - Filters
 - Rewrites
 - Services

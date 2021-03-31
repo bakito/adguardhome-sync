@@ -71,6 +71,22 @@ func (w *worker) sync() {
 		return
 	}
 
+	o.parental, err = oc.Parental()
+	if err != nil {
+		sl.With("error", err).Error("Error getting parental status")
+		return
+	}
+	o.safeSearch, err = oc.SafeSearch()
+	if err != nil {
+		sl.With("error", err).Error("Error getting safe search status")
+		return
+	}
+	o.safeBrowsing, err = oc.SafeBrowsing()
+	if err != nil {
+		sl.With("error", err).Error("Error getting safe browsing status")
+		return
+	}
+
 	o.rewrites, err = oc.RewriteList()
 	if err != nil {
 		sl.With("error", err).Error("Error getting origin rewrites")
@@ -118,6 +134,12 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	if o.status.Version != rs.Version {
 		l.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
+	}
+
+	err = w.syncGeneralSettings(o, rs, rc)
+	if err != nil {
+		l.With("error", err).Error("Error syncing general settings")
+		return
 	}
 
 	err = w.syncRewrites(o.rewrites, rc)
@@ -246,10 +268,43 @@ func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
 	return nil
 }
 
+func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client.Client) error {
+	if o.status.ProtectionEnabled != rs.ProtectionEnabled {
+		if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
+			return err
+		}
+	}
+	if rp, err := replica.Parental(); err != nil {
+		return err
+	} else if o.parental != rp {
+		if err = replica.ToggleParental(o.parental); err != nil {
+			return err
+		}
+	}
+	if rs, err := replica.SafeSearch(); err != nil {
+		return err
+	} else if o.safeSearch != rs {
+		if err = replica.ToggleSafeSearch(o.safeSearch); err != nil {
+			return err
+		}
+	}
+	if rs, err := replica.SafeBrowsing(); err != nil {
+		return err
+	} else if o.safeBrowsing != rs {
+		if err = replica.ToggleSafeBrowsing(o.safeBrowsing); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type origin struct {
-	status   *types.Status
-	rewrites *types.RewriteEntries
-	services *types.Services
-	filters  *types.FilteringStatus
-	clients  *types.Clients
+	status       *types.Status
+	rewrites     *types.RewriteEntries
+	services     *types.Services
+	filters      *types.FilteringStatus
+	clients      *types.Clients
+	parental     bool
+	safeSearch   bool
+	safeBrowsing bool
 }

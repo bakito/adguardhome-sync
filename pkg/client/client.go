@@ -50,6 +50,7 @@ type Client interface {
 	Host() string
 
 	Status() (*types.Status, error)
+	ToggleProtection(enable bool) error
 	RewriteList() (*types.RewriteEntries, error)
 	AddRewriteEntries(e ...types.RewriteEntry) error
 	DeleteRewriteEntries(e ...types.RewriteEntry) error
@@ -61,8 +62,11 @@ type Client interface {
 	RefreshFilters(whitelist bool) error
 	SetCustomRules(rules types.UserRules) error
 
-	ToggleSaveBrowsing(enable bool) error
+	SafeBrowsing() (bool, error)
+	ToggleSafeBrowsing(enable bool) error
+	Parental() (bool, error)
 	ToggleParental(enable bool) error
+	SafeSearch() (bool, error)
 	ToggleSafeSearch(enable bool) error
 
 	Services() (*types.Services, error)
@@ -118,19 +122,37 @@ func (cl *client) DeleteRewriteEntries(entries ...types.RewriteEntry) error {
 	return nil
 }
 
-func (cl *client) ToggleSaveBrowsing(enable bool) error {
-	return cl.toggle("safebrowsing", enable)
+func (cl *client) SafeBrowsing() (bool, error) {
+	return cl.toggleStatus("safebrowsing")
+}
+
+func (cl *client) ToggleSafeBrowsing(enable bool) error {
+	return cl.toggleBool("safebrowsing", enable)
+}
+
+func (cl *client) Parental() (bool, error) {
+	return cl.toggleStatus("parental")
 }
 
 func (cl *client) ToggleParental(enable bool) error {
-	return cl.toggle("parental", enable)
+	return cl.toggleBool("parental", enable)
+}
+
+func (cl *client) SafeSearch() (bool, error) {
+	return cl.toggleStatus("safesearch")
 }
 
 func (cl *client) ToggleSafeSearch(enable bool) error {
-	return cl.toggle("safesearch", enable)
+	return cl.toggleBool("safesearch", enable)
 }
 
-func (cl *client) toggle(mode string, enable bool) error {
+func (cl *client) toggleStatus(mode string) (bool, error) {
+	fs := &types.FeatureStatus{}
+	_, err := cl.client.R().EnableTrace().SetResult(fs).Get(fmt.Sprintf("/%s/status", mode))
+	return fs.Enabled, err
+}
+
+func (cl *client) toggleBool(mode string, enable bool) error {
 	cl.log.With("mode", mode, "enable", enable).Info("Toggle")
 	var target string
 	if enable {
@@ -178,6 +200,12 @@ func (cl *client) RefreshFilters(whitelist bool) error {
 	return err
 }
 
+func (cl *client) ToggleProtection(enable bool) error {
+	cl.log.With("enable", enable).Info("Toggle protection")
+	_, err := cl.client.R().EnableTrace().SetBody(&types.Protection{ProtectionEnabled: enable}).Post("/dns_config")
+	return err
+}
+
 func (cl *client) SetCustomRules(rules types.UserRules) error {
 	cl.log.With("rules", len(rules)).Info("Set user rules")
 	_, err := cl.client.R().EnableTrace().SetBody(rules.String()).Post("/filtering/set_rules")
@@ -186,7 +214,7 @@ func (cl *client) SetCustomRules(rules types.UserRules) error {
 
 func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
-	_, err := cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{Enabled: enabled, Interval: interval}).Post("/filtering/config")
+	_, err := cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{FeatureStatus: types.FeatureStatus{Enabled: enabled}, Interval: interval}).Post("/filtering/config")
 	return err
 }
 
