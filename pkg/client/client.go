@@ -153,7 +153,7 @@ func (cl *client) toggleStatus(mode string) (bool, error) {
 }
 
 func (cl *client) toggleBool(mode string, enable bool) error {
-	cl.log.With("mode", mode, "enable", enable).Info("Toggle")
+	cl.log.With("enable", enable).Info(fmt.Sprintf("Toggle %s", mode))
 	var target string
 	if enable {
 		target = "enable"
