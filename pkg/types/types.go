@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Config application configuration struct
 type Config struct {
 	Origin   AdGuardInstance   `json:"origin" yaml:"origin"`
 	Replica  *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
@@ -16,12 +17,14 @@ type Config struct {
 	API      API               `json:"api,omitempty" yaml:"api,omitempty"`
 }
 
+// API configuration
 type API struct {
 	Port     int    `json:"port,omitempty" yaml:"port,omitempty"`
 	Username string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password string `json:"password,omitempty" yaml:"password,omitempty"`
 }
 
+// UniqueReplicas get unique replication instances
 func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	dedup := make(map[string]AdGuardInstance)
 	if cfg.Replica != nil {
@@ -38,6 +41,7 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	return r
 }
 
+// AdGuardInstance adguard home config instance
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url"`
 	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
@@ -46,14 +50,17 @@ type AdGuardInstance struct {
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
 }
 
+// Key AdGuardInstance key
 func (i *AdGuardInstance) Key() string {
 	return fmt.Sprintf("%s%s", i.URL, i.APIPath)
 }
 
+// Protection API struct
 type Protection struct {
 	ProtectionEnabled bool `json:"protection_enabled"`
 }
 
+// Status API struct
 type Status struct {
 	Protection
 	DNSAddresses  []string `json:"dns_addresses"`
@@ -65,8 +72,10 @@ type Status struct {
 	Language      string   `json:"language"`
 }
 
+// RewriteEntries list of RewriteEntry
 type RewriteEntries []RewriteEntry
 
+// Merge RewriteEntries
 func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries) {
 	current := make(map[string]RewriteEntry)
 
@@ -91,17 +100,21 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, Rewrite
 	return adds, removes
 }
 
+// RewriteEntry API struct
 type RewriteEntry struct {
 	Domain string `json:"domain"`
 	Answer string `json:"answer"`
 }
 
+// Key RewriteEntry key
 func (re *RewriteEntry) Key() string {
 	return fmt.Sprintf("%s#%s", re.Domain, re.Answer)
 }
 
+// Filters list of Filter
 type Filters []Filter
 
+// Filter API struct
 type Filter struct {
 	ID          int       `json:"id"`
 	Enabled     bool      `json:"enabled"`
@@ -112,6 +125,7 @@ type Filter struct {
 	Whitelist   bool      `json:"whitelist"` // needed for add
 }
 
+// FilteringStatus API struct
 type FilteringStatus struct {
 	FilteringConfig
 	Filters          Filters   `json:"filters"`
@@ -119,39 +133,48 @@ type FilteringStatus struct {
 	UserRules        UserRules `json:"user_rules"`
 }
 
+// UserRules API struct
 type UserRules []string
 
+// String toString of Users
 func (ur UserRules) String() string {
 	return strings.Join(ur, "\n")
 }
 
+// EnableConfig API struct
 type EnableConfig struct {
 	Enabled bool `json:"enabled"`
 }
 
+// IntervalConfig API struct
 type IntervalConfig struct {
 	Interval int `json:"interval"`
 }
 
+// FilteringConfig API struct
 type FilteringConfig struct {
 	EnableConfig
 	IntervalConfig
 }
 
+// QueryLogConfig API struct
 type QueryLogConfig struct {
 	EnableConfig
 	IntervalConfig
 	AnonymizeClientIP bool `json:"anonymize_client_ip"`
 }
 
+// Equals QueryLogConfig equal check
 func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
 	return qlc.Enabled == o.Enabled && qlc.AnonymizeClientIP == o.AnonymizeClientIP && qlc.Interval == o.Interval
 }
 
+// RefreshFilter API struct
 type RefreshFilter struct {
 	Whitelist bool `json:"whitelist"`
 }
 
+// Merge merge RefreshFilters
 func (fs *Filters) Merge(other Filters) (Filters, Filters) {
 	current := make(map[string]Filter)
 
@@ -176,18 +199,22 @@ func (fs *Filters) Merge(other Filters) (Filters, Filters) {
 	return adds, removes
 }
 
+// Services API struct
 type Services []string
 
+// Sort sort Services
 func (s Services) Sort() {
 	sort.Strings(s)
 }
 
+// Equals Services equal check
 func (s *Services) Equals(o *Services) bool {
 	s.Sort()
 	o.Sort()
 	return equals(*s, *o)
 }
 
+// Clients API struct
 type Clients struct {
 	Clients     []Client `json:"clients"`
 	AutoClients []struct {
@@ -200,6 +227,7 @@ type Clients struct {
 	SupportedTags []string `json:"supported_tags"`
 }
 
+// Client API struct
 type Client struct {
 	Ids             []string `json:"ids"`
 	Tags            []string `json:"tags"`
@@ -217,6 +245,7 @@ type Client struct {
 	DisallowedRule           string `json:"disallowed_rule"`
 }
 
+// Sort sort clients
 func (cl *Client) Sort() {
 	sort.Strings(cl.Ids)
 	sort.Strings(cl.Tags)
@@ -224,6 +253,7 @@ func (cl *Client) Sort() {
 	sort.Strings(cl.Upstreams)
 }
 
+// Equal Clients equal check
 func (cl *Client) Equal(o *Client) bool {
 	cl.Sort()
 	o.Sort()
@@ -233,6 +263,7 @@ func (cl *Client) Equal(o *Client) bool {
 	return string(a) == string(b)
 }
 
+// Merge merge Clients
 func (clients *Clients) Merge(other *Clients) ([]Client, []Client, []Client) {
 	current := make(map[string]Client)
 	for _, client := range clients.Clients {
@@ -266,6 +297,7 @@ func (clients *Clients) Merge(other *Clients) ([]Client, []Client, []Client) {
 	return adds, updates, removes
 }
 
+// ClientUpdate API struct
 type ClientUpdate struct {
 	Name string `json:"name"`
 	Data Client `json:"data"`

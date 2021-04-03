@@ -152,6 +152,12 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
+	err = w.syncConfigs(o, rs, rc)
+	if err != nil {
+		l.With("error", err).Error("Error syncing configs")
+		return
+	}
+
 	err = w.syncRewrites(o.rewrites, rc)
 	if err != nil {
 		l.With("error", err).Error("Error syncing rewrites")
@@ -305,7 +311,10 @@ func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client
 			return err
 		}
 	}
+	return nil
+}
 
+func (w *worker) syncConfigs(o *origin, rs *types.Status, replica client.Client) error {
 	qlc, err := replica.QueryLogConfig()
 	if err != nil {
 		return err

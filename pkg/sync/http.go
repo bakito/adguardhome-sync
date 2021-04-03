@@ -3,7 +3,6 @@ package sync
 import (
 	"context"
 	"fmt"
-	"github.com/bakito/adguardhome-sync/pkg/log"
 	"net"
 	"net/http"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/bakito/adguardhome-sync/pkg/log"
 )
 
 func (w *worker) handleSync(rw http.ResponseWriter, req *http.Request) {

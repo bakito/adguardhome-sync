@@ -68,10 +68,8 @@ func (l *logList) Sync() error {
 	return nil
 }
 
+// Logs get the current logs
 func Logs() []string {
-	var list []string
-	for _, l := range logs {
-		list = append(list, l)
-	}
-	return list
+
+	return logs
 }

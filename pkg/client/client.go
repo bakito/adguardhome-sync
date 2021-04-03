@@ -16,6 +16,7 @@ var (
 	l = log.GetLogger("client")
 )
 
+// New create a new client
 func New(config types.AdGuardInstance) (Client, error) {
 
 	var apiURL string
@@ -46,6 +47,7 @@ func New(config types.AdGuardInstance) (Client, error) {
 	}, nil
 }
 
+// Client AdGuard Home API client interface
 type Client interface {
 	Host() string
 
