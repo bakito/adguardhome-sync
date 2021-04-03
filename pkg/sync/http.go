@@ -3,10 +3,12 @@ package sync
 import (
 	"context"
 	"fmt"
+	"github.com/bakito/adguardhome-sync/pkg/log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -23,6 +25,10 @@ func (w *worker) handleSync(rw http.ResponseWriter, req *http.Request) {
 
 func (w *worker) handleRoot(rw http.ResponseWriter, _ *http.Request) {
 	_, _ = rw.Write([]byte("adguardhome-sync"))
+}
+
+func (w *worker) handleLogs(rw http.ResponseWriter, _ *http.Request) {
+	_, _ = rw.Write([]byte(strings.Join(log.Logs(), "")))
 }
 
 func (w *worker) basicAuth(h http.HandlerFunc) http.HandlerFunc {
@@ -70,6 +76,7 @@ func (w *worker) listenAndServe() {
 	}
 
 	mux.HandleFunc("/api/v1/sync", use(w.handleSync, mw...))
+	mux.HandleFunc("/api/v1/logs", use(w.handleLogs, mw...))
 	mux.HandleFunc("/", use(w.handleRoot, mw...))
 
 	go func() {
