@@ -29,32 +29,42 @@ func init() {
 		ErrorOutputPaths: []string{"stderr"},
 	}
 	opt := zap.WrapCore(func(c zapcore.Core) zapcore.Core {
-		return zapcore.NewTee(c, &logList{enc: zapcore.NewConsoleEncoder(cfg.EncoderConfig)})
+		return zapcore.NewTee(c, &logList{
+			enc:          zapcore.NewConsoleEncoder(cfg.EncoderConfig),
+			LevelEnabler: cfg.Level,
+		})
 	})
 
 	rootLogger, _ = cfg.Build(opt)
 }
 
 type logList struct {
-	enc    zapcore.Encoder
-	fields []zapcore.Field
+	zapcore.LevelEnabler
+	enc zapcore.Encoder
 }
 
-func (l *logList) Enabled(_ zapcore.Level) bool {
-	return true
+func (l *logList) clone() *logList {
+	return &logList{
+		LevelEnabler: l.LevelEnabler,
+		enc:          l.enc.Clone(),
+	}
 }
 
 func (l *logList) With(fields []zapcore.Field) zapcore.Core {
-	l.fields = fields
-	return l
+	clone := l.clone()
+	addFields(clone.enc, fields)
+	return clone
 }
 
 func (l *logList) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	return ce.AddCore(ent, l)
+	if l.Enabled(ent.Level) {
+		return ce.AddCore(ent, l)
+	}
+	return ce
 }
 
-func (l *logList) Write(ent zapcore.Entry, _ []zapcore.Field) error {
-	buf, err := l.enc.EncodeEntry(ent, l.fields)
+func (l *logList) Write(ent zapcore.Entry, fields []zapcore.Field) error {
+	buf, err := l.enc.EncodeEntry(ent, fields)
 	if err != nil {
 		return err
 	}
@@ -73,4 +83,10 @@ func (l *logList) Sync() error {
 // Logs get the current logs
 func Logs() []string {
 	return logs
+}
+
+func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
+	for i := range fields {
+		fields[i].AddTo(enc)
+	}
 }
