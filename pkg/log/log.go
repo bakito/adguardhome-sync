@@ -36,14 +36,16 @@ func init() {
 }
 
 type logList struct {
-	enc zapcore.Encoder
+	enc    zapcore.Encoder
+	fields []zapcore.Field
 }
 
 func (l *logList) Enabled(_ zapcore.Level) bool {
 	return true
 }
 
-func (l *logList) With(_ []zapcore.Field) zapcore.Core {
+func (l *logList) With(fields []zapcore.Field) zapcore.Core {
+	l.fields = fields
 	return l
 }
 
@@ -51,8 +53,8 @@ func (l *logList) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.Ch
 	return ce.AddCore(ent, l)
 }
 
-func (l *logList) Write(ent zapcore.Entry, fields []zapcore.Field) error {
-	buf, err := l.enc.EncodeEntry(ent, fields)
+func (l *logList) Write(ent zapcore.Entry, _ []zapcore.Field) error {
+	buf, err := l.enc.EncodeEntry(ent, l.fields)
 	if err != nil {
 		return err
 	}
@@ -70,6 +72,5 @@ func (l *logList) Sync() error {
 
 // Logs get the current logs
 func Logs() []string {
-
 	return logs
 }
