@@ -125,13 +125,27 @@ func (ur UserRules) String() string {
 	return strings.Join(ur, "\n")
 }
 
-type FeatureStatus struct {
+type EnableConfig struct {
 	Enabled bool `json:"enabled"`
 }
 
-type FilteringConfig struct {
-	FeatureStatus
+type IntervalConfig struct {
 	Interval int `json:"interval"`
+}
+
+type FilteringConfig struct {
+	EnableConfig
+	IntervalConfig
+}
+
+type QueryLogConfig struct {
+	EnableConfig
+	IntervalConfig
+	AnonymizeClientIP bool `json:"anonymize_client_ip"`
+}
+
+func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
+	return qlc.Enabled == o.Enabled && qlc.AnonymizeClientIP == o.AnonymizeClientIP && qlc.Interval == o.Interval
 }
 
 type RefreshFilter struct {

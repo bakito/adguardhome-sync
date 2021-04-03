@@ -64,13 +64,14 @@ func (w *worker) listenAndServe() {
 		BaseContext: func(_ net.Listener) context.Context { return ctx },
 	}
 
+	var mw []func(http.HandlerFunc) http.HandlerFunc
 	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
-		mux.HandleFunc("/api/v1/sync", use(w.handleSync, w.basicAuth))
-		mux.HandleFunc("/", use(w.handleRoot, w.basicAuth))
-	} else {
-		mux.HandleFunc("/api/v1/sync", w.handleSync)
-		mux.HandleFunc("/", w.handleRoot)
+		mw = append(mw, w.basicAuth)
 	}
+
+	mux.HandleFunc("/api/v1/sync", use(w.handleSync, mw...))
+	mux.HandleFunc("/", use(w.handleRoot, mw...))
+
 	go func() {
 		if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 			l.With("error", err).Fatalf("HTTP server ListenAndServe")

@@ -109,6 +109,16 @@ func (w *worker) sync() {
 		sl.With("error", err).Error("Error getting origin clients")
 		return
 	}
+	o.queryLogConfig, err = oc.QueryLogConfig()
+	if err != nil {
+		sl.With("error", err).Error("Error getting query log config")
+		return
+	}
+	o.statsConfig, err = oc.StatsConfig()
+	if err != nil {
+		sl.With("error", err).Error("Error getting stats config")
+		return
+	}
 
 	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
@@ -295,16 +305,39 @@ func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client
 			return err
 		}
 	}
+
+	qlc, err := replica.QueryLogConfig()
+	if err != nil {
+		return err
+	}
+	if !o.queryLogConfig.Equals(qlc) {
+		if err = replica.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+			return err
+		}
+	}
+
+	sc, err := replica.StatsConfig()
+	if err != nil {
+		return err
+	}
+	if o.statsConfig.Interval != sc.Interval {
+		if err = replica.SetStatsConfig(o.statsConfig.Interval); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 type origin struct {
-	status       *types.Status
-	rewrites     *types.RewriteEntries
-	services     *types.Services
-	filters      *types.FilteringStatus
-	clients      *types.Clients
-	parental     bool
-	safeSearch   bool
-	safeBrowsing bool
+	status         *types.Status
+	rewrites       *types.RewriteEntries
+	services       *types.Services
+	filters        *types.FilteringStatus
+	clients        *types.Clients
+	queryLogConfig *types.QueryLogConfig
+	statsConfig    *types.IntervalConfig
+	parental       bool
+	safeSearch     bool
+	safeBrowsing   bool
 }
