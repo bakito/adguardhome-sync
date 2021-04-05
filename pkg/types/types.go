@@ -10,7 +10,7 @@ import (
 // Config application configuration struct
 type Config struct {
 	Origin   AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica  *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replica  AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
 	Replicas []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 	Cron     string            `json:"cron,omitempty" yaml:"cron,omitempty"`
 	API      API               `json:"api,omitempty" yaml:"api,omitempty"`
@@ -26,15 +26,20 @@ type API struct {
 // UniqueReplicas get unique replication instances
 func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	dedup := make(map[string]AdGuardInstance)
-	if cfg.Replica != nil {
-		dedup[cfg.Replica.Key()] = *cfg.Replica
+	if cfg.Replica.URL != "" {
+		dedup[cfg.Replica.Key()] = cfg.Replica
 	}
 	for _, replica := range cfg.Replicas {
-		dedup[replica.Key()] = replica
+		if replica.URL != "" {
+			dedup[replica.Key()] = replica
+		}
 	}
 
 	var r []AdGuardInstance
 	for _, replica := range dedup {
+		if replica.APIPath == "" {
+			replica.APIPath = "/control"
+		}
 		r = append(r, replica)
 	}
 	return r

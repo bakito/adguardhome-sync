@@ -52,6 +52,8 @@ docker run -d \
 ```
 
 ## docker compose
+
+### config file
 ```yaml
 ---
 version: "2.1"
@@ -61,6 +63,32 @@ services:
     container_name: adguardhome-sync
     volumes:
       - /path/to/appdata/config/adguardhome-sync.yaml:/config/adguardhome-sync.yaml
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+```
+
+### env
+
+```yaml
+---
+version: "2.1"
+services:
+  adguardhome-sync:
+    image: quay.io/bakito/adguardhome-sync
+    container_name: adguardhome-sync
+    environment:
+      - ORIGIN_URL=https://192.168.1.2:3000
+      - ORIGIN_USERNAME=username
+      - ORIGIN_PASSWORD=password
+      - REPLICA_URL=http://192.168.1.3
+      - REPLICA_USERNAME=username
+      - REPLICA_PASSWORD=password
+      - REPLICA1_URL=http://192.168.1.4
+      - REPLICA1_USERNAME=username
+      - REPLICA1_PASSWORD=password
+      - REPLICA1_APIPATH=/some/path/control
+      - CRON=*/10 * * * * # run every 10 minutes
     ports:
       - 8080:8080
     restart: unless-stopped

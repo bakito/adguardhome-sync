@@ -3,13 +3,13 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
-
-	"github.com/spf13/cobra"
-
+	"github.com/bakito/adguardhome-sync/pkg/types"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -31,11 +31,17 @@ const (
 	configReplicaUsername           = "replica.username"
 	configReplicaPassword           = "replica.password"
 	configReplicaInsecureSkipVerify = "replica.insecureSkipVerify"
+
+	envReplicasUsernameFormat           = "REPLICA%s_USERNAME"
+	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD"
+	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
+	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
 )
 
 var (
-	cfgFile string
-	logger  = log.GetLogger("root")
+	cfgFile               string
+	logger                = log.GetLogger("root")
+	envReplicasURLPattern = regexp.MustCompile(`^REPLICA(\d+)_URL=(.*)`)
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -94,4 +100,36 @@ func initConfig() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func getConfig() (*types.Config, error) {
+	cfg := &types.Config{}
+	if err := viper.Unmarshal(cfg); err != nil {
+		return nil, err
+	}
+
+	if len(cfg.Replicas) == 0 {
+		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas()...)
+	}
+	return cfg, nil
+}
+
+// Manually collect replicas from env.
+func collectEnvReplicas() []types.AdGuardInstance {
+	var replicas []types.AdGuardInstance
+	for _, v := range os.Environ() {
+		if envReplicasURLPattern.MatchString(v) {
+			sm := envReplicasURLPattern.FindStringSubmatch(v)
+			re := types.AdGuardInstance{
+				URL:                sm[2],
+				Username:           os.Getenv(fmt.Sprintf(envReplicasUsernameFormat, sm[1])),
+				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
+				APIPath:            os.Getenv(fmt.Sprintf(envReplicasAPIPathFormat, sm[1])),
+				InsecureSkipVerify: strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasInsecureSkipVerifyFormat, sm[1])), "true"),
+			}
+			replicas = append(replicas, re)
+		}
+	}
+
+	return replicas
 }

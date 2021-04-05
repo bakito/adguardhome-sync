@@ -3,10 +3,8 @@ package cmd
 import (
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/sync"
-	"github.com/bakito/adguardhome-sync/pkg/types"
-	"github.com/spf13/viper"
-
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // runCmd represents the run command
@@ -16,8 +14,8 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg := &types.Config{}
-		if err := viper.Unmarshal(cfg); err != nil {
+		cfg, err := getConfig()
+		if err != nil {
 			logger.Error(err)
 			return err
 		}
