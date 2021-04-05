@@ -40,6 +40,32 @@ adguardhome-sync run
 adguardhome-sync run --cron "*/10 * * * *"
 ```
 
+## docker cli
+
+```bash
+docker run -d \
+  --name=adguardhome-sync \
+  -p 8080:8080 \
+  -v /path/to/appdata/config/adguardhome-sync.yaml:/config/adguardhome-sync.yaml \
+  --restart unless-stopped \
+  quay.io/bakito/adguardhome-sync:latest
+```
+
+## docker compose
+```yaml
+---
+version: "2.1"
+services:
+  adguardhome-sync:
+    image: quay.io/bakito/adguardhome-sync
+    container_name: adguardhome-sync
+    volumes:
+      - /path/to/appdata/config/adguardhome-sync.yaml:/config/adguardhome-sync.yaml
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+```
+
 ### Config file
 
 location: $HOME/.adguardhome-sync.yaml

@@ -2,9 +2,10 @@ package types_test
 
 import (
 	"encoding/json"
+	"io/ioutil"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"io/ioutil"
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
 )

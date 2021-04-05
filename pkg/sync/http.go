@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/version"
 )
 
 func (w *worker) handleSync(rw http.ResponseWriter, req *http.Request) {
@@ -61,7 +62,7 @@ func use(h http.HandlerFunc, middleware ...func(http.HandlerFunc) http.HandlerFu
 }
 
 func (w *worker) listenAndServe() {
-	l.With("port", w.cfg.API.Port).Info("Starting API server")
+	l.With("version", version.Version, "port", w.cfg.API.Port).Info("Starting API server")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	mux := http.NewServeMux()

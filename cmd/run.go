@@ -14,15 +14,15 @@ var doCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Start a synchronisation from origin to replica",
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
 		cfg := &types.Config{}
 		if err := viper.Unmarshal(cfg); err != nil {
 			logger.Error(err)
-			return
+			return err
 		}
 
-		sync.Sync(cfg)
+		return sync.Sync(cfg)
 	},
 }
 

@@ -1,9 +1,12 @@
 package sync
 
 import (
+	"fmt"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/version"
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
 )
@@ -13,19 +16,28 @@ var (
 )
 
 // Sync config from origin to replica
-func Sync(cfg *types.Config) {
+func Sync(cfg *types.Config) error {
+
+	if cfg.Origin.URL == "" {
+		return fmt.Errorf("origin URL is required")
+	}
+
+	if len(cfg.UniqueReplicas()) == 0 {
+		return fmt.Errorf("no replicas configured")
+	}
+
 	w := &worker{
 		cfg: cfg,
 	}
 	if cfg.Cron != "" {
 		w.cron = cron.New()
-		cl := l.With("cron", cfg.Cron)
+		cl := l.With("version", version.Version, "cron", cfg.Cron)
 		_, err := w.cron.AddFunc(cfg.Cron, func() {
 			w.sync()
 		})
 		if err != nil {
 			cl.With("error", err).Error("Error during cron job setup")
-			return
+			return err
 		}
 		cl.Info("Setup cronjob")
 		if cfg.API.Port != 0 {
@@ -39,6 +51,7 @@ func Sync(cfg *types.Config) {
 	if cfg.API.Port != 0 {
 		w.listenAndServe()
 	}
+	return nil
 }
 
 type worker struct {

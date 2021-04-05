@@ -83,13 +83,15 @@ func initConfig() {
 		// Search config in home directory with name ".adguardhome-sync" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".adguardhome-sync")
-		viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	}
-
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		logger.Info("Using config file:", viper.ConfigFileUsed())
+	} else if cfgFile != "" {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
