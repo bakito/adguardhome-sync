@@ -77,6 +77,7 @@ services:
   adguardhome-sync:
     image: quay.io/bakito/adguardhome-sync
     container_name: adguardhome-sync
+    command: run
     environment:
       - ORIGIN_URL=https://192.168.1.2:3000
       - ORIGIN_USERNAME=username
