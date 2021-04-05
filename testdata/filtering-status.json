@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "interval": 24,
+  "filters": [
+    {
+      "id": 1616956420,
+      "enabled": true,
+      "url": "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt",
+      "name": "AdGuard DNS filter",
+      "rules_count": 37330,
+      "last_updated": ""
+    },
+    {
+      "id": 1616956421,
+      "enabled": true,
+      "url": "https://adaway.org/hosts.txt",
+      "name": "AdAway Default Blocklist",
+      "rules_count": 8717,
+      "last_updated": "2021-04-04T20:35:03+01:00"
+    }
+  ],
+  "whitelist_filters": null,
+  "user_rules": [
+    "||metrics2.data.hicloud.com^$important",
+    ""
+  ]
+}

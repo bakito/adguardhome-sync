@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 )
 
 // Config application configuration struct
@@ -116,13 +115,12 @@ type Filters []Filter
 
 // Filter API struct
 type Filter struct {
-	ID          int       `json:"id"`
-	Enabled     bool      `json:"enabled"`
-	URL         string    `json:"url"`  // needed for add
-	Name        string    `json:"name"` // needed for add
-	RulesCount  int       `json:"rules_count"`
-	LastUpdated time.Time `json:"last_updated"`
-	Whitelist   bool      `json:"whitelist"` // needed for add
+	ID         int    `json:"id"`
+	Enabled    bool   `json:"enabled"`
+	URL        string `json:"url"`  // needed for add
+	Name       string `json:"name"` // needed for add
+	RulesCount int    `json:"rules_count"`
+	Whitelist  bool   `json:"whitelist"` // needed for add
 }
 
 // FilteringStatus API struct
