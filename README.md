@@ -18,6 +18,10 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 go get -u github.com/bakito/adguardhome-sync
 ```
 
+## Prerequisites
+
+Both the origin and replica mist be initially setup via the Adguard Home installation wizard.
+
 ## Run
 
 ```bash
