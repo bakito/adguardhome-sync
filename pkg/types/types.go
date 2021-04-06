@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+const (
+	DefaultAPIPath = "/control"
+)
+
 // Config application configuration struct
 type Config struct {
 	Origin   AdGuardInstance   `json:"origin" yaml:"origin"`
@@ -38,7 +42,7 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	var r []AdGuardInstance
 	for _, replica := range dedup {
 		if replica.APIPath == "" {
-			replica.APIPath = "/control"
+			replica.APIPath = DefaultAPIPath
 		}
 		r = append(r, replica)
 	}
@@ -56,7 +60,7 @@ type AdGuardInstance struct {
 
 // Key AdGuardInstance key
 func (i *AdGuardInstance) Key() string {
-	return fmt.Sprintf("%s%s", i.URL, i.APIPath)
+	return fmt.Sprintf("%s#%s", i.URL, i.APIPath)
 }
 
 // Protection API struct

@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/go-resty/resty/v2 v2.4.0
+	github.com/google/uuid v1.2.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/onsi/ginkgo v1.16.0
 	github.com/onsi/gomega v1.11.0
