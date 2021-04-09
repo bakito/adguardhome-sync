@@ -144,6 +144,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rc, err := client.New(replica)
 	if err != nil {
 		l.With("error", err, "url", replica.URL).Error("Error creating replica client")
+		return
 	}
 
 	rl := l.With("to", rc.Host())
