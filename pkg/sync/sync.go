@@ -217,13 +217,16 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 		return err
 	}
 
-	fa, fd := rf.Filters.Merge(of.Filters)
+	fa, fu, fd := rf.Filters.Merge(of.Filters)
 
 	if err = replica.AddFilters(false, fa...); err != nil {
 		return err
 	}
+	if err = replica.UpdateFilters(false, fu...); err != nil {
+		return err
+	}
 
-	if len(fa) > 0 {
+	if len(fa) > 0 || len(fu) > 0 {
 		if err = replica.RefreshFilters(false); err != nil {
 			return err
 		}
@@ -233,12 +236,15 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 		return err
 	}
 
-	fa, fd = rf.WhitelistFilters.Merge(of.WhitelistFilters)
+	fa, fu, fd = rf.WhitelistFilters.Merge(of.WhitelistFilters)
 	if err = replica.AddFilters(true, fa...); err != nil {
 		return err
 	}
+	if err = replica.UpdateFilters(true, fu...); err != nil {
+		return err
+	}
 
-	if len(fa) > 0 {
+	if len(fa) > 0 || len(fu) > 0 {
 		if err = replica.RefreshFilters(true); err != nil {
 			return err
 		}

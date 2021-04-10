@@ -63,6 +63,7 @@ type Client interface {
 	ToggleFiltering(enabled bool, interval int) error
 	AddFilters(whitelist bool, e ...types.Filter) error
 	DeleteFilters(whitelist bool, e ...types.Filter) error
+	UpdateFilters(whitelist bool, e ...types.Filter) error
 	RefreshFilters(whitelist bool) error
 	SetCustomRules(rules types.UserRules) error
 
@@ -218,6 +219,18 @@ func (cl *client) DeleteFilters(whitelist bool, filters ...types.Filter) error {
 		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Delete filter")
 		ff := &types.Filter{URL: f.URL, Whitelist: whitelist}
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cl *client) UpdateFilters(whitelist bool, filters ...types.Filter) error {
+	for _, f := range filters {
+		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Update filter")
+		fu := &types.FilterUpdate{Whitelist: whitelist, URL: f.URL, Data: types.Filter{ID: f.ID, Name: f.Name, URL: f.URL, Whitelist: whitelist, Enabled: f.Enabled}}
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
 		if err != nil {
 			return err
 		}

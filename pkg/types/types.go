@@ -132,6 +132,18 @@ type Filter struct {
 	Whitelist  bool   `json:"whitelist"` // needed for add
 }
 
+// Equals Filter equal check
+func (f *Filter) Equals(o *Filter) bool {
+	return f.Enabled == o.Enabled && f.URL == o.URL && f.Name == o.Name
+}
+
+// FilterUpdate  API struct
+type FilterUpdate struct {
+	URL       string `json:"url"`
+	Data      Filter `json:"data"`
+	Whitelist bool   `json:"whitelist"`
+}
+
 // FilteringStatus API struct
 type FilteringStatus struct {
 	FilteringConfig
@@ -182,17 +194,21 @@ type RefreshFilter struct {
 }
 
 // Merge merge RefreshFilters
-func (fs *Filters) Merge(other Filters) (Filters, Filters) {
+func (fs *Filters) Merge(other Filters) (Filters, Filters, Filters) {
 	current := make(map[string]Filter)
 
 	var adds Filters
+	var updates Filters
 	var removes Filters
 	for _, f := range *fs {
 		current[f.URL] = f
 	}
 
 	for _, rr := range other {
-		if _, ok := current[rr.URL]; ok {
+		if c, ok := current[rr.URL]; ok {
+			if !c.Equals(&rr) {
+				updates = append(updates, rr)
+			}
 			delete(current, rr.URL)
 		} else {
 			adds = append(adds, rr)
@@ -203,7 +219,7 @@ func (fs *Filters) Merge(other Filters) (Filters, Filters) {
 		removes = append(removes, rr)
 	}
 
-	return adds, removes
+	return adds, updates, removes
 }
 
 // Services API struct
