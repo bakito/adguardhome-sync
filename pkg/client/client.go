@@ -204,7 +204,7 @@ func (cl *client) Filtering() (*types.FilteringStatus, error) {
 
 func (cl *client) AddFilters(whitelist bool, filters ...types.Filter) error {
 	for _, f := range filters {
-		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Add filter")
+		cl.log.With("url", f.URL, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
 		ff := &types.Filter{Name: f.Name, URL: f.URL, Whitelist: whitelist}
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
 		if err != nil {
@@ -216,7 +216,7 @@ func (cl *client) AddFilters(whitelist bool, filters ...types.Filter) error {
 
 func (cl *client) DeleteFilters(whitelist bool, filters ...types.Filter) error {
 	for _, f := range filters {
-		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Delete filter")
+		cl.log.With("url", f.URL, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
 		ff := &types.Filter{URL: f.URL, Whitelist: whitelist}
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
 		if err != nil {
@@ -228,7 +228,7 @@ func (cl *client) DeleteFilters(whitelist bool, filters ...types.Filter) error {
 
 func (cl *client) UpdateFilters(whitelist bool, filters ...types.Filter) error {
 	for _, f := range filters {
-		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Update filter")
+		cl.log.With("url", f.URL, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
 		fu := &types.FilterUpdate{Whitelist: whitelist, URL: f.URL, Data: types.Filter{ID: f.ID, Name: f.Name, URL: f.URL, Whitelist: whitelist, Enabled: f.Enabled}}
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
 		if err != nil {
