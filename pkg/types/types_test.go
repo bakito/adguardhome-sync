@@ -102,6 +102,38 @@ var _ = Describe("Types", func() {
 			Ω(re.Key()).Should(Equal(domain + "#" + answer))
 		})
 	})
+	Context("RewriteEntries", func() {
+		Context("Merge", func() {
+			var (
+				originRE  types.RewriteEntries
+				replicaRE types.RewriteEntries
+				domain    string
+			)
+			BeforeEach(func() {
+				originRE = types.RewriteEntries{}
+				replicaRE = types.RewriteEntries{}
+				domain = uuid.NewString()
+			})
+
+			It("should add a missing rewrite entry", func() {
+				originRE = append(originRE, types.RewriteEntry{Domain: domain})
+				a, d := replicaRE.Merge(&originRE)
+				Ω(a).Should(HaveLen(1))
+				Ω(d).Should(BeEmpty())
+
+				Ω(a[0].Domain).Should(Equal(domain))
+			})
+
+			It("should remove additional ewrite entry", func() {
+				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				a, d := replicaRE.Merge(&originRE)
+				Ω(a).Should(BeEmpty())
+				Ω(d).Should(HaveLen(1))
+
+				Ω(d[0].Domain).Should(Equal(domain))
+			})
+		})
+	})
 	Context("UserRules", func() {
 		It("should join the rules correctly", func() {
 			r1 := uuid.NewString()
@@ -151,6 +183,53 @@ var _ = Describe("Types", func() {
 				Ω(r).Should(HaveLen(2))
 				Ω(r[0].APIPath).Should(Equal(types.DefaultAPIPath))
 				Ω(r[1].APIPath).Should(Equal(types.DefaultAPIPath))
+			})
+		})
+	})
+
+	Context("Clients", func() {
+		Context("Merge", func() {
+			var (
+				originClients  *types.Clients
+				replicaClients types.Clients
+				name           string
+			)
+			BeforeEach(func() {
+				originClients = &types.Clients{}
+				replicaClients = types.Clients{}
+				name = uuid.NewString()
+			})
+
+			It("should add a missing client", func() {
+				originClients.Clients = append(originClients.Clients, types.Client{Name: name})
+				a, u, d := replicaClients.Merge(originClients)
+				Ω(a).Should(HaveLen(1))
+				Ω(u).Should(BeEmpty())
+				Ω(d).Should(BeEmpty())
+
+				Ω(a[0].Name).Should(Equal(name))
+			})
+
+			It("should remove additional client", func() {
+				replicaClients.Clients = append(replicaClients.Clients, types.Client{Name: name})
+				a, u, d := replicaClients.Merge(originClients)
+				Ω(a).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
+				Ω(d).Should(HaveLen(1))
+
+				Ω(d[0].Name).Should(Equal(name))
+			})
+
+			It("should update existing client when name differs", func() {
+				disallowed := true
+				originClients.Clients = append(originClients.Clients, types.Client{Name: name, Disallowed: disallowed})
+				replicaClients.Clients = append(replicaClients.Clients, types.Client{Name: name, Disallowed: !disallowed})
+				a, u, d := replicaClients.Merge(originClients)
+				Ω(a).Should(BeEmpty())
+				Ω(u).Should(HaveLen(1))
+				Ω(d).Should(BeEmpty())
+
+				Ω(u[0].Disallowed).Should(Equal(disallowed))
 			})
 		})
 	})
