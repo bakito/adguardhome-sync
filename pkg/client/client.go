@@ -96,34 +96,48 @@ type client struct {
 func (cl *client) Host() string {
 	return cl.host
 }
+
+func (cl *client) doGet(req *resty.Request, url string) error {
+	resp, err := req.Get(url)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode() != http.StatusOK {
+		return errors.New(resp.Status())
+	}
+	return nil
+}
+
+func (cl *client) doPost(req *resty.Request, url string) error {
+	resp, err := req.Post(url)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode() != http.StatusOK {
+		return errors.New(resp.Status())
+	}
+	return nil
+}
+
 func (cl *client) Status() (*types.Status, error) {
 	status := &types.Status{}
-	resp, err := cl.client.R().EnableTrace().SetResult(status).Get("status")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(status), "status")
 	return status, err
 
 }
 
 func (cl *client) RewriteList() (*types.RewriteEntries, error) {
 	rewrites := &types.RewriteEntries{}
-	resp, err := cl.client.R().EnableTrace().SetResult(&rewrites).Get("/rewrite/list")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(&rewrites), "/rewrite/list")
 	return rewrites, err
 }
 
 func (cl *client) AddRewriteEntries(entries ...types.RewriteEntry) error {
 	for _, e := range entries {
 		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add rewrite entry")
-		resp, err := cl.client.R().EnableTrace().SetBody(&e).Post("/rewrite/add")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/add")
 		if err != nil {
 			return err
-		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
 		}
 	}
 	return nil
@@ -132,12 +146,9 @@ func (cl *client) AddRewriteEntries(entries ...types.RewriteEntry) error {
 func (cl *client) DeleteRewriteEntries(entries ...types.RewriteEntry) error {
 	for _, e := range entries {
 		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete rewrite entry")
-		resp, err := cl.client.R().EnableTrace().SetBody(&e).Post("/rewrite/delete")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/delete")
 		if err != nil {
 			return err
-		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
 		}
 	}
 	return nil
@@ -169,10 +180,7 @@ func (cl *client) ToggleSafeSearch(enable bool) error {
 
 func (cl *client) toggleStatus(mode string) (bool, error) {
 	fs := &types.EnableConfig{}
-	resp, err := cl.client.R().EnableTrace().SetResult(fs).Get(fmt.Sprintf("/%s/status", mode))
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return false, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(fs), fmt.Sprintf("/%s/status", mode))
 	return fs.Enabled, err
 }
 
@@ -184,19 +192,12 @@ func (cl *client) toggleBool(mode string, enable bool) error {
 	} else {
 		target = "disable"
 	}
-	resp, err := cl.client.R().EnableTrace().Post(fmt.Sprintf("/%s/%s", mode, target))
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	return cl.doPost(cl.client.R().EnableTrace(), fmt.Sprintf("/%s/%s", mode, target))
 }
 
 func (cl *client) Filtering() (*types.FilteringStatus, error) {
 	f := &types.FilteringStatus{}
-	resp, err := cl.client.R().EnableTrace().SetResult(f).Get("/filtering/status")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(f), "/filtering/status")
 	return f, err
 }
 
@@ -204,12 +205,9 @@ func (cl *client) AddFilters(whitelist bool, filters ...types.Filter) error {
 	for _, f := range filters {
 		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Add filter")
 		ff := &types.Filter{Name: f.Name, URL: f.URL, Whitelist: whitelist}
-		resp, err := cl.client.R().EnableTrace().SetBody(ff).Post("/filtering/add_url")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
 		if err != nil {
 			return err
-		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
 		}
 	}
 	return nil
@@ -219,12 +217,9 @@ func (cl *client) DeleteFilters(whitelist bool, filters ...types.Filter) error {
 	for _, f := range filters {
 		cl.log.With("url", f.URL, "whitelist", whitelist).Info("Delete filter")
 		ff := &types.Filter{URL: f.URL, Whitelist: whitelist}
-		resp, err := cl.client.R().EnableTrace().SetBody(ff).Post("/filtering/remove_url")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
 		if err != nil {
 			return err
-		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
 		}
 	}
 	return nil
@@ -232,80 +227,50 @@ func (cl *client) DeleteFilters(whitelist bool, filters ...types.Filter) error {
 
 func (cl *client) RefreshFilters(whitelist bool) error {
 	cl.log.With("whitelist", whitelist).Info("Refresh filter")
-	resp, err := cl.client.R().EnableTrace().SetBody(&types.RefreshFilter{Whitelist: whitelist}).Post("/filtering/refresh")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.RefreshFilter{Whitelist: whitelist}), "/filtering/refresh")
 }
 
 func (cl *client) ToggleProtection(enable bool) error {
 	cl.log.With("enable", enable).Info("Toggle protection")
-	resp, err := cl.client.R().EnableTrace().SetBody(&types.Protection{ProtectionEnabled: enable}).Post("/dns_config")
-
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.Protection{ProtectionEnabled: enable}), "/dns_config")
 }
 
 func (cl *client) SetCustomRules(rules types.UserRules) error {
 	cl.log.With("rules", len(rules)).Info("Set user rules")
-	resp, err := cl.client.R().EnableTrace().SetBody(rules.String()).Post("/filtering/set_rules")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(rules.String()), "/filtering/set_rules")
 }
 
 func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
-	resp, err := cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{
 		EnableConfig:   types.EnableConfig{Enabled: enabled},
 		IntervalConfig: types.IntervalConfig{Interval: interval},
-	}).Post("/filtering/config")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	}), "/filtering/config")
 }
 
 func (cl *client) Services() (*types.Services, error) {
 	svcs := &types.Services{}
-	resp, err := cl.client.R().EnableTrace().SetResult(svcs).Get("/blocked_services/list")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(svcs), "/blocked_services/list")
 	return svcs, err
 }
 
 func (cl *client) SetServices(services types.Services) error {
 	cl.log.With("services", len(services)).Info("Set services")
-	resp, err := cl.client.R().EnableTrace().SetBody(&services).Post("/blocked_services/set")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&services), "/blocked_services/set")
 }
 
 func (cl *client) Clients() (*types.Clients, error) {
 	clients := &types.Clients{}
-	resp, err := cl.client.R().EnableTrace().SetResult(clients).Get("/clients")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(clients), "/clients")
 	return clients, err
 }
 
 func (cl *client) AddClients(clients ...types.Client) error {
 	for _, client := range clients {
 		cl.log.With("name", client.Name).Info("Add client")
-		resp, err := cl.client.R().EnableTrace().SetBody(&client).Post("/clients/add")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&client), "/clients/add")
 		if err != nil {
 			return err
-		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
 		}
 	}
 	return nil
@@ -314,14 +279,10 @@ func (cl *client) AddClients(clients ...types.Client) error {
 func (cl *client) UpdateClients(clients ...types.Client) error {
 	for _, client := range clients {
 		cl.log.With("name", client.Name).Info("Update client")
-		resp, err := cl.client.R().EnableTrace().SetBody(&types.ClientUpdate{Name: client.Name, Data: client}).Post("/clients/update")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&types.ClientUpdate{Name: client.Name, Data: client}), "/clients/update")
 		if err != nil {
 			return err
 		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
-		}
-
 	}
 	return nil
 }
@@ -329,12 +290,9 @@ func (cl *client) UpdateClients(clients ...types.Client) error {
 func (cl *client) DeleteClients(clients ...types.Client) error {
 	for _, client := range clients {
 		cl.log.With("name", client.Name).Info("Delete client")
-		resp, err := cl.client.R().EnableTrace().SetBody(&client).Post("/clients/delete")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&client), "/clients/delete")
 		if err != nil {
 			return err
-		}
-		if resp.StatusCode() != http.StatusOK {
-			return errors.New(resp.Status())
 		}
 	}
 	return nil
@@ -342,41 +300,26 @@ func (cl *client) DeleteClients(clients ...types.Client) error {
 
 func (cl *client) QueryLogConfig() (*types.QueryLogConfig, error) {
 	qlc := &types.QueryLogConfig{}
-	resp, err := cl.client.R().EnableTrace().SetResult(qlc).Get("/querylog_info")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(qlc), "/querylog_info")
 	return qlc, err
 }
 
 func (cl *client) SetQueryLogConfig(enabled bool, interval int, anonymizeClientIP bool) error {
 	cl.log.With("enabled", enabled, "interval", interval, "anonymizeClientIP", anonymizeClientIP).Info("Set query log config")
-	resp, err := cl.client.R().EnableTrace().SetBody(&types.QueryLogConfig{
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.QueryLogConfig{
 		EnableConfig:      types.EnableConfig{Enabled: enabled},
 		IntervalConfig:    types.IntervalConfig{Interval: interval},
 		AnonymizeClientIP: anonymizeClientIP,
-	}).Post("/querylog_config")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	}), "/querylog_config")
 }
 
 func (cl *client) StatsConfig() (*types.IntervalConfig, error) {
 	stats := &types.IntervalConfig{}
-	resp, err := cl.client.R().EnableTrace().SetResult(stats).Get("/stats_info")
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return nil, errors.New(resp.Status())
-	}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats_info")
 	return stats, err
 }
 
 func (cl *client) SetStatsConfig(interval int) error {
 	cl.log.With("interval", interval).Info("Set stats config")
-	resp, err := cl.client.R().EnableTrace().SetBody(&types.IntervalConfig{Interval: interval}).Post("/stats_config")
-
-	if err == nil && resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
-	}
-	return err
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.IntervalConfig{Interval: interval}), "/stats_config")
 }
