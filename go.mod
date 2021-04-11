@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/go-resty/resty/v2 v2.4.0
+	github.com/golang/mock v1.3.1
 	github.com/google/uuid v1.2.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/onsi/ginkgo v1.16.0

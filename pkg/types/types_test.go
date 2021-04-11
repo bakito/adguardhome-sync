@@ -17,7 +17,7 @@ var _ = Describe("Types", func() {
 		apiPath string
 	)
 	BeforeEach(func() {
-		url = "http://" + uuid.NewString()
+		url = "https://" + uuid.NewString()
 		apiPath = "/" + uuid.NewString()
 	})
 

@@ -16,9 +16,12 @@ tidy:
 	go mod tidy
 
 # Run tests
-test: tidy fmt vet
+test: mocks tidy fmt vet
 	go test ./...  -coverprofile=coverage.out
 	go tool cover -func=coverage.out
+
+mocks: mockgen
+	mockgen -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
 
 release: semver
 	@version=$$(semver); \
@@ -31,4 +34,9 @@ test-release:
 semver:
 ifeq (, $(shell which semver))
  $(shell go get -u github.com/bakito/semver)
+endif
+
+mockgen:
+ifeq (, $(shell which mockgen))
+ $(shell go get github.com/golang/mock/mockgen@v1.5)
 endif
