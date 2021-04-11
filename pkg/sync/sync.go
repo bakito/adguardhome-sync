@@ -28,6 +28,9 @@ func Sync(cfg *types.Config) error {
 
 	w := &worker{
 		cfg: cfg,
+		createClient: func(ai types.AdGuardInstance) (client.Client, error) {
+			return client.New(ai)
+		},
 	}
 	if cfg.Cron != "" {
 		w.cron = cron.New()
@@ -55,9 +58,10 @@ func Sync(cfg *types.Config) error {
 }
 
 type worker struct {
-	cfg     *types.Config
-	running bool
-	cron    *cron.Cron
+	cfg          *types.Config
+	running      bool
+	cron         *cron.Cron
+	createClient func(instance types.AdGuardInstance) (client.Client, error)
 }
 
 func (w *worker) sync() {
@@ -68,7 +72,7 @@ func (w *worker) sync() {
 	w.running = true
 	defer func() { w.running = false }()
 
-	oc, err := client.New(w.cfg.Origin)
+	oc, err := w.createClient(w.cfg.Origin)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		return
@@ -77,7 +81,6 @@ func (w *worker) sync() {
 	sl := l.With("from", oc.Host())
 
 	o := &origin{}
-
 	o.status, err = oc.Status()
 	if err != nil {
 		sl.With("error", err).Error("Error getting origin status")
@@ -141,7 +144,7 @@ func (w *worker) sync() {
 
 func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
 
-	rc, err := client.New(replica)
+	rc, err := w.createClient(replica)
 	if err != nil {
 		l.With("error", err, "url", replica.URL).Error("Error creating replica client")
 		return
@@ -166,7 +169,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	err = w.syncConfigs(o, rs, rc)
+	err = w.syncConfigs(o, rc)
 	if err != nil {
 		l.With("error", err).Error("Error syncing configs")
 		return
@@ -217,40 +220,10 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 		return err
 	}
 
-	fa, fu, fd := rf.Filters.Merge(of.Filters)
-
-	if err = replica.AddFilters(false, fa...); err != nil {
+	if err = w.syncFilterType(of, rf.Filters, false, replica); err != nil {
 		return err
 	}
-	if err = replica.UpdateFilters(false, fu...); err != nil {
-		return err
-	}
-
-	if len(fa) > 0 || len(fu) > 0 {
-		if err = replica.RefreshFilters(false); err != nil {
-			return err
-		}
-	}
-
-	if err = replica.DeleteFilters(false, fd...); err != nil {
-		return err
-	}
-
-	fa, fu, fd = rf.WhitelistFilters.Merge(of.WhitelistFilters)
-	if err = replica.AddFilters(true, fa...); err != nil {
-		return err
-	}
-	if err = replica.UpdateFilters(true, fu...); err != nil {
-		return err
-	}
-
-	if len(fa) > 0 || len(fu) > 0 {
-		if err = replica.RefreshFilters(true); err != nil {
-			return err
-		}
-	}
-
-	if err = replica.DeleteFilters(true, fd...); err != nil {
+	if err = w.syncFilterType(of, rf.WhitelistFilters, true, replica); err != nil {
 		return err
 	}
 
@@ -262,6 +235,28 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 		if err = replica.ToggleFiltering(of.Enabled, of.Interval); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (w *worker) syncFilterType(of *types.FilteringStatus, rFilters types.Filters, whitelist bool, replica client.Client) error {
+	fa, fu, fd := rFilters.Merge(of.Filters)
+
+	if err := replica.AddFilters(whitelist, fa...); err != nil {
+		return err
+	}
+	if err := replica.UpdateFilters(whitelist, fu...); err != nil {
+		return err
+	}
+
+	if len(fa) > 0 || len(fu) > 0 {
+		if err := replica.RefreshFilters(whitelist); err != nil {
+			return err
+		}
+	}
+
+	if err := replica.DeleteFilters(whitelist, fd...); err != nil {
+		return err
 	}
 	return nil
 }
@@ -334,7 +329,7 @@ func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client
 	return nil
 }
 
-func (w *worker) syncConfigs(o *origin, rs *types.Status, replica client.Client) error {
+func (w *worker) syncConfigs(o *origin, replica client.Client) error {
 	qlc, err := replica.QueryLogConfig()
 	if err != nil {
 		return err

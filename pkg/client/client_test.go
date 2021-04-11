@@ -262,6 +262,35 @@ bar`)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
+
+	Context("helper functions", func() {
+		var (
+			cl client.Client
+		)
+		BeforeEach(func() {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusUnauthorized)
+			}))
+			var err error
+			cl, err = client.New(types.AdGuardInstance{URL: ts.URL})
+			Ω(err).ShouldNot(HaveOccurred())
+		})
+		Context("doGet", func() {
+			It("should return an error on status code != 200", func() {
+				_, err := cl.Status()
+				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(Equal("401 Unauthorized"))
+			})
+		})
+
+		Context("doPost", func() {
+			It("should return an error on status code != 200", func() {
+				err := cl.SetStatsConfig(123)
+				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(Equal("401 Unauthorized"))
+			})
+		})
+	})
 })
 
 func ClientGet(file string, path string) (*httptest.Server, client.Client) {
