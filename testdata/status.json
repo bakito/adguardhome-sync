@@ -1,0 +1,12 @@
+{
+  "dns_addresses": [
+    "192.168.1.2"
+  ],
+  "dns_port": 53,
+  "http_port": 45158,
+  "protection_enabled": true,
+  "dhcp_available": true,
+  "running": true,
+  "version": "v0.105.2",
+  "language": "en"
+}

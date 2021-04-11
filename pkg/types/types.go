@@ -252,10 +252,10 @@ type Clients struct {
 
 // Client API struct
 type Client struct {
-	Ids             []string `json:"ids"`
-	Tags            []string `json:"tags"`
-	BlockedServices []string `json:"blocked_services"`
-	Upstreams       []string `json:"upstreams"`
+	Ids             []string `json:"ids,omitempty"`
+	Tags            []string `json:"tags,omitempty"`
+	BlockedServices []string `json:"blocked_services,omitempty"`
+	Upstreams       []string `json:"upstreams,omitempty"`
 
 	UseGlobalSettings        bool   `json:"use_global_settings"`
 	UseGlobalBlockedServices bool   `json:"use_global_blocked_services"`

@@ -1,0 +1,10 @@
+[
+  {
+    "domain": "foo.com",
+    "answer": "192.168.1.10"
+  },
+  {
+    "domain": "bar.com",
+    "answer": "192.168.1.12"
+  }
+]

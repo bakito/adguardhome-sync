@@ -1,0 +1,81 @@
+{
+  "clients": [
+    {
+      "ids": [
+        "192.168.1.3"
+      ],
+      "tags": [
+        "device_pc"
+      ],
+      "name": "PC",
+      "use_global_settings": true,
+      "filtering_enabled": false,
+      "parental_enabled": false,
+      "safesearch_enabled": false,
+      "safebrowsing_enabled": false,
+      "use_global_blocked_services": true,
+      "blocked_services": null,
+      "upstreams": null,
+      "whois_info": null,
+      "disallowed": false,
+      "disallowed_rule": ""
+    },
+    {
+      "ids": [
+        "192.168.1.2"
+      ],
+      "tags": [
+        "device_phone"
+      ],
+      "name": "Phone LAN",
+      "use_global_settings": true,
+      "filtering_enabled": false,
+      "parental_enabled": false,
+      "safesearch_enabled": false,
+      "safebrowsing_enabled": false,
+      "use_global_blocked_services": false,
+      "blocked_services": [
+        "facebook",
+        "ok",
+        "vk",
+        "mail_ru",
+        "qq"
+      ],
+      "upstreams": [],
+      "whois_info": null,
+      "disallowed": false,
+      "disallowed_rule": ""
+    }
+  ],
+  "auto_clients": [
+    {
+      "ip": "127.0.0.1",
+      "name": "localhost",
+      "source": "etc/hosts",
+      "whois_info": {}
+    }
+  ],
+  "supported_tags": [
+    "device_audio",
+    "device_camera",
+    "device_gameconsole",
+    "device_laptop",
+    "device_nas",
+    "device_other",
+    "device_pc",
+    "device_phone",
+    "device_printer",
+    "device_securityalarm",
+    "device_tablet",
+    "device_tv",
+    "os_android",
+    "os_ios",
+    "os_linux",
+    "os_macos",
+    "os_other",
+    "os_windows",
+    "user_admin",
+    "user_child",
+    "user_regular"
+  ]
+}

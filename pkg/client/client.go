@@ -20,7 +20,6 @@ var (
 
 // New create a new client
 func New(config types.AdGuardInstance) (Client, error) {
-
 	var apiURL string
 	if config.APIPath == "" {
 		apiURL = fmt.Sprintf("%s/control", config.URL)
@@ -124,7 +123,6 @@ func (cl *client) Status() (*types.Status, error) {
 	status := &types.Status{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(status), "status")
 	return status, err
-
 }
 
 func (cl *client) RewriteList() (*types.RewriteEntries, error) {
