@@ -122,6 +122,35 @@ func (re *RewriteEntry) Key() string {
 // Filters list of Filter
 type Filters []Filter
 
+// Merge merge Filters
+func (f Filters) Merge(other Filters) (Filters, Filters, Filters) {
+	current := make(map[string]Filter)
+
+	var adds Filters
+	var updates Filters
+	var removes Filters
+	for _, f := range f {
+		current[f.URL] = f
+	}
+
+	for _, rr := range other {
+		if c, ok := current[rr.URL]; ok {
+			if !c.Equals(&rr) {
+				updates = append(updates, rr)
+			}
+			delete(current, rr.URL)
+		} else {
+			adds = append(adds, rr)
+		}
+	}
+
+	for _, rr := range current {
+		removes = append(removes, rr)
+	}
+
+	return adds, updates, removes
+}
+
 // Filter API struct
 type Filter struct {
 	ID         int    `json:"id"`
@@ -193,35 +222,6 @@ type RefreshFilter struct {
 	Whitelist bool `json:"whitelist"`
 }
 
-// Merge merge RefreshFilters
-func (fs *Filters) Merge(other Filters) (Filters, Filters, Filters) {
-	current := make(map[string]Filter)
-
-	var adds Filters
-	var updates Filters
-	var removes Filters
-	for _, f := range *fs {
-		current[f.URL] = f
-	}
-
-	for _, rr := range other {
-		if c, ok := current[rr.URL]; ok {
-			if !c.Equals(&rr) {
-				updates = append(updates, rr)
-			}
-			delete(current, rr.URL)
-		} else {
-			adds = append(adds, rr)
-		}
-	}
-
-	for _, rr := range current {
-		removes = append(removes, rr)
-	}
-
-	return adds, updates, removes
-}
-
 // Services API struct
 type Services []string
 
@@ -231,10 +231,10 @@ func (s Services) Sort() {
 }
 
 // Equals Services equal check
-func (s *Services) Equals(o *Services) bool {
+func (s Services) Equals(o Services) bool {
 	s.Sort()
 	o.Sort()
-	return equals(*s, *o)
+	return equals(s, o)
 }
 
 // Clients API struct

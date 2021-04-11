@@ -86,6 +86,15 @@ var _ = Describe("Types", func() {
 
 				Ω(u[0].Name).Should(Equal(name1))
 			})
+
+			It("should have no changes", func() {
+				originFilters = append(originFilters, types.Filter{URL: url})
+				replicaFilters = append(replicaFilters, types.Filter{URL: url})
+				a, u, d := replicaFilters.Merge(originFilters)
+				Ω(a).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
+				Ω(d).Should(BeEmpty())
+			})
 		})
 	})
 	Context("AdGuardInstance", func() {
@@ -100,6 +109,42 @@ var _ = Describe("Types", func() {
 			answer := uuid.NewString()
 			re := &types.RewriteEntry{Domain: domain, Answer: answer}
 			Ω(re.Key()).Should(Equal(domain + "#" + answer))
+		})
+	})
+	Context("QueryLogConfig", func() {
+		Context("Equal", func() {
+			var (
+				a *types.QueryLogConfig
+				b *types.QueryLogConfig
+			)
+			BeforeEach(func() {
+				a = &types.QueryLogConfig{}
+				b = &types.QueryLogConfig{}
+			})
+			It("should be equal", func() {
+				a.Enabled = true
+				a.Interval = 1
+				a.AnonymizeClientIP = true
+				b.Enabled = true
+				b.Interval = 1
+				b.AnonymizeClientIP = true
+				Ω(a.Equals(b)).Should(BeTrue())
+			})
+			It("should not be equal when enabled differs", func() {
+				a.Enabled = true
+				b.Enabled = false
+				Ω(a.Equals(b)).ShouldNot(BeTrue())
+			})
+			It("should not be equal when interval differs", func() {
+				a.Interval = 1
+				b.Interval = 2
+				Ω(a.Equals(b)).ShouldNot(BeTrue())
+			})
+			It("should not be equal when anonymizeClientIP differs", func() {
+				a.AnonymizeClientIP = true
+				b.AnonymizeClientIP = false
+				Ω(a.Equals(b)).ShouldNot(BeTrue())
+			})
 		})
 	})
 	Context("RewriteEntries", func() {
@@ -131,6 +176,14 @@ var _ = Describe("Types", func() {
 				Ω(d).Should(HaveLen(1))
 
 				Ω(d[0].Domain).Should(Equal(domain))
+			})
+
+			It("should have no changes", func() {
+				originRE = append(originRE, types.RewriteEntry{Domain: domain})
+				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				a, d := replicaRE.Merge(&originRE)
+				Ω(a).Should(BeEmpty())
+				Ω(d).Should(BeEmpty())
 			})
 		})
 	})
@@ -230,6 +283,25 @@ var _ = Describe("Types", func() {
 				Ω(d).Should(BeEmpty())
 
 				Ω(u[0].Disallowed).Should(Equal(disallowed))
+			})
+		})
+	})
+	Context("Services", func() {
+		Context("Equals", func() {
+			It("should be equal", func() {
+				s1 := types.Services([]string{"a", "b"})
+				s2 := types.Services([]string{"b", "a"})
+				Ω(s1.Equals(s2)).Should(BeTrue())
+			})
+			It("should not be equal different values", func() {
+				s1 := types.Services([]string{"a", "b"})
+				s2 := types.Services([]string{"B", "a"})
+				Ω(s1.Equals(s2)).ShouldNot(BeTrue())
+			})
+			It("should not be equal different length", func() {
+				s1 := types.Services([]string{"a", "b"})
+				s2 := types.Services([]string{"b", "a", "c"})
+				Ω(s1.Equals(s2)).ShouldNot(BeTrue())
 			})
 		})
 	})

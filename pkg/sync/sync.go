@@ -197,14 +197,14 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl.Info("Sync done")
 }
 
-func (w *worker) syncServices(os *types.Services, replica client.Client) error {
+func (w *worker) syncServices(os types.Services, replica client.Client) error {
 	rs, err := replica.Services()
 	if err != nil {
 		return err
 	}
 
 	if !os.Equals(rs) {
-		if err := replica.SetServices(*os); err != nil {
+		if err := replica.SetServices(os); err != nil {
 			return err
 		}
 	}
@@ -361,7 +361,7 @@ func (w *worker) syncConfigs(o *origin, rs *types.Status, replica client.Client)
 type origin struct {
 	status         *types.Status
 	rewrites       *types.RewriteEntries
-	services       *types.Services
+	services       types.Services
 	filters        *types.FilteringStatus
 	clients        *types.Clients
 	queryLogConfig *types.QueryLogConfig

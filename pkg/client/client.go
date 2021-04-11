@@ -74,7 +74,7 @@ type Client interface {
 	SafeSearch() (bool, error)
 	ToggleSafeSearch(enable bool) error
 
-	Services() (*types.Services, error)
+	Services() (types.Services, error)
 	SetServices(services types.Services) error
 
 	Clients() (*types.Clients, error)
@@ -261,9 +261,9 @@ func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	}), "/filtering/config")
 }
 
-func (cl *client) Services() (*types.Services, error) {
-	svcs := &types.Services{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(svcs), "/blocked_services/list")
+func (cl *client) Services() (types.Services, error) {
+	svcs := types.Services{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(&svcs), "/blocked_services/list")
 	return svcs, err
 }
 
