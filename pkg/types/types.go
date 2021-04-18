@@ -56,7 +56,7 @@ type AdGuardInstance struct {
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
-	SkipAutoSetup      bool   `json:"skipAutoSetup" yaml:"skipAutoSetup"`
+	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
 }
 
 // Key AdGuardInstance key

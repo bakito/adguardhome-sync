@@ -31,13 +31,13 @@ const (
 	configReplicaUsername           = "replica.username"
 	configReplicaPassword           = "replica.password"
 	configReplicaInsecureSkipVerify = "replica.insecureSkipVerify"
-	configReplicaSkipAutoSetup      = "replica.skipAutoSetup"
+	configReplicaAutoSetup          = "replica.autoSetup"
 
 	envReplicasUsernameFormat           = "REPLICA%s_USERNAME"
 	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD"
 	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
 	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
-	envReplicasSkipAutoSetup            = "REPLICA%s_SKIPAUTOSETUP"
+	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
 )
 
 var (
@@ -128,7 +128,7 @@ func collectEnvReplicas() []types.AdGuardInstance {
 				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
 				APIPath:            os.Getenv(fmt.Sprintf(envReplicasAPIPathFormat, sm[1])),
 				InsecureSkipVerify: strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasInsecureSkipVerifyFormat, sm[1])), "true"),
-				SkipAutoSetup:      strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasSkipAutoSetup, sm[1])), "true"),
+				AutoSetup:          strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasAutoSetup, sm[1])), "true"),
 			}
 			replicas = append(replicas, re)
 		}

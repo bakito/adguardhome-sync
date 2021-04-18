@@ -99,7 +99,7 @@ services:
       - REPLICA1_USERNAME=username
       - REPLICA1_PASSWORD=password
       - REPLICA1_APIPATH=/some/path/control
-      - REPLICA1_SKIPAUTOSETUP=false # if true automatic setup is skipped.
+      # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized. 
       - CRON=*/10 * * * * # run every 10 minutes
     ports:
       - 8080:8080
@@ -138,7 +138,7 @@ replicas:
   - url: http://192.168.1.4
     username: username
     password: password
-    # skipAutoSetup: true skip automatic setup of not installed aduard home instances
+    # autoSetup: true # if true, AdGuardHome is automatically initialized. 
 
 # Configure the sync API server, disabled if api port is 0
 api:

@@ -27,7 +27,7 @@ func Sync(cfg *types.Config) error {
 		return fmt.Errorf("no replicas configured")
 	}
 
-	cfg.Origin.SkipAutoSetup = true
+	cfg.Origin.AutoSetup = false
 
 	w := &worker{
 		cfg: cfg,
@@ -206,7 +206,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*types.Status, error) {
 	rs, err := rc.Status()
 	if err != nil {
-		if !replica.SkipAutoSetup && errors.Is(err, client.SetupNeededError) {
+		if replica.AutoSetup && errors.Is(err, client.SetupNeededError) {
 			if serr := rc.Setup(); serr != nil {
 				rl.With("error", serr).Error("Error setup AdGuardHome")
 				return nil, err

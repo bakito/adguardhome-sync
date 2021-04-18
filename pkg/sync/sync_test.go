@@ -273,6 +273,9 @@ var _ = Describe("Sync", func() {
 			)
 			BeforeEach(func() {
 				status = &types.Status{}
+				inst = types.AdGuardInstance{
+					AutoSetup: true,
+				}
 			})
 			It("should get the replica status", func() {
 				cl.EXPECT().Status().Return(status, nil)
