@@ -1,6 +1,7 @@
 [![Go](https://github.com/bakito/adguardhome-sync/actions/workflows/go.yml/badge.svg)](https://github.com/bakito/adguardhome-sync/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bakito/adguardhome-sync)](https://goreportcard.com/report/github.com/bakito/adguardhome-sync)
 [![Coverage Status](https://coveralls.io/repos/github/bakito/adguardhome-sync/badge.svg?branch=main)](https://coveralls.io/github/bakito/adguardhome-sync?branch=main)
+
 # AdGuardHome sync
 
 Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to a replica instance.
@@ -55,6 +56,7 @@ docker run -d \
 ## docker compose
 
 ### config file
+
 ```yaml
 ---
 version: "2.1"
@@ -138,3 +140,14 @@ api:
   password: password
 
 ```
+
+## Log Level
+
+The log level can be set with the environment variable: LOG_LEVEL
+
+The following log levels are supported (default: info)
+
+- debug
+- info
+- warn
+- error

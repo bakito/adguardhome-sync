@@ -98,10 +98,16 @@ func (cl *client) Host() string {
 }
 
 func (cl *client) doGet(req *resty.Request, url string) error {
+	rl := cl.log.With("method", "GET", "path", url)
+	if cl.client.UserInfo != nil {
+		rl = rl.With("username", cl.client.UserInfo.Username)
+	}
+	rl.Debug("do get")
 	resp, err := req.Get(url)
 	if err != nil {
 		return err
 	}
+	rl.With("body", string(resp.Body())).Debug("got response")
 	if resp.StatusCode() != http.StatusOK {
 		return errors.New(resp.Status())
 	}
@@ -109,10 +115,16 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 }
 
 func (cl *client) doPost(req *resty.Request, url string) error {
+	rl := cl.log.With("method", "POST", "path", url)
+	if cl.client.UserInfo != nil {
+		rl = rl.With("username", cl.client.UserInfo.Username)
+	}
+	rl.Debug("do post")
 	resp, err := req.Post(url)
 	if err != nil {
 		return err
 	}
+	rl.With("body", string(resp.Body())).Debug("got response")
 	if resp.StatusCode() != http.StatusOK {
 		return errors.New(resp.Status())
 	}

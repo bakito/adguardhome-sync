@@ -1,11 +1,16 @@
 package log
 
 import (
+	"os"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-const logHistorySize = 50
+const (
+	logHistorySize = 50
+	envLogLevel    = "LOG_LEVEL"
+)
 
 var (
 	rootLogger *zap.Logger
@@ -19,6 +24,12 @@ func GetLogger(name string) *zap.SugaredLogger {
 
 func init() {
 	level := zap.InfoLevel
+
+	if lvl, ok := os.LookupEnv(envLogLevel); ok {
+		if err := level.Set(lvl); err != nil {
+			panic(err)
+		}
+	}
 
 	cfg := zap.Config{
 		Level:            zap.NewAtomicLevelAt(level),
