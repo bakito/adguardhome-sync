@@ -266,6 +266,36 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})
+		Context("statusWithSetup", func() {
+			var (
+				status *types.Status
+				inst   types.AdGuardInstance
+			)
+			BeforeEach(func() {
+				status = &types.Status{}
+			})
+			It("should get the replica status", func() {
+				cl.EXPECT().Status().Return(status, nil)
+				st, err := w.statusWithSetup(l, inst, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+				Ω(st).Should(Equal(status))
+			})
+			It("should runs setup before getting replica status", func() {
+				cl.EXPECT().Status().Return(nil, client.SetupNeededError)
+				cl.EXPECT().Setup()
+				cl.EXPECT().Status().Return(status, nil)
+				st, err := w.statusWithSetup(l, inst, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+				Ω(st).Should(Equal(status))
+			})
+			It("should fail on setup", func() {
+				cl.EXPECT().Status().Return(nil, client.SetupNeededError)
+				cl.EXPECT().Setup().Return(te)
+				st, err := w.statusWithSetup(l, inst, cl)
+				Ω(err).Should(HaveOccurred())
+				Ω(st).Should(BeNil())
+			})
+		})
 		Context("syncServices", func() {
 			var (
 				os types.Services
