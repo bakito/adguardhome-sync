@@ -101,6 +101,7 @@ services:
       - REPLICA1_APIPATH=/some/path/control
       # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized. 
       - CRON=*/10 * * * * # run every 10 minutes
+      - RUNONSTART=true
     ports:
       - 8080:8080
     restart: unless-stopped
@@ -113,6 +114,9 @@ location: $HOME/.adguardhome-sync.yaml
 ```yaml
 # cron expression to run in daemon mode. (default; "" = runs only once)
 cron: "*/10 * * * *"
+
+# runs the synchronisation on startup
+runOnStart: true
 
 origin:
   # url of the origin instance

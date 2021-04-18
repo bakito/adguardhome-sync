@@ -51,7 +51,9 @@ func Sync(cfg *types.Config) error {
 		} else {
 			w.cron.Run()
 		}
-	} else {
+	}
+	if cfg.RunOnStart {
+		l.With("version", version.Version).Info("Run on startup")
 		w.sync()
 	}
 	if cfg.API.Port != 0 {

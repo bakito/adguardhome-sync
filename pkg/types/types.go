@@ -13,11 +13,12 @@ const (
 
 // Config application configuration struct
 type Config struct {
-	Origin   AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica  AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
-	Replicas []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron     string            `json:"cron,omitempty" yaml:"cron,omitempty"`
-	API      API               `json:"api,omitempty" yaml:"api,omitempty"`
+	Origin     AdGuardInstance   `json:"origin" yaml:"origin"`
+	Replica    AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replicas   []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	Cron       string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	RunOnStart bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
+	API        API               `json:"api,omitempty" yaml:"api,omitempty"`
 }
 
 // API configuration

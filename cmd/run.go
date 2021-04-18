@@ -28,6 +28,8 @@ func init() {
 	rootCmd.AddCommand(doCmd)
 	doCmd.PersistentFlags().String("cron", "", "The cron expression to run in daemon mode")
 	_ = viper.BindPFlag(configCron, doCmd.PersistentFlags().Lookup("cron"))
+	doCmd.PersistentFlags().Bool("runOnStart", true, "Run the sync job on start.")
+	_ = viper.BindPFlag(configRunOnStart, doCmd.PersistentFlags().Lookup("runOnStart"))
 	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
 	_ = viper.BindPFlag(configAPIPort, doCmd.PersistentFlags().Lookup("api-port"))
 	doCmd.PersistentFlags().String("api-username", "", "Sync API username")
