@@ -2,6 +2,7 @@ package sync
 
 import (
 	"errors"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 
 	. "github.com/onsi/ginkgo"

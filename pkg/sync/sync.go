@@ -220,10 +220,10 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 		return err
 	}
 
-	if err = w.syncFilterType(of, rf.Filters, false, replica); err != nil {
+	if err = w.syncFilterType(of.Filters, rf.Filters, false, replica); err != nil {
 		return err
 	}
-	if err = w.syncFilterType(of, rf.WhitelistFilters, true, replica); err != nil {
+	if err = w.syncFilterType(of.WhitelistFilters, rf.WhitelistFilters, true, replica); err != nil {
 		return err
 	}
 
@@ -239,8 +239,8 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 	return nil
 }
 
-func (w *worker) syncFilterType(of *types.FilteringStatus, rFilters types.Filters, whitelist bool, replica client.Client) error {
-	fa, fu, fd := rFilters.Merge(of.Filters)
+func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitelist bool, replica client.Client) error {
+	fa, fu, fd := rFilters.Merge(of)
 
 	if err := replica.AddFilters(whitelist, fa...); err != nil {
 		return err
