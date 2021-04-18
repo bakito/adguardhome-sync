@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
@@ -25,6 +26,8 @@ func Sync(cfg *types.Config) error {
 	if len(cfg.UniqueReplicas()) == 0 {
 		return fmt.Errorf("no replicas configured")
 	}
+
+	cfg.Origin.AutoSetup = false
 
 	w := &worker{
 		cfg: cfg,
@@ -153,51 +156,66 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl := l.With("to", rc.Host())
 	rl.Info("Start sync")
 
-	rs, err := rc.Status()
+	rs, err := w.statusWithSetup(rl, replica, rc)
 	if err != nil {
-		l.With("error", err).Error("Error getting replica status")
+		rl.With("error", err).Error("Error getting replica status")
 		return
 	}
 
 	if o.status.Version != rs.Version {
-		l.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
+		rl.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
 	}
 
 	err = w.syncGeneralSettings(o, rs, rc)
 	if err != nil {
-		l.With("error", err).Error("Error syncing general settings")
+		rl.With("error", err).Error("Error syncing general settings")
 		return
 	}
 
 	err = w.syncConfigs(o, rc)
 	if err != nil {
-		l.With("error", err).Error("Error syncing configs")
+		rl.With("error", err).Error("Error syncing configs")
 		return
 	}
 
 	err = w.syncRewrites(o.rewrites, rc)
 	if err != nil {
-		l.With("error", err).Error("Error syncing rewrites")
+		rl.With("error", err).Error("Error syncing rewrites")
 		return
 	}
 	err = w.syncFilters(o.filters, rc)
 	if err != nil {
-		l.With("error", err).Error("Error syncing filters")
+		rl.With("error", err).Error("Error syncing filters")
 		return
 	}
 
 	err = w.syncServices(o.services, rc)
 	if err != nil {
-		l.With("error", err).Error("Error syncing services")
+		rl.With("error", err).Error("Error syncing services")
 		return
 	}
 
 	if err = w.syncClients(o.clients, rc); err != nil {
-		l.With("error", err).Error("Error syncing clients")
+		rl.With("error", err).Error("Error syncing clients")
 		return
 	}
 
 	rl.Info("Sync done")
+}
+
+func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*types.Status, error) {
+	rs, err := rc.Status()
+	if err != nil {
+		if replica.AutoSetup && errors.Is(err, client.SetupNeededError) {
+			if serr := rc.Setup(); serr != nil {
+				rl.With("error", serr).Error("Error setup AdGuardHome")
+				return nil, err
+			}
+			return rc.Status()
+		}
+		return nil, err
+	}
+	return rs, err
 }
 
 func (w *worker) syncServices(os types.Services, replica client.Client) error {

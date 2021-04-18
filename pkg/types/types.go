@@ -49,13 +49,14 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	return r
 }
 
-// AdGuardInstance adguard home config instance
+// AdGuardInstance AdguardHome config instance
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url"`
 	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
+	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
 }
 
 // Key AdGuardInstance key
@@ -336,4 +337,20 @@ func equals(a []string, b []string) bool {
 		}
 	}
 	return true
+}
+
+// InstallConfig AdguardHome install config
+type InstallConfig struct {
+	Web      InstallPort `json:"web"`
+	DNS      InstallPort `json:"dns"`
+	Username string      `json:"username"`
+	Password string      `json:"password"`
+}
+
+// InstallPort AdguardHome install config port
+type InstallPort struct {
+	IP         string `json:"ip"`
+	Port       int    `json:"port"`
+	Status     string `json:"status"`
+	CanAutofix bool   `json:"can_autofix"`
 }

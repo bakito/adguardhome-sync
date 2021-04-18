@@ -1,6 +1,7 @@
 package client_test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,12 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/google/uuid"
+)
+
+var (
+	username = uuid.NewString()
+	password = uuid.NewString()
 )
 
 var _ = Describe("Client", func() {
@@ -99,6 +106,25 @@ bar`)
 			Ω(fs.DNSAddresses).Should(HaveLen(1))
 			Ω(fs.DNSAddresses[0]).Should(Equal("192.168.1.2"))
 			Ω(fs.Version).Should(Equal("v0.105.2"))
+		})
+		It("should return SetupNeededError", func() {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Location", "/install.html")
+				w.WriteHeader(http.StatusFound)
+			}))
+			cl, err := client.New(types.AdGuardInstance{URL: ts.URL})
+			Ω(err).ShouldNot(HaveOccurred())
+			_, err = cl.Status()
+			Ω(err).Should(HaveOccurred())
+			Ω(err).Should(Equal(client.SetupNeededError))
+		})
+	})
+
+	Context("Setup", func() {
+		It("should add setup the instance", func() {
+			ts, cl = ClientPost("/install/configure", fmt.Sprintf(`{"web":{"ip":"0.0.0.0","port":3000,"status":"","can_autofix":false},"dns":{"ip":"0.0.0.0","port":53,"status":"","can_autofix":false},"username":"%s","password":"%s"}`, username, password))
+			err := cl.Setup()
+			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
 
@@ -317,7 +343,7 @@ func ClientPost(path string, content ...string) (*httptest.Server, client.Client
 		index++
 	}))
 
-	cl, err := client.New(types.AdGuardInstance{URL: ts.URL})
+	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password})
 	Ω(err).ShouldNot(HaveOccurred())
 	return ts, cl
 }

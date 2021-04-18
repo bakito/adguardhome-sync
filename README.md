@@ -14,6 +14,13 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 - Services
 - Clients
 
+### Setup of initial instances
+
+New AdGuardHome instances are automatically installed. During automatic installation, the admin interface will be
+listening on port 3000 in runtime.
+
+To skip automatic setup
+
 ## Install
 
 ```bash
@@ -22,7 +29,7 @@ go get -u github.com/bakito/adguardhome-sync
 
 ## Prerequisites
 
-Both the origin and replica mist be initially setup via the Adguard Home installation wizard.
+Both the origin instance must be initially setup via the AdguardHome installation wizard.
 
 ## Run
 
@@ -92,6 +99,7 @@ services:
       - REPLICA1_USERNAME=username
       - REPLICA1_PASSWORD=password
       - REPLICA1_APIPATH=/some/path/control
+      # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized. 
       - CRON=*/10 * * * * # run every 10 minutes
     ports:
       - 8080:8080
@@ -130,6 +138,7 @@ replicas:
   - url: http://192.168.1.4
     username: username
     password: password
+    # autoSetup: true # if true, AdGuardHome is automatically initialized. 
 
 # Configure the sync API server, disabled if api port is 0
 api:

@@ -348,6 +348,20 @@ func (mr *MockClientMockRecorder) SetStatsConfig(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatsConfig", reflect.TypeOf((*MockClient)(nil).SetStatsConfig), arg0)
 }
 
+// Setup mocks base method.
+func (m *MockClient) Setup() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Setup")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Setup indicates an expected call of Setup.
+func (mr *MockClientMockRecorder) Setup() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Setup", reflect.TypeOf((*MockClient)(nil).Setup))
+}
+
 // StatsConfig mocks base method.
 func (m *MockClient) StatsConfig() (*types.IntervalConfig, error) {
 	m.ctrl.T.Helper()
