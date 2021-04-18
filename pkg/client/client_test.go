@@ -2,7 +2,6 @@ package client_test
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/google/uuid"
 )
 
 var (
