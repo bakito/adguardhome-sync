@@ -16,8 +16,8 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 
 ### Setup of initial instances
 
-New AdGuardHome instances are automatically installed. During automatic installation, the admin interface will be
-listening on port 3000 in runtime.
+New AdGuardHome replica instances can be automatically installed if enabled via the config autoSetup. 
+During automatic installation, the admin interface will be listening on port 3000 in runtime.
 
 To skip automatic setup
 
