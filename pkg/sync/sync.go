@@ -160,7 +160,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	if err != nil {
 		if !replica.SkipAutoSetup && errors.Is(err, client.SetupNeededError) {
 			if err = rc.Setup(); err != nil {
-				l.With("error", err).Error("Error setup adguard home")
+				l.With("error", err).Error("Error setup AdguardHome")
 				return
 			}
 			rs, err = rc.Status()

@@ -52,7 +52,7 @@ func New(config types.AdGuardInstance) (Client, error) {
 	}, nil
 }
 
-// Client AdGuard Home API client interface
+// Client AdguardHome API client interface
 type Client interface {
 	Host() string
 
@@ -359,7 +359,7 @@ func (cl *client) SetStatsConfig(interval int) error {
 }
 
 func (cl *client) Setup() error {
-	cl.log.Info("Setup new adguard home instance")
+	cl.log.Info("Setup new AdguardHome instance")
 	cfg := &types.InstallConfig{
 		Web: types.InstallPort{
 			IP:         "0.0.0.0",

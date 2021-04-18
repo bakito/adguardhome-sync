@@ -56,6 +56,6 @@ func init() {
 	_ = viper.BindPFlag(configReplicaPassword, doCmd.PersistentFlags().Lookup("replica-password"))
 	doCmd.PersistentFlags().String("replica-insecure-skip-verify", "", "Enable Replica instance InsecureSkipVerify")
 	_ = viper.BindPFlag(configReplicaInsecureSkipVerify, doCmd.PersistentFlags().Lookup("replica-insecure-skip-verify"))
-	doCmd.PersistentFlags().String("replica-skip-auto-setup", "", "Disable automatic setup of new adguard home instances")
+	doCmd.PersistentFlags().String("replica-skip-auto-setup", "", "Disable automatic setup of new AdguardHome instances")
 	_ = viper.BindPFlag(configReplicaSkipAutoSetup, doCmd.PersistentFlags().Lookup("replica-skip-auto-setup"))
 }
