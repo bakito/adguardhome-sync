@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	l = log.GetLogger("client")
+	l                = log.GetLogger("client")
+	SetupNeededError = errors.New("setup needed")
 )
 
 // New create a new client
@@ -40,6 +41,9 @@ func New(config types.AdGuardInstance) (Client, error) {
 	if config.Username != "" && config.Password != "" {
 		cl = cl.SetBasicAuth(config.Username, config.Password)
 	}
+
+	// no redirect
+	cl.SetRedirectPolicy(resty.NoRedirectPolicy())
 
 	return &client{
 		host:   u.Host,
@@ -85,6 +89,7 @@ type Client interface {
 	SetQueryLogConfig(enabled bool, interval int, anonymizeClientIP bool) error
 	StatsConfig() (*types.IntervalConfig, error)
 	SetStatsConfig(interval int) error
+	Setup() error
 }
 
 type client struct {
@@ -105,6 +110,12 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 	rl.Debug("do get")
 	resp, err := req.Get(url)
 	if err != nil {
+		if resp != nil && resp.StatusCode() == http.StatusFound {
+			loc := resp.Header().Get("Location")
+			if loc == "/install.html" {
+				return SetupNeededError
+			}
+		}
 		return err
 	}
 	rl.With("body", string(resp.Body())).Debug("got response")
@@ -345,4 +356,30 @@ func (cl *client) StatsConfig() (*types.IntervalConfig, error) {
 func (cl *client) SetStatsConfig(interval int) error {
 	cl.log.With("interval", interval).Info("Set stats config")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.IntervalConfig{Interval: interval}), "/stats_config")
+}
+
+func (cl *client) Setup() error {
+	cl.log.Info("Setup new adguard home instance")
+	cfg := &types.InstallConfig{
+		Web: types.InstallPort{
+			IP:         "0.0.0.0",
+			Port:       3000,
+			Status:     "",
+			CanAutofix: false,
+		},
+		DNS: types.InstallPort{
+			IP:         "0.0.0.0",
+			Port:       53,
+			Status:     "",
+			CanAutofix: false,
+		},
+	}
+
+	if cl.client.UserInfo != nil {
+		cfg.Username = cl.client.UserInfo.Username
+		cfg.Password = cl.client.UserInfo.Password
+	}
+	req := cl.client.R().EnableTrace().SetBody(cfg)
+	req.UserInfo = nil
+	return cl.doPost(req, "/install/configure")
 }

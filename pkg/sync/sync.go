@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
@@ -155,8 +156,17 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	rs, err := rc.Status()
 	if err != nil {
-		l.With("error", err).Error("Error getting replica status")
-		return
+		if errors.Is(err, client.SetupNeededError) {
+			if err = rc.Setup(); err != nil {
+				l.With("error", err).Error("Error setup adguard home")
+				return
+			}
+			rs, err = rc.Status()
+		}
+		if err != nil {
+			l.With("error", err).Error("Error getting replica status")
+			return
+		}
 	}
 
 	if o.status.Version != rs.Version {
