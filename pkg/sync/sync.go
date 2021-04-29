@@ -214,7 +214,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	if err = w.syncDNS(o, rc); err != nil {
+	if err = w.syncDNS(o.accessList, o.dnsConfig, rc); err != nil {
 		rl.With("error", err).Error("Error syncing dns")
 		return
 	}
@@ -390,13 +390,13 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 	return nil
 }
 
-func (w *worker) syncDNS(o *origin, rc client.Client) error {
+func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.Client) error {
 	al, err := rc.AccessList()
 	if err != nil {
 		return err
 	}
-	if !al.Equal(o.accessList) {
-		if err = rc.SetAccessList(o.accessList); err != nil {
+	if !al.Equals(oal) {
+		if err = rc.SetAccessList(oal); err != nil {
 			return err
 		}
 	}
@@ -405,8 +405,8 @@ func (w *worker) syncDNS(o *origin, rc client.Client) error {
 	if err != nil {
 		return err
 	}
-	if !dc.Equal(o.dnsConfig) {
-		if err = rc.SetDNSConfig(o.dnsConfig); err != nil {
+	if !dc.Equals(odc) {
+		if err = rc.SetDNSConfig(odc); err != nil {
 			return err
 		}
 	}

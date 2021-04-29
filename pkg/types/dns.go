@@ -40,8 +40,8 @@ type DNSConfig struct {
 	LocalPTRUpstreams []string `json:"local_ptr_upstreams,omitempty"`
 }
 
-// Equal dns config equal check
-func (c *DNSConfig) Equal(o *DNSConfig) bool {
+// Equals dns config equal check
+func (c *DNSConfig) Equals(o *DNSConfig) bool {
 	c.Sort()
 	o.Sort()
 
@@ -63,8 +63,8 @@ type AccessList struct {
 	BlockedHosts      []string `json:"blocked_hosts"`
 }
 
-// Equal access list equal check
-func (al *AccessList) Equal(o *AccessList) bool {
+// Equals access list equal check
+func (al *AccessList) Equals(o *AccessList) bool {
 	return equals(al.AllowedClients, o.AllowedClients) &&
 		equals(al.DisallowedClients, o.DisallowedClients) &&
 		equals(al.BlockedHosts, o.BlockedHosts)

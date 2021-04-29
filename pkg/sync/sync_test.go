@@ -369,6 +369,44 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})
+
+		Context("syncDNS", func() {
+			var (
+				oal *types.AccessList
+				ral *types.AccessList
+				odc *types.DNSConfig
+				rdc *types.DNSConfig
+			)
+			BeforeEach(func() {
+				oal = &types.AccessList{}
+				ral = &types.AccessList{}
+				odc = &types.DNSConfig{}
+				rdc = &types.DNSConfig{}
+			})
+			It("should have no changes", func() {
+				cl.EXPECT().AccessList().Return(ral, nil)
+				cl.EXPECT().DNSConfig().Return(rdc, nil)
+				err := w.syncDNS(oal, odc, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have access list changes", func() {
+				ral.BlockedHosts = []string{"foo"}
+				cl.EXPECT().AccessList().Return(ral, nil)
+				cl.EXPECT().DNSConfig().Return(rdc, nil)
+				cl.EXPECT().SetAccessList(oal)
+				err := w.syncDNS(oal, odc, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have dns config changes", func() {
+				rdc.Bootstraps = []string{"foo"}
+				cl.EXPECT().AccessList().Return(ral, nil)
+				cl.EXPECT().DNSConfig().Return(rdc, nil)
+				cl.EXPECT().SetDNSConfig(odc)
+				err := w.syncDNS(oal, odc, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+		})
+
 		Context("sync", func() {
 
 			It("should have no changes", func() {
@@ -388,6 +426,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
@@ -412,6 +452,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients()
 				cl.EXPECT().DeleteClients()
+				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
 				w.sync()
 			})
 		})

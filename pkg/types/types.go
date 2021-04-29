@@ -278,8 +278,8 @@ func (cl *Client) Sort() {
 	sort.Strings(cl.Upstreams)
 }
 
-// Equal Clients equal check
-func (cl *Client) Equal(o *Client) bool {
+// Equals Clients equal check
+func (cl *Client) Equals(o *Client) bool {
 	cl.Sort()
 	o.Sort()
 
@@ -306,7 +306,7 @@ func (clients *Clients) Merge(other *Clients) ([]Client, []Client, []Client) {
 
 	for _, cl := range expected {
 		if oc, ok := current[cl.Name]; ok {
-			if !cl.Equal(&oc) {
+			if !cl.Equals(&oc) {
 				updates = append(updates, cl)
 			}
 			delete(current, cl.Name)
