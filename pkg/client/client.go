@@ -409,5 +409,5 @@ func (cl *client) DNSConfig() (*types.DNSConfig, error) {
 
 func (cl *client) SetDNSConfig(config *types.DNSConfig) error {
 	cl.log.Info("Set dns config list")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dns_info")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dns_config")
 }

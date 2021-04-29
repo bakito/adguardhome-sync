@@ -141,6 +141,18 @@ func (w *worker) sync() {
 		return
 	}
 
+	o.accessList, err = oc.AccessList()
+	if err != nil {
+		sl.With("error", err).Error("Error getting access list")
+		return
+	}
+
+	o.dnsConfig, err = oc.DNSConfig()
+	if err != nil {
+		sl.With("error", err).Error("Error getting dns config")
+		return
+	}
+
 	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
 		w.syncTo(sl, o, replica)
@@ -199,6 +211,11 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	if err = w.syncClients(o.clients, rc); err != nil {
 		rl.With("error", err).Error("Error syncing clients")
+		return
+	}
+
+	if err = w.syncDNS(o, rc); err != nil {
+		rl.With("error", err).Error("Error syncing dns")
 		return
 	}
 
@@ -349,27 +366,50 @@ func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client
 	return nil
 }
 
-func (w *worker) syncConfigs(o *origin, replica client.Client) error {
-	qlc, err := replica.QueryLogConfig()
+func (w *worker) syncConfigs(o *origin, rc client.Client) error {
+	qlc, err := rc.QueryLogConfig()
 	if err != nil {
 		return err
 	}
 	if !o.queryLogConfig.Equals(qlc) {
-		if err = replica.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+		if err = rc.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
 			return err
 		}
 	}
 
-	sc, err := replica.StatsConfig()
+	sc, err := rc.StatsConfig()
 	if err != nil {
 		return err
 	}
 	if o.statsConfig.Interval != sc.Interval {
-		if err = replica.SetStatsConfig(o.statsConfig.Interval); err != nil {
+		if err = rc.SetStatsConfig(o.statsConfig.Interval); err != nil {
 			return err
 		}
 	}
 
+	return nil
+}
+
+func (w *worker) syncDNS(o *origin, rc client.Client) error {
+	al, err := rc.AccessList()
+	if err != nil {
+		return err
+	}
+	if !al.Equal(o.accessList) {
+		if err = rc.SetAccessList(o.accessList); err != nil {
+			return err
+		}
+	}
+
+	dc, err := rc.DNSConfig()
+	if err != nil {
+		return err
+	}
+	if !dc.Equal(o.dnsConfig) {
+		if err = rc.SetDNSConfig(o.dnsConfig); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -381,6 +421,8 @@ type origin struct {
 	clients        *types.Clients
 	queryLogConfig *types.QueryLogConfig
 	statsConfig    *types.IntervalConfig
+	accessList     *types.AccessList
+	dnsConfig      *types.DNSConfig
 	parental       bool
 	safeSearch     bool
 	safeBrowsing   bool
