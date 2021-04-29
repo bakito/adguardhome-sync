@@ -1,0 +1,17 @@
+{
+  "enabled": false,
+  "interface_name": "docker0",
+  "v4": {
+    "gateway_ip": "172.17.0.1",
+    "subnet_mask": "255.255.255.0",
+    "range_start": "172.17.0.100",
+    "range_end": "172.17.0.200",
+    "lease_duration": 888888
+  },
+  "v6": {
+    "range_start": "",
+    "lease_duration": 0
+  },
+  "leases": [],
+  "static_leases": []
+}

@@ -1,0 +1,22 @@
+{
+  "upstream_dns": [
+    "https://dns10.quad9.net/dns-query"
+  ],
+  "upstream_dns_file": "",
+  "bootstrap_dns": [
+    "1.1.1.1:53"
+  ],
+  "protection_enabled": true,
+  "ratelimit": 20,
+  "blocking_mode": "default",
+  "blocking_ipv4": "",
+  "blocking_ipv6": "",
+  "edns_cs_enabled": false,
+  "dnssec_enabled": false,
+  "disable_ipv6": false,
+  "upstream_mode": "",
+  "cache_size": 4194304,
+  "cache_ttl_min": 0,
+  "cache_ttl_max": 0
+}
+

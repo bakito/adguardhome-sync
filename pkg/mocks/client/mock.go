@@ -34,6 +34,21 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
+// AccessList mocks base method.
+func (m *MockClient) AccessList() (*types.AccessList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AccessList")
+	ret0, _ := ret[0].(*types.AccessList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AccessList indicates an expected call of AccessList.
+func (mr *MockClientMockRecorder) AccessList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccessList", reflect.TypeOf((*MockClient)(nil).AccessList))
+}
+
 // AddClients mocks base method.
 func (m *MockClient) AddClients(arg0 ...types.Client) error {
 	m.ctrl.T.Helper()
@@ -102,6 +117,21 @@ func (m *MockClient) Clients() (*types.Clients, error) {
 func (mr *MockClientMockRecorder) Clients() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clients", reflect.TypeOf((*MockClient)(nil).Clients))
+}
+
+// DNSConfig mocks base method.
+func (m *MockClient) DNSConfig() (*types.DNSConfig, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DNSConfig")
+	ret0, _ := ret[0].(*types.DNSConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DNSConfig indicates an expected call of DNSConfig.
+func (mr *MockClientMockRecorder) DNSConfig() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DNSConfig", reflect.TypeOf((*MockClient)(nil).DNSConfig))
 }
 
 // DeleteClients mocks base method.
@@ -292,6 +322,20 @@ func (mr *MockClientMockRecorder) Services() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Services", reflect.TypeOf((*MockClient)(nil).Services))
 }
 
+// SetAccessList mocks base method.
+func (m *MockClient) SetAccessList(arg0 *types.AccessList) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAccessList", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAccessList indicates an expected call of SetAccessList.
+func (mr *MockClientMockRecorder) SetAccessList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessList", reflect.TypeOf((*MockClient)(nil).SetAccessList), arg0)
+}
+
 // SetCustomRules mocks base method.
 func (m *MockClient) SetCustomRules(arg0 types.UserRules) error {
 	m.ctrl.T.Helper()
@@ -304,6 +348,20 @@ func (m *MockClient) SetCustomRules(arg0 types.UserRules) error {
 func (mr *MockClientMockRecorder) SetCustomRules(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCustomRules", reflect.TypeOf((*MockClient)(nil).SetCustomRules), arg0)
+}
+
+// SetDNSConfig mocks base method.
+func (m *MockClient) SetDNSConfig(arg0 *types.DNSConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetDNSConfig", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetDNSConfig indicates an expected call of SetDNSConfig.
+func (mr *MockClientMockRecorder) SetDNSConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDNSConfig", reflect.TypeOf((*MockClient)(nil).SetDNSConfig), arg0)
 }
 
 // SetQueryLogConfig mocks base method.
