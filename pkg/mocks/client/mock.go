@@ -67,6 +67,24 @@ func (mr *MockClientMockRecorder) AddClients(arg0 ...interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClients", reflect.TypeOf((*MockClient)(nil).AddClients), arg0...)
 }
 
+// AddDHCPStaticLeases mocks base method.
+func (m *MockClient) AddDHCPStaticLeases(arg0 ...types.Lease) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range arg0 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddDHCPStaticLeases", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddDHCPStaticLeases indicates an expected call of AddDHCPStaticLeases.
+func (mr *MockClientMockRecorder) AddDHCPStaticLeases(arg0 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDHCPStaticLeases", reflect.TypeOf((*MockClient)(nil).AddDHCPStaticLeases), arg0...)
+}
+
 // AddFilters mocks base method.
 func (m *MockClient) AddFilters(arg0 bool, arg1 ...types.Filter) error {
 	m.ctrl.T.Helper()
@@ -119,6 +137,21 @@ func (mr *MockClientMockRecorder) Clients() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clients", reflect.TypeOf((*MockClient)(nil).Clients))
 }
 
+// DHCPServerConfig mocks base method.
+func (m *MockClient) DHCPServerConfig() (*types.DHCPServerConfig, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DHCPServerConfig")
+	ret0, _ := ret[0].(*types.DHCPServerConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DHCPServerConfig indicates an expected call of DHCPServerConfig.
+func (mr *MockClientMockRecorder) DHCPServerConfig() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DHCPServerConfig", reflect.TypeOf((*MockClient)(nil).DHCPServerConfig))
+}
+
 // DNSConfig mocks base method.
 func (m *MockClient) DNSConfig() (*types.DNSConfig, error) {
 	m.ctrl.T.Helper()
@@ -150,6 +183,24 @@ func (m *MockClient) DeleteClients(arg0 ...types.Client) error {
 func (mr *MockClientMockRecorder) DeleteClients(arg0 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteClients", reflect.TypeOf((*MockClient)(nil).DeleteClients), arg0...)
+}
+
+// DeleteDHCPStaticLeases mocks base method.
+func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...types.Lease) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range arg0 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteDHCPStaticLeases", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteDHCPStaticLeases indicates an expected call of DeleteDHCPStaticLeases.
+func (mr *MockClientMockRecorder) DeleteDHCPStaticLeases(arg0 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDHCPStaticLeases", reflect.TypeOf((*MockClient)(nil).DeleteDHCPStaticLeases), arg0...)
 }
 
 // DeleteFilters mocks base method.
@@ -348,6 +399,20 @@ func (m *MockClient) SetCustomRules(arg0 types.UserRules) error {
 func (mr *MockClientMockRecorder) SetCustomRules(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCustomRules", reflect.TypeOf((*MockClient)(nil).SetCustomRules), arg0)
+}
+
+// SetDHCPServerConfig mocks base method.
+func (m *MockClient) SetDHCPServerConfig(arg0 *types.DHCPServerConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetDHCPServerConfig", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetDHCPServerConfig indicates an expected call of SetDHCPServerConfig.
+func (mr *MockClientMockRecorder) SetDHCPServerConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDHCPServerConfig", reflect.TypeOf((*MockClient)(nil).SetDHCPServerConfig), arg0)
 }
 
 // SetDNSConfig mocks base method.

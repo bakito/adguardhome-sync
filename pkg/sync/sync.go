@@ -153,6 +153,12 @@ func (w *worker) sync() {
 		return
 	}
 
+	o.dhcpServerConfig, err = oc.DHCPServerConfig()
+	if err != nil {
+		sl.With("error", err).Error("Error getting dhcp server config")
+		return
+	}
+
 	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
 		w.syncTo(sl, o, replica)
@@ -215,6 +221,11 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	}
 
 	if err = w.syncDNS(o.accessList, o.dnsConfig, rc); err != nil {
+		rl.With("error", err).Error("Error syncing dns")
+		return
+	}
+
+	if err = w.syncDHCPServer(o.dhcpServerConfig, rc); err != nil {
 		rl.With("error", err).Error("Error syncing dns")
 		return
 	}
@@ -413,17 +424,40 @@ func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.
 	return nil
 }
 
+func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client) error {
+	sc, err := rc.DHCPServerConfig()
+	if err != nil {
+		return err
+	}
+	if !sc.Equals(osc) {
+		if err = rc.SetDHCPServerConfig(osc); err != nil {
+			return err
+		}
+	}
+
+	a, r := sc.StaticLeases.Merge(osc.StaticLeases)
+
+	if err = rc.AddDHCPStaticLeases(a...); err != nil {
+		return err
+	}
+	if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
+		return err
+	}
+	return nil
+}
+
 type origin struct {
-	status         *types.Status
-	rewrites       *types.RewriteEntries
-	services       types.Services
-	filters        *types.FilteringStatus
-	clients        *types.Clients
-	queryLogConfig *types.QueryLogConfig
-	statsConfig    *types.IntervalConfig
-	accessList     *types.AccessList
-	dnsConfig      *types.DNSConfig
-	parental       bool
-	safeSearch     bool
-	safeBrowsing   bool
+	status           *types.Status
+	rewrites         *types.RewriteEntries
+	services         types.Services
+	filters          *types.FilteringStatus
+	clients          *types.Clients
+	queryLogConfig   *types.QueryLogConfig
+	statsConfig      *types.IntervalConfig
+	accessList       *types.AccessList
+	dnsConfig        *types.DNSConfig
+	dhcpServerConfig *types.DHCPServerConfig
+	parental         bool
+	safeSearch       bool
+	safeBrowsing     bool
 }
