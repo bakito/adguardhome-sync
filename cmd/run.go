@@ -37,6 +37,9 @@ func init() {
 	doCmd.PersistentFlags().String("api-password", "", "Sync API password")
 	_ = viper.BindPFlag(configAPIPassword, doCmd.PersistentFlags().Lookup("api-password"))
 
+	doCmd.PersistentFlags().String("beta", "", "Enable beta features (comma separated list)")
+	_ = viper.BindPFlag(configBeta, doCmd.PersistentFlags().Lookup("beta"))
+
 	doCmd.PersistentFlags().String("origin-url", "", "Origin instance url")
 	_ = viper.BindPFlag(configOriginURL, doCmd.PersistentFlags().Lookup("origin-url"))
 	doCmd.PersistentFlags().String("origin-api-path", "/control", "Origin instance API path")

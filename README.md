@@ -13,6 +13,8 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 - Rewrites
 - Services
 - Clients
+- DNS Config (BETA)
+- DHCP Config (BETA)
 
 ### Setup of initial instances
 

@@ -90,6 +90,17 @@ type Client interface {
 	StatsConfig() (*types.IntervalConfig, error)
 	SetStatsConfig(interval int) error
 	Setup() error
+
+	AccessList() (*types.AccessList, error)
+	SetAccessList(*types.AccessList) error
+
+	DNSConfig() (*types.DNSConfig, error)
+	SetDNSConfig(*types.DNSConfig) error
+
+	DHCPServerConfig() (*types.DHCPServerConfig, error)
+	SetDHCPServerConfig(*types.DHCPServerConfig) error
+	AddDHCPStaticLeases(leases ...types.Lease) error
+	DeleteDHCPStaticLeases(leases ...types.Lease) error
 }
 
 type client struct {
@@ -382,4 +393,59 @@ func (cl *client) Setup() error {
 	req := cl.client.R().EnableTrace().SetBody(cfg)
 	req.UserInfo = nil
 	return cl.doPost(req, "/install/configure")
+}
+
+func (cl *client) AccessList() (*types.AccessList, error) {
+	al := &types.AccessList{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(al), "/access/list")
+	return al, err
+}
+
+func (cl *client) SetAccessList(list *types.AccessList) error {
+	cl.log.Info("Set access list")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(list), "/access/set")
+}
+
+func (cl *client) DNSConfig() (*types.DNSConfig, error) {
+	cfg := &types.DNSConfig{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(cfg), "/dns_info")
+	return cfg, err
+}
+
+func (cl *client) SetDNSConfig(config *types.DNSConfig) error {
+	cl.log.Info("Set dns config list")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dns_config")
+}
+
+func (cl *client) DHCPServerConfig() (*types.DHCPServerConfig, error) {
+	cfg := &types.DHCPServerConfig{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(cfg), "/dhcp/status")
+	return cfg, err
+}
+
+func (cl *client) SetDHCPServerConfig(config *types.DHCPServerConfig) error {
+	cl.log.Info("Set dhcp server config")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dhcp/set_config")
+}
+
+func (cl *client) AddDHCPStaticLeases(leases ...types.Lease) error {
+	for _, l := range leases {
+		cl.log.With("mac", l.HWAddr, "ip", l.IP, "hostname", l.Hostname).Info("Add static dhcp lease")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/add_static_lease")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cl *client) DeleteDHCPStaticLeases(leases ...types.Lease) error {
+	for _, l := range leases {
+		cl.log.With("mac", l.HWAddr, "ip", l.IP, "hostname", l.Hostname).Info("Delete static dhcp lease")
+		err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/remove_static_lease")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

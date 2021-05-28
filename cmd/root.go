@@ -16,6 +16,7 @@ import (
 const (
 	configCron       = "cron"
 	configRunOnStart = "runOnStart"
+	configBeta       = "beta"
 
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"

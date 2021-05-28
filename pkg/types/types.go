@@ -5,20 +5,27 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 )
 
 const (
 	DefaultAPIPath = "/control"
 )
 
+var (
+	doOnce sync.Once
+)
+
 // Config application configuration struct
 type Config struct {
-	Origin     AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica    AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
-	Replicas   []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron       string            `json:"cron,omitempty" yaml:"cron,omitempty"`
-	RunOnStart bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
-	API        API               `json:"api,omitempty" yaml:"api,omitempty"`
+	Origin      AdGuardInstance   `json:"origin" yaml:"origin"`
+	Replica     AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replicas    []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	Cron        string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	RunOnStart  bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
+	API         API               `json:"api,omitempty" yaml:"api,omitempty"`
+	Beta        string            `json:"beta,omitempty" yaml:"beta,omitempty"`
+	enabledBeta map[string]bool   `json:"-" yaml:"-"`
 }
 
 // API configuration
@@ -48,6 +55,19 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 		r = append(r, replica)
 	}
 	return r
+}
+
+func (cfg *Config) WithBeta(name string) bool {
+	doOnce.Do(func() {
+		cfg.enabledBeta = make(map[string]bool)
+
+		features := strings.Split(cfg.Beta, ",")
+		for _, f := range features {
+			cfg.enabledBeta[strings.ToLower(strings.TrimSpace(f))] = true
+		}
+	})
+	return cfg.enabledBeta[name]
+
 }
 
 // AdGuardInstance AdguardHome config instance
@@ -278,8 +298,8 @@ func (cl *Client) Sort() {
 	sort.Strings(cl.Upstreams)
 }
 
-// Equal Clients equal check
-func (cl *Client) Equal(o *Client) bool {
+// Equals Clients equal check
+func (cl *Client) Equals(o *Client) bool {
 	cl.Sort()
 	o.Sort()
 
@@ -306,7 +326,7 @@ func (clients *Clients) Merge(other *Clients) ([]Client, []Client, []Client) {
 
 	for _, cl := range expected {
 		if oc, ok := current[cl.Name]; ok {
-			if !cl.Equal(&oc) {
+			if !cl.Equals(&oc) {
 				updates = append(updates, cl)
 			}
 			delete(current, cl.Name)

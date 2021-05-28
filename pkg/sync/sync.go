@@ -141,6 +141,28 @@ func (w *worker) sync() {
 		return
 	}
 
+	o.accessList, err = oc.AccessList()
+	if err != nil {
+		sl.With("error", err).Error("Error getting access list")
+		return
+	}
+
+	if w.cfg.WithBeta("dns") {
+		o.dnsConfig, err = oc.DNSConfig()
+		if err != nil {
+			sl.With("error", err).Error("Error getting dns config")
+			return
+		}
+	}
+
+	if w.cfg.WithBeta("dhcp") {
+		o.dhcpServerConfig, err = oc.DHCPServerConfig()
+		if err != nil {
+			sl.With("error", err).Error("Error getting dhcp server config")
+			return
+		}
+	}
+
 	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
 		w.syncTo(sl, o, replica)
@@ -200,6 +222,20 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	if err = w.syncClients(o.clients, rc); err != nil {
 		rl.With("error", err).Error("Error syncing clients")
 		return
+	}
+
+	if w.cfg.WithBeta("dns") {
+		if err = w.syncDNS(o.accessList, o.dnsConfig, rc); err != nil {
+			rl.With("error", err).Error("Error syncing dns")
+			return
+		}
+	}
+
+	if w.cfg.WithBeta("dhcp") {
+		if err = w.syncDHCPServer(o.dhcpServerConfig, rc); err != nil {
+			rl.With("error", err).Error("Error syncing dns")
+			return
+		}
 	}
 
 	rl.Info("Sync done")
@@ -349,23 +385,23 @@ func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client
 	return nil
 }
 
-func (w *worker) syncConfigs(o *origin, replica client.Client) error {
-	qlc, err := replica.QueryLogConfig()
+func (w *worker) syncConfigs(o *origin, rc client.Client) error {
+	qlc, err := rc.QueryLogConfig()
 	if err != nil {
 		return err
 	}
 	if !o.queryLogConfig.Equals(qlc) {
-		if err = replica.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+		if err = rc.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
 			return err
 		}
 	}
 
-	sc, err := replica.StatsConfig()
+	sc, err := rc.StatsConfig()
 	if err != nil {
 		return err
 	}
 	if o.statsConfig.Interval != sc.Interval {
-		if err = replica.SetStatsConfig(o.statsConfig.Interval); err != nil {
+		if err = rc.SetStatsConfig(o.statsConfig.Interval); err != nil {
 			return err
 		}
 	}
@@ -373,15 +409,63 @@ func (w *worker) syncConfigs(o *origin, replica client.Client) error {
 	return nil
 }
 
+func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.Client) error {
+	al, err := rc.AccessList()
+	if err != nil {
+		return err
+	}
+	if !al.Equals(oal) {
+		if err = rc.SetAccessList(oal); err != nil {
+			return err
+		}
+	}
+
+	dc, err := rc.DNSConfig()
+	if err != nil {
+		return err
+	}
+	if !dc.Equals(odc) {
+		if err = rc.SetDNSConfig(odc); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client) error {
+	sc, err := rc.DHCPServerConfig()
+	if err != nil {
+		return err
+	}
+	if !sc.Equals(osc) {
+		if err = rc.SetDHCPServerConfig(osc); err != nil {
+			return err
+		}
+	}
+
+	a, r := sc.StaticLeases.Merge(osc.StaticLeases)
+
+	if err = rc.AddDHCPStaticLeases(a...); err != nil {
+		return err
+	}
+	if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
+		return err
+	}
+	return nil
+}
+
 type origin struct {
-	status         *types.Status
-	rewrites       *types.RewriteEntries
-	services       types.Services
-	filters        *types.FilteringStatus
-	clients        *types.Clients
-	queryLogConfig *types.QueryLogConfig
-	statsConfig    *types.IntervalConfig
-	parental       bool
-	safeSearch     bool
-	safeBrowsing   bool
+	status           *types.Status
+	rewrites         *types.RewriteEntries
+	services         types.Services
+	filters          *types.FilteringStatus
+	clients          *types.Clients
+	queryLogConfig   *types.QueryLogConfig
+	statsConfig      *types.IntervalConfig
+	accessList       *types.AccessList
+	dnsConfig        *types.DNSConfig
+	dhcpServerConfig *types.DHCPServerConfig
+	parental         bool
+	safeSearch       bool
+	safeBrowsing     bool
 }
