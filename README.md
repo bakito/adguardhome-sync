@@ -13,13 +13,13 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 - Rewrites
 - Services
 - Clients
-- DNS Config (BETA)
-- DHCP Config (BETA)
+- DNS Config
+- DHCP Config
 
 ### Setup of initial instances
 
-New AdGuardHome replica instances can be automatically installed if enabled via the config autoSetup. 
-During automatic installation, the admin interface will be listening on port 3000 in runtime.
+New AdGuardHome replica instances can be automatically installed if enabled via the config autoSetup. During automatic
+installation, the admin interface will be listening on port 3000 in runtime.
 
 To skip automatic setup
 

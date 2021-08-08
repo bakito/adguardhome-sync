@@ -147,20 +147,16 @@ func (w *worker) sync() {
 		return
 	}
 
-	if w.cfg.WithBeta("dns") {
-		o.dnsConfig, err = oc.DNSConfig()
-		if err != nil {
-			sl.With("error", err).Error("Error getting dns config")
-			return
-		}
+	o.dnsConfig, err = oc.DNSConfig()
+	if err != nil {
+		sl.With("error", err).Error("Error getting dns config")
+		return
 	}
 
-	if w.cfg.WithBeta("dhcp") {
-		o.dhcpServerConfig, err = oc.DHCPServerConfig()
-		if err != nil {
-			sl.With("error", err).Error("Error getting dhcp server config")
-			return
-		}
+	o.dhcpServerConfig, err = oc.DHCPServerConfig()
+	if err != nil {
+		sl.With("error", err).Error("Error getting dhcp server config")
+		return
 	}
 
 	replicas := w.cfg.UniqueReplicas()
@@ -224,18 +220,14 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	if w.cfg.WithBeta("dns") {
-		if err = w.syncDNS(o.accessList, o.dnsConfig, rc); err != nil {
-			rl.With("error", err).Error("Error syncing dns")
-			return
-		}
+	if err = w.syncDNS(o.accessList, o.dnsConfig, rc); err != nil {
+		rl.With("error", err).Error("Error syncing dns")
+		return
 	}
 
-	if w.cfg.WithBeta("dhcp") {
-		if err = w.syncDHCPServer(o.dhcpServerConfig, rc); err != nil {
-			rl.With("error", err).Error("Error syncing dns")
-			return
-		}
+	if err = w.syncDHCPServer(o.dhcpServerConfig, rc); err != nil {
+		rl.With("error", err).Error("Error syncing dns")
+		return
 	}
 
 	rl.Info("Sync done")
