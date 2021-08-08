@@ -198,7 +198,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	err = w.syncRewrites(o.rewrites, rc)
+	err = w.syncRewrites(rl, o.rewrites, rc)
 	if err != nil {
 		rl.With("error", err).Error("Error syncing rewrites")
 		return
@@ -309,14 +309,14 @@ func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitel
 	return nil
 }
 
-func (w *worker) syncRewrites(or *types.RewriteEntries, replica client.Client) error {
+func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, replica client.Client) error {
 
 	replicaRewrites, err := replica.RewriteList()
 	if err != nil {
 		return err
 	}
 
-	a, r := replicaRewrites.Merge(or)
+	a, r, d := replicaRewrites.Merge(or)
 
 	if err = replica.AddRewriteEntries(a...); err != nil {
 		return err
@@ -324,6 +324,11 @@ func (w *worker) syncRewrites(or *types.RewriteEntries, replica client.Client) e
 	if err = replica.DeleteRewriteEntries(r...); err != nil {
 		return err
 	}
+
+	for _, dupl := range d {
+		rl.With("domain", dupl.Domain, "answer", dupl.Answer).Warn("Skipping duplicated rewrite from source")
+	}
+
 	return nil
 }
 

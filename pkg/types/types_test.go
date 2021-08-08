@@ -162,8 +162,9 @@ var _ = Describe("Types", func() {
 
 			It("should add a missing rewrite entry", func() {
 				originRE = append(originRE, types.RewriteEntry{Domain: domain})
-				a, d := replicaRE.Merge(&originRE)
+				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(HaveLen(1))
+				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
 
 				Ω(a[0].Domain).Should(Equal(domain))
@@ -171,19 +172,41 @@ var _ = Describe("Types", func() {
 
 			It("should remove additional ewrite entry", func() {
 				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
-				a, d := replicaRE.Merge(&originRE)
+				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
-				Ω(d).Should(HaveLen(1))
+				Ω(r).Should(HaveLen(1))
+				Ω(d).Should(BeEmpty())
 
-				Ω(d[0].Domain).Should(Equal(domain))
+				Ω(r[0].Domain).Should(Equal(domain))
 			})
 
 			It("should have no changes", func() {
 				originRE = append(originRE, types.RewriteEntry{Domain: domain})
 				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
-				a, d := replicaRE.Merge(&originRE)
+				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
+				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
+			})
+
+			It("should remove target duplicate", func() {
+				originRE = append(originRE, types.RewriteEntry{Domain: domain})
+				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				a, r, d := replicaRE.Merge(&originRE)
+				Ω(a).Should(BeEmpty())
+				Ω(r).Should(HaveLen(1))
+				Ω(d).Should(BeEmpty())
+			})
+
+			FIt("should remove target duplicate", func() {
+				originRE = append(originRE, types.RewriteEntry{Domain: domain})
+				originRE = append(originRE, types.RewriteEntry{Domain: domain})
+				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				a, r, d := replicaRE.Merge(&originRE)
+				Ω(a).Should(BeEmpty())
+				Ω(r).Should(BeEmpty())
+				Ω(d).Should(HaveLen(1))
 			})
 		})
 	})

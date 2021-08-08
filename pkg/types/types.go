@@ -106,20 +106,34 @@ type Status struct {
 type RewriteEntries []RewriteEntry
 
 // Merge RewriteEntries
-func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries) {
+func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries, RewriteEntries) {
 	current := make(map[string]RewriteEntry)
 
 	var adds RewriteEntries
 	var removes RewriteEntries
+	var duplicates RewriteEntries
+	processed := make(map[string]bool)
 	for _, rr := range *rwe {
-		current[rr.Key()] = rr
+		if _, ok := processed[rr.Key()]; !ok {
+			current[rr.Key()] = rr
+			processed[rr.Key()] = true
+		} else {
+			// remove duplicate
+			removes = append(removes, rr)
+		}
 	}
 
 	for _, rr := range *other {
 		if _, ok := current[rr.Key()]; ok {
 			delete(current, rr.Key())
 		} else {
-			adds = append(adds, rr)
+			if _, ok := processed[rr.Key()]; !ok {
+				adds = append(adds, rr)
+				processed[rr.Key()] = true
+			} else {
+				//	skip duplicate
+				duplicates = append(duplicates, rr)
+			}
 		}
 	}
 
@@ -127,7 +141,7 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, Rewrite
 		removes = append(removes, rr)
 	}
 
-	return adds, removes
+	return adds, removes, duplicates
 }
 
 // RewriteEntry API struct
