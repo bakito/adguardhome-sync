@@ -199,7 +199,7 @@ var _ = Describe("Types", func() {
 				Ω(d).Should(BeEmpty())
 			})
 
-			FIt("should remove target duplicate", func() {
+			It("should remove target duplicate", func() {
 				originRE = append(originRE, types.RewriteEntry{Domain: domain})
 				originRE = append(originRE, types.RewriteEntry{Domain: domain})
 				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
