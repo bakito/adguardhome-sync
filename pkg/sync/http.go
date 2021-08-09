@@ -1,6 +1,8 @@
 package sync
 
 import (
+	_ "embed"
+
 	"context"
 	"fmt"
 	"net"
@@ -14,6 +16,13 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/log"
 )
 
+var (
+	//go:embed index.html
+	index []byte
+	//go:embed favicon.ico
+	favicon []byte
+)
+
 func (w *worker) handleSync(rw http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodPost:
@@ -25,7 +34,13 @@ func (w *worker) handleSync(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (w *worker) handleRoot(rw http.ResponseWriter, _ *http.Request) {
-	_, _ = rw.Write([]byte("adguardhome-sync"))
+	rw.Header().Set("Content-Type", "text/html")
+	_, _ = rw.Write(index)
+}
+
+func (w *worker) handleFavicon(rw http.ResponseWriter, _ *http.Request) {
+	rw.Header().Set("Content-Type", "image/x-icon")
+	_, _ = rw.Write(favicon)
 }
 
 func (w *worker) handleLogs(rw http.ResponseWriter, _ *http.Request) {
@@ -78,6 +93,7 @@ func (w *worker) listenAndServe() {
 
 	mux.HandleFunc("/api/v1/sync", use(w.handleSync, mw...))
 	mux.HandleFunc("/api/v1/logs", use(w.handleLogs, mw...))
+	mux.HandleFunc("/favicon.ico", use(w.handleFavicon, mw...))
 	mux.HandleFunc("/", use(w.handleRoot, mw...))
 
 	go func() {

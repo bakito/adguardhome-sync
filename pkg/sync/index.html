@@ -1,0 +1,45 @@
+<html>
+<head>
+    <title>AdGuardHome sync</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#showLogs").click(function () {
+                $.get("/api/v1/logs", {}, function (data) {
+                        $('#logs').html(data);
+                    }
+                );
+            });
+            $("#sync").click(function () {
+                $.post("/api/v1/sync", {}, function (data) {
+                });
+            });
+            $("#showLogs").click()
+        });
+    </script>
+    <link rel="shortcut icon" href="/favicon.ico">
+</head>
+<body>
+<div class="container-fluid  px-4">
+    <div class="row">
+        <h1 class="display-4">AdGuardHome sync</h1>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <input class="btn btn-success" type="button" id="sync" value="Synchronize"/>
+                <input class="btn btn-secondary" type="button" id="showLogs" value="Update Logs"/>
+            </div>
+        </div>
+    </div>
+    <div class="row  mt-3">
+        <div class="col-12">
+            <pre class="p-3 border"><code id="logs"></code></pre>
+        </div>
+    </div>
+</div>
+</body>
+</html>
