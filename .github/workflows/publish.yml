@@ -11,6 +11,9 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date --utc +%Y-%m-%dT%H:%M:%SZ)"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -29,7 +32,9 @@ jobs:
           push: true
           tags: quay.io/bakito/adguardhome-sync:latest,quay.io/bakito/adguardhome-sync:${{ github.event.release.tag_name }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          build-args: VERSION=${{ github.event.release.tag_name }}
+          build-args: |
+            VERSION=${{ github.event.release.tag_name }}
+            BUILD=${{ steps.date.outputs.date }}
 
       - name: Build and push main
         id: docker_build_main
@@ -39,6 +44,8 @@ jobs:
           push: true
           tags: quay.io/bakito/adguardhome-sync:main
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          build-args: VERSION=main
+          build-args: |
+            VERSION=main
+            BUILD=${{ steps.date.outputs.date }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

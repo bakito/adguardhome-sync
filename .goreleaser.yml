@@ -4,7 +4,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/bakito/adguardhome-sync/version.Version={{.Version}}
+      - -s -w -X github.com/bakito/adguardhome-sync/version.Version={{.Version}} -X github.com/bakito/adguardhome-sync/version.Build={{.Date}}
     goos:
       - linux
       - windows

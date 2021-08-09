@@ -27,6 +27,7 @@ func Sync(cfg *types.Config) error {
 		return fmt.Errorf("no replicas configured")
 	}
 
+	l.With("version", version.Version, "build", version.Build).Info("AdGuardHome sync")
 	cfg.Origin.AutoSetup = false
 
 	w := &worker{
@@ -37,7 +38,7 @@ func Sync(cfg *types.Config) error {
 	}
 	if cfg.Cron != "" {
 		w.cron = cron.New()
-		cl := l.With("version", version.Version, "cron", cfg.Cron)
+		cl := l.With("cron", cfg.Cron)
 		_, err := w.cron.AddFunc(cfg.Cron, func() {
 			w.sync()
 		})
@@ -53,7 +54,7 @@ func Sync(cfg *types.Config) error {
 		}
 	}
 	if cfg.RunOnStart {
-		l.With("version", version.Version).Info("Run on startup")
+		l.Info("Running sync on startup")
 		w.sync()
 	}
 	if cfg.API.Port != 0 {

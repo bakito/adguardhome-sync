@@ -5,6 +5,8 @@ WORKDIR /go/src/app
 RUN apt-get update && apt-get install -y upx
 
 ARG VERSION=main
+ARG BUILD="N/A"
+
 ENV GOPROXY=https://goproxy.io \
   GO111MODULE=on \
   CGO_ENABLED=0 \
@@ -12,7 +14,7 @@ ENV GOPROXY=https://goproxy.io \
 
 ADD . /go/src/app/
 
-RUN go build -a -installsuffix cgo -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION}" -o adguardhome-sync . \
+RUN go build -a -installsuffix cgo -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" -o adguardhome-sync . \
   && upx -q adguardhome-sync
 
 # application image
