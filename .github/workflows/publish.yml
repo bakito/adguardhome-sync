@@ -1,10 +1,9 @@
-name: quay
+name: docker-image
 
 on:
   push:
     branches:
       - main
-      - ghcr
   release:
     types:
       - published
