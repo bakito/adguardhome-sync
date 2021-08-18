@@ -127,6 +127,7 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 				return SetupNeededError
 			}
 		}
+		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")
 		return err
 	}
 	rl.With("status", resp.StatusCode(), "body", string(resp.Body())).Debug("got response")
@@ -144,6 +145,7 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 	rl.Debug("do post")
 	resp, err := req.Post(url)
 	if err != nil {
+		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do post")
 		return err
 	}
 	rl.With("status", resp.StatusCode(), "body", string(resp.Body())).Debug("got response")
