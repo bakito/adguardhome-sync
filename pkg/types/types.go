@@ -171,7 +171,8 @@ func (f Filters) Merge(other Filters) (Filters, Filters, Filters) {
 		current[f.URL] = f
 	}
 
-	for _, rr := range other {
+	for i := range other {
+		rr := other[i]
 		if c, ok := current[rr.URL]; ok {
 			if !c.Equals(&rr) {
 				updates = append(updates, rr)

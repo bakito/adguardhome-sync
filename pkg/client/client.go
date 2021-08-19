@@ -36,6 +36,7 @@ func New(config types.AdGuardInstance) (Client, error) {
 	cl := resty.New().SetHostURL(u.String()).SetDisableWarn(true)
 
 	if config.InsecureSkipVerify {
+		// #nosec G402 has to be explicitly enabled
 		cl.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
@@ -169,7 +170,8 @@ func (cl *client) RewriteList() (*types.RewriteEntries, error) {
 }
 
 func (cl *client) AddRewriteEntries(entries ...types.RewriteEntry) error {
-	for _, e := range entries {
+	for i := range entries {
+		e := entries[i]
 		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/add")
 		if err != nil {
@@ -180,7 +182,8 @@ func (cl *client) AddRewriteEntries(entries ...types.RewriteEntry) error {
 }
 
 func (cl *client) DeleteRewriteEntries(entries ...types.RewriteEntry) error {
-	for _, e := range entries {
+	for i := range entries {
+		e := entries[i]
 		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/delete")
 		if err != nil {
@@ -314,7 +317,8 @@ func (cl *client) Clients() (*types.Clients, error) {
 }
 
 func (cl *client) AddClients(clients ...types.Client) error {
-	for _, client := range clients {
+	for i := range clients {
+		client := clients[i]
 		cl.log.With("name", client.Name).Info("Add client")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&client), "/clients/add")
 		if err != nil {
@@ -336,7 +340,8 @@ func (cl *client) UpdateClients(clients ...types.Client) error {
 }
 
 func (cl *client) DeleteClients(clients ...types.Client) error {
-	for _, client := range clients {
+	for i := range clients {
+		client := clients[i]
 		cl.log.With("name", client.Name).Info("Delete client")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&client), "/clients/delete")
 		if err != nil {

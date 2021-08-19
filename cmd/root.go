@@ -35,8 +35,8 @@ const (
 	configReplicaInsecureSkipVerify = "replica.insecureSkipVerify"
 	configReplicaAutoSetup          = "replica.autoSetup"
 
-	envReplicasUsernameFormat           = "REPLICA%s_USERNAME"
-	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD"
+	envReplicasUsernameFormat           = "REPLICA%s_USERNAME" // #nosec G101
+	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD" // #nosec G101
 	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
 	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
 	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
