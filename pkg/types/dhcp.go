@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// DHCPServerConfig dhcp server config
 type DHCPServerConfig struct {
 	V4            *V4ServerConfJSON `json:"v4"`
 	V6            *V6ServerConfJSON `json:"v6"`
@@ -23,6 +24,7 @@ func (c *DHCPServerConfig) Equals(o *DHCPServerConfig) bool {
 	return string(a) == string(b)
 }
 
+// V4ServerConfJSON v4 server conf
 type V4ServerConfJSON struct {
 	GatewayIP     net.IP `json:"gateway_ip"`
 	SubnetMask    net.IP `json:"subnet_mask"`
@@ -31,12 +33,14 @@ type V4ServerConfJSON struct {
 	LeaseDuration uint32 `json:"lease_duration"`
 }
 
+// V6ServerConfJSON v6 server conf
 type V6ServerConfJSON struct {
 	RangeStart    net.IP `json:"range_start"`
 	RangeEnd      net.IP `json:"range_end"`
 	LeaseDuration uint32 `json:"lease_duration"`
 }
 
+// Leases slice of leases type
 type Leases []Lease
 
 // Merge the leases

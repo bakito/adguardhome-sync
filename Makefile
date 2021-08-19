@@ -21,7 +21,7 @@ test: mocks tidy fmt vet
 	go tool cover -func=coverage.out
 
 mocks: mockgen
-	mockgen -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
+	mockgen -package client -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
 
 release: semver
 	@version=$$(semver); \

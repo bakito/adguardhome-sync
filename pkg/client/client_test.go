@@ -107,7 +107,7 @@ bar`)
 			Ω(fs.DNSAddresses[0]).Should(Equal("192.168.1.2"))
 			Ω(fs.Version).Should(Equal("v0.105.2"))
 		})
-		It("should return SetupNeededError", func() {
+		It("should return ErrSetupNeeded", func() {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Location", "/install.html")
 				w.WriteHeader(http.StatusFound)
@@ -116,7 +116,7 @@ bar`)
 			Ω(err).ShouldNot(HaveOccurred())
 			_, err = cl.Status()
 			Ω(err).Should(HaveOccurred())
-			Ω(err).Should(Equal(client.SetupNeededError))
+			Ω(err).Should(Equal(client.ErrSetupNeeded))
 		})
 	})
 

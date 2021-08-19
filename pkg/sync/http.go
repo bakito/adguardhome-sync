@@ -1,6 +1,7 @@
 package sync
 
 import (
+	// import embed for html page
 	_ "embed"
 
 	"context"

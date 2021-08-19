@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	l                = log.GetLogger("client")
-	SetupNeededError = errors.New("setup needed")
+	l = log.GetLogger("client")
+	// ErrSetupNeeded custom error
+	ErrSetupNeeded = errors.New("setup needed")
 )
 
 // New create a new client
@@ -124,7 +125,7 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 		if resp != nil && resp.StatusCode() == http.StatusFound {
 			loc := resp.Header().Get("Location")
 			if loc == "/install.html" {
-				return SetupNeededError
+				return ErrSetupNeeded
 			}
 		}
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")

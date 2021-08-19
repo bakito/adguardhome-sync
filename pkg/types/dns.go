@@ -6,19 +6,7 @@ import (
 	"sort"
 )
 
-// https://ha.bakito.net:3000/control/dns_config
-// {"bootstrap_dns":["1.1.1.1:53"],"upstream_mode":"parallel","upstream_dns":["https://dns10.quad9.net/dns-query"]}
-// {"bootstrap_dns":["1.1.1.1:53"],"upstream_mode":"","upstream_dns":["https://dns10.quad9.net/dns-query"]}
-// {"bootstrap_dns":["1.1.1.1:53"],"upstream_mode":"fastest_addr","upstream_dns":["https://dns10.quad9.net/dns-query"]}
-
-// {"ratelimit":20,"blocking_mode":"default","blocking_ipv4":"0.0.0.0","blocking_ipv6":"::","edns_cs_enabled":true,"disable_ipv6":false,"dnssec_enabled":false}
-// {"cache_size":4194304,"cache_ttl_max":0,"cache_ttl_min":0}
-
-// https://ha.bakito.net:3000/control/access/set
-// {"allowed_clients":["2.2.2.2"],"disallowed_clients":["1.1.1.1"],"blocked_hosts":["version.bind","id.server","hostname.bind"]}
-// https://ha.bakito.net:3000/control/access/list
-// {"allowed_clients":[],"disallowed_clients":[],"blocked_hosts":["version.bind","id.server","hostname.bind"]}
-
+// DNSConfig dns config
 type DNSConfig struct {
 	Upstreams     []string `json:"upstream_dns,omitempty"`
 	UpstreamsFile string   `json:"upstream_dns_file"`
@@ -57,6 +45,7 @@ func (c *DNSConfig) Sort() {
 	sort.Strings(c.LocalPTRUpstreams)
 }
 
+// AccessList access list
 type AccessList struct {
 	AllowedClients    []string `json:"allowed_clients"`
 	DisallowedClients []string `json:"disallowed_clients"`

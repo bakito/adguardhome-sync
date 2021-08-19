@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	// DefaultAPIPath default api path
 	DefaultAPIPath = "/control"
 )
 
@@ -57,6 +58,7 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	return r
 }
 
+// WithBeta return true if the given beta feature is enabled
 func (cfg *Config) WithBeta(name string) bool {
 	doOnce.Do(func() {
 		cfg.enabledBeta = make(map[string]bool)

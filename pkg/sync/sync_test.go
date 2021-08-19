@@ -3,12 +3,11 @@ package sync
 import (
 	"errors"
 
-	"github.com/bakito/adguardhome-sync/pkg/client"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	mc "github.com/bakito/adguardhome-sync/pkg/mocks/client"
+	"github.com/bakito/adguardhome-sync/pkg/client"
+	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -17,14 +16,14 @@ import (
 var _ = Describe("Sync", func() {
 	var (
 		mockCtrl *gm.Controller
-		cl       *mc.MockClient
+		cl       *clientmock.MockClient
 		w        *worker
 		te       error
 	)
 
 	BeforeEach(func() {
 		mockCtrl = gm.NewController(GinkgoT())
-		cl = mc.NewMockClient(mockCtrl)
+		cl = clientmock.NewMockClient(mockCtrl)
 		w = &worker{
 			createClient: func(instance types.AdGuardInstance) (client.Client, error) {
 				return cl, nil
@@ -284,7 +283,7 @@ var _ = Describe("Sync", func() {
 				Ω(st).Should(Equal(status))
 			})
 			It("should runs setup before getting replica status", func() {
-				cl.EXPECT().Status().Return(nil, client.SetupNeededError)
+				cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
 				cl.EXPECT().Setup()
 				cl.EXPECT().Status().Return(status, nil)
 				st, err := w.statusWithSetup(l, inst, cl)
@@ -292,7 +291,7 @@ var _ = Describe("Sync", func() {
 				Ω(st).Should(Equal(status))
 			})
 			It("should fail on setup", func() {
-				cl.EXPECT().Status().Return(nil, client.SetupNeededError)
+				cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
 				cl.EXPECT().Setup().Return(te)
 				st, err := w.statusWithSetup(l, inst, cl)
 				Ω(err).Should(HaveOccurred())
