@@ -1,0 +1,30 @@
+name: prune-images
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete untagged images
+        uses: actions/github-script@v3
+        with:
+          # token needs read:packages,  delete:packages
+          github-token: ${{ secrets.PRUNE_IMAGE_TOKEN }}
+          script: |
+            const response = await github.request("GET /users/bakito/packages/container/adguardhome-sync/versions",
+              { per_page: ${{ env.PER_PAGE }}
+            });
+            for(version of response.data) {
+                if (version.metadata.container.tags.length == 0) {
+                    console.log("delete '" + version.id + "'")
+
+                    const deleteResponse = await github.request("DELETE " + version.url, { });
+                    console.log("status " + deleteResponse.status)
+                }
+            }
+        env:
+          PER_PAGE: 50
