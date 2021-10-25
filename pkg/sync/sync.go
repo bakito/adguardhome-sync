@@ -54,12 +54,24 @@ func Sync(cfg *types.Config) error {
 		}
 	}
 	if cfg.RunOnStart {
+		go func() {
+			l.Info("Running sync on startup")
+			w.sync()
+		}()
+	}
+	if cfg.API.Port != 0 {
+		if cfg.RunOnStart {
+			go func() {
+				l.Info("Running sync on startup")
+				w.sync()
+			}()
+		}
+		w.listenAndServe()
+	} else if cfg.RunOnStart {
 		l.Info("Running sync on startup")
 		w.sync()
 	}
-	if cfg.API.Port != 0 {
-		w.listenAndServe()
-	}
+
 	return nil
 }
 
