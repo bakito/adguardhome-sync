@@ -8,19 +8,19 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#showLogs").click(function () {
-                $.get("/api/v1/logs", {}, function (data) {
+                $.get("api/v1/logs", {}, function (data) {
                         $('#logs').html(data);
                     }
                 );
             });
             $("#sync").click(function () {
-                $.post("/api/v1/sync", {}, function (data) {
+                $.post("api/v1/sync", {}, function (data) {
                 });
             });
             $("#showLogs").click()
         });
     </script>
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico">
 </head>
 <body>
 <div class="container-fluid  px-4">
