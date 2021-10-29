@@ -10,12 +10,11 @@ jobs:
 
     steps:
       - name: Prune
-        uses: bakito/action-ghcr-prune@main
+        uses: bakito/action-ghcr-prune@minified-user
         with:
           token: ${{ secrets.PRUNE_IMAGE_TOKEN }}
           user: bakito
           container: adguardhome-sync
           dry-run: true # Dry-run first, then change to `false`
           older-than: 7 # days
-          keep-last: 2
           untagged: true
