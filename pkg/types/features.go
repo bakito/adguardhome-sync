@@ -1,9 +1,7 @@
 package types
 
 import (
-	"fmt"
 	"go.uber.org/zap"
-	"strings"
 )
 
 // Features feature flags
@@ -31,6 +29,7 @@ type DNS struct {
 	Rewrites     bool `json:"rewrites" yaml:"rewrites"`
 }
 
+// LogDisabled log all disabled features
 func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 	var features []string
 	if !f.DHCP.ServerConfig {
@@ -39,8 +38,35 @@ func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 	if !f.DHCP.StaticLeases {
 		features = append(features, "DHCP.StaticLeases")
 	}
+	if !f.DNS.AccessLists {
+		features = append(features, "DHCP.AccessLists")
+	}
+	if !f.DNS.ServerConfig {
+		features = append(features, "DHCP.ServerConfig")
+	}
+	if !f.DNS.Rewrites {
+		features = append(features, "DHCP.Rewrites")
+	}
+	if !f.GeneralSettings {
+		features = append(features, "GeneralSettings")
+	}
+	if !f.QueryLogConfig {
+		features = append(features, "QueryLogConfig")
+	}
+	if !f.StatsConfig {
+		features = append(features, "StatsConfig")
+	}
+	if !f.ClientSettings {
+		features = append(features, "ClientSettings")
+	}
+	if !f.Services {
+		features = append(features, "Services")
+	}
+	if !f.Filters {
+		features = append(features, "Filters")
+	}
 
 	if len(features) > 0 {
-		l.With("features", fmt.Sprintf("[%s]", strings.Join(features, ","))).Info("Disabled features")
+		l.With("features", features).Info("Disabled features")
 	}
 }

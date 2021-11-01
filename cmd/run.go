@@ -50,6 +50,7 @@ func init() {
 	_ = viper.BindPFlag(configFeatureDNSRewrites, doCmd.PersistentFlags().Lookup("feature-dns-rewrites"))
 	doCmd.PersistentFlags().Bool("feature-general-settings", true, "Enable general settings feature")
 	_ = viper.BindPFlag(configFeatureGeneralSettings, doCmd.PersistentFlags().Lookup("feature-general-settings"))
+	_ = viper.BindPFlag("features.generalSettings", doCmd.PersistentFlags().Lookup("feature-general-settings"))
 	doCmd.PersistentFlags().Bool("feature-query-log-config", true, "Enable query log config feature")
 	_ = viper.BindPFlag(configFeatureQueryLogConfig, doCmd.PersistentFlags().Lookup("feature-query-log-config"))
 	doCmd.PersistentFlags().Bool("feature-stats-config", true, "Enable stats config feature")
@@ -60,9 +61,6 @@ func init() {
 	_ = viper.BindPFlag(configFeatureServices, doCmd.PersistentFlags().Lookup("feature-services"))
 	doCmd.PersistentFlags().Bool("feature-filters", true, "Enable filters sync feature")
 	_ = viper.BindPFlag(configFeatureFilters, doCmd.PersistentFlags().Lookup("feature-filters"))
-
-	doCmd.PersistentFlags().String("beta", "", "Enable beta features (comma separated list)")
-	_ = viper.BindPFlag(configBeta, doCmd.PersistentFlags().Lookup("beta"))
 
 	doCmd.PersistentFlags().String("origin-url", "", "Origin instance url")
 	_ = viper.BindPFlag(configOriginURL, doCmd.PersistentFlags().Lookup("origin-url"))

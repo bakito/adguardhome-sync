@@ -113,10 +113,8 @@ services:
       # - FEATURES_CLIENTSETTINGS=true
       # - FEATURES_SERVICES=true
       # - FEATURES_FILTERS=true
-      
       # - FEATURES_DHCP_SERVERCONFIG=true
       # - FEATURES_DHCP_STATICLEASES=true
-
       # - FEATURES_DNS_SERVERCONFIG=true
       # - FEATURES_DNS_ACCESSLISTS=true
       # - FEATURES_DNS_REWRITES=true
