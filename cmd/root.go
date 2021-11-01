@@ -24,6 +24,15 @@ const (
 
 	configFeatureDHCPServerConfig = "features.dhcp.serverConfig"
 	configFeatureDHCPStaticLeases = "features.dhcp.staticLeases"
+	configFeatureDNServerConfig   = "features.dns.serverConfig"
+	configFeatureDNSPAccessLists  = "features.dns.accessLists"
+	configFeatureDNSRewrites      = "features.dns.rewrites"
+	configFeatureGeneralSettings  = "features.generalSettings"
+	configFeatureQueryLogConfig   = "features.queryLogConfig"
+	configFeatureStatsConfig      = "features.statsConfig"
+	configFeatureClientSettings   = "features.clientSettings"
+	configFeatureServices         = "features.services"
+	configFeatureFilters          = "features.filters"
 
 	configOriginURL                = "origin.url"
 	configOriginAPIPath            = "origin.apiPath"

@@ -5,16 +5,11 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"sync"
 )
 
 const (
 	// DefaultAPIPath default api path
 	DefaultAPIPath = "/control"
-)
-
-var (
-	doOnce sync.Once
 )
 
 // Config application configuration struct

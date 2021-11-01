@@ -8,13 +8,27 @@ import (
 
 // Features feature flags
 type Features struct {
-	DHCP DHCP `json:"dhcp" yaml:"dhcp"`
+	DNS             DNS  `json:"dns" yaml:"dns"`
+	DHCP            DHCP `json:"dhcp" yaml:"dhcp"`
+	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings"`
+	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig"`
+	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig"`
+	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings"`
+	Services        bool `json:"services" yaml:"services"`
+	Filters         bool `json:"filters" yaml:"filters"`
 }
 
 // DHCP features
 type DHCP struct {
 	ServerConfig bool `json:"serverConfig" yaml:"serverConfig"`
 	StaticLeases bool `json:"staticLeases" yaml:"staticLeases"`
+}
+
+// DNS features
+type DNS struct {
+	AccessLists  bool `json:"accessLists" yaml:"accessLists"`
+	ServerConfig bool `json:"serverConfig" yaml:"serverConfig"`
+	Rewrites     bool `json:"rewrites" yaml:"rewrites"`
 }
 
 func (f *Features) LogDisabled(l *zap.SugaredLogger) {

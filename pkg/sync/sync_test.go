@@ -28,6 +28,25 @@ var _ = Describe("Sync", func() {
 			createClient: func(instance types.AdGuardInstance) (client.Client, error) {
 				return cl, nil
 			},
+			cfg: &types.Config{
+				Features: types.Features{
+					DHCP: types.DHCP{
+						ServerConfig: true,
+						StaticLeases: true,
+					},
+					DNS: types.DNS{
+						ServerConfig: true,
+						Rewrites:     true,
+						AccessLists:  true,
+					},
+					Filters:         true,
+					ClientSettings:  true,
+					Services:        true,
+					GeneralSettings: true,
+					StatsConfig:     true,
+					QueryLogConfig:  true,
+				},
+			},
 		}
 		te = errors.New(uuid.NewString())
 	})
@@ -417,6 +436,17 @@ var _ = Describe("Sync", func() {
 							ServerConfig: true,
 							StaticLeases: true,
 						},
+						DNS: types.DNS{
+							ServerConfig: true,
+							Rewrites:     true,
+							AccessLists:  true,
+						},
+						Filters:         true,
+						ClientSettings:  true,
+						Services:        true,
+						GeneralSettings: true,
+						StatsConfig:     true,
+						QueryLogConfig:  true,
 					},
 				}
 				// origin

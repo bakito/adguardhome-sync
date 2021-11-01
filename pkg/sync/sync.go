@@ -257,39 +257,43 @@ func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardIns
 }
 
 func (w *worker) syncServices(os types.Services, replica client.Client) error {
-	rs, err := replica.Services()
-	if err != nil {
-		return err
-	}
-
-	if !os.Equals(rs) {
-		if err := replica.SetServices(os); err != nil {
+	if w.cfg.Features.Services {
+		rs, err := replica.Services()
+		if err != nil {
 			return err
+		}
+
+		if !os.Equals(rs) {
+			if err := replica.SetServices(os); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) error {
-	rf, err := replica.Filtering()
-	if err != nil {
-		return err
-	}
-
-	if err = w.syncFilterType(of.Filters, rf.Filters, false, replica); err != nil {
-		return err
-	}
-	if err = w.syncFilterType(of.WhitelistFilters, rf.WhitelistFilters, true, replica); err != nil {
-		return err
-	}
-
-	if of.UserRules.String() != rf.UserRules.String() {
-		return replica.SetCustomRules(of.UserRules)
-	}
-
-	if of.Enabled != rf.Enabled || of.Interval != rf.Interval {
-		if err = replica.ToggleFiltering(of.Enabled, of.Interval); err != nil {
+	if w.cfg.Features.Filters {
+		rf, err := replica.Filtering()
+		if err != nil {
 			return err
+		}
+
+		if err = w.syncFilterType(of.Filters, rf.Filters, false, replica); err != nil {
+			return err
+		}
+		if err = w.syncFilterType(of.WhitelistFilters, rf.WhitelistFilters, true, replica); err != nil {
+			return err
+		}
+
+		if of.UserRules.String() != rf.UserRules.String() {
+			return replica.SetCustomRules(of.UserRules)
+		}
+
+		if of.Enabled != rf.Enabled || of.Interval != rf.Interval {
+			if err = replica.ToggleFiltering(of.Enabled, of.Interval); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -318,96 +322,104 @@ func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitel
 }
 
 func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, replica client.Client) error {
+	if w.cfg.Features.DNS.Rewrites {
+		replicaRewrites, err := replica.RewriteList()
+		if err != nil {
+			return err
+		}
 
-	replicaRewrites, err := replica.RewriteList()
-	if err != nil {
-		return err
-	}
+		a, r, d := replicaRewrites.Merge(or)
 
-	a, r, d := replicaRewrites.Merge(or)
+		if err = replica.AddRewriteEntries(a...); err != nil {
+			return err
+		}
+		if err = replica.DeleteRewriteEntries(r...); err != nil {
+			return err
+		}
 
-	if err = replica.AddRewriteEntries(a...); err != nil {
-		return err
-	}
-	if err = replica.DeleteRewriteEntries(r...); err != nil {
-		return err
-	}
-
-	for _, dupl := range d {
-		rl.With("domain", dupl.Domain, "answer", dupl.Answer).Warn("Skipping duplicated rewrite from source")
+		for _, dupl := range d {
+			rl.With("domain", dupl.Domain, "answer", dupl.Answer).Warn("Skipping duplicated rewrite from source")
+		}
 	}
 
 	return nil
 }
 
 func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
-	rc, err := replica.Clients()
-	if err != nil {
-		return err
-	}
+	if w.cfg.Features.ClientSettings {
+		rc, err := replica.Clients()
+		if err != nil {
+			return err
+		}
 
-	a, u, r := rc.Merge(oc)
+		a, u, r := rc.Merge(oc)
 
-	if err = replica.AddClients(a...); err != nil {
-		return err
-	}
-	if err = replica.UpdateClients(u...); err != nil {
-		return err
-	}
-	if err = replica.DeleteClients(r...); err != nil {
-		return err
+		if err = replica.AddClients(a...); err != nil {
+			return err
+		}
+		if err = replica.UpdateClients(u...); err != nil {
+			return err
+		}
+		if err = replica.DeleteClients(r...); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client.Client) error {
-	if o.status.ProtectionEnabled != rs.ProtectionEnabled {
-		if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
-			return err
+	if w.cfg.Features.GeneralSettings {
+		if o.status.ProtectionEnabled != rs.ProtectionEnabled {
+			if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
+				return err
+			}
 		}
-	}
-	if rp, err := replica.Parental(); err != nil {
-		return err
-	} else if o.parental != rp {
-		if err = replica.ToggleParental(o.parental); err != nil {
+		if rp, err := replica.Parental(); err != nil {
 			return err
+		} else if o.parental != rp {
+			if err = replica.ToggleParental(o.parental); err != nil {
+				return err
+			}
 		}
-	}
-	if rs, err := replica.SafeSearch(); err != nil {
-		return err
-	} else if o.safeSearch != rs {
-		if err = replica.ToggleSafeSearch(o.safeSearch); err != nil {
+		if rs, err := replica.SafeSearch(); err != nil {
 			return err
+		} else if o.safeSearch != rs {
+			if err = replica.ToggleSafeSearch(o.safeSearch); err != nil {
+				return err
+			}
 		}
-	}
-	if rs, err := replica.SafeBrowsing(); err != nil {
-		return err
-	} else if o.safeBrowsing != rs {
-		if err = replica.ToggleSafeBrowsing(o.safeBrowsing); err != nil {
+		if rs, err := replica.SafeBrowsing(); err != nil {
 			return err
+		} else if o.safeBrowsing != rs {
+			if err = replica.ToggleSafeBrowsing(o.safeBrowsing); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 func (w *worker) syncConfigs(o *origin, rc client.Client) error {
-	qlc, err := rc.QueryLogConfig()
-	if err != nil {
-		return err
-	}
-	if !o.queryLogConfig.Equals(qlc) {
-		if err = rc.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+	if w.cfg.Features.QueryLogConfig {
+		qlc, err := rc.QueryLogConfig()
+		if err != nil {
 			return err
 		}
+		if !o.queryLogConfig.Equals(qlc) {
+			if err = rc.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+				return err
+			}
+		}
 	}
-
-	sc, err := rc.StatsConfig()
-	if err != nil {
-		return err
-	}
-	if o.statsConfig.Interval != sc.Interval {
-		if err = rc.SetStatsConfig(o.statsConfig.Interval); err != nil {
+	if w.cfg.Features.StatsConfig {
+		sc, err := rc.StatsConfig()
+		if err != nil {
 			return err
+		}
+		if o.statsConfig.Interval != sc.Interval {
+			if err = rc.SetStatsConfig(o.statsConfig.Interval); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -415,23 +427,26 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 }
 
 func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.Client) error {
-	al, err := rc.AccessList()
-	if err != nil {
-		return err
-	}
-	if !al.Equals(oal) {
-		if err = rc.SetAccessList(oal); err != nil {
+	if w.cfg.Features.DNS.AccessLists {
+		al, err := rc.AccessList()
+		if err != nil {
 			return err
 		}
+		if !al.Equals(oal) {
+			if err = rc.SetAccessList(oal); err != nil {
+				return err
+			}
+		}
 	}
-
-	dc, err := rc.DNSConfig()
-	if err != nil {
-		return err
-	}
-	if !dc.Equals(odc) {
-		if err = rc.SetDNSConfig(odc); err != nil {
+	if w.cfg.Features.DNS.ServerConfig {
+		dc, err := rc.DNSConfig()
+		if err != nil {
 			return err
+		}
+		if !dc.Equals(odc) {
+			if err = rc.SetDNSConfig(odc); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

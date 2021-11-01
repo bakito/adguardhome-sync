@@ -107,8 +107,19 @@ services:
       - CRON=*/10 * * * * # run every 10 minutes
       - RUNONSTART=true
       # Configure sync features; by default all features are enabled.
-      # - FEATURES_DHCP_SERVERCONFIG=false
-      # - FEATURES_DHCP_STATICLEASES=false
+      # - FEATURES_GENERALSETTINGS=true
+      # - FEATURES_QUERYLOGCONFIG=true
+      # - FEATURES_STATSCONFIG=true
+      # - FEATURES_CLIENTSETTINGS=true
+      # - FEATURES_SERVICES=true
+      # - FEATURES_FILTERS=true
+      
+      # - FEATURES_DHCP_SERVERCONFIG=true
+      # - FEATURES_DHCP_STATICLEASES=true
+
+      # - FEATURES_DNS_SERVERCONFIG=true
+      # - FEATURES_DNS_ACCESSLISTS=true
+      # - FEATURES_DNS_REWRITES=true
     ports:
       - 8080:8080
     restart: unless-stopped
@@ -161,9 +172,19 @@ api:
 
 # Configure sync features; by default all features are enabled.
 features:
+  generalSettings: true
+  queryLogConfig: true
+  statsConfig: true
+  clientSettings: true
+  services: true
+  filters: true
   dhcp:
-    serverConfig: false
+    serverConfig: true
     staticLeases: true
+  dns:
+    serverConfig: true
+    accessLists: true
+    rewrites: true
 ```
 
 ## Log Level
