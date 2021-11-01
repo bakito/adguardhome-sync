@@ -28,6 +28,7 @@ func Sync(cfg *types.Config) error {
 	}
 
 	l.With("version", version.Version, "build", version.Build).Info("AdGuardHome sync")
+	cfg.Features.LogDisabled(l)
 	cfg.Origin.AutoSetup = false
 
 	w := &worker{
@@ -52,12 +53,6 @@ func Sync(cfg *types.Config) error {
 		} else {
 			w.cron.Run()
 		}
-	}
-	if cfg.RunOnStart {
-		go func() {
-			l.Info("Running sync on startup")
-			w.sync()
-		}()
 	}
 	if cfg.API.Port != 0 {
 		if cfg.RunOnStart {
@@ -444,22 +439,26 @@ func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.
 
 func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client) error {
 	sc, err := rc.DHCPServerConfig()
-	if err != nil {
-		return err
-	}
-	if !sc.Equals(osc) {
-		if err = rc.SetDHCPServerConfig(osc); err != nil {
+	if w.cfg.Features.DHCP.ServerConfig {
+		if err != nil {
 			return err
+		}
+		if !sc.Equals(osc) {
+			if err = rc.SetDHCPServerConfig(osc); err != nil {
+				return err
+			}
 		}
 	}
 
-	a, r := sc.StaticLeases.Merge(osc.StaticLeases)
+	if w.cfg.Features.DHCP.StaticLeases {
+		a, r := sc.StaticLeases.Merge(osc.StaticLeases)
 
-	if err = rc.AddDHCPStaticLeases(a...); err != nil {
-		return err
-	}
-	if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
-		return err
+		if err = rc.AddDHCPStaticLeases(a...); err != nil {
+			return err
+		}
+		if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
+			return err
+		}
 	}
 	return nil
 }

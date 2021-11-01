@@ -37,6 +37,11 @@ func init() {
 	doCmd.PersistentFlags().String("api-password", "", "Sync API password")
 	_ = viper.BindPFlag(configAPIPassword, doCmd.PersistentFlags().Lookup("api-password"))
 
+	doCmd.PersistentFlags().Bool("feature-dhcp-server-config", true, "Enable DHCP server config feature")
+	_ = viper.BindPFlag(configFeatureDHCPServerConfig, doCmd.PersistentFlags().Lookup("feature-dhcp-server-config"))
+	doCmd.PersistentFlags().Bool("feature-dhcp-static-leases", true, "Enable DHCP server static leases feature")
+	_ = viper.BindPFlag(configFeatureDHCPStaticLeases, doCmd.PersistentFlags().Lookup("feature-dhcp-static-leases"))
+
 	doCmd.PersistentFlags().String("beta", "", "Enable beta features (comma separated list)")
 	_ = viper.BindPFlag(configBeta, doCmd.PersistentFlags().Lookup("beta"))
 

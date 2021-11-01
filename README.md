@@ -16,6 +16,8 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 - DNS Config
 - DHCP Config
 
+By default, all features are enabled. Single features can be disabled in the config.
+
 ### Setup of initial instances
 
 New AdGuardHome replica instances can be automatically installed if enabled via the config autoSetup. During automatic
@@ -104,6 +106,9 @@ services:
       # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized. 
       - CRON=*/10 * * * * # run every 10 minutes
       - RUNONSTART=true
+      # Configure sync features; by default all features are enabled.
+      # - FEATURES_DHCP_SERVERCONFIG=false
+      # - FEATURES_DHCP_STATICLEASES=false
     ports:
       - 8080:8080
     restart: unless-stopped
@@ -154,6 +159,11 @@ api:
   username: username
   password: password
 
+# Configure sync features; by default all features are enabled.
+features:
+  dhcp:
+    serverConfig: false
+    staticLeases: true
 ```
 
 ## Log Level

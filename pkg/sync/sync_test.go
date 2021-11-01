@@ -412,7 +412,12 @@ var _ = Describe("Sync", func() {
 				w.cfg = &types.Config{
 					Origin:  types.AdGuardInstance{},
 					Replica: types.AdGuardInstance{URL: "foo"},
-					Beta:    "",
+					Features: types.Features{
+						DHCP: types.DHCP{
+							ServerConfig: true,
+							StaticLeases: true,
+						},
+					},
 				}
 				// origin
 				cl.EXPECT().Host()

@@ -22,6 +22,9 @@ const (
 	configAPIUsername = "api.username"
 	configAPIPassword = "api.password"
 
+	configFeatureDHCPServerConfig = "features.dhcp.serverConfig"
+	configFeatureDHCPStaticLeases = "features.dhcp.staticLeases"
+
 	configOriginURL                = "origin.url"
 	configOriginAPIPath            = "origin.apiPath"
 	configOriginUsername           = "origin.username"

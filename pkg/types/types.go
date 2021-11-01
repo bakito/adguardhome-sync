@@ -19,14 +19,13 @@ var (
 
 // Config application configuration struct
 type Config struct {
-	Origin      AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica     AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
-	Replicas    []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron        string            `json:"cron,omitempty" yaml:"cron,omitempty"`
-	RunOnStart  bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
-	API         API               `json:"api,omitempty" yaml:"api,omitempty"`
-	Beta        string            `json:"beta,omitempty" yaml:"beta,omitempty"`
-	enabledBeta map[string]bool   `json:"-" yaml:"-"`
+	Origin     AdGuardInstance   `json:"origin" yaml:"origin"`
+	Replica    AdGuardInstance   `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replicas   []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	Cron       string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	RunOnStart bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
+	API        API               `json:"api,omitempty" yaml:"api,omitempty"`
+	Features   Features          `json:"features,omitempty" yaml:"features,omitempty"`
 }
 
 // API configuration
@@ -56,20 +55,6 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 		r = append(r, replica)
 	}
 	return r
-}
-
-// WithBeta return true if the given beta feature is enabled
-func (cfg *Config) WithBeta(name string) bool {
-	doOnce.Do(func() {
-		cfg.enabledBeta = make(map[string]bool)
-
-		features := strings.Split(cfg.Beta, ",")
-		for _, f := range features {
-			cfg.enabledBeta[strings.ToLower(strings.TrimSpace(f))] = true
-		}
-	})
-	return cfg.enabledBeta[name]
-
 }
 
 // AdGuardInstance AdguardHome config instance
