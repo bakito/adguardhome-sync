@@ -33,7 +33,7 @@ func New(config types.AdGuardInstance) (Client, error) {
 		return nil, err
 	}
 	u.Path = path.Clean(u.Path)
-	cl := resty.New().SetHostURL(u.String()).SetDisableWarn(true)
+	cl := resty.New().SetBaseURL(u.String()).SetDisableWarn(true)
 
 	if config.InsecureSkipVerify {
 		// #nosec G402 has to be explicitly enabled
