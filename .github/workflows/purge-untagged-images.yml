@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Prune
-        uses: bakito/action-ghcr-prune@main
+        uses: vlaurin/action-ghcr-prune@main
         with:
           token: ${{ secrets.PRUNE_IMAGE_TOKEN }}
           container: adguardhome-sync
