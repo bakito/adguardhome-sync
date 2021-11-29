@@ -12,13 +12,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	l = log.GetLogger("sync")
-)
+var l = log.GetLogger("sync")
 
 // Sync config from origin to replica
 func Sync(cfg *types.Config) error {
-
 	if cfg.Origin.URL == "" {
 		return fmt.Errorf("origin URL is required")
 	}
@@ -174,7 +171,6 @@ func (w *worker) sync() {
 }
 
 func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
-
 	rc, err := w.createClient(replica)
 	if err != nil {
 		l.With("error", err, "url", replica.URL).Error("Error creating replica client")

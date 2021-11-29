@@ -3,14 +3,13 @@ package sync
 import (
 	"errors"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Sync", func() {
@@ -426,7 +425,6 @@ var _ = Describe("Sync", func() {
 		})
 
 		Context("sync", func() {
-
 			It("should have no changes", func() {
 				w.cfg = &types.Config{
 					Origin:  types.AdGuardInstance{},

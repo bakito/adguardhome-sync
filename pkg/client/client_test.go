@@ -7,12 +7,11 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var (
@@ -21,7 +20,6 @@ var (
 )
 
 var _ = Describe("Client", func() {
-
 	var (
 		cl client.Client
 		ts *httptest.Server
@@ -290,9 +288,7 @@ bar`)
 	})
 
 	Context("helper functions", func() {
-		var (
-			cl client.Client
-		)
+		var cl client.Client
 		BeforeEach(func() {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusUnauthorized)

@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Types", func() {
@@ -219,9 +218,7 @@ var _ = Describe("Types", func() {
 		})
 	})
 	Context("Config", func() {
-		var (
-			cfg *types.Config
-		)
+		var cfg *types.Config
 		BeforeEach(func() {
 			cfg = &types.Config{}
 		})

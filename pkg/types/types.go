@@ -260,11 +260,10 @@ func (s Services) Equals(o Services) bool {
 type Clients struct {
 	Clients     []Client `json:"clients"`
 	AutoClients []struct {
-		IP        string `json:"ip"`
-		Name      string `json:"name"`
-		Source    string `json:"source"`
-		WhoisInfo struct {
-		} `json:"whois_info"`
+		IP        string   `json:"ip"`
+		Name      string   `json:"name"`
+		Source    string   `json:"source"`
+		WhoisInfo struct{} `json:"whois_info"`
 	} `json:"auto_clients"`
 	SupportedTags []string `json:"supported_tags"`
 }

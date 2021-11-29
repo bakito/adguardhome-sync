@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os"
 )
 
 var envVars = []string{
@@ -22,7 +23,6 @@ var envVars = []string{
 }
 
 var _ = Describe("Run", func() {
-
 	BeforeEach(func() {
 		for _, envVar := range envVars {
 			Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())

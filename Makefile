@@ -1,22 +1,16 @@
 # Run go fmt against code
 fmt:
-	go fmt ./...
-	gofmt -s -w .
-
-# Run go vet against code
-vet:
-	go vet ./...
-
-# Run golangci-lint
-lint:
-	golangci-lint run
+	golangci-lint run --fix
 
 # Run go mod tidy
 tidy:
 	go mod tidy
 
 # Run tests
-test: mocks tidy fmt vet
+test: test-ci fmt
+
+# Run ci tests
+test-ci: mocks tidy
 	go test ./...  -coverprofile=coverage.out
 	go tool cover -func=coverage.out
 
@@ -33,10 +27,10 @@ test-release:
 
 semver:
 ifeq (, $(shell which semver))
- $(shell go get -u github.com/bakito/semver)
+ $(shell go install github.com/bakito/semver@latest)
 endif
 
 mockgen:
 ifeq (, $(shell which mockgen))
- $(shell go get github.com/golang/mock/mockgen@v1.5)
+ $(shell go install github.com/golang/mock/mockgen@v1.5)
 endif

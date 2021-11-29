@@ -1,10 +1,11 @@
 package sync
 
 import (
+	"context"
+
 	// import embed for html page
 	_ "embed"
-
-	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -50,7 +51,6 @@ func (w *worker) handleLogs(rw http.ResponseWriter, _ *http.Request) {
 
 func (w *worker) basicAuth(h http.HandlerFunc) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		rw.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 
 		username, password, authOK := r.BasicAuth()
@@ -98,7 +98,7 @@ func (w *worker) listenAndServe() {
 	mux.HandleFunc("/", use(w.handleRoot, mw...))
 
 	go func() {
-		if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
+		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.With("error", err).Fatalf("HTTP server ListenAndServe")
 		}
 	}()
