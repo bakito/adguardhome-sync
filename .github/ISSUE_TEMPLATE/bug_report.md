@@ -20,7 +20,7 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+**Log Files**
 If applicable, add log files or json responses from AdGuardHome to help explain your problem.
 
 **Additional context**
