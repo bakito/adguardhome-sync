@@ -8,7 +8,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
