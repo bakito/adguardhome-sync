@@ -269,7 +269,7 @@ var _ = Describe("Sync", func() {
 			It("should have QueryLogConfig changes", func() {
 				o.queryLogConfig.Interval = 123
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
-				cl.EXPECT().SetQueryLogConfig(false, 123, false)
+				cl.EXPECT().SetQueryLogConfig(false, 123.0, false)
 				cl.EXPECT().StatsConfig().Return(sc, nil)
 				err := w.syncConfigs(o, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -278,7 +278,7 @@ var _ = Describe("Sync", func() {
 				o.statsConfig.Interval = 123
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
 				cl.EXPECT().StatsConfig().Return(sc, nil)
-				cl.EXPECT().SetStatsConfig(123)
+				cl.EXPECT().SetStatsConfig(123.0)
 				err := w.syncConfigs(o, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -425,7 +425,7 @@ var _ = Describe("Sync", func() {
 		})
 
 		Context("sync", func() {
-			It("should have no changes", func() {
+			BeforeEach(func() {
 				w.cfg = &types.Config{
 					Origin:  types.AdGuardInstance{},
 					Replica: types.AdGuardInstance{URL: "foo"},
@@ -447,9 +447,11 @@ var _ = Describe("Sync", func() {
 						QueryLogConfig:  true,
 					},
 				}
+			})
+			It("should have no changes", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -465,7 +467,7 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -491,6 +493,34 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
 				cl.EXPECT().AddDHCPStaticLeases().Return(nil)
 				cl.EXPECT().DeleteDHCPStaticLeases().Return(nil)
+				w.sync()
+			})
+			It("origin version is too small", func() {
+				// origin
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
+				w.sync()
+			})
+			It("replica version is too small", func() {
+				// origin
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Parental()
+				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().Services()
+				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
+				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+
+				// replica
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
 				w.sync()
 			})
 		})

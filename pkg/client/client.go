@@ -65,7 +65,7 @@ type Client interface {
 	DeleteRewriteEntries(e ...types.RewriteEntry) error
 
 	Filtering() (*types.FilteringStatus, error)
-	ToggleFiltering(enabled bool, interval int) error
+	ToggleFiltering(enabled bool, interval float64) error
 	AddFilters(whitelist bool, e ...types.Filter) error
 	DeleteFilters(whitelist bool, e ...types.Filter) error
 	UpdateFilters(whitelist bool, e ...types.Filter) error
@@ -88,9 +88,9 @@ type Client interface {
 	DeleteClients(client ...types.Client) error
 
 	QueryLogConfig() (*types.QueryLogConfig, error)
-	SetQueryLogConfig(enabled bool, interval int, anonymizeClientIP bool) error
+	SetQueryLogConfig(enabled bool, interval float64, anonymizeClientIP bool) error
 	StatsConfig() (*types.IntervalConfig, error)
-	SetStatsConfig(interval int) error
+	SetStatsConfig(interval float64) error
 	Setup() error
 
 	AccessList() (*types.AccessList, error)
@@ -291,7 +291,7 @@ func (cl *client) SetCustomRules(rules types.UserRules) error {
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(rules.String()), "/filtering/set_rules")
 }
 
-func (cl *client) ToggleFiltering(enabled bool, interval int) error {
+func (cl *client) ToggleFiltering(enabled bool, interval float64) error {
 	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.FilteringConfig{
 		EnableConfig:   types.EnableConfig{Enabled: enabled},
@@ -357,7 +357,7 @@ func (cl *client) QueryLogConfig() (*types.QueryLogConfig, error) {
 	return qlc, err
 }
 
-func (cl *client) SetQueryLogConfig(enabled bool, interval int, anonymizeClientIP bool) error {
+func (cl *client) SetQueryLogConfig(enabled bool, interval float64, anonymizeClientIP bool) error {
 	cl.log.With("enabled", enabled, "interval", interval, "anonymizeClientIP", anonymizeClientIP).Info("Set query log config")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.QueryLogConfig{
 		EnableConfig:      types.EnableConfig{Enabled: enabled},
@@ -372,7 +372,7 @@ func (cl *client) StatsConfig() (*types.IntervalConfig, error) {
 	return stats, err
 }
 
-func (cl *client) SetStatsConfig(interval int) error {
+func (cl *client) SetStatsConfig(interval float64) error {
 	cl.log.With("interval", interval).Info("Set stats config")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.IntervalConfig{Interval: interval}), "/stats_config")
 }

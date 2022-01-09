@@ -215,7 +215,7 @@ type EnableConfig struct {
 
 // IntervalConfig API struct
 type IntervalConfig struct {
-	Interval int `json:"interval"`
+	Interval float64 `json:"interval"`
 }
 
 // FilteringConfig API struct

@@ -430,7 +430,7 @@ func (mr *MockClientMockRecorder) SetDNSConfig(arg0 interface{}) *gomock.Call {
 }
 
 // SetQueryLogConfig mocks base method.
-func (m *MockClient) SetQueryLogConfig(arg0 bool, arg1 int, arg2 bool) error {
+func (m *MockClient) SetQueryLogConfig(arg0 bool, arg1 float64, arg2 bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
@@ -458,7 +458,7 @@ func (mr *MockClientMockRecorder) SetServices(arg0 interface{}) *gomock.Call {
 }
 
 // SetStatsConfig mocks base method.
-func (m *MockClient) SetStatsConfig(arg0 int) error {
+func (m *MockClient) SetStatsConfig(arg0 float64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatsConfig", arg0)
 	ret0, _ := ret[0].(error)
@@ -516,7 +516,7 @@ func (mr *MockClientMockRecorder) Status() *gomock.Call {
 }
 
 // ToggleFiltering mocks base method.
-func (m *MockClient) ToggleFiltering(arg0 bool, arg1 int) error {
+func (m *MockClient) ToggleFiltering(arg0 bool, arg1 float64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ToggleFiltering", arg0, arg1)
 	ret0, _ := ret[0].(error)
