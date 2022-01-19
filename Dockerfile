@@ -12,7 +12,7 @@ ENV GOPROXY=https://goproxy.io \
   CGO_ENABLED=0 \
   GOOS=linux
 
-ADD . /go/src/app/
+COPY . /go/src/app/
 
 RUN go build -a -installsuffix cgo -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" -o adguardhome-sync . \
   && upx -q adguardhome-sync
