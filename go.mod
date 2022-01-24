@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/onsi/ginkgo/v2 v2.1.0
-	github.com/onsi/gomega v1.17.0
+	github.com/onsi/gomega v1.18.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
@@ -31,7 +31,7 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb // indirect
-	golang.org/x/sys v0.0.0-20211210111614-af8b64212486 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
