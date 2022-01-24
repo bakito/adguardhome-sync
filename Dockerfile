@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.17 as builder
+FROM golang:1.17 as builder
 
 WORKDIR /go/src/app
 
@@ -26,4 +26,5 @@ EXPOSE 8080
 ENTRYPOINT ["/opt/go/adguardhome-sync"]
 CMD ["run", "--config", "/config/adguardhome-sync.yaml"]
 COPY --from=builder /go/src/app/adguardhome-sync  /opt/go/adguardhome-sync
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 USER 1001

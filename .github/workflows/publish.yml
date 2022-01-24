@@ -36,6 +36,7 @@ jobs:
         uses: docker/build-push-action@v2
         if: ${{ github.event.release.tag_name != '' }}
         with:
+          pull: true
           push: true
           tags: quay.io/bakito/adguardhome-sync:latest,quay.io/bakito/adguardhome-sync:${{ github.event.release.tag_name }},ghcr.io/bakito/adguardhome-sync:latest,ghcr.io/bakito/adguardhome-sync:${{ github.event.release.tag_name }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
@@ -48,6 +49,7 @@ jobs:
         uses: docker/build-push-action@v2
         if: ${{ github.event.release.tag_name == '' }}
         with:
+          pull: true
           push: true
           tags: quay.io/bakito/adguardhome-sync:main,ghcr.io/bakito/adguardhome-sync:main
           platforms: linux/amd64,linux/arm64,linux/arm/v7
