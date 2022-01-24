@@ -63,7 +63,7 @@ docker run -d \
   -p 8080:8080 \
   -v /path/to/appdata/config/adguardhome-sync.yaml:/config/adguardhome-sync.yaml \
   --restart unless-stopped \
-  quay.io/bakito/adguardhome-sync:latest
+  ghcr.io/bakito/adguardhome-sync:latest
 ```
 
 ## docker compose
@@ -75,7 +75,7 @@ docker run -d \
 version: "2.1"
 services:
   adguardhome-sync:
-    image: quay.io/bakito/adguardhome-sync
+    image: ghcr.io/bakito/adguardhome-sync
     container_name: adguardhome-sync
     volumes:
       - /path/to/appdata/config/adguardhome-sync.yaml:/config/adguardhome-sync.yaml
@@ -91,7 +91,7 @@ services:
 version: "2.1"
 services:
   adguardhome-sync:
-    image: quay.io/bakito/adguardhome-sync
+    image: ghcr.io/bakito/adguardhome-sync
     container_name: adguardhome-sync
     command: run
     environment:
