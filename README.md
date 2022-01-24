@@ -27,8 +27,10 @@ To skip automatic setup
 
 ## Install
 
+Get from [releases](https://github.com/bakito/adguardhome-sync/releases) or install from source
+
 ```bash
-go get -u github.com/bakito/adguardhome-sync
+go install github.com/bakito/adguardhome-sync@latest
 ```
 
 ## Prerequisites
