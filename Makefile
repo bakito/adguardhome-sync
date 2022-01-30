@@ -32,5 +32,5 @@ endif
 
 mockgen:
 ifeq (, $(shell which mockgen))
- $(shell go install github.com/golang/mock/mockgen@v1.5)
+ $(shell go install github.com/golang/mock/mockgen@v1.6.0)
 endif

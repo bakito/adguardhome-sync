@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"os"
@@ -16,6 +17,8 @@ import (
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/version"
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -25,77 +28,50 @@ var (
 	favicon []byte
 )
 
-func (w *worker) handleSync(rw http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodPost:
-		l.With("remote-addr", req.RemoteAddr).Info("Starting sync from API")
-		w.sync()
-	default:
-		http.Error(rw, "only POST allowed", http.StatusBadRequest)
-	}
+func (w *worker) handleSync(c *gin.Context) {
+	l.With("remote-addr", c.Request.RemoteAddr).Info("Starting sync from API")
+	w.sync()
 }
 
-func (w *worker) handleRoot(rw http.ResponseWriter, _ *http.Request) {
-	rw.Header().Set("Content-Type", "text/html")
-	_, _ = rw.Write(index)
+func (w *worker) handleRoot(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
+		"DarkMode": w.cfg.API.DarkMode,
+		"Version":  version.Version,
+		"Build":    version.Build,
+	},
+	)
 }
 
-func (w *worker) handleFavicon(rw http.ResponseWriter, _ *http.Request) {
-	rw.Header().Set("Content-Type", "image/x-icon")
-	_, _ = rw.Write(favicon)
+func (w *worker) handleFavicon(c *gin.Context) {
+	c.Data(http.StatusOK, "image/x-icon", favicon)
 }
 
-func (w *worker) handleLogs(rw http.ResponseWriter, _ *http.Request) {
-	_, _ = rw.Write([]byte(strings.Join(log.Logs(), "")))
-}
-
-func (w *worker) basicAuth(h http.HandlerFunc) http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
-		rw.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
-
-		username, password, authOK := r.BasicAuth()
-		if !authOK {
-			http.Error(rw, "Not authorized", 401)
-			return
-		}
-
-		if username != w.cfg.API.Username || password != w.cfg.API.Password {
-			http.Error(rw, "Not authorized", 401)
-			return
-		}
-
-		h.ServeHTTP(rw, r)
-	}
-}
-
-func use(h http.HandlerFunc, middleware ...func(http.HandlerFunc) http.HandlerFunc) http.HandlerFunc {
-	for _, m := range middleware {
-		h = m(h)
-	}
-
-	return h
+func (w *worker) handleLogs(c *gin.Context) {
+	c.Data(http.StatusOK, "text/plain", []byte(strings.Join(log.Logs(), "")))
 }
 
 func (w *worker) listenAndServe() {
 	l.With("port", w.cfg.API.Port).Info("Starting API server")
 
 	ctx, cancel := context.WithCancel(context.Background())
-	mux := http.NewServeMux()
+
+	gin.SetMode(gin.ReleaseMode)
+	r := gin.New()
+	r.Use(gin.Recovery())
+	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
+		r.Use(gin.BasicAuth(map[string]string{w.cfg.API.Username: w.cfg.API.Password}))
+	}
 	httpServer := &http.Server{
 		Addr:        fmt.Sprintf(":%d", w.cfg.API.Port),
-		Handler:     mux,
+		Handler:     r,
 		BaseContext: func(_ net.Listener) context.Context { return ctx },
 	}
 
-	var mw []func(http.HandlerFunc) http.HandlerFunc
-	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
-		mw = append(mw, w.basicAuth)
-	}
-
-	mux.HandleFunc("/api/v1/sync", use(w.handleSync, mw...))
-	mux.HandleFunc("/api/v1/logs", use(w.handleLogs, mw...))
-	mux.HandleFunc("/favicon.ico", use(w.handleFavicon, mw...))
-	mux.HandleFunc("/", use(w.handleRoot, mw...))
+	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(string(index))))
+	r.POST("/api/v1/sync", w.handleSync)
+	r.GET("/api/v1/logs", w.handleLogs)
+	r.GET("/favicon.ico", w.handleFavicon)
+	r.GET("/", w.handleRoot)
 
 	go func() {
 		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {

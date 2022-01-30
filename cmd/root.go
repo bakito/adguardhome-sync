@@ -20,6 +20,7 @@ const (
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"
 	configAPIPassword = "api.password"
+	configAPIDarkMode = "api.darkMode"
 
 	configFeatureDHCPServerConfig = "features.dhcp.serverConfig"
 	configFeatureDHCPStaticLeases = "features.dhcp.staticLeases"

@@ -28,6 +28,7 @@ type API struct {
 	Port     int    `json:"port,omitempty" yaml:"port,omitempty"`
 	Username string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password string `json:"password,omitempty" yaml:"password,omitempty"`
+	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty"`
 }
 
 // UniqueReplicas get unique replication instances

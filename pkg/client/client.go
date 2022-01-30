@@ -57,13 +57,11 @@ func New(config types.AdGuardInstance) (Client, error) {
 // Client AdguardHome API client interface
 type Client interface {
 	Host() string
-
 	Status() (*types.Status, error)
 	ToggleProtection(enable bool) error
 	RewriteList() (*types.RewriteEntries, error)
 	AddRewriteEntries(e ...types.RewriteEntry) error
 	DeleteRewriteEntries(e ...types.RewriteEntry) error
-
 	Filtering() (*types.FilteringStatus, error)
 	ToggleFiltering(enabled bool, interval float64) error
 	AddFilters(whitelist bool, e ...types.Filter) error
@@ -71,34 +69,27 @@ type Client interface {
 	UpdateFilters(whitelist bool, e ...types.Filter) error
 	RefreshFilters(whitelist bool) error
 	SetCustomRules(rules types.UserRules) error
-
 	SafeBrowsing() (bool, error)
 	ToggleSafeBrowsing(enable bool) error
 	Parental() (bool, error)
 	ToggleParental(enable bool) error
 	SafeSearch() (bool, error)
 	ToggleSafeSearch(enable bool) error
-
 	Services() (types.Services, error)
 	SetServices(services types.Services) error
-
 	Clients() (*types.Clients, error)
 	AddClients(client ...types.Client) error
 	UpdateClients(client ...types.Client) error
 	DeleteClients(client ...types.Client) error
-
 	QueryLogConfig() (*types.QueryLogConfig, error)
 	SetQueryLogConfig(enabled bool, interval float64, anonymizeClientIP bool) error
 	StatsConfig() (*types.IntervalConfig, error)
 	SetStatsConfig(interval float64) error
 	Setup() error
-
 	AccessList() (*types.AccessList, error)
 	SetAccessList(*types.AccessList) error
-
 	DNSConfig() (*types.DNSConfig, error)
 	SetDNSConfig(*types.DNSConfig) error
-
 	DHCPServerConfig() (*types.DHCPServerConfig, error)
 	SetDHCPServerConfig(*types.DHCPServerConfig) error
 	AddDHCPStaticLeases(leases ...types.Lease) error

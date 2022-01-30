@@ -1,10 +1,16 @@
 <html>
 <head>
     <title>AdGuardHome sync</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js">
     </script>
+    {{- if .DarkMode }}
+    <link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css"
+          crossorigin="anonymous">
+    {{- else }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
+          crossOrigin="anonymous">
+    {{- end }}
     <script type="text/javascript">
         $(document).ready(function () {
             $("#showLogs").click(function () {
@@ -25,7 +31,8 @@
 <body>
 <div class="container-fluid  px-4">
     <div class="row">
-        <h1 class="display-4">AdGuardHome sync</h1>
+        <p class="h1">AdGuardHome sync
+        <p class="h6">{{ .Version }} ({{ .Build }})</p></p>
     </div>
     <div class="row">
         <div class="col">

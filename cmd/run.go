@@ -36,6 +36,8 @@ func init() {
 	_ = viper.BindPFlag(configAPIUsername, doCmd.PersistentFlags().Lookup("api-username"))
 	doCmd.PersistentFlags().String("api-password", "", "Sync API password")
 	_ = viper.BindPFlag(configAPIPassword, doCmd.PersistentFlags().Lookup("api-password"))
+	doCmd.PersistentFlags().String("api-darkMode", "", "API UI in dark mode")
+	_ = viper.BindPFlag(configAPIDarkMode, doCmd.PersistentFlags().Lookup("api-darkMode"))
 
 	doCmd.PersistentFlags().Bool("feature-dhcp-server-config", true, "Enable DHCP server config feature")
 	_ = viper.BindPFlag(configFeatureDHCPServerConfig, doCmd.PersistentFlags().Lookup("feature-dhcp-server-config"))
