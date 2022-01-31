@@ -39,13 +39,13 @@ func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 		features = append(features, "DHCP.StaticLeases")
 	}
 	if !f.DNS.AccessLists {
-		features = append(features, "DHCP.AccessLists")
+		features = append(features, "DNS.AccessLists")
 	}
 	if !f.DNS.ServerConfig {
-		features = append(features, "DHCP.ServerConfig")
+		features = append(features, "DNS.ServerConfig")
 	}
 	if !f.DNS.Rewrites {
-		features = append(features, "DHCP.Rewrites")
+		features = append(features, "DNS.Rewrites")
 	}
 	if !f.GeneralSettings {
 		features = append(features, "GeneralSettings")
