@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
+	"strconv"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
@@ -44,8 +46,16 @@ func New(config types.AdGuardInstance) (Client, error) {
 		cl = cl.SetBasicAuth(config.Username, config.Password)
 	}
 
-	// no redirect
-	cl.SetRedirectPolicy(resty.NoRedirectPolicy())
+	if v, ok := os.LookupEnv("REDIRECT_POLICY_NO_OF_REDIRECTS"); ok {
+		nbr, err := strconv.Atoi(v)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing env var %q value must be an integer", "REDIRECT_POLICY_NO_OF_REDIRECTS")
+		}
+		cl.SetRedirectPolicy(resty.FlexibleRedirectPolicy(nbr))
+	} else {
+		// no redirect
+		cl.SetRedirectPolicy(resty.NoRedirectPolicy())
+	}
 
 	return &client{
 		host:   u.Host,
