@@ -34,3 +34,6 @@ mockgen:
 ifeq (, $(shell which mockgen))
  $(shell go install github.com/golang/mock/mockgen@v1.6.0)
 endif
+
+start-replica:
+	podman run --pull always --rm -it -p 9090:80 -p 9091:3000  adguard/adguardhome
