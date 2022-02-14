@@ -16,6 +16,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
+
 var (
 	l = log.GetLogger("client")
 	// ErrSetupNeeded custom error
@@ -46,10 +48,10 @@ func New(config types.AdGuardInstance) (Client, error) {
 		cl = cl.SetBasicAuth(config.Username, config.Password)
 	}
 
-	if v, ok := os.LookupEnv("REDIRECT_POLICY_NO_OF_REDIRECTS"); ok {
+	if v, ok := os.LookupEnv(envRedirectPolicyNoOfRedirects); ok {
 		nbr, err := strconv.Atoi(v)
 		if err != nil {
-			return nil, fmt.Errorf("error parsing env var %q value must be an integer", "REDIRECT_POLICY_NO_OF_REDIRECTS")
+			return nil, fmt.Errorf("error parsing env var %q value must be an integer", envRedirectPolicyNoOfRedirects)
 		}
 		cl.SetRedirectPolicy(resty.FlexibleRedirectPolicy(nbr))
 	} else {
