@@ -34,3 +34,17 @@ mockgen:
 ifeq (, $(shell which mockgen))
  $(shell go install github.com/golang/mock/mockgen@v1.6.0)
 endif
+
+start-replica:
+	podman run --pull always --rm -it -p 9090:80 -p 9091:3000  adguard/adguardhome
+
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+    $(if $(value $1),, \
+      $(error Undefined $1$(if $2, ($2))))
+
+build-image:
+	$(call check_defined, AGH_SYNC_VERSION)
+	podman build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
