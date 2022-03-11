@@ -47,4 +47,4 @@ __check_defined = \
 
 build-image:
 	$(call check_defined, AGH_SYNC_VERSION)
-	podman build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
+	podman build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') --name adgardhome-replica -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .

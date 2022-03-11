@@ -24,6 +24,7 @@ type DNSConfig struct {
 	CacheSize         uint32   `json:"cache_size"`
 	CacheMinTTL       uint32   `json:"cache_ttl_min"`
 	CacheMaxTTL       uint32   `json:"cache_ttl_max"`
+	CacheOptimistic   bool     `json:"cache_optimistic"`
 	ResolveClients    bool     `json:"resolve_clients"`
 	LocalPTRUpstreams []string `json:"local_ptr_upstreams,omitempty"`
 }

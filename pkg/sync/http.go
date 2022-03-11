@@ -2,8 +2,6 @@ package sync
 
 import (
 	"context"
-
-	// import embed for html page
 	_ "embed"
 	"errors"
 	"fmt"
