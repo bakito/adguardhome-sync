@@ -4,3 +4,4 @@ dist
 adguardhome-sync
 main
 .adguardhome-sync.yaml
+tmp
