@@ -11,7 +11,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.1.3
 	github.com/onsi/gomega v1.18.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.10.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/mod v0.5.1
