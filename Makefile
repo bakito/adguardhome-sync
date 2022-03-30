@@ -10,7 +10,7 @@ tidy:
 test: test-ci fmt
 
 # Run ci tests
-test-ci: mocks tidy alpine-docker
+test-ci: mocks tidy
 	go test ./...  -coverprofile=coverage.out
 	go tool cover -func=coverage.out
 
@@ -48,7 +48,3 @@ __check_defined = \
 build-image:
 	$(call check_defined, AGH_SYNC_VERSION)
 	podman build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') --name adgardhome-replica -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
-
-alpine-docker:
-	cp Dockerfile Dockerfile.alpine
-	sed -i 's/FROM scratch/FROM alpine:latest/g' Dockerfile.alpine
