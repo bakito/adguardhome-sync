@@ -13,9 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.44.0
+        uses: golangci/golangci-lint-action@v3
 
   test:
     name: test
@@ -25,7 +23,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.17
+          go-version: ^1.18
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
