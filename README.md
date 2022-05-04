@@ -77,6 +77,7 @@ services:
   adguardhome-sync:
     image: ghcr.io/bakito/adguardhome-sync
     container_name: adguardhome-sync
+    command: run --config /config/adguardhome-sync.yaml
     volumes:
       - /path/to/appdata/config/adguardhome-sync.yaml:/config/adguardhome-sync.yaml
     ports:
