@@ -106,7 +106,8 @@ services:
       - REPLICA1_USERNAME=username
       - REPLICA1_PASSWORD=password
       - REPLICA1_APIPATH=/some/path/control
-      # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized. 
+      # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized.
+      # - REPLICA1_INTERFACENAME=ens18 # use custom dhcp interface name
       - CRON=*/10 * * * * # run every 10 minutes
       - RUNONSTART=true
       # Configure sync features; by default all features are enabled.

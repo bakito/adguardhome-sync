@@ -424,6 +424,38 @@ var _ = Describe("Sync", func() {
 			})
 		})
 
+		Context("syncDHCPServer", func() {
+			var (
+				osc *types.DHCPServerConfig
+				rsc *types.DHCPServerConfig
+			)
+			BeforeEach(func() {
+				osc = &types.DHCPServerConfig{}
+				rsc = &types.DHCPServerConfig{}
+				w.cfg.Features.DHCP.StaticLeases = false
+			})
+			It("should have no changes", func() {
+				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have changes", func() {
+				rsc.Enabled = true
+				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().SetDHCPServerConfig(osc)
+				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should use replica interface name", func() {
+				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				oscClone := osc.Clone()
+				oscClone.InterfaceName = "foo"
+				cl.EXPECT().SetDHCPServerConfig(oscClone)
+				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{InterfaceName: "foo"})
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+		})
+
 		Context("sync", func() {
 			BeforeEach(func() {
 				w.cfg = &types.Config{

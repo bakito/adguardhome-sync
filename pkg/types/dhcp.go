@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 // DHCPServerConfig dhcp server config
@@ -15,6 +17,13 @@ type DHCPServerConfig struct {
 
 	Leases       Leases `json:"leases,omitempty"`
 	StaticLeases Leases `json:"static_leases,omitempty"`
+}
+
+// Clone the config
+func (c *DHCPServerConfig) Clone() *DHCPServerConfig {
+	clone := &DHCPServerConfig{}
+	_ = copier.Copy(c, clone)
+	return clone
 }
 
 // Equals dhcp server config equal check

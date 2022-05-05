@@ -87,4 +87,6 @@ func init() {
 	_ = viper.BindPFlag(configReplicaInsecureSkipVerify, doCmd.PersistentFlags().Lookup("replica-insecure-skip-verify"))
 	doCmd.PersistentFlags().Bool("replica-auto-setup", false, "Enable automatic setup of new AdguardHome instances. This replaces the setup wizard.")
 	_ = viper.BindPFlag(configReplicaAutoSetup, doCmd.PersistentFlags().Lookup("replica-auto-setup"))
+	doCmd.PersistentFlags().Bool("replica-interface-name", false, "Optional change the interface name of the replica if it differs from the master")
+	_ = viper.BindPFlag(configReplicaInterfaceName, doCmd.PersistentFlags().Lookup("replica-interface-name"))
 }
