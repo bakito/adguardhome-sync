@@ -105,6 +105,8 @@ func (w *worker) sync() {
 		return
 	}
 
+	sl.With("version", o.status.Version).Info("Connected to origin")
+
 	o.parental, err = oc.Parental()
 	if err != nil {
 		sl.With("error", err).Error("Error getting parental status")
@@ -193,6 +195,8 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		rl.With("error", err).Error("Error getting replica status")
 		return
 	}
+
+	rl.With("version", o.status.Version).Info("Connected to replica")
 
 	if semver.Compare(rs.Version, minAghVersion) == -1 {
 		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home version must be >= %s", minAghVersion)
