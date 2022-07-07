@@ -96,32 +96,32 @@ services:
     container_name: adguardhome-sync
     command: run
     environment:
-      - ORIGIN_URL=https://192.168.1.2:3000
-      - ORIGIN_USERNAME=username
-      - ORIGIN_PASSWORD=password
-      - REPLICA_URL=http://192.168.1.3
-      - REPLICA_USERNAME=username
-      - REPLICA_PASSWORD=password
-      - REPLICA1_URL=http://192.168.1.4
-      - REPLICA1_USERNAME=username
-      - REPLICA1_PASSWORD=password
-      - REPLICA1_APIPATH=/some/path/control
-      # - REPLICA1_AUTOSETUP=true # if true, AdGuardHome is automatically initialized.
-      # - REPLICA1_INTERFACENAME=ens18 # use custom dhcp interface name
-      - CRON=*/10 * * * * # run every 10 minutes
-      - RUNONSTART=true
+      ORIGIN_URL: 'https://192.168.1.2:3000'
+      ORIGIN_USERNAME: 'username'
+      ORIGIN_PASSWORD: 'password'
+      REPLICA_URL: 'http://192.168.1.3'
+      REPLICA_USERNAME: 'username'
+      REPLICA_PASSWORD: 'password'
+      REPLICA1_URL: 'http://192.168.1.4'
+      REPLICA1_USERNAME: 'username'
+      REPLICA1_PASSWORD: 'password'
+      REPLICA1_APIPATH: '/some/path/control'
+      # REPLICA1_AUTOSETUP: true # if true, AdGuardHome is automatically initialized.
+      # REPLICA1_INTERFACENAME: 'ens18' # use custom dhcp interface name
+      CRON: '*/10 * * * *' # run every 10 minutes
+      RUNONSTART: true
       # Configure sync features; by default all features are enabled.
-      # - FEATURES_GENERALSETTINGS=true
-      # - FEATURES_QUERYLOGCONFIG=true
-      # - FEATURES_STATSCONFIG=true
-      # - FEATURES_CLIENTSETTINGS=true
-      # - FEATURES_SERVICES=true
-      # - FEATURES_FILTERS=true
-      # - FEATURES_DHCP_SERVERCONFIG=true
-      # - FEATURES_DHCP_STATICLEASES=true
-      # - FEATURES_DNS_SERVERCONFIG=true
-      # - FEATURES_DNS_ACCESSLISTS=true
-      # - FEATURES_DNS_REWRITES=true
+      # FEATURES_GENERALSETTINGS: true
+      # FEATURES_QUERYLOGCONFIG: true
+      # FEATURES_STATSCONFIG: true
+      # FEATURES_CLIENTSETTINGS: true
+      # FEATURES_SERVICES: true
+      # FEATURES_FILTERS: true
+      # FEATURES_DHCP_SERVERCONFIG: true
+      # FEATURES_DHCP_STATICLEASES: true
+      # FEATURES_DNS_SERVERCONFIG: true
+      # FEATURES_DNS_ACCESSLISTS: true
+      # FEATURES_DNS_REWRITES: true
     ports:
       - 8080:8080
     restart: unless-stopped
