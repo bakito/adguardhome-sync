@@ -60,9 +60,10 @@ func (w *worker) listenAndServe() {
 		r.Use(gin.BasicAuth(map[string]string{w.cfg.API.Username: w.cfg.API.Password}))
 	}
 	httpServer := &http.Server{
-		Addr:        fmt.Sprintf(":%d", w.cfg.API.Port),
-		Handler:     r,
-		BaseContext: func(_ net.Listener) context.Context { return ctx },
+		Addr:              fmt.Sprintf(":%d", w.cfg.API.Port),
+		Handler:           r,
+		BaseContext:       func(_ net.Listener) context.Context { return ctx },
+		ReadHeaderTimeout: 1 * time.Second,
 	}
 
 	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(string(index))))
