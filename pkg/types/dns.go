@@ -7,6 +7,7 @@ import (
 )
 
 // DNSConfig dns config
+// +k8s:deepcopy-gen=true
 type DNSConfig struct {
 	Upstreams     []string `json:"upstream_dns,omitempty"`
 	UpstreamsFile string   `json:"upstream_dns_file"`
@@ -31,11 +32,13 @@ type DNSConfig struct {
 
 // Equals dns config equal check
 func (c *DNSConfig) Equals(o *DNSConfig) bool {
-	c.Sort()
-	o.Sort()
+	cc := c.DeepCopy()
+	oo := o.DeepCopy()
+	cc.Sort()
+	oo.Sort()
 
-	a, _ := json.Marshal(c)
-	b, _ := json.Marshal(o)
+	a, _ := json.Marshal(cc)
+	b, _ := json.Marshal(oo)
 	return string(a) == string(b)
 }
 

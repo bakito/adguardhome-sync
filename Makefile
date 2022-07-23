@@ -6,8 +6,12 @@ fmt:
 tidy:
 	go mod tidy
 
+generate: deepcopy-gen
+	touch ./tmp/deepcopy-gen-boilerplate.go.txt
+	deepcopy-gen -h ./tmp/deepcopy-gen-boilerplate.go.txt -i ./pkg/types
+
 # Run tests
-test: test-ci fmt
+test: generate test-ci fmt
 
 # Run ci tests
 test-ci: mocks tidy
@@ -33,6 +37,11 @@ endif
 mockgen:
 ifeq (, $(shell which mockgen))
  $(shell go install github.com/golang/mock/mockgen@v1.6.0)
+endif
+
+deepcopy-gen:
+ifeq (, $(shell which deepcopy-gen))
+ $(shell go install k8s.io/code-generator/cmd/deepcopy-gen@latest)
 endif
 
 start-replica:
