@@ -8,6 +8,7 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/version"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -64,8 +65,9 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "adguardhome-sync",
-	Short: "Synchronize config from one AdGuardHome instance to another",
+	Use:     "adguardhome-sync",
+	Short:   "Synchronize config from one AdGuardHome instance to another",
+	Version: version.Version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
