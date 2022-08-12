@@ -1,5 +1,5 @@
-# Run go fmt against code
-fmt:
+# Run go lint against code
+lint:
 	golangci-lint run --fix
 
 # Run go mod tidy
@@ -11,7 +11,7 @@ generate: deepcopy-gen
 	deepcopy-gen -h ./tmp/deepcopy-gen-boilerplate.go.txt -i ./pkg/types
 
 # Run tests
-test: generate test-ci fmt
+test: generate lint test-ci
 
 # Run ci tests
 test-ci: mocks tidy

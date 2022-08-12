@@ -2,7 +2,7 @@ package types_test
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/google/uuid"
@@ -22,7 +22,7 @@ var _ = Describe("Types", func() {
 
 	Context("FilteringStatus", func() {
 		It("should correctly parse json", func() {
-			b, err := ioutil.ReadFile("../..//testdata/filtering-status.json")
+			b, err := os.ReadFile("../..//testdata/filtering-status.json")
 			fs := &types.FilteringStatus{}
 			Ω(err).ShouldNot(HaveOccurred())
 			err = json.Unmarshal(b, fs)

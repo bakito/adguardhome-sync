@@ -2,9 +2,10 @@ package client_test
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
@@ -318,7 +319,7 @@ bar`)
 func ClientGet(file string, path string) (*httptest.Server, client.Client) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
-		b, err := ioutil.ReadFile(filepath.Join("../../testdata", file))
+		b, err := os.ReadFile(filepath.Join("../../testdata", file))
 		Ω(err).ShouldNot(HaveOccurred())
 		w.Header().Set("Content-Type", "application/json")
 		_, err = w.Write(b)
@@ -333,7 +334,7 @@ func ClientPost(path string, content ...string) (*httptest.Server, client.Client
 	index := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		Ω(err).ShouldNot(HaveOccurred())
 		Ω(body).Should(Equal([]byte(content[index])))
 		index++
