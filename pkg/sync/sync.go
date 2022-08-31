@@ -3,6 +3,7 @@ package sync
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/log"
@@ -40,7 +41,13 @@ func Sync(cfg *types.Config) error {
 	if cfg.Cron != "" {
 		w.cron = cron.New()
 		cl := l.With("cron", cfg.Cron)
-		_, err := w.cron.AddFunc(cfg.Cron, func() {
+		sched, err := cron.ParseStandard(cfg.Cron)
+		if err != nil {
+			cl.With("error", err).Error("Error parsing cron expression")
+			return err
+		}
+		cl = cl.With("next-execution", sched.Next(time.Now()))
+		_, err = w.cron.AddFunc(cfg.Cron, func() {
 			w.sync()
 		})
 		if err != nil {
