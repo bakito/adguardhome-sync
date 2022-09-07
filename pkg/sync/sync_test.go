@@ -106,13 +106,13 @@ var _ = Describe("Sync", func() {
 			})
 			It("should return error when error on AddRewriteEntries()", func() {
 				cl.EXPECT().RewriteList().Return(&reR, nil)
+				cl.EXPECT().DeleteRewriteEntries()
 				cl.EXPECT().AddRewriteEntries().Return(te)
 				err := w.syncRewrites(l, &reO, cl)
 				Ω(err).Should(HaveOccurred())
 			})
 			It("should return error when error on DeleteRewriteEntries()", func() {
 				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries().Return(te)
 				err := w.syncRewrites(l, &reO, cl)
 				Ω(err).Should(HaveOccurred())
@@ -171,12 +171,14 @@ var _ = Describe("Sync", func() {
 			})
 			It("should return error when error on AddClients()", func() {
 				cl.EXPECT().Clients().Return(clR, nil)
+				cl.EXPECT().DeleteClients()
 				cl.EXPECT().AddClients().Return(te)
 				err := w.syncClients(clO, cl)
 				Ω(err).Should(HaveOccurred())
 			})
 			It("should return error when error on UpdateClients()", func() {
 				cl.EXPECT().Clients().Return(clR, nil)
+				cl.EXPECT().DeleteClients()
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients().Return(te)
 				err := w.syncClients(clO, cl)
@@ -184,8 +186,6 @@ var _ = Describe("Sync", func() {
 			})
 			It("should return error when error on DeleteClients()", func() {
 				cl.EXPECT().Clients().Return(clR, nil)
-				cl.EXPECT().AddClients()
-				cl.EXPECT().UpdateClients()
 				cl.EXPECT().DeleteClients().Return(te)
 				err := w.syncClients(clO, cl)
 				Ω(err).Should(HaveOccurred())

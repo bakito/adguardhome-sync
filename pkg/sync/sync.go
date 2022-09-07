@@ -322,6 +322,9 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitelist bool, replica client.Client) error {
 	fa, fu, fd := rFilters.Merge(of)
 
+	if err := replica.DeleteFilters(whitelist, fd...); err != nil {
+		return err
+	}
 	if err := replica.AddFilters(whitelist, fa...); err != nil {
 		return err
 	}
@@ -333,10 +336,6 @@ func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitel
 		if err := replica.RefreshFilters(whitelist); err != nil {
 			return err
 		}
-	}
-
-	if err := replica.DeleteFilters(whitelist, fd...); err != nil {
-		return err
 	}
 	return nil
 }
@@ -350,10 +349,10 @@ func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, r
 
 		a, r, d := replicaRewrites.Merge(or)
 
-		if err = replica.AddRewriteEntries(a...); err != nil {
+		if err = replica.DeleteRewriteEntries(r...); err != nil {
 			return err
 		}
-		if err = replica.DeleteRewriteEntries(r...); err != nil {
+		if err = replica.AddRewriteEntries(a...); err != nil {
 			return err
 		}
 
@@ -374,13 +373,13 @@ func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
 
 		a, u, r := rc.Merge(oc)
 
+		if err = replica.DeleteClients(r...); err != nil {
+			return err
+		}
 		if err = replica.AddClients(a...); err != nil {
 			return err
 		}
 		if err = replica.UpdateClients(u...); err != nil {
-			return err
-		}
-		if err = replica.DeleteClients(r...); err != nil {
 			return err
 		}
 	}
@@ -493,10 +492,10 @@ func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, r
 	if w.cfg.Features.DHCP.StaticLeases {
 		a, r := sc.StaticLeases.Merge(osc.StaticLeases)
 
-		if err = rc.AddDHCPStaticLeases(a...); err != nil {
+		if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
 			return err
 		}
-		if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
+		if err = rc.AddDHCPStaticLeases(a...); err != nil {
 			return err
 		}
 	}

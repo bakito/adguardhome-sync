@@ -29,7 +29,6 @@ linters:
   - unconvert
   - unparam
   - unused
-  - varcheck
   - wastedassign
 linters-settings:
   gosec:
