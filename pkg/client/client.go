@@ -24,6 +24,17 @@ var (
 	ErrSetupNeeded = errors.New("setup needed")
 )
 
+func detailedError(resp *resty.Response, err error) error {
+	e := resp.Status()
+	if len(resp.Body()) > 0 {
+		e += fmt.Sprintf("(%s)", string(resp.Body()))
+	}
+	if err != nil {
+		e += fmt.Sprintf(": %s", err.Error())
+	}
+	return errors.New(e)
+}
+
 // New create a new client
 func New(config types.AdGuardInstance) (Client, error) {
 	var apiURL string
@@ -133,11 +144,11 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 			}
 		}
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")
-		return err
+		return detailedError(resp, err)
 	}
 	rl.With("status", resp.StatusCode(), "body", string(resp.Body())).Debug("got response")
 	if resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
+		return detailedError(resp, nil)
 	}
 	return nil
 }
@@ -151,11 +162,11 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 	resp, err := req.Post(url)
 	if err != nil {
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do post")
-		return err
+		return detailedError(resp, err)
 	}
 	rl.With("status", resp.StatusCode(), "body", string(resp.Body())).Debug("got response")
 	if resp.StatusCode() != http.StatusOK {
-		return errors.New(resp.Status())
+		return detailedError(resp, nil)
 	}
 	return nil
 }
