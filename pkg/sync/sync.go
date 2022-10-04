@@ -8,13 +8,11 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/bakito/adguardhome-sync/version"
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
-	"golang.org/x/mod/semver"
 )
-
-const minAghVersion = "v0.107.0"
 
 var l = log.GetLogger("sync")
 
@@ -107,8 +105,8 @@ func (w *worker) sync() {
 		return
 	}
 
-	if semver.Compare(o.status.Version, minAghVersion) == -1 {
-		sl.With("error", err, "version", o.status.Version).Errorf("Origin AdGuard Home version must be >= %s", minAghVersion)
+	if !versions.IsNewerThan(o.status.Version, versions.MinAgh) {
+		sl.With("error", err, "version", o.status.Version).Errorf("Origin AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}
 
@@ -205,8 +203,8 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	rl.With("version", o.status.Version).Info("Connected to replica")
 
-	if semver.Compare(rs.Version, minAghVersion) == -1 {
-		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home version must be >= %s", minAghVersion)
+	if !versions.IsNewerThan(rs.Version, versions.MinAgh) {
+		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}
 

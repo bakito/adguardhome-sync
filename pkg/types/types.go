@@ -210,6 +210,16 @@ func (ur UserRules) String() string {
 	return strings.Join(ur, "\n")
 }
 
+// UserRulesRequest API struct
+type UserRulesRequest struct {
+	Rules UserRules
+}
+
+// String toString of Users
+func (ur UserRulesRequest) String() string {
+	return ur.Rules.String()
+}
+
 // EnableConfig API struct
 type EnableConfig struct {
 	Enabled bool `json:"enabled"`
