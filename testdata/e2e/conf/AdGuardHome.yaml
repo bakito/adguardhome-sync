@@ -1,0 +1,163 @@
+bind_host: 0.0.0.0
+bind_port: 3000
+beta_bind_port: 0
+users:
+  - name: username
+    password: $2a$10$yrrX.EvDpUUnZxr74u6euOMeF6dPFd/mEyohDq1LkpH76JyeObPBm
+auth_attempts: 5
+block_auth_min: 15
+http_proxy: ""
+language: ""
+debug_pprof: false
+web_session_ttl: 720
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  port: 53
+  statistics_interval: 1
+  querylog_enabled: true
+  querylog_file_enabled: true
+  querylog_interval: 6h
+  querylog_size_memory: 1000
+  anonymize_client_ip: false
+  protection_enabled: true
+  blocking_mode: default
+  blocking_ipv4: ""
+  blocking_ipv6: ""
+  blocked_response_ttl: 10
+  parental_block_host: family-block.dns.adguard.com
+  safebrowsing_block_host: standard-block.dns.adguard.com
+  ratelimit: 20
+  ratelimit_whitelist: []
+  refuse_any: true
+  upstream_dns:
+    - https://dns10.quad9.net/dns-query
+  upstream_dns_file: ""
+  bootstrap_dns:
+    - 1.1.1.1:53
+  all_servers: false
+  fastest_addr: false
+  fastest_timeout: 1s
+  allowed_clients: []
+  disallowed_clients: []
+  blocked_hosts:
+    - version.bind
+    - id.server
+    - hostname.bind
+  trusted_proxies:
+    - 127.0.0.0/8
+    - ::1/128
+  cache_size: 4194304
+  cache_ttl_min: 0
+  cache_ttl_max: 0
+  cache_optimistic: true
+  bogus_nxdomain: []
+  aaaa_disabled: false
+  enable_dnssec: false
+  edns_client_subnet: false
+  max_goroutines: 300
+  handle_ddr: true
+  ipset: []
+  ipset_file: ""
+  filtering_enabled: true
+  filters_update_interval: 12
+  parental_enabled: true
+  safesearch_enabled: true
+  safebrowsing_enabled: true
+  safebrowsing_cache_size: 1048576
+  safesearch_cache_size: 1048576
+  parental_cache_size: 1048576
+  cache_time: 30
+  rewrites:
+    - domain: foo.bar.com
+      answer: 1.2.3.4
+  blocked_services:
+    - 9gag
+    - dailymotion
+  upstream_timeout: 10s
+  private_networks: []
+  use_private_ptr_resolvers: true
+  local_ptr_upstreams: []
+  serve_http3: false
+  use_http3_upstreams: false
+tls:
+  enabled: false
+  server_name: ""
+  force_https: false
+  port_https: 443
+  port_dns_over_tls: 853
+  port_dns_over_quic: 853
+  port_dnscrypt: 0
+  dnscrypt_config_file: ""
+  allow_unencrypted_doh: false
+  strict_sni_check: false
+  certificate_chain: ""
+  private_key: ""
+  certificate_path: ""
+  private_key_path: ""
+filters:
+  - enabled: true
+    url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+    name: AdGuard DNS filter
+    id: 1
+whitelist_filters: []
+user_rules:
+  - '||metrics2.data.hicloud.com^$important'
+  - '||www.curiouscorrespondence.com^$important'
+  - '||bluewizard.com^$important'
+  - '||facebook.com^$important'
+dhcp:
+  enabled: false
+  interface_name: foo
+  local_domain_name: lan
+  dhcpv4:
+    gateway_ip: "1.1.1.1"
+    subnet_mask: "255.255.255.0"
+    range_start: "1.1.1.10"
+    range_end: "1.1.1.19"
+    lease_duration: 86400
+    icmp_timeout_msec: 1000
+    options: []
+  dhcpv6:
+    range_start: ""
+    lease_duration: 86400
+    ra_slaac_only: false
+    ra_allow_slaac: false
+clients:
+  runtime_sources:
+    whois: true
+    arp: true
+    rdns: true
+    dhcp: true
+    hosts: true
+  persistent:
+    - name: Device 1
+      tags:
+        - device_1
+      ids:
+        - 2.2.2.2
+      blocked_services:
+        - facebook
+        - ok
+        - vk
+        - mail_ru
+        - qq
+      upstreams: []
+      use_global_settings: true
+      filtering_enabled: false
+      parental_enabled: false
+      safesearch_enabled: false
+      safebrowsing_enabled: false
+      use_global_blocked_services: false
+log_file: ""
+log_max_backups: 0
+log_max_size: 100
+log_max_age: 3
+log_compress: false
+log_localtime: false
+verbose: false
+os:
+  group: ""
+  user: ""
+  rlimit_nofile: 0
+schema_version: 14

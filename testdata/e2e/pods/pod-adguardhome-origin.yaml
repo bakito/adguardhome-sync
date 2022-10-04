@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adguardhome-origin
+spec:
+  volumes:
+    - name: configmap
+      configMap:
+        name: origin-conf
+    - name: conf
+      emptyDir: {}
+
+  initContainers:
+    - name: init
+      image: busybox
+      volumeMounts:
+        - mountPath: /opt/adguardhome/configmap
+          name: configmap
+        - mountPath: /opt/adguardhome/conf
+          name: conf
+      command:
+        - cp
+        - /opt/adguardhome/configmap/AdGuardHome.yaml
+        - /opt/adguardhome/conf
+
+  containers:
+    - name: adguardhome
+      image: adguard/adguardhome:latest
+      volumeMounts:
+        - mountPath: /opt/adguardhome/conf
+          name: conf

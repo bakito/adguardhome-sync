@@ -1,0 +1,31 @@
+name: docker-image
+
+on:
+  push:
+    branches:
+      - container-tests
+
+jobs:
+  test:
+    #needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.3.0
+      - name: Start pods
+        run: |
+          kubectl create configmap origin-conf --from-file testdata/e2e/conf/AdGuardHome.yaml
+          kubectl apply -f testdata/e2e/pods
+          sleep 30
+          kubectl get pods -o wide
+          ORIGIN_IP=$(kubectl get pod adguardhome-origin --template '{{.status.podIP}}')
+          REPLICA_IP=$(kubectl get pod adguardhome-replica --template '{{.status.podIP}}')
+          echo "ORIGIN_URL=http://${ORIGIN_IP}:3000" >> testdata/e2e/conf/sync-conf.properties
+          echo "REPLICA1_URL=http://${REPLICA_IP}:3000" >> testdata/e2e/conf/sync-conf.properties
+          kubectl create configmap sync-conf --from-env-file=testdata/e2e/conf/sync-conf.properties
+          
+          
+          
+
