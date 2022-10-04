@@ -208,6 +208,11 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
+	if versions.IsSame(rs.Version, versions.IncompatibleAPI) {
+		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home runs with an incompatible API - Please ugrade to version %s or newer", versions.FixedIncompatibleAPI)
+		return
+	}
+
 	if o.status.Version != rs.Version {
 		rl.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
 	}
