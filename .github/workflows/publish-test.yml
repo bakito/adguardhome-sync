@@ -27,6 +27,7 @@ jobs:
           echo "REPLICA1_URL=http://${REPLICA_IP}:3000" >> testdata/e2e/conf/sync-conf.properties
           kubectl create configmap sync-conf --from-env-file=testdata/e2e/conf/sync-conf.properties
           kubectl apply -f testdata/e2e/pods/pod-adguardhome-sync.yaml
+          sleep 30
           kubectl logs -f adguardhome-sync
           
           
