@@ -105,7 +105,7 @@ func (w *worker) sync() {
 		return
 	}
 
-	if !versions.IsNewerThan(o.status.Version, versions.MinAgh) {
+	if versions.IsNewerThan(versions.MinAgh, o.status.Version) {
 		sl.With("error", err, "version", o.status.Version).Errorf("Origin AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}
@@ -203,7 +203,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	rl.With("version", o.status.Version).Info("Connected to replica")
 
-	if !versions.IsNewerThan(rs.Version, versions.MinAgh) {
+	if versions.IsNewerThan(versions.MinAgh, rs.Version) {
 		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}

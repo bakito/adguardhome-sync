@@ -6,6 +6,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/versions"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
@@ -483,7 +484,7 @@ var _ = Describe("Sync", func() {
 			It("should have no changes", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -499,7 +500,7 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -536,7 +537,7 @@ var _ = Describe("Sync", func() {
 			It("replica version is too small", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
