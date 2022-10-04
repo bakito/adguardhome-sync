@@ -46,6 +46,7 @@ endif
 
 start-replica:
 	podman run --pull always --rm -it -p 9090:80 -p 9091:3000  adguard/adguardhome
+#	podman run --pull always --rm -it -p 9090:80 -p 9091:3000  adguard/adguardhome:v0.107.13
 
 check_defined = \
     $(strip $(foreach 1,$1, \

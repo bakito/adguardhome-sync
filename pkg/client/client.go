@@ -120,9 +120,10 @@ type Client interface {
 }
 
 type client struct {
-	client *resty.Client
-	log    *zap.SugaredLogger
-	host   string
+	client  *resty.Client
+	log     *zap.SugaredLogger
+	host    string
+	version string
 }
 
 func (cl *client) Host() string {
@@ -174,6 +175,7 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 func (cl *client) Status() (*types.Status, error) {
 	status := &types.Status{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(status), "status")
+	cl.version = status.Version
 	return status, err
 }
 
@@ -302,7 +304,7 @@ func (cl *client) ToggleProtection(enable bool) error {
 
 func (cl *client) SetCustomRules(rules types.UserRules) error {
 	cl.log.With("rules", len(rules)).Info("Set user rules")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(rules.String()), "/filtering/set_rules")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(rules.ToPayload(cl.version)), "/filtering/set_rules")
 }
 
 func (cl *client) ToggleFiltering(enabled bool, interval float64) error {

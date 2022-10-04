@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/bakito/adguardhome-sync/pkg/versions"
 )
 
 const (
@@ -208,6 +210,24 @@ type UserRules []string
 // String toString of Users
 func (ur UserRules) String() string {
 	return strings.Join(ur, "\n")
+}
+
+// ToPayload return the version specific payload for user rules
+func (ur UserRules) ToPayload(version string) interface{} {
+	if versions.IsNewerThan(version, versions.LastStringCustomRules) {
+		return &UserRulesRequest{Rules: ur}
+	}
+	return ur.String()
+}
+
+// UserRulesRequest API struct
+type UserRulesRequest struct {
+	Rules UserRules
+}
+
+// String toString of Users
+func (ur UserRulesRequest) String() string {
+	return ur.Rules.String()
 }
 
 // EnableConfig API struct

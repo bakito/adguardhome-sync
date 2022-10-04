@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -215,6 +216,26 @@ var _ = Describe("Types", func() {
 			r2 := uuid.NewString()
 			ur := types.UserRules([]string{r1, r2})
 			Ω(ur.String()).Should(Equal(r1 + "\n" + r2))
+		})
+		It("should return a string for versions <= "+versions.LastStringCustomRules, func() {
+			r1 := uuid.NewString()
+			r2 := uuid.NewString()
+			pl := types.UserRules([]string{r1, r2}).ToPayload(versions.LastStringCustomRules)
+			Ω(pl).Should(BeAssignableToTypeOf(""))
+		})
+		It("should return a struct for versions > "+versions.IncompatibleAPI, func() {
+			r1 := uuid.NewString()
+			r2 := uuid.NewString()
+			pl := types.UserRules([]string{r1, r2}).ToPayload(versions.FixedIncompatibleAPI)
+			Ω(pl).Should(BeAssignableToTypeOf(&types.UserRulesRequest{}))
+		})
+	})
+	Context("UserRulesRequest", func() {
+		It("should join the rules correctly", func() {
+			r1 := uuid.NewString()
+			r2 := uuid.NewString()
+			urr := types.UserRulesRequest{Rules: []string{r1, r2}}
+			Ω(urr.String()).Should(Equal(r1 + "\n" + r2))
 		})
 	})
 	Context("Config", func() {

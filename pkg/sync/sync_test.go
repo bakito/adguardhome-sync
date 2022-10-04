@@ -6,6 +6,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/versions"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
@@ -483,7 +484,7 @@ var _ = Describe("Sync", func() {
 			It("should have no changes", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -499,7 +500,7 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -536,7 +537,7 @@ var _ = Describe("Sync", func() {
 			It("replica version is too small", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: minAghVersion}, nil)
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -553,6 +554,28 @@ var _ = Describe("Sync", func() {
 				// replica
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
+				w.sync()
+			})
+			It("replica version is with incompatible API", func() {
+				// origin
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Parental()
+				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().Services()
+				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
+				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+
+				// replica
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.IncompatibleAPI}, nil)
 				w.sync()
 			})
 		})
