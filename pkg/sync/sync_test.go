@@ -556,6 +556,28 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
 				w.sync()
 			})
+			It("replica version is with incompatible API", func() {
+				// origin
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Parental()
+				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().Services()
+				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
+				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+
+				// replica
+				cl.EXPECT().Host()
+				cl.EXPECT().Status().Return(&types.Status{Version: versions.IncompatibleAPI}, nil)
+				w.sync()
+			})
 		})
 	})
 })

@@ -12,7 +12,6 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
-	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
 )
@@ -305,14 +304,7 @@ func (cl *client) ToggleProtection(enable bool) error {
 
 func (cl *client) SetCustomRules(rules types.UserRules) error {
 	cl.log.With("rules", len(rules)).Info("Set user rules")
-
-	var payload interface{}
-	if versions.IsNewerThan(cl.version, versions.LastStringCustomRules) {
-		payload = &types.UserRulesRequest{Rules: rules}
-	} else {
-		payload = rules.String()
-	}
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(payload), "/filtering/set_rules")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(rules.ToPayload(cl.version)), "/filtering/set_rules")
 }
 
 func (cl *client) ToggleFiltering(enabled bool, interval float64) error {
