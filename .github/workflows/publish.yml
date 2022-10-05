@@ -97,7 +97,7 @@ jobs:
         run: |
           kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
           kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
-          kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
+          kubectl wait --for=jsonpath='{.status.phase}'=Succeeded pod/adguardhome-sync --timeout=30s
       - name: Show origin Logs
         run: |
           echo adguardhome-origin
