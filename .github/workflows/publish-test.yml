@@ -30,6 +30,10 @@ jobs:
           kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
           kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
           kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
+      - name: Show origin Logs
+        run: |
+          echo adguardhome-origin
+          kubectl logs adguardhome-origin
       - name: Show Replica Logs
         run: |
           echo adguardhome-replica
@@ -39,7 +43,7 @@ jobs:
       - name: Show Sync Logs
         run: |
           echo adguardhome-sync
-          kubectl logs -l app.kubernetes.io/name=adguardhome-sync 
-          ERRORS=$(kubectl logs -l app.kubernetes.io/name=adguardhome-sync | grep Error | wc -l)
+          kubectl logs adguardhome-sync 
+          ERRORS=$(kubectl logs adguardhome-sync | grep Error | wc -l)
           echo "Found ${ERRORS} error(s) in log"; 
           if [[ "${ERRORS}" != "0" ]]; then exit 1; fi 
