@@ -25,9 +25,12 @@ jobs:
           kubectl create configmap sync-conf -n default --from-env-file=testdata/e2e/sync-conf.properties
           kubectl apply -n default -f testdata/e2e/job-adguardhome-sync.yaml
           kubectl wait --for=condition=complete job/adguardhome-sync
-      - name: Show Logs
+      - name: Show Replica Logs
         run: |
-          echo adguardhome-sync
-          kubectl logs -l app.kubernetes.io/name=adguardhome-sync
           echo adguardhome-replica
           kubectl logs adguardhome-replica
+      - name: Show Sync Logs
+        run: |
+          echo adguardhome-sync
+          kubectl logs -l app.kubernetes.io/name=adguardhome-sync 
+          if [[ $(kubectl logs -l app.kubernetes.io/name=adguardhome-sync | grep Error | wc -l) != "0" ]]; then echo "Got Errors in log"; exit 1; fi 
