@@ -28,6 +28,6 @@ jobs:
       - name: Show Logs
         run: |
           echo adguardhome-sync
-          kubectl logs adguardhome-sync
+          kubectl logs -l app.kubernetes.io/name=adguardhome-sync
           echo adguardhome-replica
           kubectl logs adguardhome-replica
