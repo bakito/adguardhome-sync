@@ -74,3 +74,44 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+  test:
+    needs: images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.3.0
+        with:
+          version: v0.14.0
+          kubectl_version: v1.24.0
+      - name: Start adguardhome instances
+        run: |
+          kubectl create namespace agh
+          kubectl config set-context --current --namespace=agh
+          kubectl create configmap origin-conf -n agh --from-file testdata/e2e/AdGuardHome.yaml
+          kubectl apply -f testdata/e2e/agh
+          kubectl wait --for condition=Ready pod/adguardhome-origin --timeout=30s
+          kubectl wait --for condition=Ready pod/adguardhome-replica --timeout=30s
+      - name: Start adguardhome-sync
+        run: |
+          kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
+          kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
+          kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
+      - name: Show origin Logs
+        run: |
+          echo adguardhome-origin
+          kubectl logs adguardhome-origin
+      - name: Show Replica Logs
+        run: |
+          echo adguardhome-replica
+          kubectl logs adguardhome-replica
+          ERRORS=$(kubectl logs adguardhome-replica | grep '\[error\]' | wc -l)
+          echo "Found ${ERRORS} error(s) in log";
+      - name: Show Sync Logs
+        run: |
+          echo adguardhome-sync
+          kubectl logs adguardhome-sync 
+          ERRORS=$(kubectl logs adguardhome-sync | grep Error | wc -l)
+          echo "Found ${ERRORS} error(s) in log"; 
+          if [[ "${ERRORS}" != "0" ]]; then exit 1; fi 

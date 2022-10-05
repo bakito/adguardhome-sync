@@ -45,8 +45,8 @@ ifeq (, $(shell which deepcopy-gen))
 endif
 
 start-replica:
-	podman run --pull always --rm -it -p 9090:80 -p 9091:3000  adguard/adguardhome
-#	podman run --pull always --rm -it -p 9090:80 -p 9091:3000  adguard/adguardhome:v0.107.13
+	podman run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome
+#	podman run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
 check_defined = \
     $(strip $(foreach 1,$1, \
@@ -58,3 +58,19 @@ __check_defined = \
 build-image:
 	$(call check_defined, AGH_SYNC_VERSION)
 	podman build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') --name adgardhome-replica -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
+
+kind-create:
+	kind delete cluster
+	kind create  cluster
+
+kind-test:
+	kubectl create namespace agh
+	kubectl config set-context --current --namespace=agh
+	kubectl create configmap origin-conf --from-file testdata/e2e/AdGuardHome.yaml
+	kubectl apply -f testdata/e2e/agh
+	kubectl wait --for condition=Ready pod/adguardhome-origin --timeout=30s
+	kubectl wait --for condition=Ready pod/adguardhome-replica --timeout=30s
+
+	kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
+	kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
+	kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
