@@ -65,11 +65,12 @@ kind-create:
 
 kind-test:
 	kubectl create namespace agh
-	kubectl create configmap origin-conf -n agh --from-file testdata/e2e/AdGuardHome.yaml
-	kubectl apply -n agh -f testdata/e2e/agh
-	kubectl wait -n agh --for condition=Ready pod/adguardhome-origin --timeout=30s
-	kubectl wait -n agh --for condition=Ready pod/adguardhome-replica --timeout=30s
+	kubectl config set-context --current --namespace=agh
+	kubectl create configmap origin-conf --from-file testdata/e2e/AdGuardHome.yaml
+	kubectl apply -f testdata/e2e/agh
+	kubectl wait --for condition=Ready pod/adguardhome-origin --timeout=30s
+	kubectl wait --for condition=Ready pod/adguardhome-replica --timeout=30s
 
-	kubectl create configmap sync-conf -n agh --from-env-file=testdata/e2e/sync-conf.properties
-	kubectl apply -n agh -f testdata/e2e/job-adguardhome-sync.yaml
-	kubectl wait -n agh --for=condition=complete job/adguardhome-sync
+	kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
+	kubectl apply -f testdata/e2e/job-adguardhome-sync.yaml
+	kubectl wait --for=condition=complete job/adguardhome-sync

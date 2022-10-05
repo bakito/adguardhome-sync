@@ -7,7 +7,7 @@ users:
 auth_attempts: 5
 block_auth_min: 15
 http_proxy: ""
-language: ""
+language: en
 debug_pprof: false
 web_session_ttl: 720
 dns:
@@ -112,13 +112,13 @@ user_rules:
   - '||facebook.com^$important'
 dhcp:
   enabled: false
-  interface_name: foo
+  interface_name: eth0
   local_domain_name: lan
   dhcpv4:
-    gateway_ip: "1.1.1.1"
-    subnet_mask: "255.255.255.0"
-    range_start: "1.1.1.10"
-    range_end: "1.1.1.19"
+    gateway_ip: 1.2.3.4
+    subnet_mask: 255.255.0.0
+    range_start: 1.2.3.5
+    range_end: 1.2.3.56
     lease_duration: 86400
     icmp_timeout_msec: 1000
     options: []
