@@ -16,21 +16,27 @@ jobs:
         uses: helm/kind-action@v1.3.0
       - name: Start adguardhome instances
         run: |
-          kubectl create configmap origin-conf -n default --from-file testdata/e2e/AdGuardHome.yaml
-          kubectl apply -n default -f testdata/e2e/agh
-          kubectl wait -n default --for condition=Ready pod/adguardhome-origin --timeout=30s
-          kubectl wait -n default --for condition=Ready pod/adguardhome-replica --timeout=30s
+          kubectl create namespace agh
+          kubectl config set-context --current --namespace=agh
+          kubectl create configmap origin-conf -n agh --from-file testdata/e2e/AdGuardHome.yaml
+          kubectl apply -n agh -f testdata/e2e/agh
+          kubectl wait -n agh --for condition=Ready pod/adguardhome-origin --timeout=30s
+          kubectl wait -n agh --for condition=Ready pod/adguardhome-replica --timeout=30s
       - name: Start adguardhome-sync
         run: |
-          kubectl create configmap sync-conf -n default --from-env-file=testdata/e2e/sync-conf.properties
-          kubectl apply -n default -f testdata/e2e/job-adguardhome-sync.yaml
-          kubectl wait --for=condition=complete job/adguardhome-sync
+          kubectl create configmap sync-conf -n agh --from-env-file=testdata/e2e/sync-conf.properties
+          kubectl apply -n agh -f testdata/e2e/job-adguardhome-sync.yaml
+          kubectl wait -n agh --for=condition=complete job/adguardhome-sync
       - name: Show Replica Logs
         run: |
           echo adguardhome-replica
-          kubectl logs adguardhome-replica
+          kubectl logs -n agh adguardhome-replica
+          ERRORS=$(kubectl logs -n agh adguardhome-replica | grep '\[error\]' | wc -l)
+          echo "Found ${ERRORS} error(s) in log";
       - name: Show Sync Logs
         run: |
           echo adguardhome-sync
-          kubectl logs -l app.kubernetes.io/name=adguardhome-sync 
-          if [[ $(kubectl logs -l app.kubernetes.io/name=adguardhome-sync | grep Error | wc -l) != "0" ]]; then echo "Got Errors in log"; exit 1; fi 
+          kubectl logs -n agh -l app.kubernetes.io/name=adguardhome-sync 
+          ERRORS=$(kubectl logs -n agh -l app.kubernetes.io/name=adguardhome-sync | grep Error | wc -l)
+          echo "Found ${ERRORS} error(s) in log"; 
+          if [[ "${ERRORS}" != "0" ]]; then exit 1; fi 
