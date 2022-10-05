@@ -12,4 +12,5 @@ spec:
       envFrom:
         - configMapRef:
             name: sync-conf
+  restartPolicy: Never
 

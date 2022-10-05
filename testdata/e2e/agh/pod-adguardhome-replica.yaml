@@ -2,7 +2,11 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: adguardhome-replica
+  labels:
+    app.kubernetes.io/name: adguardhome-replica
 spec:
   containers:
     - name: adguardhome
       image: adguard/adguardhome:latest
+      ports:
+        - containerPort: 3000

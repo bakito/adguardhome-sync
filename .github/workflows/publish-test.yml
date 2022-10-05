@@ -14,22 +14,14 @@ jobs:
         uses: actions/checkout@v2
       - name: Create kind cluster
         uses: helm/kind-action@v1.3.0
-      - name: Start pods
+      - name: Start adguardhome instances
         run: |
-          kubectl create configmap origin-conf --from-file testdata/e2e/conf/AdGuardHome.yaml
-          kubectl apply -f testdata/e2e/pods/pod-adguardhome-origin.yaml
-          kubectl apply -f testdata/e2e/pods/pod-adguardhome-replica.yaml
-          sleep 30
-          kubectl get pods -o wide
-          ORIGIN_IP=$(kubectl get pod adguardhome-origin --template '{{.status.podIP}}')
-          REPLICA_IP=$(kubectl get pod adguardhome-replica --template '{{.status.podIP}}')
-          echo "ORIGIN_URL=http://${ORIGIN_IP}:3000" >> testdata/e2e/conf/sync-conf.properties
-          echo "REPLICA1_URL=http://${REPLICA_IP}:3000" >> testdata/e2e/conf/sync-conf.properties
-          kubectl create configmap sync-conf --from-env-file=testdata/e2e/conf/sync-conf.properties
-          kubectl apply -f testdata/e2e/pods/pod-adguardhome-sync.yaml
-          sleep 30
-          kubectl logs -f adguardhome-sync
-          
-          
-          
-
+          kubectl create configmap origin-conf -n default --from-file testdata/e2e/AdGuardHome.yaml
+          kubectl apply -n default -f testdata/e2e/agh
+          kubectl wait -n default --for condition=Ready pod/adguardhome-origin --timeout=30s
+          kubectl wait -n default --for condition=Ready pod/adguardhome-replica --timeout=30s
+      - name: Start adguardhome-sync
+        run: |
+          kubectl create configmap sync-conf -n default --from-env-file=testdata/e2e/sync-conf.properties
+          kubectl apply -n default -f testdata/e2e/pod-adguardhome-sync.yaml
+          kubectl wait -n default --for jsonpath={.status.phase}=Succeeded pod/adguardhome-sync --timeout=2m
