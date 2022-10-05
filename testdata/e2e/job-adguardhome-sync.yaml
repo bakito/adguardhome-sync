@@ -3,6 +3,7 @@ kind: Job
 metadata:
   name: adguardhome-sync
 spec:
+  manualSelector: true
   selector:
     matchLabels:
       app.kubernetes.io/name: adguardhome-sync
