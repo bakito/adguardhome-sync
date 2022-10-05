@@ -25,3 +25,9 @@ jobs:
           kubectl create configmap sync-conf -n default --from-env-file=testdata/e2e/sync-conf.properties
           kubectl apply -n default -f testdata/e2e/job-adguardhome-sync.yaml
           kubectl wait --for=condition=complete job/adguardhome-sync
+      - name: Show Logs
+        run: |
+          echo adguardhome-sync
+          kubectl logs adguardhome-sync
+          echo adguardhome-replica
+          kubectl logs adguardhome-replica
