@@ -23,5 +23,5 @@ jobs:
       - name: Start adguardhome-sync
         run: |
           kubectl create configmap sync-conf -n default --from-env-file=testdata/e2e/sync-conf.properties
-          kubectl apply -n default -f testdata/e2e/pod-adguardhome-sync.yaml
-          kubectl wait -n default --for jsonpath={.status.phase}=Succeeded pod/adguardhome-sync --timeout=2m
+          kubectl apply -n default -f testdata/e2e/job-adguardhome-sync.yaml
+          kubectl wait --for=condition=complete job/adguardhome-sync

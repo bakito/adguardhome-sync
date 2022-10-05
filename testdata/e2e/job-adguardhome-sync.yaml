@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: adguardhome-sync
+spec:
+  template:
+    spec:
+      containers:
+        - name: adguardhome-sync
+          image: ghcr.io/bakito/adguardhome-sync:main
+          command:
+            - /opt/go/adguardhome-sync
+            - run
+          envFrom:
+            - configMapRef:
+                name: sync-conf
+      restartPolicy: Never
+  backoffLimit: 4
