@@ -3,7 +3,13 @@ kind: Job
 metadata:
   name: adguardhome-sync
 spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: adguardhome-sync
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: adguardhome-sync
     spec:
       containers:
         - name: adguardhome-sync
