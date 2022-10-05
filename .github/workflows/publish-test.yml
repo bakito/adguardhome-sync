@@ -28,8 +28,8 @@ jobs:
       - name: Start adguardhome-sync
         run: |
           kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
-          kubectl apply -f testdata/e2e/job-adguardhome-sync.yaml
-          kubectl wait --for=condition=complete job/adguardhome-sync
+          kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
+          kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
       - name: Show Replica Logs
         run: |
           echo adguardhome-replica

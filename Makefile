@@ -72,5 +72,5 @@ kind-test:
 	kubectl wait --for condition=Ready pod/adguardhome-replica --timeout=30s
 
 	kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
-	kubectl apply -f testdata/e2e/job-adguardhome-sync.yaml
-	kubectl wait --for=condition=complete job/adguardhome-sync
+	kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
+	kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
