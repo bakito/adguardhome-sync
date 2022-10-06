@@ -85,8 +85,12 @@ jobs:
         with:
           version: v0.14.0
           kubectl_version: v1.24.0
-      - name: Install Hel Chart
-        run: helm install agh-e2e testdata/e2e/agh-e2e -n agh-e2e --create-namespace
+      - name: Install Helm Chart
+        run: |
+          helm install agh-e2e testdata/e2e/agh-e2e -n agh-e2e --create-namespace
+          kubectl config set-context --current --namespace=agh-e2e
+      - name: Wait for sync to finish
+        run: kubectl wait --for=jsonpath='{.status.phase}'=Succeeded pod/adguardhome-sync --timeout=1m
       - name: Show origin Logs
         run: |
           echo Pod adguardhome-origin logs
