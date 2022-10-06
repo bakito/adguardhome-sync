@@ -6,7 +6,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     app.kubernetes.io/name: adguardhome-replica-{{ $i }}
-    bakito.net/adguardhome-sync: replia
+    bakito.net/adguardhome-sync: replica
 spec:
   containers:
     - name: adguardhome

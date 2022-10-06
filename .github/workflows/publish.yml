@@ -85,32 +85,24 @@ jobs:
         with:
           version: v0.14.0
           kubectl_version: v1.24.0
-      - name: Start adguardhome instances
-        run: |
-          kubectl create namespace agh
-          kubectl config set-context --current --namespace=agh
-          kubectl create configmap origin-conf -n agh --from-file testdata/e2e/AdGuardHome.yaml
-          kubectl apply -f testdata/e2e/agh
-          kubectl wait --for condition=Ready pod/adguardhome-origin --timeout=30s
-          kubectl wait --for condition=Ready pod/adguardhome-replica --timeout=30s
-      - name: Start adguardhome-sync
-        run: |
-          kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
-          kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
-          kubectl wait --for=jsonpath='{.status.phase}'=Succeeded pod/adguardhome-sync --timeout=30s
+      - name: Install Hel Chart
+        run: helm install agh-e2e testdata/e2e/agh-e2e -n agh-e2e --create-namespace
       - name: Show origin Logs
         run: |
-          echo adguardhome-origin
+          echo Pod adguardhome-origin logs
           kubectl logs adguardhome-origin
       - name: Show Replica Logs
         run: |
-          echo adguardhome-replica
-          kubectl logs adguardhome-replica
-          ERRORS=$(kubectl logs adguardhome-replica | grep '\[error\]' | wc -l)
-          echo "Found ${ERRORS} error(s) in log";
+          for pod in $(kubectl get pods -l bakito.net/adguardhome-sync=replica -o name); do
+            echo Pod "${pod} logs"
+            kubectl logs ${pod}
+            ERRORS=$(kubectl logs ${pod} | grep '\[error\]' | wc -l)
+            echo "Found ${ERRORS} error(s) in log"
+            echo "----------------------------------------------"
+          done
       - name: Show Sync Logs
         run: |
-          echo adguardhome-sync
+          echo Pod adguardhome-sync logs
           kubectl logs adguardhome-sync 
           ERRORS=$(kubectl logs adguardhome-sync | grep Error | wc -l)
           echo "Found ${ERRORS} error(s) in log"; 
