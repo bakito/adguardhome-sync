@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sync-conf
+  namespace:  {{ .Release.Namespace }}
+data:
+  API_PORT: "0"
+  LOG_LEVEL: info
+  ORIGIN_URL: http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000
+  ORIGIN_PASSWORD: password
+  ORIGIN_USERNAME: username
+  {{ range $i,$_ := .Values.replica.versions }}
+  REPLICA{{ $i }}_AUTOSETUP: "true"
+  REPLICA{{ $i }}_URL: http://service-replica-{{ $i }}.{{ $.Release.Namespace }}.svc.cluster.local:3000
+  REPLICA{{ $i }}_PASSWORD: password
+  REPLICA{{ $i }}_USERNAME: username
+{{- end }}

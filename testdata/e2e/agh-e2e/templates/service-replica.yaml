@@ -1,0 +1,14 @@
+{{ range $i ,$_ := .Values.replica.versions }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-replica-{{ $i }}
+spec:
+  selector:
+    app.kubernetes.io/name: adguardhome-replica-{{ $i }}
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+{{- end }}

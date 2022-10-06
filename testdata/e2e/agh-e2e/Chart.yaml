@@ -1,0 +1,8 @@
+apiVersion: v2
+name: agh-e2e
+description: adguardhome sync test charts
+type: application
+
+version: 0.1.0
+
+appVersion: "1.16.0"

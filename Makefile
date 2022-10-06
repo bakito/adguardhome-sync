@@ -64,13 +64,5 @@ kind-create:
 	kind create  cluster
 
 kind-test:
-	kubectl create namespace agh
-	kubectl config set-context --current --namespace=agh
-	kubectl create configmap origin-conf --from-file testdata/e2e/AdGuardHome.yaml
-	kubectl apply -f testdata/e2e/agh
-	kubectl wait --for condition=Ready pod/adguardhome-origin --timeout=30s
-	kubectl wait --for condition=Ready pod/adguardhome-replica --timeout=30s
-
-	kubectl create configmap sync-conf --from-env-file=testdata/e2e/sync-conf.properties
-	kubectl apply -f testdata/e2e/pod-adguardhome-sync.yaml
-	kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=30s
+	helm delete agh-e2e -n agh-e2e
+	helm install agh-e2e testdata/e2e/agh-e2e -n agh-e2e --create-namespace
