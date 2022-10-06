@@ -1,0 +1,5 @@
+replica:
+  versions:
+    - latest
+    - v0.107.13
+    - v0.107.15

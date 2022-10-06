@@ -1,0 +1,17 @@
+{{ range $i, $version := .Values.replica.versions }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adguardhome-replica-{{ $i }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: adguardhome-replica-{{ $i }}
+    bakito.net/adguardhome-sync: replica
+spec:
+  containers:
+    - name: adguardhome
+      image: "adguard/adguardhome:{{ $version }}"
+      ports:
+        - containerPort: 3000
+---
+{{- end }}

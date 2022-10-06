@@ -2,8 +2,10 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: adguardhome-origin
+  namespace: {{ $.Release.Namespace }}
   labels:
     app.kubernetes.io/name: adguardhome-origin
+    bakito.net/adguardhome-sync: origin
 spec:
   volumes:
     - name: configmap
