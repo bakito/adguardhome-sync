@@ -12,11 +12,7 @@ spec:
         - /bin/bash
         - -c
         - |
-          #!/bin/bash
-          echo "wait for adguardhome pods"
-          for pod in $(kubectl get pods -l bakito.net/adguardhome-sync -o name); do
-            kubectl wait --for condition=Ready ${pod} --timeout=30s
-          done
+          {{- .Files.Get "bin/wait-for-agh-pods.sh" | nindent 10}}
   containers:
     - name: adguardhome-sync
       image: ghcr.io/bakito/adguardhome-sync:main

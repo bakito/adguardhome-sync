@@ -64,5 +64,4 @@ kind-create:
 	kind create  cluster
 
 kind-test:
-	helm delete agh-e2e -n agh-e2e
-	helm install agh-e2e testdata/e2e/agh-e2e -n agh-e2e --create-namespace
+	@./testdata/e2e/bin/install-chart.sh

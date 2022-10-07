@@ -86,28 +86,12 @@ jobs:
           version: v0.14.0
           kubectl_version: v1.24.0
       - name: Install Helm Chart
-        run: |
-          helm install agh-e2e testdata/e2e/agh-e2e -n agh-e2e --create-namespace
-          kubectl config set-context --current --namespace=agh-e2e
+        run: ./testdata/e2e/bin/install-chart.sh
       - name: Wait for sync to finish
-        run: kubectl wait --for=jsonpath='{.status.phase}'=Succeeded pod/adguardhome-sync --timeout=1m
+        run: ./testdata/e2e/bin/wait-for-sync.sh
       - name: Show origin Logs
-        run: |
-          echo Pod adguardhome-origin logs
-          kubectl logs adguardhome-origin
+        run: ./testdata/e2e/bin/show-origin-logs.sh
       - name: Show Replica Logs
-        run: |
-          for pod in $(kubectl get pods -l bakito.net/adguardhome-sync=replica -o name); do
-            echo Pod "${pod} logs"
-            kubectl logs ${pod}
-            ERRORS=$(kubectl logs ${pod} | grep '\[error\]' | wc -l)
-            echo "Found ${ERRORS} error(s) in log"
-            echo "----------------------------------------------"
-          done
+        run: ./testdata/e2e/bin/show-replica-logs.sh
       - name: Show Sync Logs
-        run: |
-          echo Pod adguardhome-sync logs
-          kubectl logs adguardhome-sync 
-          ERRORS=$(kubectl logs adguardhome-sync | grep Error | wc -l)
-          echo "Found ${ERRORS} error(s) in log"; 
-          if [[ "${ERRORS}" != "0" ]]; then exit 1; fi 
+        run: ./testdata/e2e/bin/show-sync-logs.sh
