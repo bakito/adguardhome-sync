@@ -55,6 +55,32 @@ adguardhome-sync run
 adguardhome-sync run --cron "*/10 * * * *"
 ```
 
+
+```bash
+REM Windows
+@ECHO OFF
+@TITLE AdGuardHome-Sync
+
+REM set LOG_LEVEL=debug
+set LOG_LEVEL=info
+REM set LOG_LEVEL=warn
+REM set LOG_LEVEL=error
+
+set ORIGIN_URL=https://192.168.1.2:3000
+set ORIGIN_USERNAME=username
+set ORIGIN_PASSWORD=password
+
+set REPLICA_URL=http://192.168.1.3
+set REPLICA_USERNAME=username
+set REPLICA_PASSWORD=password
+
+# run once
+adguardhome-sync run
+
+# run as daemon
+adguardhome-sync run --cron "*/10 * * * *"
+```
+
 ## docker cli
 
 ```bash
