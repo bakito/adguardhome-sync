@@ -37,7 +37,7 @@ go install github.com/bakito/adguardhome-sync@latest
 
 Both the origin instance must be initially setup via the AdguardHome installation wizard.
 
-## Run
+## Run Linux/Mac
 
 ```bash
 
@@ -47,6 +47,36 @@ export ORIGIN_PASSWORD=password
 export REPLICA_URL=http://192.168.1.3
 export REPLICA_USERNAME=username
 export REPLICA_PASSWORD=password
+
+# run once
+adguardhome-sync run
+
+# run as daemon
+adguardhome-sync run --cron "*/10 * * * *"
+```
+
+## Run Windows
+
+```bash
+@ECHO OFF
+@TITLE AdGuardHome-Sync
+
+REM set LOG_LEVEL=debug
+set LOG_LEVEL=info
+REM set LOG_LEVEL=warn
+REM set LOG_LEVEL=error
+
+set ORIGIN_URL=http://173.82.107.239:54321
+set ORIGIN_USERNAME=admin
+set ORIGIN_PASSWORD=Juriel@0805
+
+set REPLICA_URL=http://127.0.0.1:54321
+set REPLICA_USERNAME=admin
+set REPLICA_PASSWORD=Juriel@0805
+
+set FEATURES_DHCP=false
+set FEATURES_DHCP_SERVERCONFIG=false
+set FEATURES_DHCP_STATICLEASES=false
 
 # run once
 adguardhome-sync run
