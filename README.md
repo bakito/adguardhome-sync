@@ -37,7 +37,7 @@ go install github.com/bakito/adguardhome-sync@latest
 
 Both the origin instance must be initially setup via the AdguardHome installation wizard.
 
-## Run
+## Run Linux/Mac
 
 ```bash
 
@@ -55,9 +55,9 @@ adguardhome-sync run
 adguardhome-sync run --cron "*/10 * * * *"
 ```
 
+## Run Windows
 
 ```bash
-REM Windows
 @ECHO OFF
 @TITLE AdGuardHome-Sync
 
