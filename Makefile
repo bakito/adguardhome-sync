@@ -45,8 +45,8 @@ ifeq (, $(shell which deepcopy-gen))
 endif
 
 start-replica:
-	podman run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome
-#	podman run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
+	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome
+#	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
 check_defined = \
     $(strip $(foreach 1,$1, \
@@ -57,7 +57,7 @@ __check_defined = \
 
 build-image:
 	$(call check_defined, AGH_SYNC_VERSION)
-	podman build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') --name adgardhome-replica -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
+	docker build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') --name adgardhome-replica -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
 
 kind-create:
 	kind delete cluster

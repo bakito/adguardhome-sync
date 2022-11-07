@@ -147,7 +147,11 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")
 		return detailedError(resp, err)
 	}
-	rl.With("status", resp.StatusCode(), "body", string(resp.Body())).Debug("got response")
+	rl.With(
+		"status", resp.StatusCode(),
+		"body", string(resp.Body()),
+		"content-type", resp.Header()["Content-Type"],
+	).Debug("got response")
 	if resp.StatusCode() != http.StatusOK {
 		return detailedError(resp, nil)
 	}
