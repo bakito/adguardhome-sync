@@ -135,6 +135,7 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 	if cl.client.UserInfo != nil {
 		rl = rl.With("username", cl.client.UserInfo.Username)
 	}
+	req.ForceContentType("application/json")
 	rl.Debug("do get")
 	resp, err := req.Get(url)
 	if err != nil {
@@ -169,11 +170,25 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do post")
 		return detailedError(resp, err)
 	}
-	rl.With("status", resp.StatusCode(), "body", string(resp.Body())).Debug("got response")
+	rl.With(
+		"status", resp.StatusCode(),
+		"body", string(resp.Body()),
+		"content-type", contentType(resp),
+	).Debug("got response")
 	if resp.StatusCode() != http.StatusOK {
 		return detailedError(resp, nil)
 	}
 	return nil
+}
+
+func contentType(resp *resty.Response) string {
+	if ct, ok := resp.Header()["Content-Type"]; ok {
+		if len(ct) != 1 {
+			return fmt.Sprintf("%v", ct)
+		}
+		return ct[0]
+	}
+	return ""
 }
 
 func (cl *client) Status() (*types.Status, error) {
