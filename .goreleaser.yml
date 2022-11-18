@@ -28,7 +28,9 @@ builds:
       - goos: windows
         goarch: arm64
     hooks:
-      post: upx {{ .Path }}
+      post:
+        # don't upx windows binaries as they make trouble with virus scanners
+        - bash -c 'if [[ "{{ .Path }}" != *.exe ]]; then upx {{ .Path }}; fi'
 archives:
   - replacements:
       386: i386
