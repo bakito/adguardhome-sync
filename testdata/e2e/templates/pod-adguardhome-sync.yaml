@@ -15,7 +15,7 @@ spec:
           {{- .Files.Get "bin/wait-for-agh-pods.sh" | nindent 10}}
   containers:
     - name: adguardhome-sync
-      image: ghcr.io/bakito/adguardhome-sync:main
+      image: localhost:5001/adguardhome-sync:e2e
       command:
         - /opt/go/adguardhome-sync
         - run

@@ -1,0 +1,51 @@
+name: e2e tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Set up Registry Container
+        run: |
+          docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry registry:2
+
+      - name: Build image
+        run: ./testdata/e2e/bin/build-image.sh
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.5.0
+        with:
+          version: v0.17.0
+          kubectl_version: v1.25.3
+          config: testdata/e2e/kind/config.yaml
+      - name: Set up Local Registry
+        run: |
+          # https://kind.sigs.k8s.io/docs/user/local-registry/
+          docker network connect kind kind-registry
+          kubectl apply -f testdata/e2e/kind/configmap-registry.yaml
+          # image registry: localhost:5001/
+
+      - name: Install Helm Chart
+        run: ./testdata/e2e/bin/install-chart.sh
+      - name: Wait for sync to finish
+        run: ./testdata/e2e/bin/wait-for-sync.sh
+      - name: Show origin Logs
+        run: ./testdata/e2e/bin/show-origin-logs.sh
+      - name: Show Replica Logs
+        run: ./testdata/e2e/bin/show-replica-logs.sh
+      - name: Show Sync Logs
+        run: ./testdata/e2e/bin/show-sync-logs.sh

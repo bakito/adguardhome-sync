@@ -9,9 +9,9 @@ data:
   ORIGIN_URL: http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000
   ORIGIN_PASSWORD: password
   ORIGIN_USERNAME: username
-  {{ range $i,$_ := .Values.replica.versions }}
+  {{ range $i,$version := .Values.replica.versions }}
   REPLICA{{ $i }}_AUTOSETUP: "true"
-  REPLICA{{ $i }}_URL: http://service-replica-{{ $i }}.{{ $.Release.Namespace }}.svc.cluster.local:3000
+  REPLICA{{ $i }}_URL: http://service-replica-{{ $version | toString | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local:3000
   REPLICA{{ $i }}_PASSWORD: password
   REPLICA{{ $i }}_USERNAME: username
 {{- end }}
