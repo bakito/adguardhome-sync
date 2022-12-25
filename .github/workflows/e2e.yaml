@@ -24,7 +24,7 @@ jobs:
           docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry registry:2
 
       - name: Build image
-        run: ./testdata/e2e/buildImage.sh
+        run: ./testdata/e2e/bin/build-image.sh
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
