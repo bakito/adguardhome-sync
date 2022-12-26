@@ -15,29 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-      - name: Set up Registry Container
-        run: |
-          docker run -d --restart=always -p "127.0.0.1:5001:5000" --name kind-registry registry:2
+      - name: Install kind with registry
+        uses: bakito/kind-with-registry-action@main
 
       - name: Build image
         run: ./testdata/e2e/bin/build-image.sh
-
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.5.0
-        with:
-          version: v0.17.0
-          kubectl_version: v1.25.3
-          config: testdata/e2e/kind/config.yaml
-      - name: Set up Local Registry
-        run: |
-          # https://kind.sigs.k8s.io/docs/user/local-registry/
-          docker network connect kind kind-registry
-          kubectl apply -f testdata/e2e/kind/configmap-registry.yaml
-          # image registry: localhost:5001/
 
       - name: Install Helm Chart
         run: ./testdata/e2e/bin/install-chart.sh
