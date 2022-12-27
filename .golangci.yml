@@ -29,7 +29,6 @@ linters:
   - unconvert
   - unparam
   - unused
-  - wastedassign
 linters-settings:
   gosec:
     # Exclude generated files

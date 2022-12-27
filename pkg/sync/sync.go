@@ -173,10 +173,12 @@ func (w *worker) sync() {
 		return
 	}
 
-	o.dhcpServerConfig, err = oc.DHCPServerConfig()
-	if err != nil {
-		sl.With("error", err).Error("Error getting dhcp server config")
-		return
+	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
+		o.dhcpServerConfig, err = oc.DHCPServerConfig()
+		if err != nil {
+			sl.With("error", err).Error("Error getting dhcp server config")
+			return
+		}
 	}
 
 	replicas := w.cfg.UniqueReplicas()
@@ -256,9 +258,11 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	if err = w.syncDHCPServer(o.dhcpServerConfig, rc, replica); err != nil {
-		rl.With("error", err).Error("Error syncing dns")
-		return
+	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
+		if err = w.syncDHCPServer(o.dhcpServerConfig, rc, replica); err != nil {
+			rl.With("error", err).Error("Error syncing dns")
+			return
+		}
 	}
 
 	rl.Info("Sync done")
@@ -475,6 +479,9 @@ func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.
 }
 
 func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, replica types.AdGuardInstance) error {
+	if !w.cfg.Features.DHCP.ServerConfig && !w.cfg.Features.DHCP.StaticLeases {
+		return nil
+	}
 	sc, err := rc.DHCPServerConfig()
 	if w.cfg.Features.DHCP.ServerConfig {
 		if err != nil {
