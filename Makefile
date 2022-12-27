@@ -7,7 +7,8 @@ tidy:
 	go mod tidy
 
 generate: deepcopy-gen
-	touch ./tmp/deepcopy-gen-boilerplate.go.txt
+	@mkdir -p ./tmp
+	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
 	deepcopy-gen -h ./tmp/deepcopy-gen-boilerplate.go.txt -i ./pkg/types
 
 # Run tests
