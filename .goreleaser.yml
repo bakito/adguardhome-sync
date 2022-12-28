@@ -31,10 +31,6 @@ builds:
       post:
         # don't upx windows binaries as they make trouble with virus scanners
         - bash -c 'if [[ "{{ .Path }}" != *.exe ]]; then upx {{ .Path }}; fi'
-archives:
-  - replacements:
-      386: i386
-      amd64: x86_64
 checksum:
   name_template: 'checksums.txt'
 snapshot:

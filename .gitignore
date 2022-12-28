@@ -5,3 +5,4 @@ adguardhome-sync
 main
 .adguardhome-sync.yaml
 tmp
+bin
