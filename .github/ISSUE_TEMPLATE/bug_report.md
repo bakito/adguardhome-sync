@@ -22,6 +22,7 @@ A clear and concise description of what you expected to happen.
 
 **Log Files**
 If applicable, add log files or json responses from AdGuardHome to help explain your problem.
+Please set  the environment variable `LOG_LEVEL=debug` to generate debug logs.
 
 **Additional context**
 Add any other context about the problem here.
