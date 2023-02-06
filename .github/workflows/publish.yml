@@ -45,7 +45,7 @@ jobs:
 
       - name: Build and push ${{github.event.release.tag_name }}
         id: docker_build_release
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         if: ${{ github.event.release.tag_name != '' }}
         with:
           context: .
@@ -59,7 +59,7 @@ jobs:
 
       - name: Build and push main
         id: docker_build_main
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         if: ${{ github.event.release.tag_name == '' }}
         with:
           context: .
