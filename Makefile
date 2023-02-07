@@ -23,7 +23,7 @@ mocks: mockgen
 	$(MOCKGEN) -package client -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
 
 release: semver goreleaser
-	@version=$$($(LOCALBIN)/semver);
+	@version=$$($(LOCALBIN)/semver); \
 	git tag -s $$version -m"Release $$version"
 	$(GORELEASER) --rm-dist
 
