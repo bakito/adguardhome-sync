@@ -31,8 +31,10 @@ test-release: goreleaser
 	$(GORELEASER) --skip-publish --snapshot --rm-dist
 
 ## toolbox - start
+## Current working directory
+LOCALDIR ?= $(shell which cygpath > /dev/null 2>&1 && cygpath -m $$(pwd) || pwd)
 ## Location to install dependencies to
-LOCALBIN ?= $(shell test -s "cygpath -m $$(pwd)" || pwd)/bin
+LOCALBIN ?= $(LOCALDIR)/bin
 $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 
@@ -46,9 +48,9 @@ DEEPCOPY_GEN ?= $(LOCALBIN)/deepcopy-gen
 ## Tool Versions
 SEMVER_VERSION ?= v1.1.3
 MOCKGEN_VERSION ?= v1.6.0
-GOLANGCI_LINT_VERSION ?= v1.50.1
-GORELEASER_VERSION ?= v1.14.0
-DEEPCOPY_GEN_VERSION ?= v0.26.0
+GOLANGCI_LINT_VERSION ?= v1.51.1
+GORELEASER_VERSION ?= v1.15.1
+DEEPCOPY_GEN_VERSION ?= v0.26.1
 
 ## Tool Installer
 .PHONY: semver
@@ -81,7 +83,7 @@ update-toolbox-tools:
 		$(LOCALBIN)/golangci-lint \
 		$(LOCALBIN)/goreleaser \
 		$(LOCALBIN)/deepcopy-gen
-	toolbox makefile -f $$(pwd)/Makefile \
+	toolbox makefile -f $(LOCALDIR)/Makefile \
 		github.com/bakito/semver \
 		github.com/golang/mock/mockgen \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
