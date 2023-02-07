@@ -91,9 +91,12 @@ update-toolbox-tools:
 		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator
 ## toolbox - end
 
-
 start-replica:
-	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome
+	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:v0.107.23
+#	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
+
+start-replica2:
+	docker run --pull always --name adguardhome-replica2 -p 9093:3000 --rm adguard/adguardhome:v0.107.23
 #	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
 check_defined = \

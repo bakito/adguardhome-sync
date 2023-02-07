@@ -2,6 +2,7 @@ package client
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -164,7 +165,8 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 	if cl.client.UserInfo != nil {
 		rl = rl.With("username", cl.client.UserInfo.Username)
 	}
-	rl.Debug("do post")
+	b, _ := json.Marshal(req.Body)
+	rl.With("body", string(b)).Debug("do post")
 	resp, err := req.Post(url)
 	if err != nil {
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do post")
