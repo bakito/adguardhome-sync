@@ -22,7 +22,7 @@ type DHCPServerConfig struct {
 // Clone the config
 func (c *DHCPServerConfig) Clone() *DHCPServerConfig {
 	clone := &DHCPServerConfig{}
-	_ = copier.Copy(c, clone)
+	_ = copier.Copy(clone, c)
 	return clone
 }
 

@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"encoding/json"
+	"net"
 	"os"
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
@@ -357,6 +358,66 @@ var _ = Describe("Types", func() {
 				dc1 := &types.DNSConfig{Upstreams: []string{"a"}}
 				dc2 := &types.DNSConfig{Upstreams: []string{"b"}}
 				Ω(dc1.Equals(dc2)).ShouldNot(BeTrue())
+			})
+		})
+	})
+	Context("DHCPServerConfig", func() {
+		Context("Equals", func() {
+			It("should be equal", func() {
+				dc1 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{
+						GatewayIP:     net.IPv4(1, 2, 3, 4),
+						LeaseDuration: 123,
+						RangeStart:    net.IPv4(1, 2, 3, 5),
+						RangeEnd:      net.IPv4(1, 2, 3, 6),
+						SubnetMask:    net.IPv4(255, 255, 255, 0),
+					},
+				}
+				dc2 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{
+						GatewayIP:     net.IPv4(1, 2, 3, 4),
+						LeaseDuration: 123,
+						RangeStart:    net.IPv4(1, 2, 3, 5),
+						RangeEnd:      net.IPv4(1, 2, 3, 6),
+						SubnetMask:    net.IPv4(255, 255, 255, 0),
+					},
+				}
+				Ω(dc1.Equals(dc2)).Should(BeTrue())
+			})
+			It("should not be equal", func() {
+				dc1 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{
+						GatewayIP:     net.IPv4(1, 2, 3, 3),
+						LeaseDuration: 123,
+						RangeStart:    net.IPv4(1, 2, 3, 5),
+						RangeEnd:      net.IPv4(1, 2, 3, 6),
+						SubnetMask:    net.IPv4(255, 255, 255, 0),
+					},
+				}
+				dc2 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{
+						GatewayIP:     net.IPv4(1, 2, 3, 4),
+						LeaseDuration: 123,
+						RangeStart:    net.IPv4(1, 2, 3, 5),
+						RangeEnd:      net.IPv4(1, 2, 3, 6),
+						SubnetMask:    net.IPv4(255, 255, 255, 0),
+					},
+				}
+				Ω(dc1.Equals(dc2)).ShouldNot(BeTrue())
+			})
+		})
+		Context("Clone", func() {
+			It("clone should be equal", func() {
+				dc1 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{
+						GatewayIP:     net.IPv4(1, 2, 3, 4),
+						LeaseDuration: 123,
+						RangeStart:    net.IPv4(1, 2, 3, 5),
+						RangeEnd:      net.IPv4(1, 2, 3, 6),
+						SubnetMask:    net.IPv4(255, 255, 255, 0),
+					},
+				}
+				Ω(dc1.Clone().Equals(dc1)).Should(BeTrue())
 			})
 		})
 	})
