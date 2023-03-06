@@ -58,6 +58,7 @@ const (
 	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
 	// Deprecated: use envReplicasInterfaceName instead
 	envReplicasInterfaceNameDeprecated = "REPLICA%s_INTERFACWENAME"
+	envDHCPServerEnabled               = "REPLICA%s_DHCPSERVERENABLED"
 )
 
 var (
@@ -160,9 +161,20 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 					re.InterfaceName = in
 				}
 			}
+			if dhcpEnabled, ok := os.LookupEnv(envDHCPServerEnabled); ok {
+				if strings.EqualFold(dhcpEnabled, "true") {
+					re.DHCPServerEnabled = boolPtr(true)
+				} else if strings.EqualFold(dhcpEnabled, "false") {
+					re.DHCPServerEnabled = boolPtr(false)
+				}
+			}
 			replicas = append(replicas, re)
 		}
 	}
 
 	return replicas
+}
+
+func boolPtr(b bool) *bool {
+	return &b
 }

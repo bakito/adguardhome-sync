@@ -492,6 +492,11 @@ func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, r
 			// overwrite interface name
 			origClone.InterfaceName = replica.InterfaceName
 		}
+		if replica.DHCPServerEnabled != nil {
+			// overwrite dhcp enabled
+			origClone.Enabled = *replica.DHCPServerEnabled
+		}
+
 		if !sc.Equals(origClone) {
 			if err = rc.SetDHCPServerConfig(origClone); err != nil {
 				return err

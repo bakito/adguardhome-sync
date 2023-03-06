@@ -25,7 +25,7 @@ mocks: mockgen
 release: semver goreleaser
 	@version=$$($(LOCALBIN)/semver); \
 	git tag -s $$version -m"Release $$version"
-	$(GORELEASER) --rm-dist
+	$(GORELEASER) --clean
 
 test-release: goreleaser
 	$(GORELEASER) --skip-publish --snapshot --rm-dist
@@ -92,11 +92,11 @@ update-toolbox-tools:
 ## toolbox - end
 
 start-replica:
-	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:v0.107.23
+	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:latest
 #	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
 start-replica2:
-	docker run --pull always --name adguardhome-replica2 -p 9093:3000 --rm adguard/adguardhome:v0.107.23
+	docker run --pull always --name adguardhome-replica2 -p 9093:3000 --rm adguard/adguardhome:latest
 #	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
 check_defined = \
