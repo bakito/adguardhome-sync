@@ -64,6 +64,7 @@ type AdGuardInstance struct {
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
 	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
 	InterfaceName      string `json:"interfaceName" yaml:"interfaceName"`
+	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
 }
 
 // Key AdGuardInstance key

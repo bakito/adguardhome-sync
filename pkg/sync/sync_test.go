@@ -13,6 +13,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var boolTrue = true
+
 var _ = Describe("Sync", func() {
 	var (
 		mockCtrl *gm.Controller
@@ -453,6 +455,14 @@ var _ = Describe("Sync", func() {
 				oscClone.InterfaceName = "foo"
 				cl.EXPECT().SetDHCPServerConfig(oscClone)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{InterfaceName: "foo"})
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should enable the target dhcp server", func() {
+				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				oscClone := osc.Clone()
+				oscClone.Enabled = true
+				cl.EXPECT().SetDHCPServerConfig(oscClone)
+				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{DHCPServerEnabled: &boolTrue})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})

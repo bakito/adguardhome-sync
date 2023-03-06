@@ -138,6 +138,7 @@ services:
       REPLICA1_APIPATH: '/some/path/control'
       # REPLICA1_AUTOSETUP: true # if true, AdGuardHome is automatically initialized.
       # REPLICA1_INTERFACENAME: 'ens18' # use custom dhcp interface name
+      # REPLICA1_DHCPSERVERENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: '*/10 * * * *' # run every 10 minutes
       RUNONSTART: true
       # Configure sync features; by default all features are enabled.

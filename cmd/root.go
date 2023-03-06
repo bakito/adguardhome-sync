@@ -58,6 +58,7 @@ const (
 	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
 	// Deprecated: use envReplicasInterfaceName instead
 	envReplicasInterfaceNameDeprecated = "REPLICA%s_INTERFACWENAME"
+	envDHCPServerEnabled               = "REPLICA%s_DHCPSERVERENABLED"
 )
 
 var (
@@ -152,7 +153,7 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 				AutoSetup:          strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasAutoSetup, sm[1])), "true"),
 				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
 			}
-			if re.InterfaceName != "" {
+			if re.InterfaceName == "" {
 				if in, ok := os.LookupEnv(fmt.Sprintf(envReplicasInterfaceNameDeprecated, sm[1])); ok {
 					logger.
 						With("correct", envReplicasInterfaceName, "deprecated", envReplicasInterfaceNameDeprecated).
@@ -160,9 +161,20 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 					re.InterfaceName = in
 				}
 			}
+			if dhcpEnabled, ok := os.LookupEnv(fmt.Sprintf(envDHCPServerEnabled, sm[1])); ok {
+				if strings.EqualFold(dhcpEnabled, "true") {
+					re.DHCPServerEnabled = boolPtr(true)
+				} else if strings.EqualFold(dhcpEnabled, "false") {
+					re.DHCPServerEnabled = boolPtr(false)
+				}
+			}
 			replicas = append(replicas, re)
 		}
 	}
 
 	return replicas
+}
+
+func boolPtr(b bool) *bool {
+	return &b
 }
