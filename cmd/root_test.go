@@ -3,9 +3,11 @@ package cmd
 import (
 	"os"
 
+	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/zap"
 )
 
 var envVars = []string{
@@ -23,7 +25,9 @@ var envVars = []string{
 }
 
 var _ = Describe("Run", func() {
+	var logger *zap.SugaredLogger
 	BeforeEach(func() {
+		logger = log.GetLogger("root")
 		for _, envVar := range envVars {
 			Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 		}
@@ -31,7 +35,7 @@ var _ = Describe("Run", func() {
 	})
 	Context("getConfig", func() {
 		It("features should be true by default", func() {
-			cfg, err := getConfig()
+			cfg, err := getConfig(logger)
 			Ω(err).ShouldNot(HaveOccurred())
 			verifyFeatures(cfg, true)
 		})
@@ -39,7 +43,7 @@ var _ = Describe("Run", func() {
 			for _, envVar := range envVars {
 				Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 			}
-			cfg, err := getConfig()
+			cfg, err := getConfig(logger)
 			Ω(err).ShouldNot(HaveOccurred())
 			verifyFeatures(cfg, false)
 		})

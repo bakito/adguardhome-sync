@@ -12,6 +12,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 const (
@@ -54,7 +55,8 @@ const (
 	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
 	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
 	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
-	envReplicasInterfaceName            = "REPLICA%s_INTERFACWENAME"
+	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
+	envReplicasInterfaceNameDeprecated  = "REPLICA%s_INTERFACWENAME"
 )
 
 var (
@@ -122,20 +124,20 @@ func initConfig() {
 	}
 }
 
-func getConfig() (*types.Config, error) {
+func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
 	cfg := &types.Config{}
 	if err := viper.Unmarshal(cfg); err != nil {
 		return nil, err
 	}
 
 	if len(cfg.Replicas) == 0 {
-		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas()...)
+		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas(logger)...)
 	}
 	return cfg, nil
 }
 
 // Manually collect replicas from env.
-func collectEnvReplicas() []types.AdGuardInstance {
+func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 	var replicas []types.AdGuardInstance
 	for _, v := range os.Environ() {
 		if envReplicasURLPattern.MatchString(v) {
@@ -148,6 +150,14 @@ func collectEnvReplicas() []types.AdGuardInstance {
 				InsecureSkipVerify: strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasInsecureSkipVerifyFormat, sm[1])), "true"),
 				AutoSetup:          strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasAutoSetup, sm[1])), "true"),
 				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
+			}
+			if re.InterfaceName != "" {
+				if in, ok := os.LookupEnv(envReplicasInterfaceNameDeprecated); ok {
+					logger.
+						With("correct", envReplicasInterfaceName, "deprecated", envReplicasInterfaceNameDeprecated).
+						Warn("Deprecated env variable is used, please use the correct one")
+					re.InterfaceName = in
+				}
 			}
 			replicas = append(replicas, re)
 		}
