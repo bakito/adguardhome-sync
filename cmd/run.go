@@ -72,7 +72,7 @@ func init() {
 	_ = viper.BindPFlag(configOriginUsername, doCmd.PersistentFlags().Lookup("origin-username"))
 	doCmd.PersistentFlags().String("origin-password", "", "Origin instance password")
 	_ = viper.BindPFlag(configOriginPassword, doCmd.PersistentFlags().Lookup("origin-password"))
-	doCmd.PersistentFlags().String("origin-insecure-skip-verify", "", "Enable Origin instance InsecureSkipVerify")
+	doCmd.PersistentFlags().Bool("origin-insecure-skip-verify", false, "Enable Origin instance InsecureSkipVerify")
 	_ = viper.BindPFlag(configOriginInsecureSkipVerify, doCmd.PersistentFlags().Lookup("origin-insecure-skip-verify"))
 
 	doCmd.PersistentFlags().String("replica-url", "", "Replica instance url")
