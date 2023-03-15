@@ -141,6 +141,10 @@ services:
       # REPLICA1_DHCPSERVERENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: '*/10 * * * *' # run every 10 minutes
       RUNONSTART: true
+
+      # Configure the sync API server, disabled if api port is 0
+      API_PORT: 8080
+
       # Configure sync features; by default all features are enabled.
       # FEATURES_GENERALSETTINGS: true
       # FEATURES_QUERYLOGCONFIG: true
