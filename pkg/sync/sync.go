@@ -260,7 +260,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
 		if err = w.syncDHCPServer(o.dhcpServerConfig, rc, replica); err != nil {
-			rl.With("error", err).Error("Error syncing dns")
+			rl.With("error", err).Error("Error syncing dhcp")
 			return
 		}
 	}
