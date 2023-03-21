@@ -250,7 +250,7 @@ var _ = Describe("Types", func() {
 				Ω(r).Should(BeEmpty())
 			})
 			It("should be empty if replica url is not set", func() {
-				cfg.Replica = types.AdGuardInstance{URL: ""}
+				cfg.Replica = &types.AdGuardInstance{URL: ""}
 				r := cfg.UniqueReplicas()
 				Ω(r).Should(BeEmpty())
 			})
@@ -260,19 +260,19 @@ var _ = Describe("Types", func() {
 				Ω(r).Should(BeEmpty())
 			})
 			It("should return only one replica if same url and apiPath", func() {
-				cfg.Replica = types.AdGuardInstance{URL: url, APIPath: apiPath}
+				cfg.Replica = &types.AdGuardInstance{URL: url, APIPath: apiPath}
 				cfg.Replicas = []types.AdGuardInstance{{URL: url, APIPath: apiPath}, {URL: url, APIPath: apiPath}}
 				r := cfg.UniqueReplicas()
 				Ω(r).Should(HaveLen(1))
 			})
 			It("should return 3 one replicas if urls are different", func() {
-				cfg.Replica = types.AdGuardInstance{URL: url, APIPath: apiPath}
+				cfg.Replica = &types.AdGuardInstance{URL: url, APIPath: apiPath}
 				cfg.Replicas = []types.AdGuardInstance{{URL: url + "1", APIPath: apiPath}, {URL: url, APIPath: apiPath + "1"}}
 				r := cfg.UniqueReplicas()
 				Ω(r).Should(HaveLen(3))
 			})
 			It("should set default api apiPath if not set", func() {
-				cfg.Replica = types.AdGuardInstance{URL: url}
+				cfg.Replica = &types.AdGuardInstance{URL: url}
 				cfg.Replicas = []types.AdGuardInstance{{URL: url + "1"}}
 				r := cfg.UniqueReplicas()
 				Ω(r).Should(HaveLen(2))
