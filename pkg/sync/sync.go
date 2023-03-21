@@ -27,6 +27,7 @@ func Sync(cfg *types.Config) error {
 	}
 
 	l.With("version", version.Version, "build", version.Build).Info("AdGuardHome sync")
+	cfg.Log(l)
 	cfg.Features.LogDisabled(l)
 	cfg.Origin.AutoSetup = false
 
