@@ -41,6 +41,7 @@ Both the origin instance must be initially setup via the AdguardHome installatio
 
 ```bash
 
+export LOG_LEVEL=info
 export ORIGIN_URL=https://192.168.1.2:3000
 export ORIGIN_USERNAME=username
 export ORIGIN_PASSWORD=password
@@ -126,6 +127,7 @@ services:
     container_name: adguardhome-sync
     command: run
     environment:
+      LOG_LEVEL: 'info'
       ORIGIN_URL: 'https://192.168.1.2:3000'
       ORIGIN_USERNAME: 'username'
       ORIGIN_PASSWORD: 'password'
