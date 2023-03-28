@@ -3,6 +3,7 @@ package sync
 import (
 	"errors"
 	"fmt"
+	"runtime"
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
@@ -26,7 +27,12 @@ func Sync(cfg *types.Config) error {
 		return fmt.Errorf("no replicas configured")
 	}
 
-	l.With("version", version.Version, "build", version.Build).Info("AdGuardHome sync")
+	l.With(
+		"version", version.Version,
+		"build", version.Build,
+		"os", runtime.GOOS,
+		"arch", runtime.GOARCH,
+	).Info("AdGuardHome sync")
 	cfg.Log(l)
 	cfg.Features.LogDisabled(l)
 	cfg.Origin.AutoSetup = false
