@@ -142,7 +142,7 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 	if err != nil {
 		if resp != nil && resp.StatusCode() == http.StatusFound {
 			loc := resp.Header().Get("Location")
-			if loc == "/install.html" {
+			if loc == "/install.html" || loc == "/control/install.html" {
 				return ErrSetupNeeded
 			}
 		}
