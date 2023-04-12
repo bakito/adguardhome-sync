@@ -490,7 +490,7 @@ func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, r
 		return nil
 	}
 	sc, err := rc.DHCPServerConfig()
-	if w.cfg.Features.DHCP.ServerConfig {
+	if w.cfg.Features.DHCP.ServerConfig && osc.HasConfig() {
 		if err != nil {
 			return err
 		}

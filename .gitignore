@@ -7,3 +7,4 @@ main
 tmp
 bin
 config.yaml
+*.log

@@ -33,6 +33,10 @@ func (c *DHCPServerConfig) Equals(o *DHCPServerConfig) bool {
 	return string(a) == string(b)
 }
 
+func (c *DHCPServerConfig) HasConfig() bool {
+	return (c.V4 != nil && c.V4.isValid()) || (c.V6 != nil && c.V6.isValid())
+}
+
 // V4ServerConfJSON v4 server conf
 type V4ServerConfJSON struct {
 	GatewayIP     net.IP `json:"gateway_ip"`
@@ -42,11 +46,19 @@ type V4ServerConfJSON struct {
 	LeaseDuration uint32 `json:"lease_duration"`
 }
 
+func (j V4ServerConfJSON) isValid() bool {
+	return j.GatewayIP != nil && j.SubnetMask != nil && j.RangeStart != nil && j.RangeEnd != nil
+}
+
 // V6ServerConfJSON v6 server conf
 type V6ServerConfJSON struct {
 	RangeStart    net.IP `json:"range_start"`
 	RangeEnd      net.IP `json:"range_end"`
 	LeaseDuration uint32 `json:"lease_duration"`
+}
+
+func (j V6ServerConfJSON) isValid() bool {
+	return j.RangeStart != nil && j.RangeEnd != nil
 }
 
 // Leases slice of leases type
