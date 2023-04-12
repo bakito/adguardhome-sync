@@ -2,6 +2,7 @@ package sync
 
 import (
 	"errors"
+	"net"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
@@ -433,11 +434,17 @@ var _ = Describe("Sync", func() {
 				rsc *types.DHCPServerConfig
 			)
 			BeforeEach(func() {
-				osc = &types.DHCPServerConfig{}
+				osc = &types.DHCPServerConfig{V4: &types.V4ServerConfJSON{
+					GatewayIP:  net.IPv4(1, 2, 3, 4),
+					RangeStart: net.IPv4(1, 2, 3, 5),
+					RangeEnd:   net.IPv4(1, 2, 3, 6),
+					SubnetMask: net.IPv4(255, 255, 255, 0),
+				}}
 				rsc = &types.DHCPServerConfig{}
 				w.cfg.Features.DHCP.StaticLeases = false
 			})
 			It("should have no changes", func() {
+				rsc.V4 = osc.V4
 				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
 				Ω(err).ShouldNot(HaveOccurred())

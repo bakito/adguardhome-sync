@@ -420,5 +420,36 @@ var _ = Describe("Types", func() {
 				Ω(dc1.Clone().Equals(dc1)).Should(BeTrue())
 			})
 		})
+		Context("HasConfig", func() {
+			It("should not have a config", func() {
+				dc1 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{},
+					V6: &types.V6ServerConfJSON{},
+				}
+				Ω(dc1.HasConfig()).Should(BeFalse())
+			})
+			It("should not have a v4 config", func() {
+				dc1 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{
+						GatewayIP:  net.IPv4(1, 2, 3, 4),
+						RangeStart: net.IPv4(1, 2, 3, 5),
+						RangeEnd:   net.IPv4(1, 2, 3, 6),
+						SubnetMask: net.IPv4(255, 255, 255, 0),
+					},
+					V6: &types.V6ServerConfJSON{},
+				}
+				Ω(dc1.HasConfig()).Should(BeTrue())
+			})
+			It("should not have a v6 config", func() {
+				dc1 := &types.DHCPServerConfig{
+					V4: &types.V4ServerConfJSON{},
+					V6: &types.V6ServerConfJSON{
+						RangeStart: net.IPv4(1, 2, 3, 5),
+						RangeEnd:   net.IPv4(1, 2, 3, 6),
+					},
+				}
+				Ω(dc1.HasConfig()).Should(BeTrue())
+			})
+		})
 	})
 })
