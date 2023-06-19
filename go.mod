@@ -15,7 +15,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	go.uber.org/zap v1.24.0
-	golang.org/x/mod v0.10.0
+	golang.org/x/mod v0.11.0
 )
 
 require (
