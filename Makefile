@@ -125,12 +125,11 @@ kind-create:
 kind-test:
 	@./testdata/e2e/bin/install-chart.sh
 
-# go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.9.1
 model: oapi-codegen
 	go run openapi/main.go v0.107.33
 	$(OAPI_CODEGEN) -package model -generate types tmp/model.yaml > pkg/client/model/model.go
 
-diff-model:
+model-diff:
 	go run openapi/main.go v0.107.33
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
