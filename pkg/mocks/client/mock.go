@@ -7,6 +7,7 @@ package client
 import (
 	reflect "reflect"
 
+	model "github.com/bakito/adguardhome-sync/pkg/client/model"
 	types "github.com/bakito/adguardhome-sync/pkg/types"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -68,7 +69,7 @@ func (mr *MockClientMockRecorder) AddClients(arg0 ...interface{}) *gomock.Call {
 }
 
 // AddDHCPStaticLeases mocks base method.
-func (m *MockClient) AddDHCPStaticLeases(arg0 ...types.Lease) error {
+func (m *MockClient) AddDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -137,21 +138,6 @@ func (mr *MockClientMockRecorder) Clients() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clients", reflect.TypeOf((*MockClient)(nil).Clients))
 }
 
-// DHCPServerConfig mocks base method.
-func (m *MockClient) DHCPServerConfig() (*types.DHCPServerConfig, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DHCPServerConfig")
-	ret0, _ := ret[0].(*types.DHCPServerConfig)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DHCPServerConfig indicates an expected call of DHCPServerConfig.
-func (mr *MockClientMockRecorder) DHCPServerConfig() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DHCPServerConfig", reflect.TypeOf((*MockClient)(nil).DHCPServerConfig))
-}
-
 // DNSConfig mocks base method.
 func (m *MockClient) DNSConfig() (*types.DNSConfig, error) {
 	m.ctrl.T.Helper()
@@ -186,7 +172,7 @@ func (mr *MockClientMockRecorder) DeleteClients(arg0 ...interface{}) *gomock.Cal
 }
 
 // DeleteDHCPStaticLeases mocks base method.
-func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...types.Lease) error {
+func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -238,6 +224,21 @@ func (m *MockClient) DeleteRewriteEntries(arg0 ...types.RewriteEntry) error {
 func (mr *MockClientMockRecorder) DeleteRewriteEntries(arg0 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRewriteEntries", reflect.TypeOf((*MockClient)(nil).DeleteRewriteEntries), arg0...)
+}
+
+// DhcpConfig mocks base method.
+func (m *MockClient) DhcpConfig() (*model.DhcpStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DhcpConfig")
+	ret0, _ := ret[0].(*model.DhcpStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DhcpConfig indicates an expected call of DhcpConfig.
+func (mr *MockClientMockRecorder) DhcpConfig() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DhcpConfig", reflect.TypeOf((*MockClient)(nil).DhcpConfig))
 }
 
 // Filtering mocks base method.
@@ -401,20 +402,6 @@ func (mr *MockClientMockRecorder) SetCustomRules(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCustomRules", reflect.TypeOf((*MockClient)(nil).SetCustomRules), arg0)
 }
 
-// SetDHCPServerConfig mocks base method.
-func (m *MockClient) SetDHCPServerConfig(arg0 *types.DHCPServerConfig) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetDHCPServerConfig", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetDHCPServerConfig indicates an expected call of SetDHCPServerConfig.
-func (mr *MockClientMockRecorder) SetDHCPServerConfig(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDHCPServerConfig", reflect.TypeOf((*MockClient)(nil).SetDHCPServerConfig), arg0)
-}
-
 // SetDNSConfig mocks base method.
 func (m *MockClient) SetDNSConfig(arg0 *types.DNSConfig) error {
 	m.ctrl.T.Helper()
@@ -427,6 +414,20 @@ func (m *MockClient) SetDNSConfig(arg0 *types.DNSConfig) error {
 func (mr *MockClientMockRecorder) SetDNSConfig(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDNSConfig", reflect.TypeOf((*MockClient)(nil).SetDNSConfig), arg0)
+}
+
+// SetDhcpConfig mocks base method.
+func (m *MockClient) SetDhcpConfig(arg0 *model.DhcpStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetDhcpConfig", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetDhcpConfig indicates an expected call of SetDhcpConfig.
+func (mr *MockClientMockRecorder) SetDhcpConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDhcpConfig", reflect.TypeOf((*MockClient)(nil).SetDhcpConfig), arg0)
 }
 
 // SetQueryLogConfig mocks base method.

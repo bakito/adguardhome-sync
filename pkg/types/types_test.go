@@ -2,10 +2,11 @@ package types_test
 
 import (
 	"encoding/json"
-	"net"
 	"os"
 
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
@@ -364,43 +365,43 @@ var _ = Describe("Types", func() {
 	Context("DHCPServerConfig", func() {
 		Context("Equals", func() {
 			It("should be equal", func() {
-				dc1 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{
-						GatewayIP:     net.IPv4(1, 2, 3, 4),
-						LeaseDuration: 123,
-						RangeStart:    net.IPv4(1, 2, 3, 5),
-						RangeEnd:      net.IPv4(1, 2, 3, 6),
-						SubnetMask:    net.IPv4(255, 255, 255, 0),
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:     utils.Ptr("1.2.3.4"),
+						LeaseDuration: utils.Ptr(123),
+						RangeStart:    utils.Ptr("1.2.3.5"),
+						RangeEnd:      utils.Ptr("1.2.3.6"),
+						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
 				}
-				dc2 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{
-						GatewayIP:     net.IPv4(1, 2, 3, 4),
-						LeaseDuration: 123,
-						RangeStart:    net.IPv4(1, 2, 3, 5),
-						RangeEnd:      net.IPv4(1, 2, 3, 6),
-						SubnetMask:    net.IPv4(255, 255, 255, 0),
+				dc2 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:     utils.Ptr("1.2.3.4"),
+						LeaseDuration: utils.Ptr(123),
+						RangeStart:    utils.Ptr("1.2.3.5"),
+						RangeEnd:      utils.Ptr("1.2.3.6"),
+						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
 				}
 				Ω(dc1.Equals(dc2)).Should(BeTrue())
 			})
 			It("should not be equal", func() {
-				dc1 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{
-						GatewayIP:     net.IPv4(1, 2, 3, 3),
-						LeaseDuration: 123,
-						RangeStart:    net.IPv4(1, 2, 3, 5),
-						RangeEnd:      net.IPv4(1, 2, 3, 6),
-						SubnetMask:    net.IPv4(255, 255, 255, 0),
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:     utils.Ptr("1.2.3.3"),
+						LeaseDuration: utils.Ptr(123),
+						RangeStart:    utils.Ptr("1.2.3.5"),
+						RangeEnd:      utils.Ptr("1.2.3.6"),
+						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
 				}
-				dc2 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{
-						GatewayIP:     net.IPv4(1, 2, 3, 4),
-						LeaseDuration: 123,
-						RangeStart:    net.IPv4(1, 2, 3, 5),
-						RangeEnd:      net.IPv4(1, 2, 3, 6),
-						SubnetMask:    net.IPv4(255, 255, 255, 0),
+				dc2 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:     utils.Ptr("1.2.3.4"),
+						LeaseDuration: utils.Ptr(123),
+						RangeStart:    utils.Ptr("1.2.3.5"),
+						RangeEnd:      utils.Ptr("1.2.3.6"),
+						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
 				}
 				Ω(dc1.Equals(dc2)).ShouldNot(BeTrue())
@@ -408,13 +409,13 @@ var _ = Describe("Types", func() {
 		})
 		Context("Clone", func() {
 			It("clone should be equal", func() {
-				dc1 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{
-						GatewayIP:     net.IPv4(1, 2, 3, 4),
-						LeaseDuration: 123,
-						RangeStart:    net.IPv4(1, 2, 3, 5),
-						RangeEnd:      net.IPv4(1, 2, 3, 6),
-						SubnetMask:    net.IPv4(255, 255, 255, 0),
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:     utils.Ptr("1.2.3.4"),
+						LeaseDuration: utils.Ptr(123),
+						RangeStart:    utils.Ptr("1.2.3.5"),
+						RangeEnd:      utils.Ptr("1.2.3.6"),
+						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
 				}
 				Ω(dc1.Clone().Equals(dc1)).Should(BeTrue())
@@ -422,30 +423,30 @@ var _ = Describe("Types", func() {
 		})
 		Context("HasConfig", func() {
 			It("should not have a config", func() {
-				dc1 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{},
-					V6: &types.V6ServerConfJSON{},
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{},
+					V6: &model.DhcpConfigV6{},
 				}
 				Ω(dc1.HasConfig()).Should(BeFalse())
 			})
 			It("should not have a v4 config", func() {
-				dc1 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{
-						GatewayIP:  net.IPv4(1, 2, 3, 4),
-						RangeStart: net.IPv4(1, 2, 3, 5),
-						RangeEnd:   net.IPv4(1, 2, 3, 6),
-						SubnetMask: net.IPv4(255, 255, 255, 0),
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:     utils.Ptr("1.2.3.4"),
+						LeaseDuration: utils.Ptr(123),
+						RangeStart:    utils.Ptr("1.2.3.5"),
+						RangeEnd:      utils.Ptr("1.2.3.6"),
+						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
-					V6: &types.V6ServerConfJSON{},
+					V6: &model.DhcpConfigV6{},
 				}
 				Ω(dc1.HasConfig()).Should(BeTrue())
 			})
 			It("should not have a v6 config", func() {
-				dc1 := &types.DHCPServerConfig{
-					V4: &types.V4ServerConfJSON{},
-					V6: &types.V6ServerConfJSON{
-						RangeStart: net.IPv4(1, 2, 3, 5),
-						RangeEnd:   net.IPv4(1, 2, 3, 6),
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{},
+					V6: &model.DhcpConfigV6{
+						RangeStart: utils.Ptr("1.2.3.5"),
 					},
 				}
 				Ω(dc1.HasConfig()).Should(BeTrue())

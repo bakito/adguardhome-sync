@@ -11,6 +11,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/go-resty/resty/v2"
@@ -114,10 +115,10 @@ type Client interface {
 	SetAccessList(*types.AccessList) error
 	DNSConfig() (*types.DNSConfig, error)
 	SetDNSConfig(*types.DNSConfig) error
-	DHCPServerConfig() (*types.DHCPServerConfig, error)
-	SetDHCPServerConfig(*types.DHCPServerConfig) error
-	AddDHCPStaticLeases(leases ...types.Lease) error
-	DeleteDHCPStaticLeases(leases ...types.Lease) error
+	DhcpConfig() (*model.DhcpStatus, error)
+	SetDhcpConfig(*model.DhcpStatus) error
+	AddDHCPStaticLeases(leases ...model.DhcpStaticLease) error
+	DeleteDHCPStaticLeases(leases ...model.DhcpStaticLease) error
 }
 
 type client struct {
@@ -462,20 +463,20 @@ func (cl *client) SetDNSConfig(config *types.DNSConfig) error {
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dns_config")
 }
 
-func (cl *client) DHCPServerConfig() (*types.DHCPServerConfig, error) {
-	cfg := &types.DHCPServerConfig{}
+func (cl *client) DhcpConfig() (*model.DhcpStatus, error) {
+	cfg := &model.DhcpStatus{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(cfg), "/dhcp/status")
 	return cfg, err
 }
 
-func (cl *client) SetDHCPServerConfig(config *types.DHCPServerConfig) error {
+func (cl *client) SetDhcpConfig(config *model.DhcpStatus) error {
 	cl.log.Info("Set dhcp server config")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dhcp/set_config")
 }
 
-func (cl *client) AddDHCPStaticLeases(leases ...types.Lease) error {
+func (cl *client) AddDHCPStaticLeases(leases ...model.DhcpStaticLease) error {
 	for _, l := range leases {
-		cl.log.With("mac", l.HWAddr, "ip", l.IP, "hostname", l.Hostname).Info("Add static dhcp lease")
+		cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Add static dhcp lease")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/add_static_lease")
 		if err != nil {
 			return err
@@ -484,9 +485,9 @@ func (cl *client) AddDHCPStaticLeases(leases ...types.Lease) error {
 	return nil
 }
 
-func (cl *client) DeleteDHCPStaticLeases(leases ...types.Lease) error {
+func (cl *client) DeleteDHCPStaticLeases(leases ...model.DhcpStaticLease) error {
 	for _, l := range leases {
-		cl.log.With("mac", l.HWAddr, "ip", l.IP, "hostname", l.Hostname).Info("Delete static dhcp lease")
+		cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Delete static dhcp lease")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/remove_static_lease")
 		if err != nil {
 			return err

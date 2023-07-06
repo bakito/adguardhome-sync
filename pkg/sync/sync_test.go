@@ -2,11 +2,12 @@ package sync
 
 import (
 	"errors"
-	"net"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -430,45 +431,45 @@ var _ = Describe("Sync", func() {
 
 		Context("syncDHCPServer", func() {
 			var (
-				osc *types.DHCPServerConfig
-				rsc *types.DHCPServerConfig
+				osc *model.DhcpStatus
+				rsc *model.DhcpStatus
 			)
 			BeforeEach(func() {
-				osc = &types.DHCPServerConfig{V4: &types.V4ServerConfJSON{
-					GatewayIP:  net.IPv4(1, 2, 3, 4),
-					RangeStart: net.IPv4(1, 2, 3, 5),
-					RangeEnd:   net.IPv4(1, 2, 3, 6),
-					SubnetMask: net.IPv4(255, 255, 255, 0),
+				osc = &model.DhcpStatus{V4: &model.DhcpConfigV4{
+					GatewayIp:  utils.Ptr("1.2.3.4"),
+					RangeStart: utils.Ptr("1.2.3.5"),
+					RangeEnd:   utils.Ptr("1.2.3.6"),
+					SubnetMask: utils.Ptr("255.255.255.0"),
 				}}
-				rsc = &types.DHCPServerConfig{}
+				rsc = &model.DhcpStatus{}
 				w.cfg.Features.DHCP.StaticLeases = false
 			})
 			It("should have no changes", func() {
 				rsc.V4 = osc.V4
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changes", func() {
-				rsc.Enabled = true
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
-				cl.EXPECT().SetDHCPServerConfig(osc)
+				rsc.Enabled = utils.Ptr(true)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				cl.EXPECT().SetDhcpConfig(osc)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should use replica interface name", func() {
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := osc.Clone()
-				oscClone.InterfaceName = "foo"
-				cl.EXPECT().SetDHCPServerConfig(oscClone)
+				oscClone.InterfaceName = utils.Ptr("foo")
+				cl.EXPECT().SetDhcpConfig(oscClone)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{InterfaceName: "foo"})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should enable the target dhcp server", func() {
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := osc.Clone()
-				oscClone.Enabled = true
-				cl.EXPECT().SetDHCPServerConfig(oscClone)
+				oscClone.Enabled = utils.Ptr(true)
+				cl.EXPECT().SetDhcpConfig(oscClone)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{DHCPServerEnabled: &boolTrue})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -513,7 +514,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
 				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
@@ -540,7 +541,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().DeleteClients()
 				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 				cl.EXPECT().AddDHCPStaticLeases().Return(nil)
 				cl.EXPECT().DeleteDHCPStaticLeases().Return(nil)
 				w.sync()
@@ -611,7 +612,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
 				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
@@ -633,7 +634,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
 				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 
 				// replica
 				cl.EXPECT().Host()

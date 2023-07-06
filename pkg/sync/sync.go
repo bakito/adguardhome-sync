@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/bakito/adguardhome-sync/version"
 	"github.com/robfig/cron/v3"
@@ -181,7 +183,7 @@ func (w *worker) sync() {
 	}
 
 	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
-		o.dhcpServerConfig, err = oc.DHCPServerConfig()
+		o.dhcpServerConfig, err = oc.DhcpConfig()
 		if err != nil {
 			sl.With("error", err).Error("Error getting dhcp server config")
 			return
@@ -485,11 +487,11 @@ func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.
 	return nil
 }
 
-func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, replica types.AdGuardInstance) error {
+func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica types.AdGuardInstance) error {
 	if !w.cfg.Features.DHCP.ServerConfig && !w.cfg.Features.DHCP.StaticLeases {
 		return nil
 	}
-	sc, err := rc.DHCPServerConfig()
+	sc, err := rc.DhcpConfig()
 	if w.cfg.Features.DHCP.ServerConfig && osc.HasConfig() {
 		if err != nil {
 			return err
@@ -497,22 +499,22 @@ func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, r
 		origClone := osc.Clone()
 		if replica.InterfaceName != "" {
 			// overwrite interface name
-			origClone.InterfaceName = replica.InterfaceName
+			origClone.InterfaceName = utils.Ptr(replica.InterfaceName)
 		}
 		if replica.DHCPServerEnabled != nil {
 			// overwrite dhcp enabled
-			origClone.Enabled = *replica.DHCPServerEnabled
+			origClone.Enabled = replica.DHCPServerEnabled
 		}
 
 		if !sc.Equals(origClone) {
-			if err = rc.SetDHCPServerConfig(origClone); err != nil {
+			if err = rc.SetDhcpConfig(origClone); err != nil {
 				return err
 			}
 		}
 	}
 
 	if w.cfg.Features.DHCP.StaticLeases {
-		a, r := sc.StaticLeases.Merge(osc.StaticLeases)
+		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, osc.StaticLeases)
 
 		if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
 			return err
@@ -534,7 +536,7 @@ type origin struct {
 	statsConfig      *types.IntervalConfig
 	accessList       *types.AccessList
 	dnsConfig        *types.DNSConfig
-	dhcpServerConfig *types.DHCPServerConfig
+	dhcpServerConfig *model.DhcpStatus
 	parental         bool
 	safeSearch       bool
 	safeBrowsing     bool
