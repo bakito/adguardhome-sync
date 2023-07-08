@@ -51,7 +51,7 @@ func (mr *MockClientMockRecorder) AccessList() *gomock.Call {
 }
 
 // AddClients mocks base method.
-func (m *MockClient) AddClients(arg0 ...types.Client) error {
+func (m *MockClient) AddClients(arg0 ...*model.Client) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -124,10 +124,10 @@ func (mr *MockClientMockRecorder) AddRewriteEntries(arg0 ...interface{}) *gomock
 }
 
 // Clients mocks base method.
-func (m *MockClient) Clients() (*types.Clients, error) {
+func (m *MockClient) Clients() (*model.Clients, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Clients")
-	ret0, _ := ret[0].(*types.Clients)
+	ret0, _ := ret[0].(*model.Clients)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -154,7 +154,7 @@ func (mr *MockClientMockRecorder) DNSConfig() *gomock.Call {
 }
 
 // DeleteClients mocks base method.
-func (m *MockClient) DeleteClients(arg0 ...types.Client) error {
+func (m *MockClient) DeleteClients(arg0 ...*model.Client) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -587,7 +587,7 @@ func (mr *MockClientMockRecorder) ToggleSafeSearch(arg0 interface{}) *gomock.Cal
 }
 
 // UpdateClients mocks base method.
-func (m *MockClient) UpdateClients(arg0 ...types.Client) error {
+func (m *MockClient) UpdateClients(arg0 ...*model.Client) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {

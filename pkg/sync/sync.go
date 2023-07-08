@@ -380,7 +380,7 @@ func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, r
 	return nil
 }
 
-func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
+func (w *worker) syncClients(oc *model.Clients, replica client.Client) error {
 	if w.cfg.Features.ClientSettings {
 		rc, err := replica.Clients()
 		if err != nil {
@@ -531,7 +531,7 @@ type origin struct {
 	rewrites         *types.RewriteEntries
 	services         types.Services
 	filters          *types.FilteringStatus
-	clients          *types.Clients
+	clients          *model.Clients
 	queryLogConfig   *types.QueryLogConfig
 	statsConfig      *types.IntervalConfig
 	accessList       *model.AccessList

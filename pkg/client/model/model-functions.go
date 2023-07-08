@@ -129,3 +129,81 @@ func equals(a *[]string, b *[]string) bool {
 	}
 	return true
 }
+
+// Sort clients
+func (cl *Client) Sort() {
+	if cl.Ids != nil {
+		sort.Strings(*cl.Ids)
+	}
+	if cl.Tags != nil {
+		sort.Strings(*cl.Tags)
+	}
+	if cl.BlockedServices != nil {
+		sort.Strings(*cl.BlockedServices)
+	}
+	if cl.Upstreams != nil {
+		sort.Strings(*cl.Upstreams)
+	}
+}
+
+// Equals Clients equal check
+func (cl *Client) Equals(o *Client) bool {
+	cl.Sort()
+	o.Sort()
+
+	a, _ := json.Marshal(cl)
+	b, _ := json.Marshal(o)
+	return string(a) == string(b)
+}
+
+// Add ac client
+func (clients *Clients) Add(cl Client) {
+	if clients.Clients == nil {
+		clients.Clients = &ClientsArray{cl}
+	} else {
+		a := append(*clients.Clients, cl)
+		clients.Clients = &a
+	}
+}
+
+// Merge merge Clients
+func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) {
+	current := make(map[string]*Client)
+	if clients.Clients != nil {
+		cc := *clients.Clients
+		for i := range cc {
+			client := cc[i]
+			current[*client.Name] = &client
+		}
+	}
+
+	expected := make(map[string]*Client)
+	if other.Clients != nil {
+		oc := *other.Clients
+		for i := range oc {
+			client := oc[i]
+			expected[*client.Name] = &client
+		}
+	}
+
+	var adds []*Client
+	var removes []*Client
+	var updates []*Client
+
+	for _, cl := range expected {
+		if oc, ok := current[*cl.Name]; ok {
+			if !cl.Equals(oc) {
+				updates = append(updates, cl)
+			}
+			delete(current, *cl.Name)
+		} else {
+			adds = append(adds, cl)
+		}
+	}
+
+	for _, rr := range current {
+		removes = append(removes, rr)
+	}
+
+	return adds, updates, removes
+}

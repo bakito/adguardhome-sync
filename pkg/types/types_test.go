@@ -286,46 +286,46 @@ var _ = Describe("Types", func() {
 	Context("Clients", func() {
 		Context("Merge", func() {
 			var (
-				originClients  *types.Clients
-				replicaClients types.Clients
+				originClients  *model.Clients
+				replicaClients model.Clients
 				name           string
 			)
 			BeforeEach(func() {
-				originClients = &types.Clients{}
-				replicaClients = types.Clients{}
+				originClients = &model.Clients{}
+				replicaClients = model.Clients{}
 				name = uuid.NewString()
 			})
 
 			It("should add a missing client", func() {
-				originClients.Clients = append(originClients.Clients, types.Client{Name: name})
+				originClients.Add(model.Client{Name: utils.Ptr(name)})
 				a, u, d := replicaClients.Merge(originClients)
 				Ω(a).Should(HaveLen(1))
 				Ω(u).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
 
-				Ω(a[0].Name).Should(Equal(name))
+				Ω(*a[0].Name).Should(Equal(name))
 			})
 
 			It("should remove additional client", func() {
-				replicaClients.Clients = append(replicaClients.Clients, types.Client{Name: name})
+				replicaClients.Add(model.Client{Name: utils.Ptr(name)})
 				a, u, d := replicaClients.Merge(originClients)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(BeEmpty())
 				Ω(d).Should(HaveLen(1))
 
-				Ω(d[0].Name).Should(Equal(name))
+				Ω(*d[0].Name).Should(Equal(name))
 			})
 
 			It("should update existing client when name differs", func() {
 				disallowed := true
-				originClients.Clients = append(originClients.Clients, types.Client{Name: name, Disallowed: disallowed})
-				replicaClients.Clients = append(replicaClients.Clients, types.Client{Name: name, Disallowed: !disallowed})
+				originClients.Add(model.Client{Name: utils.Ptr(name), FilteringEnabled: utils.Ptr(disallowed)})
+				replicaClients.Add(model.Client{Name: utils.Ptr(name), FilteringEnabled: utils.Ptr(!disallowed)})
 				a, u, d := replicaClients.Merge(originClients)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
 
-				Ω(u[0].Disallowed).Should(Equal(disallowed))
+				Ω(*u[0].FilteringEnabled).Should(Equal(disallowed))
 			})
 		})
 	})
