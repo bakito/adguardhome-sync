@@ -106,7 +106,7 @@ func (mr *MockClientMockRecorder) AddFilters(arg0 interface{}, arg1 ...interface
 }
 
 // AddRewriteEntries mocks base method.
-func (m *MockClient) AddRewriteEntries(arg0 ...types.RewriteEntry) error {
+func (m *MockClient) AddRewriteEntries(arg0 ...model.RewriteEntry) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -209,7 +209,7 @@ func (mr *MockClientMockRecorder) DeleteFilters(arg0 interface{}, arg1 ...interf
 }
 
 // DeleteRewriteEntries mocks base method.
-func (m *MockClient) DeleteRewriteEntries(arg0 ...types.RewriteEntry) error {
+func (m *MockClient) DeleteRewriteEntries(arg0 ...model.RewriteEntry) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -315,10 +315,10 @@ func (mr *MockClientMockRecorder) RefreshFilters(arg0 interface{}) *gomock.Call 
 }
 
 // RewriteList mocks base method.
-func (m *MockClient) RewriteList() (*types.RewriteEntries, error) {
+func (m *MockClient) RewriteList() (*model.RewriteEntries, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RewriteList")
-	ret0, _ := ret[0].(*types.RewriteEntries)
+	ret0, _ := ret[0].(*model.RewriteEntries)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

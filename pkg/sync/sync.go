@@ -356,7 +356,7 @@ func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitel
 	return nil
 }
 
-func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, replica client.Client) error {
+func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *model.RewriteEntries, replica client.Client) error {
 	if w.cfg.Features.DNS.Rewrites {
 		replicaRewrites, err := replica.RewriteList()
 		if err != nil {
@@ -528,7 +528,7 @@ func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica
 
 type origin struct {
 	status           *types.Status
-	rewrites         *types.RewriteEntries
+	rewrites         *model.RewriteEntries
 	services         types.Services
 	filters          *types.FilteringStatus
 	clients          *model.Clients

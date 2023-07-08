@@ -84,9 +84,9 @@ type Client interface {
 	Host() string
 	Status() (*types.Status, error)
 	ToggleProtection(enable bool) error
-	RewriteList() (*types.RewriteEntries, error)
-	AddRewriteEntries(e ...types.RewriteEntry) error
-	DeleteRewriteEntries(e ...types.RewriteEntry) error
+	RewriteList() (*model.RewriteEntries, error)
+	AddRewriteEntries(e ...model.RewriteEntry) error
+	DeleteRewriteEntries(e ...model.RewriteEntry) error
 	Filtering() (*types.FilteringStatus, error)
 	ToggleFiltering(enabled bool, interval float64) error
 	AddFilters(whitelist bool, e ...types.Filter) error
@@ -201,13 +201,13 @@ func (cl *client) Status() (*types.Status, error) {
 	return status, err
 }
 
-func (cl *client) RewriteList() (*types.RewriteEntries, error) {
-	rewrites := &types.RewriteEntries{}
+func (cl *client) RewriteList() (*model.RewriteEntries, error) {
+	rewrites := &model.RewriteEntries{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(&rewrites), "/rewrite/list")
 	return rewrites, err
 }
 
-func (cl *client) AddRewriteEntries(entries ...types.RewriteEntry) error {
+func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 	for i := range entries {
 		e := entries[i]
 		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add rewrite entry")
@@ -219,7 +219,7 @@ func (cl *client) AddRewriteEntries(entries ...types.RewriteEntry) error {
 	return nil
 }
 
-func (cl *client) DeleteRewriteEntries(entries ...types.RewriteEntry) error {
+func (cl *client) DeleteRewriteEntries(entries ...model.RewriteEntry) error {
 	for i := range entries {
 		e := entries[i]
 		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete rewrite entry")

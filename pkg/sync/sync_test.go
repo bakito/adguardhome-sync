@@ -63,15 +63,15 @@ var _ = Describe("Sync", func() {
 			var (
 				domain string
 				answer string
-				reO    types.RewriteEntries
-				reR    types.RewriteEntries
+				reO    model.RewriteEntries
+				reR    model.RewriteEntries
 			)
 
 			BeforeEach(func() {
 				domain = uuid.NewString()
 				answer = uuid.NewString()
-				reO = []types.RewriteEntry{{Domain: domain, Answer: answer}}
-				reR = []types.RewriteEntry{{Domain: domain, Answer: answer}}
+				reO = []model.RewriteEntry{{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}}
+				reR = []model.RewriteEntry{{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}}
 			})
 			It("should have no changes (empty slices)", func() {
 				cl.EXPECT().RewriteList().Return(&reR, nil)
@@ -81,7 +81,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should add one rewrite entry", func() {
-				reR = []types.RewriteEntry{}
+				reR = []model.RewriteEntry{}
 				cl.EXPECT().RewriteList().Return(&reR, nil)
 				cl.EXPECT().AddRewriteEntries(reO[0])
 				cl.EXPECT().DeleteRewriteEntries()
@@ -89,7 +89,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should remove one rewrite entry", func() {
-				reO = []types.RewriteEntry{}
+				reO = []model.RewriteEntry{}
 				cl.EXPECT().RewriteList().Return(&reR, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries(reR[0])
@@ -97,7 +97,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should remove one rewrite entry", func() {
-				reO = []types.RewriteEntry{}
+				reO = []model.RewriteEntry{}
 				cl.EXPECT().RewriteList().Return(&reR, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries(reR[0])
@@ -506,7 +506,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
 				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
@@ -524,7 +524,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
 				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
@@ -555,7 +555,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
 				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
@@ -572,7 +572,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
 				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
@@ -604,7 +604,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
 				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
@@ -626,7 +626,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
 				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)

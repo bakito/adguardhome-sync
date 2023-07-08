@@ -137,13 +137,19 @@ bar`)
 			Ω(*rwl).Should(HaveLen(2))
 		})
 		It("should add RewriteList", func() {
-			ts, cl = ClientPost("/rewrite/add", `{"domain":"foo","answer":"foo"}`, `{"domain":"bar","answer":"bar"}`)
-			err := cl.AddRewriteEntries(types.RewriteEntry{Answer: "foo", Domain: "foo"}, types.RewriteEntry{Answer: "bar", Domain: "bar"})
+			ts, cl = ClientPost("/rewrite/add", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
+			err := cl.AddRewriteEntries(
+				model.RewriteEntry{Answer: utils.Ptr("foo"), Domain: utils.Ptr("foo")},
+				model.RewriteEntry{Answer: utils.Ptr("bar"), Domain: utils.Ptr("bar")},
+			)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete RewriteList", func() {
-			ts, cl = ClientPost("/rewrite/delete", `{"domain":"foo","answer":"foo"}`, `{"domain":"bar","answer":"bar"}`)
-			err := cl.DeleteRewriteEntries(types.RewriteEntry{Answer: "foo", Domain: "foo"}, types.RewriteEntry{Answer: "bar", Domain: "bar"})
+			ts, cl = ClientPost("/rewrite/delete", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
+			err := cl.DeleteRewriteEntries(
+				model.RewriteEntry{Answer: utils.Ptr("foo"), Domain: utils.Ptr("foo")},
+				model.RewriteEntry{Answer: utils.Ptr("bar"), Domain: utils.Ptr("bar")},
+			)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})

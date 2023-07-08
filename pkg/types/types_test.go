@@ -109,7 +109,7 @@ var _ = Describe("Types", func() {
 		It("should build a key with url and api apiPath", func() {
 			domain := uuid.NewString()
 			answer := uuid.NewString()
-			re := &types.RewriteEntry{Domain: domain, Answer: answer}
+			re := &model.RewriteEntry{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}
 			Ω(re.Key()).Should(Equal(domain + "#" + answer))
 		})
 	})
@@ -152,39 +152,39 @@ var _ = Describe("Types", func() {
 	Context("RewriteEntries", func() {
 		Context("Merge", func() {
 			var (
-				originRE  types.RewriteEntries
-				replicaRE types.RewriteEntries
+				originRE  model.RewriteEntries
+				replicaRE model.RewriteEntries
 				domain    string
 			)
 			BeforeEach(func() {
-				originRE = types.RewriteEntries{}
-				replicaRE = types.RewriteEntries{}
+				originRE = model.RewriteEntries{}
+				replicaRE = model.RewriteEntries{}
 				domain = uuid.NewString()
 			})
 
 			It("should add a missing rewrite entry", func() {
-				originRE = append(originRE, types.RewriteEntry{Domain: domain})
+				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
 				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(HaveLen(1))
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
 
-				Ω(a[0].Domain).Should(Equal(domain))
+				Ω(*a[0].Domain).Should(Equal(domain))
 			})
 
-			It("should remove additional ewrite entry", func() {
-				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+			It("should remove additional rewrite entry", func() {
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
 				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
 
-				Ω(r[0].Domain).Should(Equal(domain))
+				Ω(*r[0].Domain).Should(Equal(domain))
 			})
 
 			It("should have no changes", func() {
-				originRE = append(originRE, types.RewriteEntry{Domain: domain})
-				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
 				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(BeEmpty())
@@ -192,9 +192,9 @@ var _ = Describe("Types", func() {
 			})
 
 			It("should remove target duplicate", func() {
-				originRE = append(originRE, types.RewriteEntry{Domain: domain})
-				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
-				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
 				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(HaveLen(1))
@@ -202,9 +202,9 @@ var _ = Describe("Types", func() {
 			})
 
 			It("should remove target duplicate", func() {
-				originRE = append(originRE, types.RewriteEntry{Domain: domain})
-				originRE = append(originRE, types.RewriteEntry{Domain: domain})
-				replicaRE = append(replicaRE, types.RewriteEntry{Domain: domain})
+				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
+				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
 				a, r, d := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(BeEmpty())

@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 
 	"github.com/bakito/adguardhome-sync/pkg/utils"
@@ -206,4 +207,59 @@ func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) 
 	}
 
 	return adds, updates, removes
+}
+
+// Key RewriteEntry key
+func (re *RewriteEntry) Key() string {
+	var d string
+	var a string
+	if re.Domain != nil {
+		d = *re.Domain
+	}
+	if re.Answer != nil {
+		a = *re.Answer
+	}
+	return fmt.Sprintf("%s#%s", d, a)
+}
+
+// RewriteEntries list of RewriteEntry
+type RewriteEntries []RewriteEntry
+
+// Merge RewriteEntries
+func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries, RewriteEntries) {
+	current := make(map[string]RewriteEntry)
+
+	var adds RewriteEntries
+	var removes RewriteEntries
+	var duplicates RewriteEntries
+	processed := make(map[string]bool)
+	for _, rr := range *rwe {
+		if _, ok := processed[rr.Key()]; !ok {
+			current[rr.Key()] = rr
+			processed[rr.Key()] = true
+		} else {
+			// remove duplicate
+			removes = append(removes, rr)
+		}
+	}
+
+	for _, rr := range *other {
+		if _, ok := current[rr.Key()]; ok {
+			delete(current, rr.Key())
+		} else {
+			if _, ok := processed[rr.Key()]; !ok {
+				adds = append(adds, rr)
+				processed[rr.Key()] = true
+			} else {
+				//	skip duplicate
+				duplicates = append(duplicates, rr)
+			}
+		}
+	}
+
+	for _, rr := range current {
+		removes = append(removes, rr)
+	}
+
+	return adds, removes, duplicates
 }

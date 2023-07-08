@@ -121,59 +121,6 @@ type Status struct {
 	Language      string   `json:"language"`
 }
 
-// RewriteEntries list of RewriteEntry
-type RewriteEntries []RewriteEntry
-
-// Merge RewriteEntries
-func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries, RewriteEntries) {
-	current := make(map[string]RewriteEntry)
-
-	var adds RewriteEntries
-	var removes RewriteEntries
-	var duplicates RewriteEntries
-	processed := make(map[string]bool)
-	for _, rr := range *rwe {
-		if _, ok := processed[rr.Key()]; !ok {
-			current[rr.Key()] = rr
-			processed[rr.Key()] = true
-		} else {
-			// remove duplicate
-			removes = append(removes, rr)
-		}
-	}
-
-	for _, rr := range *other {
-		if _, ok := current[rr.Key()]; ok {
-			delete(current, rr.Key())
-		} else {
-			if _, ok := processed[rr.Key()]; !ok {
-				adds = append(adds, rr)
-				processed[rr.Key()] = true
-			} else {
-				//	skip duplicate
-				duplicates = append(duplicates, rr)
-			}
-		}
-	}
-
-	for _, rr := range current {
-		removes = append(removes, rr)
-	}
-
-	return adds, removes, duplicates
-}
-
-// RewriteEntry API struct
-type RewriteEntry struct {
-	Domain string `json:"domain"`
-	Answer string `json:"answer"`
-}
-
-// Key RewriteEntry key
-func (re *RewriteEntry) Key() string {
-	return fmt.Sprintf("%s#%s", re.Domain, re.Answer)
-}
-
 // Filters list of Filter
 type Filters []Filter
 
