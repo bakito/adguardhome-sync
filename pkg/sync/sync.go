@@ -461,7 +461,7 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 	return nil
 }
 
-func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.Client) error {
+func (w *worker) syncDNS(oal *types.AccessList, odc *model.DNSConfig, rc client.Client) error {
 	if w.cfg.Features.DNS.AccessLists {
 		al, err := rc.AccessList()
 		if err != nil {
@@ -535,7 +535,7 @@ type origin struct {
 	queryLogConfig   *types.QueryLogConfig
 	statsConfig      *types.IntervalConfig
 	accessList       *types.AccessList
-	dnsConfig        *types.DNSConfig
+	dnsConfig        *model.DNSConfig
 	dhcpServerConfig *model.DhcpStatus
 	parental         bool
 	safeSearch       bool

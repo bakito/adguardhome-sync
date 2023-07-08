@@ -126,8 +126,9 @@ kind-test:
 	@./testdata/e2e/bin/install-chart.sh
 
 model: oapi-codegen
+	@mkdir -p tmp
 	go run openapi/main.go v0.107.33
-	$(OAPI_CODEGEN) -package model -generate types tmp/model.yaml > pkg/client/model/model.go
+	$(OAPI_CODEGEN) -package model -generate types tmp/schema.yaml > pkg/client/model/model.go
 
 model-diff:
 	go run openapi/main.go v0.107.33

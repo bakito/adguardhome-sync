@@ -351,13 +351,13 @@ var _ = Describe("Types", func() {
 	Context("DNSConfig", func() {
 		Context("Equals", func() {
 			It("should be equal", func() {
-				dc1 := &types.DNSConfig{Upstreams: []string{"a"}}
-				dc2 := &types.DNSConfig{Upstreams: []string{"a"}}
+				dc1 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"a"})}
+				dc2 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"a"})}
 				Ω(dc1.Equals(dc2)).Should(BeTrue())
 			})
 			It("should not be equal", func() {
-				dc1 := &types.DNSConfig{Upstreams: []string{"a"}}
-				dc2 := &types.DNSConfig{Upstreams: []string{"b"}}
+				dc1 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"a"})}
+				dc2 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"b"})}
 				Ω(dc1.Equals(dc2)).ShouldNot(BeTrue())
 			})
 		})

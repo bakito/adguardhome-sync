@@ -2,7 +2,9 @@ package model
 
 import (
 	"encoding/json"
+	"sort"
 
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
 )
 
@@ -66,4 +68,35 @@ func MergeDhcpStaticLeases(l *[]DhcpStaticLease, other *[]DhcpStaticLease) (Dhcp
 	}
 
 	return adds, removes
+}
+
+// Equals dns config equal check
+func (c *DNSConfig) Equals(o *DNSConfig) bool {
+	cc := c.Clone()
+	oo := o.Clone()
+	cc.Sort()
+	oo.Sort()
+
+	a, _ := json.Marshal(cc)
+	b, _ := json.Marshal(oo)
+	return string(a) == string(b)
+}
+
+func (c *DNSConfig) Clone() *DNSConfig {
+	return utils.Clone(c, &DNSConfig{})
+}
+
+// Sort sort dns config
+func (c *DNSConfig) Sort() {
+	if c.UpstreamDns != nil {
+		sort.Strings(*c.UpstreamDns)
+	}
+
+	if c.UpstreamDns != nil {
+		sort.Strings(*c.BootstrapDns)
+	}
+
+	if c.UpstreamDns != nil {
+		sort.Strings(*c.LocalPtrUpstreams)
+	}
 }

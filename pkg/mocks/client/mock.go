@@ -139,10 +139,10 @@ func (mr *MockClientMockRecorder) Clients() *gomock.Call {
 }
 
 // DNSConfig mocks base method.
-func (m *MockClient) DNSConfig() (*types.DNSConfig, error) {
+func (m *MockClient) DNSConfig() (*model.DNSConfig, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DNSConfig")
-	ret0, _ := ret[0].(*types.DNSConfig)
+	ret0, _ := ret[0].(*model.DNSConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -403,7 +403,7 @@ func (mr *MockClientMockRecorder) SetCustomRules(arg0 interface{}) *gomock.Call 
 }
 
 // SetDNSConfig mocks base method.
-func (m *MockClient) SetDNSConfig(arg0 *types.DNSConfig) error {
+func (m *MockClient) SetDNSConfig(arg0 *model.DNSConfig) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetDNSConfig", arg0)
 	ret0, _ := ret[0].(error)

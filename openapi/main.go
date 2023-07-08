@@ -34,13 +34,14 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if comp, ok := schema["components"]; ok {
-		if rb, ok := comp.(map[string]interface{})["requestBodies"]; ok {
-			for k, v := range rb.(map[string]interface{}) {
+	if comp, ok := child(schema, "components"); ok {
+		if rb, ok := child(comp, "requestBodies"); ok {
+			for k, v := range rb {
 				v.(map[string]interface{})["x-go-name"] = k + "Body"
 			}
 		}
 	}
+
 	b, err := yaml.Marshal(&schema)
 	if err != nil {
 		log.Fatalln(err)
@@ -50,4 +51,11 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func child(parent map[string]interface{}, key string) (map[string]interface{}, bool) {
+	if ch, ok := parent[key]; ok {
+		return ch.(map[string]interface{}), ok
+	}
+	return nil, false
 }

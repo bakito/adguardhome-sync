@@ -113,8 +113,8 @@ type Client interface {
 	Setup() error
 	AccessList() (*types.AccessList, error)
 	SetAccessList(*types.AccessList) error
-	DNSConfig() (*types.DNSConfig, error)
-	SetDNSConfig(*types.DNSConfig) error
+	DNSConfig() (*model.DNSConfig, error)
+	SetDNSConfig(*model.DNSConfig) error
 	DhcpConfig() (*model.DhcpStatus, error)
 	SetDhcpConfig(*model.DhcpStatus) error
 	AddDHCPStaticLeases(leases ...model.DhcpStaticLease) error
@@ -452,13 +452,13 @@ func (cl *client) SetAccessList(list *types.AccessList) error {
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(list), "/access/set")
 }
 
-func (cl *client) DNSConfig() (*types.DNSConfig, error) {
-	cfg := &types.DNSConfig{}
+func (cl *client) DNSConfig() (*model.DNSConfig, error) {
+	cfg := &model.DNSConfig{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(cfg), "/dns_info")
 	return cfg, err
 }
 
-func (cl *client) SetDNSConfig(config *types.DNSConfig) error {
+func (cl *client) SetDNSConfig(config *model.DNSConfig) error {
 	cl.log.Info("Set dns config list")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dns_config")
 }
