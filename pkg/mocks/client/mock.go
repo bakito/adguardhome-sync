@@ -36,10 +36,10 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // AccessList mocks base method.
-func (m *MockClient) AccessList() (*types.AccessList, error) {
+func (m *MockClient) AccessList() (*model.AccessList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AccessList")
-	ret0, _ := ret[0].(*types.AccessList)
+	ret0, _ := ret[0].(*model.AccessList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -375,7 +375,7 @@ func (mr *MockClientMockRecorder) Services() *gomock.Call {
 }
 
 // SetAccessList mocks base method.
-func (m *MockClient) SetAccessList(arg0 *types.AccessList) error {
+func (m *MockClient) SetAccessList(arg0 *model.AccessList) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetAccessList", arg0)
 	ret0, _ := ret[0].(error)

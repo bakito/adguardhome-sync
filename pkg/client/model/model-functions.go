@@ -100,3 +100,32 @@ func (c *DNSConfig) Sort() {
 		sort.Strings(*c.LocalPtrUpstreams)
 	}
 }
+
+// Equals access list equal check
+func (al *AccessList) Equals(o *AccessList) bool {
+	return equals(al.AllowedClients, o.AllowedClients) &&
+		equals(al.DisallowedClients, o.DisallowedClients) &&
+		equals(al.BlockedHosts, o.BlockedHosts)
+}
+
+func equals(a *[]string, b *[]string) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	aa := *a
+	bb := *b
+	if len(aa) != len(bb) {
+		return false
+	}
+	for i, v := range aa {
+		if v != bb[i] {
+			return false
+		}
+	}
+	return true
+}

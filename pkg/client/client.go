@@ -111,8 +111,8 @@ type Client interface {
 	StatsConfig() (*types.IntervalConfig, error)
 	SetStatsConfig(interval float64) error
 	Setup() error
-	AccessList() (*types.AccessList, error)
-	SetAccessList(*types.AccessList) error
+	AccessList() (*model.AccessList, error)
+	SetAccessList(*model.AccessList) error
 	DNSConfig() (*model.DNSConfig, error)
 	SetDNSConfig(*model.DNSConfig) error
 	DhcpConfig() (*model.DhcpStatus, error)
@@ -441,13 +441,13 @@ func (cl *client) Setup() error {
 	return cl.doPost(req, "/install/configure")
 }
 
-func (cl *client) AccessList() (*types.AccessList, error) {
-	al := &types.AccessList{}
+func (cl *client) AccessList() (*model.AccessList, error) {
+	al := &model.AccessList{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(al), "/access/list")
 	return al, err
 }
 
-func (cl *client) SetAccessList(list *types.AccessList) error {
+func (cl *client) SetAccessList(list *model.AccessList) error {
 	cl.log.Info("Set access list")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(list), "/access/set")
 }
