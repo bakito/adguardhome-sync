@@ -1,4 +1,4 @@
-package types_test
+package model_test
 
 import (
 	"encoding/json"
@@ -25,7 +25,7 @@ var _ = Describe("Types", func() {
 
 	Context("FilteringStatus", func() {
 		It("should correctly parse json", func() {
-			b, err := os.ReadFile("../..//testdata/filtering-status.json")
+			b, err := os.ReadFile("../../../testdata/filtering-status.json")
 			fs := &types.FilteringStatus{}
 			Ω(err).ShouldNot(HaveOccurred())
 			err = json.Unmarshal(b, fs)
