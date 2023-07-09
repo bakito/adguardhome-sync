@@ -7,7 +7,6 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
-	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -26,7 +25,7 @@ var _ = Describe("Types", func() {
 	Context("FilteringStatus", func() {
 		It("should correctly parse json", func() {
 			b, err := os.ReadFile("../../../testdata/filtering-status.json")
-			fs := &types.FilteringStatus{}
+			fs := &model.FilterStatus{}
 			Ω(err).ShouldNot(HaveOccurred())
 			err = json.Unmarshal(b, fs)
 			Ω(err).ShouldNot(HaveOccurred())
@@ -36,39 +35,39 @@ var _ = Describe("Types", func() {
 	Context("Filters", func() {
 		Context("Merge", func() {
 			var (
-				originFilters  types.Filters
-				replicaFilters types.Filters
+				originFilters  []model.Filter
+				replicaFilters []model.Filter
 			)
 			BeforeEach(func() {
-				originFilters = types.Filters{}
-				replicaFilters = types.Filters{}
+				originFilters = []model.Filter{}
+				replicaFilters = []model.Filter{}
 			})
 
 			It("should add a missing filter", func() {
-				originFilters = append(originFilters, types.Filter{URL: url})
-				a, u, d := replicaFilters.Merge(originFilters)
+				originFilters = append(originFilters, model.Filter{Url: url})
+				a, u, d := model.MergeFilters(&replicaFilters, &originFilters)
 				Ω(a).Should(HaveLen(1))
 				Ω(u).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
 
-				Ω(a[0].URL).Should(Equal(url))
+				Ω(a[0].Url).Should(Equal(url))
 			})
 
 			It("should remove additional filter", func() {
-				replicaFilters = append(replicaFilters, types.Filter{URL: url})
-				a, u, d := replicaFilters.Merge(originFilters)
+				replicaFilters = append(replicaFilters, model.Filter{Url: url})
+				a, u, d := model.MergeFilters(&replicaFilters, &originFilters)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(BeEmpty())
 				Ω(d).Should(HaveLen(1))
 
-				Ω(d[0].URL).Should(Equal(url))
+				Ω(d[0].Url).Should(Equal(url))
 			})
 
 			It("should update existing filter when enabled differs", func() {
 				enabled := true
-				originFilters = append(originFilters, types.Filter{URL: url, Enabled: enabled})
-				replicaFilters = append(replicaFilters, types.Filter{URL: url, Enabled: !enabled})
-				a, u, d := replicaFilters.Merge(originFilters)
+				originFilters = append(originFilters, model.Filter{Url: url, Enabled: enabled})
+				replicaFilters = append(replicaFilters, model.Filter{Url: url, Enabled: !enabled})
+				a, u, d := model.MergeFilters(&replicaFilters, &originFilters)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
@@ -79,9 +78,9 @@ var _ = Describe("Types", func() {
 			It("should update existing filter when name differs", func() {
 				name1 := uuid.NewString()
 				name2 := uuid.NewString()
-				originFilters = append(originFilters, types.Filter{URL: url, Name: name1})
-				replicaFilters = append(replicaFilters, types.Filter{URL: url, Name: name2})
-				a, u, d := replicaFilters.Merge(originFilters)
+				originFilters = append(originFilters, model.Filter{Url: url, Name: name1})
+				replicaFilters = append(replicaFilters, model.Filter{Url: url, Name: name2})
+				a, u, d := model.MergeFilters(&replicaFilters, &originFilters)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
@@ -90,9 +89,9 @@ var _ = Describe("Types", func() {
 			})
 
 			It("should have no changes", func() {
-				originFilters = append(originFilters, types.Filter{URL: url})
-				replicaFilters = append(replicaFilters, types.Filter{URL: url})
-				a, u, d := replicaFilters.Merge(originFilters)
+				originFilters = append(originFilters, model.Filter{Url: url})
+				replicaFilters = append(replicaFilters, model.Filter{Url: url})
+				a, u, d := model.MergeFilters(&replicaFilters, &originFilters)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
@@ -218,18 +217,6 @@ var _ = Describe("Types", func() {
 			r2 := uuid.NewString()
 			ur := types.UserRules([]string{r1, r2})
 			Ω(ur.String()).Should(Equal(r1 + "\n" + r2))
-		})
-		It("should return a string for versions <= "+versions.LastStringCustomRules, func() {
-			r1 := uuid.NewString()
-			r2 := uuid.NewString()
-			pl := types.UserRules([]string{r1, r2}).ToPayload(versions.LastStringCustomRules)
-			Ω(pl).Should(BeAssignableToTypeOf(""))
-		})
-		It("should return a struct for versions > "+versions.IncompatibleAPI, func() {
-			r1 := uuid.NewString()
-			r2 := uuid.NewString()
-			pl := types.UserRules([]string{r1, r2}).ToPayload(versions.FixedIncompatibleAPI)
-			Ω(pl).Should(BeAssignableToTypeOf(&types.UserRulesRequest{}))
 		})
 	})
 	Context("UserRulesRequest", func() {

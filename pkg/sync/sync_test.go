@@ -345,12 +345,12 @@ var _ = Describe("Sync", func() {
 		})
 		Context("syncFilters", func() {
 			var (
-				of *types.FilteringStatus
-				rf *types.FilteringStatus
+				of *model.FilterStatus
+				rf *model.FilterStatus
 			)
 			BeforeEach(func() {
-				of = &types.FilteringStatus{}
-				rf = &types.FilteringStatus{}
+				of = &model.FilterStatus{}
+				rf = &model.FilterStatus{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Filtering().Return(rf, nil)
@@ -364,7 +364,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changes user roles", func() {
-				of.UserRules = []string{"foo"}
+				of.UserRules = utils.Ptr([]string{"foo"})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
@@ -377,8 +377,8 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changed filtering config", func() {
-				of.Enabled = true
-				of.Interval = 123
+				of.Enabled = utils.Ptr(true)
+				of.Interval = utils.Ptr(123)
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
@@ -386,7 +386,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AddFilters(true)
 				cl.EXPECT().UpdateFilters(true)
 				cl.EXPECT().DeleteFilters(true)
-				cl.EXPECT().ToggleFiltering(of.Enabled, of.Interval)
+				cl.EXPECT().ToggleFiltering(*of.Enabled, *of.Interval)
 				err := w.syncFilters(of, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -508,7 +508,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
@@ -527,7 +527,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
 				cl.EXPECT().DeleteFilters(false)
@@ -557,7 +557,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
@@ -575,7 +575,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
 				cl.EXPECT().DeleteFilters(false)
@@ -606,7 +606,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
@@ -628,7 +628,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)

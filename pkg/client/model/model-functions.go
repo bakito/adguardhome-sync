@@ -263,3 +263,46 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, Rewrite
 
 	return adds, removes, duplicates
 }
+
+func MergeFilters(this *[]Filter, other *[]Filter) ([]Filter, []Filter, []Filter) {
+	if this == nil && other == nil {
+		return nil, nil, nil
+	}
+
+	current := make(map[string]*Filter)
+
+	var adds []Filter
+	var updates []Filter
+	var removes []Filter
+	if this != nil {
+		for i := range *this {
+			fi := (*this)[i]
+			current[fi.Url] = &fi
+		}
+	}
+
+	if other != nil {
+		for i := range *other {
+			rr := (*other)[i]
+			if c, ok := current[rr.Url]; ok {
+				if !c.Equals(&rr) {
+					updates = append(updates, rr)
+				}
+				delete(current, rr.Url)
+			} else {
+				adds = append(adds, rr)
+			}
+		}
+	}
+
+	for _, rr := range current {
+		removes = append(removes, *rr)
+	}
+
+	return adds, updates, removes
+}
+
+// Equals Filter equal check
+func (f *Filter) Equals(o *Filter) bool {
+	return f.Enabled == o.Enabled && f.Url == o.Url && f.Name == o.Name
+}

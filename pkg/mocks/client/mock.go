@@ -87,7 +87,7 @@ func (mr *MockClientMockRecorder) AddDHCPStaticLeases(arg0 ...interface{}) *gomo
 }
 
 // AddFilters mocks base method.
-func (m *MockClient) AddFilters(arg0 bool, arg1 ...types.Filter) error {
+func (m *MockClient) AddFilters(arg0 bool, arg1 ...model.Filter) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
@@ -190,7 +190,7 @@ func (mr *MockClientMockRecorder) DeleteDHCPStaticLeases(arg0 ...interface{}) *g
 }
 
 // DeleteFilters mocks base method.
-func (m *MockClient) DeleteFilters(arg0 bool, arg1 ...types.Filter) error {
+func (m *MockClient) DeleteFilters(arg0 bool, arg1 ...model.Filter) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
@@ -242,10 +242,10 @@ func (mr *MockClientMockRecorder) DhcpConfig() *gomock.Call {
 }
 
 // Filtering mocks base method.
-func (m *MockClient) Filtering() (*types.FilteringStatus, error) {
+func (m *MockClient) Filtering() (*model.FilterStatus, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Filtering")
-	ret0, _ := ret[0].(*types.FilteringStatus)
+	ret0, _ := ret[0].(*model.FilterStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -389,7 +389,7 @@ func (mr *MockClientMockRecorder) SetAccessList(arg0 interface{}) *gomock.Call {
 }
 
 // SetCustomRules mocks base method.
-func (m *MockClient) SetCustomRules(arg0 types.UserRules) error {
+func (m *MockClient) SetCustomRules(arg0 *[]string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetCustomRules", arg0)
 	ret0, _ := ret[0].(error)
@@ -517,7 +517,7 @@ func (mr *MockClientMockRecorder) Status() *gomock.Call {
 }
 
 // ToggleFiltering mocks base method.
-func (m *MockClient) ToggleFiltering(arg0 bool, arg1 float64) error {
+func (m *MockClient) ToggleFiltering(arg0 bool, arg1 int) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ToggleFiltering", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -605,7 +605,7 @@ func (mr *MockClientMockRecorder) UpdateClients(arg0 ...interface{}) *gomock.Cal
 }
 
 // UpdateFilters mocks base method.
-func (m *MockClient) UpdateFilters(arg0 bool, arg1 ...types.Filter) error {
+func (m *MockClient) UpdateFilters(arg0 bool, arg1 ...model.Filter) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {

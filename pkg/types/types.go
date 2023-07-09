@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bakito/adguardhome-sync/pkg/versions"
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"go.uber.org/zap"
 )
 
@@ -121,67 +121,11 @@ type Status struct {
 	Language      string   `json:"language"`
 }
 
-// Filters list of Filter
-type Filters []Filter
-
-// Merge merge Filters
-func (f Filters) Merge(other Filters) (Filters, Filters, Filters) {
-	current := make(map[string]Filter)
-
-	var adds Filters
-	var updates Filters
-	var removes Filters
-	for _, f := range f {
-		current[f.URL] = f
-	}
-
-	for i := range other {
-		rr := other[i]
-		if c, ok := current[rr.URL]; ok {
-			if !c.Equals(&rr) {
-				updates = append(updates, rr)
-			}
-			delete(current, rr.URL)
-		} else {
-			adds = append(adds, rr)
-		}
-	}
-
-	for _, rr := range current {
-		removes = append(removes, rr)
-	}
-
-	return adds, updates, removes
-}
-
-// Filter API struct
-type Filter struct {
-	ID         int    `json:"id"`
-	Enabled    bool   `json:"enabled"`
-	URL        string `json:"url"`  // needed for add
-	Name       string `json:"name"` // needed for add
-	RulesCount int    `json:"rules_count"`
-	Whitelist  bool   `json:"whitelist"` // needed for add
-}
-
-// Equals Filter equal check
-func (f *Filter) Equals(o *Filter) bool {
-	return f.Enabled == o.Enabled && f.URL == o.URL && f.Name == o.Name
-}
-
 // FilterUpdate  API struct
 type FilterUpdate struct {
-	URL       string `json:"url"`
-	Data      Filter `json:"data"`
-	Whitelist bool   `json:"whitelist"`
-}
-
-// FilteringStatus API struct
-type FilteringStatus struct {
-	FilteringConfig
-	Filters          Filters   `json:"filters"`
-	WhitelistFilters Filters   `json:"whitelist_filters"`
-	UserRules        UserRules `json:"user_rules"`
+	URL       string       `json:"url"`
+	Data      model.Filter `json:"data"`
+	Whitelist bool         `json:"whitelist"`
 }
 
 // UserRules API struct
@@ -190,14 +134,6 @@ type UserRules []string
 // String toString of Users
 func (ur UserRules) String() string {
 	return strings.Join(ur, "\n")
-}
-
-// ToPayload return the version specific payload for user rules
-func (ur UserRules) ToPayload(version string) interface{} {
-	if versions.IsNewerThan(version, versions.LastStringCustomRules) {
-		return &UserRulesRequest{Rules: ur}
-	}
-	return ur.String()
 }
 
 // UserRulesRequest API struct
@@ -218,12 +154,6 @@ type EnableConfig struct {
 // IntervalConfig API struct
 type IntervalConfig struct {
 	Interval float64 `json:"interval"`
-}
-
-// FilteringConfig API struct
-type FilteringConfig struct {
-	EnableConfig
-	IntervalConfig
 }
 
 // QueryLogConfig API struct
