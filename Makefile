@@ -128,8 +128,7 @@ kind-test:
 model: oapi-codegen
 	@mkdir -p tmp
 	go run openapi/main.go v0.107.33
-	$(OAPI_CODEGEN) -package model -generate types tmp/schema.yaml > pkg/client/model/model.go
-	#$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model.go
+	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model.go
 
 model-diff:
 	go run openapi/main.go v0.107.33

@@ -4,9 +4,17 @@
 package model
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
 	"time"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
 const (
@@ -1245,4 +1253,8877 @@ func (a TopArrayEntry) MarshalJSON() ([]byte, error) {
 		}
 	}
 	return json.Marshal(object)
+}
+
+// RequestEditorFn  is the function signature for the RequestEditor callback function
+type RequestEditorFn func(ctx context.Context, req *http.Request) error
+
+// Doer performs HTTP requests.
+//
+// The standard http.Client implements this interface.
+type HttpRequestDoer interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// AdguardHomeClient which conforms to the OpenAPI3 specification for this service.
+type AdguardHomeClient struct {
+	// The endpoint of the server conforming to this interface, with scheme,
+	// https://api.deepmap.com for example. This can contain a path relative
+	// to the server, such as https://api.deepmap.com/dev-test, and all the
+	// paths in the swagger spec will be appended to the server.
+	Server string
+
+	// Doer for performing requests, typically a *http.Client with any
+	// customized settings, such as certificate chains.
+	Client HttpRequestDoer
+
+	// A list of callbacks for modifying requests which are generated before sending over
+	// the network.
+	RequestEditors []RequestEditorFn
+}
+
+// ClientOption allows setting custom parameters during construction
+type ClientOption func(*AdguardHomeClient) error
+
+// Creates a new AdguardHomeClient, with reasonable defaults
+func NewClient(server string, opts ...ClientOption) (*AdguardHomeClient, error) {
+	// create a client with sane default values
+	client := AdguardHomeClient{
+		Server: server,
+	}
+	// mutate client and add all optional params
+	for _, o := range opts {
+		if err := o(&client); err != nil {
+			return nil, err
+		}
+	}
+	// ensure the server URL always has a trailing slash
+	if !strings.HasSuffix(client.Server, "/") {
+		client.Server += "/"
+	}
+	// create httpClient, if not already present
+	if client.Client == nil {
+		client.Client = &http.Client{}
+	}
+	return &client, nil
+}
+
+// WithHTTPClient allows overriding the default Doer, which is
+// automatically created using http.Client. This is useful for tests.
+func WithHTTPClient(doer HttpRequestDoer) ClientOption {
+	return func(c *AdguardHomeClient) error {
+		c.Client = doer
+		return nil
+	}
+}
+
+// WithRequestEditorFn allows setting up a callback function, which will be
+// called right before sending the request. This can be used to mutate the request.
+func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
+	return func(c *AdguardHomeClient) error {
+		c.RequestEditors = append(c.RequestEditors, fn)
+		return nil
+	}
+}
+
+// The interface specification for the client above.
+type ClientInterface interface {
+	// AccessList request
+	AccessList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AccessSet request with any body
+	AccessSetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AccessSet(ctx context.Context, body AccessSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MobileConfigDoH request
+	MobileConfigDoH(ctx context.Context, params *MobileConfigDoHParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MobileConfigDoT request
+	MobileConfigDoT(ctx context.Context, params *MobileConfigDoTParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BlockedServicesAll request
+	BlockedServicesAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BlockedServicesList request
+	BlockedServicesList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BlockedServicesAvailableServices request
+	BlockedServicesAvailableServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BlockedServicesSet request with any body
+	BlockedServicesSetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BlockedServicesSet(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CacheClear request
+	CacheClear(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClientsStatus request
+	ClientsStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClientsAdd request with any body
+	ClientsAddWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ClientsAdd(ctx context.Context, body ClientsAddJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClientsDelete request with any body
+	ClientsDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ClientsDelete(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClientsFind request
+	ClientsFind(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClientsUpdate request with any body
+	ClientsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ClientsUpdate(ctx context.Context, body ClientsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpAddStaticLease request with any body
+	DhcpAddStaticLeaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DhcpAddStaticLease(ctx context.Context, body DhcpAddStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CheckActiveDhcp request with any body
+	CheckActiveDhcpWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CheckActiveDhcp(ctx context.Context, body CheckActiveDhcpJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpInterfaces request
+	DhcpInterfaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpRemoveStaticLease request with any body
+	DhcpRemoveStaticLeaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DhcpRemoveStaticLease(ctx context.Context, body DhcpRemoveStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpReset request
+	DhcpReset(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpResetLeases request
+	DhcpResetLeases(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpSetConfig request with any body
+	DhcpSetConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DhcpSetConfig(ctx context.Context, body DhcpSetConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DhcpStatus request
+	DhcpStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsConfig request with any body
+	DnsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsConfig(ctx context.Context, body DnsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsInfo request
+	DnsInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringAddURL request with any body
+	FilteringAddURLWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FilteringAddURL(ctx context.Context, body FilteringAddURLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringCheckHost request
+	FilteringCheckHost(ctx context.Context, params *FilteringCheckHostParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringConfig request with any body
+	FilteringConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FilteringConfig(ctx context.Context, body FilteringConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringRefresh request with any body
+	FilteringRefreshWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FilteringRefresh(ctx context.Context, body FilteringRefreshJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringRemoveURL request with any body
+	FilteringRemoveURLWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FilteringRemoveURL(ctx context.Context, body FilteringRemoveURLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringSetRules request with any body
+	FilteringSetRulesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FilteringSetRules(ctx context.Context, body FilteringSetRulesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringSetURL request with any body
+	FilteringSetURLWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FilteringSetURL(ctx context.Context, body FilteringSetURLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FilteringStatus request
+	FilteringStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ChangeLanguage request with any body
+	ChangeLanguageWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ChangeLanguage(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CurrentLanguage request
+	CurrentLanguage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// InstallCheckConfig request with any body
+	InstallCheckConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	InstallCheckConfig(ctx context.Context, body InstallCheckConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// InstallConfigure request with any body
+	InstallConfigureWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	InstallConfigure(ctx context.Context, body InstallConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// InstallGetAddresses request
+	InstallGetAddresses(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// Login request with any body
+	LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	Login(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// Logout request
+	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ParentalDisable request
+	ParentalDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ParentalEnable request
+	ParentalEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ParentalStatus request
+	ParentalStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProfile request
+	GetProfile(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateProfile request with any body
+	UpdateProfileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateProfile(ctx context.Context, body UpdateProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetProtection request with any body
+	SetProtectionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetProtection(ctx context.Context, body SetProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// QueryLog request
+	QueryLog(ctx context.Context, params *QueryLogParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetQueryLogConfig request
+	GetQueryLogConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutQueryLogConfig request with any body
+	PutQueryLogConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutQueryLogConfig(ctx context.Context, body PutQueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// QuerylogClear request
+	QuerylogClear(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// QueryLogConfig request with any body
+	QueryLogConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	QueryLogConfig(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// QueryLogInfo request
+	QueryLogInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RewriteAdd request with any body
+	RewriteAddWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RewriteAdd(ctx context.Context, body RewriteAddJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RewriteDelete request with any body
+	RewriteDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RewriteDelete(ctx context.Context, body RewriteDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RewriteList request
+	RewriteList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RewriteUpdate request with any body
+	RewriteUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RewriteUpdate(ctx context.Context, body RewriteUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafebrowsingDisable request
+	SafebrowsingDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafebrowsingEnable request
+	SafebrowsingEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafebrowsingStatus request
+	SafebrowsingStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafesearchDisable request
+	SafesearchDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafesearchEnable request
+	SafesearchEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafesearchSettings request with any body
+	SafesearchSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SafesearchSettings(ctx context.Context, body SafesearchSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SafesearchStatus request
+	SafesearchStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// Stats request
+	Stats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetStatsConfig request
+	GetStatsConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutStatsConfig request with any body
+	PutStatsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutStatsConfig(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StatsConfig request with any body
+	StatsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	StatsConfig(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StatsInfo request
+	StatsInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StatsReset request
+	StatsReset(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// Status request
+	Status(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TestUpstreamDNS request with any body
+	TestUpstreamDNSWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	TestUpstreamDNS(ctx context.Context, body TestUpstreamDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TlsConfigure request with any body
+	TlsConfigureWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	TlsConfigure(ctx context.Context, body TlsConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TlsStatus request
+	TlsStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// TlsValidate request with any body
+	TlsValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	TlsValidate(ctx context.Context, body TlsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BeginUpdate request
+	BeginUpdate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVersionJson request with any body
+	GetVersionJsonWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetVersionJson(ctx context.Context, body GetVersionJsonJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *AdguardHomeClient) AccessList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAccessListRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) AccessSetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAccessSetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) AccessSet(ctx context.Context, body AccessSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAccessSetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) MobileConfigDoH(ctx context.Context, params *MobileConfigDoHParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMobileConfigDoHRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) MobileConfigDoT(ctx context.Context, params *MobileConfigDoTParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMobileConfigDoTRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) BlockedServicesAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBlockedServicesAllRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) BlockedServicesList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBlockedServicesListRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) BlockedServicesAvailableServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBlockedServicesAvailableServicesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) BlockedServicesSetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBlockedServicesSetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) BlockedServicesSet(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBlockedServicesSetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) CacheClear(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCacheClearRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsAddWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsAddRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsAdd(ctx context.Context, body ClientsAddJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsAddRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsDeleteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsDelete(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsDeleteRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsFind(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsFindRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsUpdate(ctx context.Context, body ClientsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpAddStaticLeaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpAddStaticLeaseRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpAddStaticLease(ctx context.Context, body DhcpAddStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpAddStaticLeaseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) CheckActiveDhcpWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCheckActiveDhcpRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) CheckActiveDhcp(ctx context.Context, body CheckActiveDhcpJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCheckActiveDhcpRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpInterfaces(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpInterfacesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpRemoveStaticLeaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpRemoveStaticLeaseRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpRemoveStaticLease(ctx context.Context, body DhcpRemoveStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpRemoveStaticLeaseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpReset(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpResetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpResetLeases(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpResetLeasesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpSetConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpSetConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpSetConfig(ctx context.Context, body DhcpSetConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpSetConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DhcpStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDhcpStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DnsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DnsConfig(ctx context.Context, body DnsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) DnsInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsInfoRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringAddURLWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringAddURLRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringAddURL(ctx context.Context, body FilteringAddURLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringAddURLRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringCheckHost(ctx context.Context, params *FilteringCheckHostParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringCheckHostRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringConfig(ctx context.Context, body FilteringConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringRefreshWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringRefreshRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringRefresh(ctx context.Context, body FilteringRefreshJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringRefreshRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringRemoveURLWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringRemoveURLRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringRemoveURL(ctx context.Context, body FilteringRemoveURLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringRemoveURLRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringSetRulesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringSetRulesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringSetRules(ctx context.Context, body FilteringSetRulesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringSetRulesRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringSetURLWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringSetURLRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringSetURL(ctx context.Context, body FilteringSetURLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringSetURLRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) FilteringStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilteringStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ChangeLanguageWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewChangeLanguageRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ChangeLanguage(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewChangeLanguageRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) CurrentLanguage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCurrentLanguageRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) InstallCheckConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallCheckConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) InstallCheckConfig(ctx context.Context, body InstallCheckConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallCheckConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) InstallConfigureWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallConfigureRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) InstallConfigure(ctx context.Context, body InstallConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallConfigureRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) InstallGetAddresses(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewInstallGetAddressesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) LoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLoginRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) Login(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLoginRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLogoutRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ParentalDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewParentalDisableRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ParentalEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewParentalEnableRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ParentalStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewParentalStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) GetProfile(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProfileRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) UpdateProfileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProfileRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) UpdateProfile(ctx context.Context, body UpdateProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProfileRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SetProtectionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetProtectionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SetProtection(ctx context.Context, body SetProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetProtectionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) QueryLog(ctx context.Context, params *QueryLogParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewQueryLogRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) GetQueryLogConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetQueryLogConfigRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) PutQueryLogConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutQueryLogConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) PutQueryLogConfig(ctx context.Context, body PutQueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutQueryLogConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) QuerylogClear(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewQuerylogClearRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) QueryLogConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewQueryLogConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) QueryLogConfig(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewQueryLogConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) QueryLogInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewQueryLogInfoRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteAddWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteAddRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteAdd(ctx context.Context, body RewriteAddJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteAddRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteDeleteRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteDelete(ctx context.Context, body RewriteDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteDeleteRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteListRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteUpdate(ctx context.Context, body RewriteUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteUpdateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafebrowsingDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafebrowsingDisableRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafebrowsingEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafebrowsingEnableRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafebrowsingStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafebrowsingStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafesearchDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafesearchDisableRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafesearchEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafesearchEnableRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafesearchSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafesearchSettingsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafesearchSettings(ctx context.Context, body SafesearchSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafesearchSettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) SafesearchStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSafesearchStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) Stats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) GetStatsConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetStatsConfigRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) PutStatsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutStatsConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) PutStatsConfig(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutStatsConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) StatsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatsConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) StatsConfig(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatsConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) StatsInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatsInfoRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) StatsReset(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatsResetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) Status(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TestUpstreamDNSWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTestUpstreamDNSRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TestUpstreamDNS(ctx context.Context, body TestUpstreamDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTestUpstreamDNSRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TlsConfigureWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTlsConfigureRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TlsConfigure(ctx context.Context, body TlsConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTlsConfigureRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TlsStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTlsStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TlsValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTlsValidateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) TlsValidate(ctx context.Context, body TlsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewTlsValidateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) BeginUpdate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBeginUpdateRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) GetVersionJsonWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVersionJsonRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) GetVersionJson(ctx context.Context, body GetVersionJsonJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVersionJsonRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewAccessListRequest generates requests for AccessList
+func NewAccessListRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/access/list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAccessSetRequest calls the generic AccessSet builder with application/json body
+func NewAccessSetRequest(server string, body AccessSetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAccessSetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAccessSetRequestWithBody generates requests for AccessSet with any type of body
+func NewAccessSetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/access/set")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMobileConfigDoHRequest generates requests for MobileConfigDoH
+func NewMobileConfigDoHRequest(server string, params *MobileConfigDoHParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/apple/doh.mobileconfig")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "host", runtime.ParamLocationQuery, params.Host); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.ClientId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_id", runtime.ParamLocationQuery, *params.ClientId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMobileConfigDoTRequest generates requests for MobileConfigDoT
+func NewMobileConfigDoTRequest(server string, params *MobileConfigDoTParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/apple/dot.mobileconfig")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "host", runtime.ParamLocationQuery, params.Host); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.ClientId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_id", runtime.ParamLocationQuery, *params.ClientId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBlockedServicesAllRequest generates requests for BlockedServicesAll
+func NewBlockedServicesAllRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/blocked_services/all")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBlockedServicesListRequest generates requests for BlockedServicesList
+func NewBlockedServicesListRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/blocked_services/list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBlockedServicesAvailableServicesRequest generates requests for BlockedServicesAvailableServices
+func NewBlockedServicesAvailableServicesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/blocked_services/services")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBlockedServicesSetRequest calls the generic BlockedServicesSet builder with application/json body
+func NewBlockedServicesSetRequest(server string, body BlockedServicesSetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBlockedServicesSetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewBlockedServicesSetRequestWithBody generates requests for BlockedServicesSet with any type of body
+func NewBlockedServicesSetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/blocked_services/set")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCacheClearRequest generates requests for CacheClear
+func NewCacheClearRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cache_clear")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewClientsStatusRequest generates requests for ClientsStatus
+func NewClientsStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clients")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewClientsAddRequest calls the generic ClientsAdd builder with application/json body
+func NewClientsAddRequest(server string, body ClientsAddJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewClientsAddRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewClientsAddRequestWithBody generates requests for ClientsAdd with any type of body
+func NewClientsAddRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clients/add")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewClientsDeleteRequest calls the generic ClientsDelete builder with application/json body
+func NewClientsDeleteRequest(server string, body ClientsDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewClientsDeleteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewClientsDeleteRequestWithBody generates requests for ClientsDelete with any type of body
+func NewClientsDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clients/delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewClientsFindRequest generates requests for ClientsFind
+func NewClientsFindRequest(server string, params *ClientsFindParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clients/find")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Ip0 != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "ip0", runtime.ParamLocationQuery, *params.Ip0); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewClientsUpdateRequest calls the generic ClientsUpdate builder with application/json body
+func NewClientsUpdateRequest(server string, body ClientsUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewClientsUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewClientsUpdateRequestWithBody generates requests for ClientsUpdate with any type of body
+func NewClientsUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clients/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDhcpAddStaticLeaseRequest calls the generic DhcpAddStaticLease builder with application/json body
+func NewDhcpAddStaticLeaseRequest(server string, body DhcpAddStaticLeaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDhcpAddStaticLeaseRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDhcpAddStaticLeaseRequestWithBody generates requests for DhcpAddStaticLease with any type of body
+func NewDhcpAddStaticLeaseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/add_static_lease")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCheckActiveDhcpRequest calls the generic CheckActiveDhcp builder with application/json body
+func NewCheckActiveDhcpRequest(server string, body CheckActiveDhcpJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCheckActiveDhcpRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCheckActiveDhcpRequestWithBody generates requests for CheckActiveDhcp with any type of body
+func NewCheckActiveDhcpRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/find_active_dhcp")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDhcpInterfacesRequest generates requests for DhcpInterfaces
+func NewDhcpInterfacesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/interfaces")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDhcpRemoveStaticLeaseRequest calls the generic DhcpRemoveStaticLease builder with application/json body
+func NewDhcpRemoveStaticLeaseRequest(server string, body DhcpRemoveStaticLeaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDhcpRemoveStaticLeaseRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDhcpRemoveStaticLeaseRequestWithBody generates requests for DhcpRemoveStaticLease with any type of body
+func NewDhcpRemoveStaticLeaseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/remove_static_lease")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDhcpResetRequest generates requests for DhcpReset
+func NewDhcpResetRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/reset")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDhcpResetLeasesRequest generates requests for DhcpResetLeases
+func NewDhcpResetLeasesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/reset_leases")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDhcpSetConfigRequest calls the generic DhcpSetConfig builder with application/json body
+func NewDhcpSetConfigRequest(server string, body DhcpSetConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDhcpSetConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDhcpSetConfigRequestWithBody generates requests for DhcpSetConfig with any type of body
+func NewDhcpSetConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/set_config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDhcpStatusRequest generates requests for DhcpStatus
+func NewDhcpStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dhcp/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDnsConfigRequest calls the generic DnsConfig builder with application/json body
+func NewDnsConfigRequest(server string, body DnsConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDnsConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDnsConfigRequestWithBody generates requests for DnsConfig with any type of body
+func NewDnsConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dns_config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDnsInfoRequest generates requests for DnsInfo
+func NewDnsInfoRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/dns_info")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewFilteringAddURLRequest calls the generic FilteringAddURL builder with application/json body
+func NewFilteringAddURLRequest(server string, body FilteringAddURLJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFilteringAddURLRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFilteringAddURLRequestWithBody generates requests for FilteringAddURL with any type of body
+func NewFilteringAddURLRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/add_url")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFilteringCheckHostRequest generates requests for FilteringCheckHost
+func NewFilteringCheckHostRequest(server string, params *FilteringCheckHostParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/check_host")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Name != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name", runtime.ParamLocationQuery, *params.Name); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewFilteringConfigRequest calls the generic FilteringConfig builder with application/json body
+func NewFilteringConfigRequest(server string, body FilteringConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFilteringConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFilteringConfigRequestWithBody generates requests for FilteringConfig with any type of body
+func NewFilteringConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFilteringRefreshRequest calls the generic FilteringRefresh builder with application/json body
+func NewFilteringRefreshRequest(server string, body FilteringRefreshJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFilteringRefreshRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFilteringRefreshRequestWithBody generates requests for FilteringRefresh with any type of body
+func NewFilteringRefreshRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/refresh")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFilteringRemoveURLRequest calls the generic FilteringRemoveURL builder with application/json body
+func NewFilteringRemoveURLRequest(server string, body FilteringRemoveURLJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFilteringRemoveURLRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFilteringRemoveURLRequestWithBody generates requests for FilteringRemoveURL with any type of body
+func NewFilteringRemoveURLRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/remove_url")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFilteringSetRulesRequest calls the generic FilteringSetRules builder with application/json body
+func NewFilteringSetRulesRequest(server string, body FilteringSetRulesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFilteringSetRulesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFilteringSetRulesRequestWithBody generates requests for FilteringSetRules with any type of body
+func NewFilteringSetRulesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/set_rules")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFilteringSetURLRequest calls the generic FilteringSetURL builder with application/json body
+func NewFilteringSetURLRequest(server string, body FilteringSetURLJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFilteringSetURLRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFilteringSetURLRequestWithBody generates requests for FilteringSetURL with any type of body
+func NewFilteringSetURLRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/set_url")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFilteringStatusRequest generates requests for FilteringStatus
+func NewFilteringStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/filtering/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewChangeLanguageRequest calls the generic ChangeLanguage builder with application/json body
+func NewChangeLanguageRequest(server string, body ChangeLanguageJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewChangeLanguageRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewChangeLanguageRequestWithBody generates requests for ChangeLanguage with any type of body
+func NewChangeLanguageRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/i18n/change_language")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCurrentLanguageRequest generates requests for CurrentLanguage
+func NewCurrentLanguageRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/i18n/current_language")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewInstallCheckConfigRequest calls the generic InstallCheckConfig builder with application/json body
+func NewInstallCheckConfigRequest(server string, body InstallCheckConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewInstallCheckConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewInstallCheckConfigRequestWithBody generates requests for InstallCheckConfig with any type of body
+func NewInstallCheckConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/install/check_config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewInstallConfigureRequest calls the generic InstallConfigure builder with application/json body
+func NewInstallConfigureRequest(server string, body InstallConfigureJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewInstallConfigureRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewInstallConfigureRequestWithBody generates requests for InstallConfigure with any type of body
+func NewInstallConfigureRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/install/configure")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewInstallGetAddressesRequest generates requests for InstallGetAddresses
+func NewInstallGetAddressesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/install/get_addresses")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewLoginRequest calls the generic Login builder with application/json body
+func NewLoginRequest(server string, body LoginJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewLoginRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewLoginRequestWithBody generates requests for Login with any type of body
+func NewLoginRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/login")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewLogoutRequest generates requests for Logout
+func NewLogoutRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/logout")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewParentalDisableRequest generates requests for ParentalDisable
+func NewParentalDisableRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/parental/disable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewParentalEnableRequest generates requests for ParentalEnable
+func NewParentalEnableRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/parental/enable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewParentalStatusRequest generates requests for ParentalStatus
+func NewParentalStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/parental/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetProfileRequest generates requests for GetProfile
+func NewGetProfileRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/profile")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateProfileRequest calls the generic UpdateProfile builder with application/json body
+func NewUpdateProfileRequest(server string, body UpdateProfileJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateProfileRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateProfileRequestWithBody generates requests for UpdateProfile with any type of body
+func NewUpdateProfileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/profile/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSetProtectionRequest calls the generic SetProtection builder with application/json body
+func NewSetProtectionRequest(server string, body SetProtectionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetProtectionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSetProtectionRequestWithBody generates requests for SetProtection with any type of body
+func NewSetProtectionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/protection")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewQueryLogRequest generates requests for QueryLog
+func NewQueryLogRequest(server string, params *QueryLogParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/querylog")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.OlderThan != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "older_than", runtime.ParamLocationQuery, *params.OlderThan); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, *params.Offset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "search", runtime.ParamLocationQuery, *params.Search); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.ResponseStatus != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "response_status", runtime.ParamLocationQuery, *params.ResponseStatus); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetQueryLogConfigRequest generates requests for GetQueryLogConfig
+func NewGetQueryLogConfigRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/querylog/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutQueryLogConfigRequest calls the generic PutQueryLogConfig builder with application/json body
+func NewPutQueryLogConfigRequest(server string, body PutQueryLogConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutQueryLogConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutQueryLogConfigRequestWithBody generates requests for PutQueryLogConfig with any type of body
+func NewPutQueryLogConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/querylog/config/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewQuerylogClearRequest generates requests for QuerylogClear
+func NewQuerylogClearRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/querylog_clear")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewQueryLogConfigRequest calls the generic QueryLogConfig builder with application/json body
+func NewQueryLogConfigRequest(server string, body QueryLogConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewQueryLogConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewQueryLogConfigRequestWithBody generates requests for QueryLogConfig with any type of body
+func NewQueryLogConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/querylog_config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewQueryLogInfoRequest generates requests for QueryLogInfo
+func NewQueryLogInfoRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/querylog_info")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRewriteAddRequest calls the generic RewriteAdd builder with application/json body
+func NewRewriteAddRequest(server string, body RewriteAddJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRewriteAddRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRewriteAddRequestWithBody generates requests for RewriteAdd with any type of body
+func NewRewriteAddRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/rewrite/add")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRewriteDeleteRequest calls the generic RewriteDelete builder with application/json body
+func NewRewriteDeleteRequest(server string, body RewriteDeleteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRewriteDeleteRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRewriteDeleteRequestWithBody generates requests for RewriteDelete with any type of body
+func NewRewriteDeleteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/rewrite/delete")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRewriteListRequest generates requests for RewriteList
+func NewRewriteListRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/rewrite/list")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRewriteUpdateRequest calls the generic RewriteUpdate builder with application/json body
+func NewRewriteUpdateRequest(server string, body RewriteUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRewriteUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRewriteUpdateRequestWithBody generates requests for RewriteUpdate with any type of body
+func NewRewriteUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/rewrite/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSafebrowsingDisableRequest generates requests for SafebrowsingDisable
+func NewSafebrowsingDisableRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safebrowsing/disable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSafebrowsingEnableRequest generates requests for SafebrowsingEnable
+func NewSafebrowsingEnableRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safebrowsing/enable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSafebrowsingStatusRequest generates requests for SafebrowsingStatus
+func NewSafebrowsingStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safebrowsing/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSafesearchDisableRequest generates requests for SafesearchDisable
+func NewSafesearchDisableRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safesearch/disable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSafesearchEnableRequest generates requests for SafesearchEnable
+func NewSafesearchEnableRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safesearch/enable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSafesearchSettingsRequest calls the generic SafesearchSettings builder with application/json body
+func NewSafesearchSettingsRequest(server string, body SafesearchSettingsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSafesearchSettingsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSafesearchSettingsRequestWithBody generates requests for SafesearchSettings with any type of body
+func NewSafesearchSettingsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safesearch/settings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSafesearchStatusRequest generates requests for SafesearchStatus
+func NewSafesearchStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/safesearch/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewStatsRequest generates requests for Stats
+func NewStatsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stats")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetStatsConfigRequest generates requests for GetStatsConfig
+func NewGetStatsConfigRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stats/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutStatsConfigRequest calls the generic PutStatsConfig builder with application/json body
+func NewPutStatsConfigRequest(server string, body PutStatsConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutStatsConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutStatsConfigRequestWithBody generates requests for PutStatsConfig with any type of body
+func NewPutStatsConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stats/config/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewStatsConfigRequest calls the generic StatsConfig builder with application/json body
+func NewStatsConfigRequest(server string, body StatsConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewStatsConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewStatsConfigRequestWithBody generates requests for StatsConfig with any type of body
+func NewStatsConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stats_config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewStatsInfoRequest generates requests for StatsInfo
+func NewStatsInfoRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stats_info")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewStatsResetRequest generates requests for StatsReset
+func NewStatsResetRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/stats_reset")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewStatusRequest generates requests for Status
+func NewStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewTestUpstreamDNSRequest calls the generic TestUpstreamDNS builder with application/json body
+func NewTestUpstreamDNSRequest(server string, body TestUpstreamDNSJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewTestUpstreamDNSRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewTestUpstreamDNSRequestWithBody generates requests for TestUpstreamDNS with any type of body
+func NewTestUpstreamDNSRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/test_upstream_dns")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewTlsConfigureRequest calls the generic TlsConfigure builder with application/json body
+func NewTlsConfigureRequest(server string, body TlsConfigureJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewTlsConfigureRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewTlsConfigureRequestWithBody generates requests for TlsConfigure with any type of body
+func NewTlsConfigureRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tls/configure")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewTlsStatusRequest generates requests for TlsStatus
+func NewTlsStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tls/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewTlsValidateRequest calls the generic TlsValidate builder with application/json body
+func NewTlsValidateRequest(server string, body TlsValidateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewTlsValidateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewTlsValidateRequestWithBody generates requests for TlsValidate with any type of body
+func NewTlsValidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tls/validate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewBeginUpdateRequest generates requests for BeginUpdate
+func NewBeginUpdateRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetVersionJsonRequest calls the generic GetVersionJson builder with application/json body
+func NewGetVersionJsonRequest(server string, body GetVersionJsonJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetVersionJsonRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetVersionJsonRequestWithBody generates requests for GetVersionJson with any type of body
+func NewGetVersionJsonRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/version.json")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+func (c *AdguardHomeClient) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
+	for _, r := range c.RequestEditors {
+		if err := r(ctx, req); err != nil {
+			return err
+		}
+	}
+	for _, r := range additionalEditors {
+		if err := r(ctx, req); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ClientWithResponses builds on ClientInterface to offer response payloads
+type ClientWithResponses struct {
+	ClientInterface
+}
+
+// NewClientWithResponses creates a new ClientWithResponses, which wraps
+// Client with return type handling
+func NewClientWithResponses(server string, opts ...ClientOption) (*ClientWithResponses, error) {
+	client, err := NewClient(server, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &ClientWithResponses{client}, nil
+}
+
+// WithBaseURL overrides the baseURL.
+func WithBaseURL(baseURL string) ClientOption {
+	return func(c *AdguardHomeClient) error {
+		newBaseURL, err := url.Parse(baseURL)
+		if err != nil {
+			return err
+		}
+		c.Server = newBaseURL.String()
+		return nil
+	}
+}
+
+// ClientWithResponsesInterface is the interface specification for the client with responses above.
+type ClientWithResponsesInterface interface {
+	// AccessList request
+	AccessListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AccessListResp, error)
+
+	// AccessSet request with any body
+	AccessSetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AccessSetResp, error)
+
+	AccessSetWithResponse(ctx context.Context, body AccessSetJSONRequestBody, reqEditors ...RequestEditorFn) (*AccessSetResp, error)
+
+	// MobileConfigDoH request
+	MobileConfigDoHWithResponse(ctx context.Context, params *MobileConfigDoHParams, reqEditors ...RequestEditorFn) (*MobileConfigDoHResp, error)
+
+	// MobileConfigDoT request
+	MobileConfigDoTWithResponse(ctx context.Context, params *MobileConfigDoTParams, reqEditors ...RequestEditorFn) (*MobileConfigDoTResp, error)
+
+	// BlockedServicesAll request
+	BlockedServicesAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesAllResp, error)
+
+	// BlockedServicesList request
+	BlockedServicesListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesListResp, error)
+
+	// BlockedServicesAvailableServices request
+	BlockedServicesAvailableServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesAvailableServicesResp, error)
+
+	// BlockedServicesSet request with any body
+	BlockedServicesSetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error)
+
+	BlockedServicesSetWithResponse(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error)
+
+	// CacheClear request
+	CacheClearWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CacheClearResp, error)
+
+	// ClientsStatus request
+	ClientsStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ClientsStatusResp, error)
+
+	// ClientsAdd request with any body
+	ClientsAddWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsAddResp, error)
+
+	ClientsAddWithResponse(ctx context.Context, body ClientsAddJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsAddResp, error)
+
+	// ClientsDelete request with any body
+	ClientsDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsDeleteResp, error)
+
+	ClientsDeleteWithResponse(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsDeleteResp, error)
+
+	// ClientsFind request
+	ClientsFindWithResponse(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*ClientsFindResp, error)
+
+	// ClientsUpdate request with any body
+	ClientsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsUpdateResp, error)
+
+	ClientsUpdateWithResponse(ctx context.Context, body ClientsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsUpdateResp, error)
+
+	// DhcpAddStaticLease request with any body
+	DhcpAddStaticLeaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DhcpAddStaticLeaseResp, error)
+
+	DhcpAddStaticLeaseWithResponse(ctx context.Context, body DhcpAddStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*DhcpAddStaticLeaseResp, error)
+
+	// CheckActiveDhcp request with any body
+	CheckActiveDhcpWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CheckActiveDhcpResp, error)
+
+	CheckActiveDhcpWithResponse(ctx context.Context, body CheckActiveDhcpJSONRequestBody, reqEditors ...RequestEditorFn) (*CheckActiveDhcpResp, error)
+
+	// DhcpInterfaces request
+	DhcpInterfacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpInterfacesResp, error)
+
+	// DhcpRemoveStaticLease request with any body
+	DhcpRemoveStaticLeaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DhcpRemoveStaticLeaseResp, error)
+
+	DhcpRemoveStaticLeaseWithResponse(ctx context.Context, body DhcpRemoveStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*DhcpRemoveStaticLeaseResp, error)
+
+	// DhcpReset request
+	DhcpResetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpResetResp, error)
+
+	// DhcpResetLeases request
+	DhcpResetLeasesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpResetLeasesResp, error)
+
+	// DhcpSetConfig request with any body
+	DhcpSetConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DhcpSetConfigResp, error)
+
+	DhcpSetConfigWithResponse(ctx context.Context, body DhcpSetConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*DhcpSetConfigResp, error)
+
+	// DhcpStatus request
+	DhcpStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpStatusResp, error)
+
+	// DnsConfig request with any body
+	DnsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsConfigResp, error)
+
+	DnsConfigWithResponse(ctx context.Context, body DnsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsConfigResp, error)
+
+	// DnsInfo request
+	DnsInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DnsInfoResp, error)
+
+	// FilteringAddURL request with any body
+	FilteringAddURLWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringAddURLResp, error)
+
+	FilteringAddURLWithResponse(ctx context.Context, body FilteringAddURLJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringAddURLResp, error)
+
+	// FilteringCheckHost request
+	FilteringCheckHostWithResponse(ctx context.Context, params *FilteringCheckHostParams, reqEditors ...RequestEditorFn) (*FilteringCheckHostResp, error)
+
+	// FilteringConfig request with any body
+	FilteringConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringConfigResp, error)
+
+	FilteringConfigWithResponse(ctx context.Context, body FilteringConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringConfigResp, error)
+
+	// FilteringRefresh request with any body
+	FilteringRefreshWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringRefreshResp, error)
+
+	FilteringRefreshWithResponse(ctx context.Context, body FilteringRefreshJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringRefreshResp, error)
+
+	// FilteringRemoveURL request with any body
+	FilteringRemoveURLWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringRemoveURLResp, error)
+
+	FilteringRemoveURLWithResponse(ctx context.Context, body FilteringRemoveURLJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringRemoveURLResp, error)
+
+	// FilteringSetRules request with any body
+	FilteringSetRulesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringSetRulesResp, error)
+
+	FilteringSetRulesWithResponse(ctx context.Context, body FilteringSetRulesJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringSetRulesResp, error)
+
+	// FilteringSetURL request with any body
+	FilteringSetURLWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringSetURLResp, error)
+
+	FilteringSetURLWithResponse(ctx context.Context, body FilteringSetURLJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringSetURLResp, error)
+
+	// FilteringStatus request
+	FilteringStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*FilteringStatusResp, error)
+
+	// ChangeLanguage request with any body
+	ChangeLanguageWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error)
+
+	ChangeLanguageWithResponse(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error)
+
+	// CurrentLanguage request
+	CurrentLanguageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CurrentLanguageResp, error)
+
+	// InstallCheckConfig request with any body
+	InstallCheckConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InstallCheckConfigResp, error)
+
+	InstallCheckConfigWithResponse(ctx context.Context, body InstallCheckConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*InstallCheckConfigResp, error)
+
+	// InstallConfigure request with any body
+	InstallConfigureWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InstallConfigureResp, error)
+
+	InstallConfigureWithResponse(ctx context.Context, body InstallConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*InstallConfigureResp, error)
+
+	// InstallGetAddresses request
+	InstallGetAddressesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*InstallGetAddressesResp, error)
+
+	// Login request with any body
+	LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResp, error)
+
+	LoginWithResponse(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*LoginResp, error)
+
+	// Logout request
+	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResp, error)
+
+	// ParentalDisable request
+	ParentalDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ParentalDisableResp, error)
+
+	// ParentalEnable request
+	ParentalEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ParentalEnableResp, error)
+
+	// ParentalStatus request
+	ParentalStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ParentalStatusResp, error)
+
+	// GetProfile request
+	GetProfileWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetProfileResp, error)
+
+	// UpdateProfile request with any body
+	UpdateProfileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProfileResp, error)
+
+	UpdateProfileWithResponse(ctx context.Context, body UpdateProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProfileResp, error)
+
+	// SetProtection request with any body
+	SetProtectionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetProtectionResp, error)
+
+	SetProtectionWithResponse(ctx context.Context, body SetProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*SetProtectionResp, error)
+
+	// QueryLog request
+	QueryLogWithResponse(ctx context.Context, params *QueryLogParams, reqEditors ...RequestEditorFn) (*QueryLogResp, error)
+
+	// GetQueryLogConfig request
+	GetQueryLogConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetQueryLogConfigResp, error)
+
+	// PutQueryLogConfig request with any body
+	PutQueryLogConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutQueryLogConfigResp, error)
+
+	PutQueryLogConfigWithResponse(ctx context.Context, body PutQueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutQueryLogConfigResp, error)
+
+	// QuerylogClear request
+	QuerylogClearWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QuerylogClearResp, error)
+
+	// QueryLogConfig request with any body
+	QueryLogConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error)
+
+	QueryLogConfigWithResponse(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error)
+
+	// QueryLogInfo request
+	QueryLogInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QueryLogInfoResp, error)
+
+	// RewriteAdd request with any body
+	RewriteAddWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteAddResp, error)
+
+	RewriteAddWithResponse(ctx context.Context, body RewriteAddJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteAddResp, error)
+
+	// RewriteDelete request with any body
+	RewriteDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteDeleteResp, error)
+
+	RewriteDeleteWithResponse(ctx context.Context, body RewriteDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteDeleteResp, error)
+
+	// RewriteList request
+	RewriteListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RewriteListResp, error)
+
+	// RewriteUpdate request with any body
+	RewriteUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteUpdateResp, error)
+
+	RewriteUpdateWithResponse(ctx context.Context, body RewriteUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteUpdateResp, error)
+
+	// SafebrowsingDisable request
+	SafebrowsingDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingDisableResp, error)
+
+	// SafebrowsingEnable request
+	SafebrowsingEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingEnableResp, error)
+
+	// SafebrowsingStatus request
+	SafebrowsingStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingStatusResp, error)
+
+	// SafesearchDisable request
+	SafesearchDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchDisableResp, error)
+
+	// SafesearchEnable request
+	SafesearchEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchEnableResp, error)
+
+	// SafesearchSettings request with any body
+	SafesearchSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SafesearchSettingsResp, error)
+
+	SafesearchSettingsWithResponse(ctx context.Context, body SafesearchSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*SafesearchSettingsResp, error)
+
+	// SafesearchStatus request
+	SafesearchStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchStatusResp, error)
+
+	// Stats request
+	StatsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsResp, error)
+
+	// GetStatsConfig request
+	GetStatsConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStatsConfigResp, error)
+
+	// PutStatsConfig request with any body
+	PutStatsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutStatsConfigResp, error)
+
+	PutStatsConfigWithResponse(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutStatsConfigResp, error)
+
+	// StatsConfig request with any body
+	StatsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StatsConfigResp, error)
+
+	StatsConfigWithResponse(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*StatsConfigResp, error)
+
+	// StatsInfo request
+	StatsInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsInfoResp, error)
+
+	// StatsReset request
+	StatsResetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsResetResp, error)
+
+	// Status request
+	StatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatusResp, error)
+
+	// TestUpstreamDNS request with any body
+	TestUpstreamDNSWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TestUpstreamDNSResp, error)
+
+	TestUpstreamDNSWithResponse(ctx context.Context, body TestUpstreamDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*TestUpstreamDNSResp, error)
+
+	// TlsConfigure request with any body
+	TlsConfigureWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TlsConfigureResp, error)
+
+	TlsConfigureWithResponse(ctx context.Context, body TlsConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*TlsConfigureResp, error)
+
+	// TlsStatus request
+	TlsStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*TlsStatusResp, error)
+
+	// TlsValidate request with any body
+	TlsValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TlsValidateResp, error)
+
+	TlsValidateWithResponse(ctx context.Context, body TlsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*TlsValidateResp, error)
+
+	// BeginUpdate request
+	BeginUpdateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BeginUpdateResp, error)
+
+	// GetVersionJson request with any body
+	GetVersionJsonWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetVersionJsonResp, error)
+
+	GetVersionJsonWithResponse(ctx context.Context, body GetVersionJsonJSONRequestBody, reqEditors ...RequestEditorFn) (*GetVersionJsonResp, error)
+}
+
+type AccessListResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AccessListResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r AccessListResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AccessListResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AccessSetResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r AccessSetResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AccessSetResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MobileConfigDoHResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON500      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r MobileConfigDoHResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MobileConfigDoHResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MobileConfigDoTResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON500      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r MobileConfigDoTResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MobileConfigDoTResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BlockedServicesAllResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BlockedServicesAll
+}
+
+// Status returns HTTPResponse.Status
+func (r BlockedServicesAllResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BlockedServicesAllResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BlockedServicesListResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BlockedServicesArray
+}
+
+// Status returns HTTPResponse.Status
+func (r BlockedServicesListResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BlockedServicesListResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BlockedServicesAvailableServicesResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BlockedServicesArray
+}
+
+// Status returns HTTPResponse.Status
+func (r BlockedServicesAvailableServicesResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BlockedServicesAvailableServicesResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BlockedServicesSetResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r BlockedServicesSetResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BlockedServicesSetResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CacheClearResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r CacheClearResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CacheClearResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClientsStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Clients
+}
+
+// Status returns HTTPResponse.Status
+func (r ClientsStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClientsStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClientsAddResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ClientsAddResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClientsAddResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClientsDeleteResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ClientsDeleteResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClientsDeleteResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClientsFindResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ClientsFindResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r ClientsFindResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClientsFindResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClientsUpdateResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ClientsUpdateResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClientsUpdateResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpAddStaticLeaseResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON501      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpAddStaticLeaseResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpAddStaticLeaseResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CheckActiveDhcpResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DhcpSearchResult
+	JSON501      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CheckActiveDhcpResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CheckActiveDhcpResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpInterfacesResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *NetInterfaces
+	JSON500      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpInterfacesResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpInterfacesResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpRemoveStaticLeaseResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON501      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpRemoveStaticLeaseResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpRemoveStaticLeaseResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpResetResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON501      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpResetResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpResetResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpResetLeasesResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON501      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpResetLeasesResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpResetLeasesResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpSetConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON501      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpSetConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpSetConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DhcpStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DhcpStatus
+	JSON500      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DhcpStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DhcpStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DnsConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DnsConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DnsConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DnsInfoResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DNSConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r DnsInfoResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DnsInfoResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringAddURLResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringAddURLResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringAddURLResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringCheckHostResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *FilterCheckHostResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringCheckHostResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringCheckHostResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringRefreshResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *FilterRefreshResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringRefreshResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringRefreshResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringRemoveURLResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringRemoveURLResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringRemoveURLResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringSetRulesResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringSetRulesResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringSetRulesResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringSetURLResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringSetURLResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringSetURLResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FilteringStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *FilterStatus
+}
+
+// Status returns HTTPResponse.Status
+func (r FilteringStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilteringStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ChangeLanguageResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ChangeLanguageResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ChangeLanguageResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CurrentLanguageResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LanguageSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r CurrentLanguageResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CurrentLanguageResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type InstallCheckConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CheckConfigResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r InstallCheckConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r InstallCheckConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type InstallConfigureResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r InstallConfigureResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r InstallConfigureResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type InstallGetAddressesResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AddressesInfo
+}
+
+// Status returns HTTPResponse.Status
+func (r InstallGetAddressesResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r InstallGetAddressesResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LoginResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r LoginResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LoginResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LogoutResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r LogoutResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LogoutResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ParentalDisableResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ParentalDisableResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ParentalDisableResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ParentalEnableResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ParentalEnableResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ParentalEnableResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ParentalStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Enable      *bool `json:"enable,omitempty"`
+		Sensitivity *int  `json:"sensitivity,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r ParentalStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ParentalStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetProfileResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ProfileInfo
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProfileResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProfileResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateProfileResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateProfileResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateProfileResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SetProtectionResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SetProtectionResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetProtectionResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type QueryLogResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *QueryLog
+}
+
+// Status returns HTTPResponse.Status
+func (r QueryLogResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r QueryLogResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetQueryLogConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *GetQueryLogConfigResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetQueryLogConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetQueryLogConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutQueryLogConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutQueryLogConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutQueryLogConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type QuerylogClearResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r QuerylogClearResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r QuerylogClearResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type QueryLogConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r QueryLogConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r QueryLogConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type QueryLogInfoResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *QueryLogConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r QueryLogInfoResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r QueryLogInfoResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RewriteAddResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RewriteAddResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RewriteAddResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RewriteDeleteResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RewriteDeleteResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RewriteDeleteResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RewriteListResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RewriteList
+}
+
+// Status returns HTTPResponse.Status
+func (r RewriteListResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RewriteListResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RewriteUpdateResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RewriteUpdateResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RewriteUpdateResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafebrowsingDisableResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SafebrowsingDisableResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafebrowsingDisableResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafebrowsingEnableResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SafebrowsingEnableResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafebrowsingEnableResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafebrowsingStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Enabled *bool `json:"enabled,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r SafebrowsingStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafebrowsingStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafesearchDisableResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SafesearchDisableResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafesearchDisableResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafesearchEnableResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SafesearchEnableResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafesearchEnableResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafesearchSettingsResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SafesearchSettingsResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafesearchSettingsResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SafesearchStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SafeSearchConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r SafesearchStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SafesearchStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StatsResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Stats
+}
+
+// Status returns HTTPResponse.Status
+func (r StatsResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StatsResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetStatsConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *GetStatsConfigResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetStatsConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetStatsConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutStatsConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutStatsConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutStatsConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StatsConfigResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r StatsConfigResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StatsConfigResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StatsInfoResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *StatsConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r StatsInfoResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StatsInfoResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StatsResetResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r StatsResetResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StatsResetResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ServerStatus
+}
+
+// Status returns HTTPResponse.Status
+func (r StatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type TestUpstreamDNSResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UpstreamsConfigResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r TestUpstreamDNSResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TestUpstreamDNSResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type TlsConfigureResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TlsConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r TlsConfigureResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TlsConfigureResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type TlsStatusResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TlsConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r TlsStatusResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TlsStatusResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type TlsValidateResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TlsConfig
+}
+
+// Status returns HTTPResponse.Status
+func (r TlsValidateResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r TlsValidateResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BeginUpdateResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r BeginUpdateResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BeginUpdateResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetVersionJsonResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VersionInfo
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVersionJsonResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVersionJsonResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// AccessListWithResponse request returning *AccessListResp
+func (c *ClientWithResponses) AccessListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AccessListResp, error) {
+	rsp, err := c.AccessList(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAccessListResp(rsp)
+}
+
+// AccessSetWithBodyWithResponse request with arbitrary body returning *AccessSetResp
+func (c *ClientWithResponses) AccessSetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AccessSetResp, error) {
+	rsp, err := c.AccessSetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAccessSetResp(rsp)
+}
+
+func (c *ClientWithResponses) AccessSetWithResponse(ctx context.Context, body AccessSetJSONRequestBody, reqEditors ...RequestEditorFn) (*AccessSetResp, error) {
+	rsp, err := c.AccessSet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAccessSetResp(rsp)
+}
+
+// MobileConfigDoHWithResponse request returning *MobileConfigDoHResp
+func (c *ClientWithResponses) MobileConfigDoHWithResponse(ctx context.Context, params *MobileConfigDoHParams, reqEditors ...RequestEditorFn) (*MobileConfigDoHResp, error) {
+	rsp, err := c.MobileConfigDoH(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMobileConfigDoHResp(rsp)
+}
+
+// MobileConfigDoTWithResponse request returning *MobileConfigDoTResp
+func (c *ClientWithResponses) MobileConfigDoTWithResponse(ctx context.Context, params *MobileConfigDoTParams, reqEditors ...RequestEditorFn) (*MobileConfigDoTResp, error) {
+	rsp, err := c.MobileConfigDoT(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMobileConfigDoTResp(rsp)
+}
+
+// BlockedServicesAllWithResponse request returning *BlockedServicesAllResp
+func (c *ClientWithResponses) BlockedServicesAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesAllResp, error) {
+	rsp, err := c.BlockedServicesAll(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBlockedServicesAllResp(rsp)
+}
+
+// BlockedServicesListWithResponse request returning *BlockedServicesListResp
+func (c *ClientWithResponses) BlockedServicesListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesListResp, error) {
+	rsp, err := c.BlockedServicesList(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBlockedServicesListResp(rsp)
+}
+
+// BlockedServicesAvailableServicesWithResponse request returning *BlockedServicesAvailableServicesResp
+func (c *ClientWithResponses) BlockedServicesAvailableServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesAvailableServicesResp, error) {
+	rsp, err := c.BlockedServicesAvailableServices(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBlockedServicesAvailableServicesResp(rsp)
+}
+
+// BlockedServicesSetWithBodyWithResponse request with arbitrary body returning *BlockedServicesSetResp
+func (c *ClientWithResponses) BlockedServicesSetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error) {
+	rsp, err := c.BlockedServicesSetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBlockedServicesSetResp(rsp)
+}
+
+func (c *ClientWithResponses) BlockedServicesSetWithResponse(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error) {
+	rsp, err := c.BlockedServicesSet(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBlockedServicesSetResp(rsp)
+}
+
+// CacheClearWithResponse request returning *CacheClearResp
+func (c *ClientWithResponses) CacheClearWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CacheClearResp, error) {
+	rsp, err := c.CacheClear(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCacheClearResp(rsp)
+}
+
+// ClientsStatusWithResponse request returning *ClientsStatusResp
+func (c *ClientWithResponses) ClientsStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ClientsStatusResp, error) {
+	rsp, err := c.ClientsStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsStatusResp(rsp)
+}
+
+// ClientsAddWithBodyWithResponse request with arbitrary body returning *ClientsAddResp
+func (c *ClientWithResponses) ClientsAddWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsAddResp, error) {
+	rsp, err := c.ClientsAddWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsAddResp(rsp)
+}
+
+func (c *ClientWithResponses) ClientsAddWithResponse(ctx context.Context, body ClientsAddJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsAddResp, error) {
+	rsp, err := c.ClientsAdd(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsAddResp(rsp)
+}
+
+// ClientsDeleteWithBodyWithResponse request with arbitrary body returning *ClientsDeleteResp
+func (c *ClientWithResponses) ClientsDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsDeleteResp, error) {
+	rsp, err := c.ClientsDeleteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsDeleteResp(rsp)
+}
+
+func (c *ClientWithResponses) ClientsDeleteWithResponse(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsDeleteResp, error) {
+	rsp, err := c.ClientsDelete(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsDeleteResp(rsp)
+}
+
+// ClientsFindWithResponse request returning *ClientsFindResp
+func (c *ClientWithResponses) ClientsFindWithResponse(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*ClientsFindResp, error) {
+	rsp, err := c.ClientsFind(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsFindResp(rsp)
+}
+
+// ClientsUpdateWithBodyWithResponse request with arbitrary body returning *ClientsUpdateResp
+func (c *ClientWithResponses) ClientsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsUpdateResp, error) {
+	rsp, err := c.ClientsUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsUpdateResp(rsp)
+}
+
+func (c *ClientWithResponses) ClientsUpdateWithResponse(ctx context.Context, body ClientsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsUpdateResp, error) {
+	rsp, err := c.ClientsUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsUpdateResp(rsp)
+}
+
+// DhcpAddStaticLeaseWithBodyWithResponse request with arbitrary body returning *DhcpAddStaticLeaseResp
+func (c *ClientWithResponses) DhcpAddStaticLeaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DhcpAddStaticLeaseResp, error) {
+	rsp, err := c.DhcpAddStaticLeaseWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpAddStaticLeaseResp(rsp)
+}
+
+func (c *ClientWithResponses) DhcpAddStaticLeaseWithResponse(ctx context.Context, body DhcpAddStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*DhcpAddStaticLeaseResp, error) {
+	rsp, err := c.DhcpAddStaticLease(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpAddStaticLeaseResp(rsp)
+}
+
+// CheckActiveDhcpWithBodyWithResponse request with arbitrary body returning *CheckActiveDhcpResp
+func (c *ClientWithResponses) CheckActiveDhcpWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CheckActiveDhcpResp, error) {
+	rsp, err := c.CheckActiveDhcpWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCheckActiveDhcpResp(rsp)
+}
+
+func (c *ClientWithResponses) CheckActiveDhcpWithResponse(ctx context.Context, body CheckActiveDhcpJSONRequestBody, reqEditors ...RequestEditorFn) (*CheckActiveDhcpResp, error) {
+	rsp, err := c.CheckActiveDhcp(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCheckActiveDhcpResp(rsp)
+}
+
+// DhcpInterfacesWithResponse request returning *DhcpInterfacesResp
+func (c *ClientWithResponses) DhcpInterfacesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpInterfacesResp, error) {
+	rsp, err := c.DhcpInterfaces(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpInterfacesResp(rsp)
+}
+
+// DhcpRemoveStaticLeaseWithBodyWithResponse request with arbitrary body returning *DhcpRemoveStaticLeaseResp
+func (c *ClientWithResponses) DhcpRemoveStaticLeaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DhcpRemoveStaticLeaseResp, error) {
+	rsp, err := c.DhcpRemoveStaticLeaseWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpRemoveStaticLeaseResp(rsp)
+}
+
+func (c *ClientWithResponses) DhcpRemoveStaticLeaseWithResponse(ctx context.Context, body DhcpRemoveStaticLeaseJSONRequestBody, reqEditors ...RequestEditorFn) (*DhcpRemoveStaticLeaseResp, error) {
+	rsp, err := c.DhcpRemoveStaticLease(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpRemoveStaticLeaseResp(rsp)
+}
+
+// DhcpResetWithResponse request returning *DhcpResetResp
+func (c *ClientWithResponses) DhcpResetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpResetResp, error) {
+	rsp, err := c.DhcpReset(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpResetResp(rsp)
+}
+
+// DhcpResetLeasesWithResponse request returning *DhcpResetLeasesResp
+func (c *ClientWithResponses) DhcpResetLeasesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpResetLeasesResp, error) {
+	rsp, err := c.DhcpResetLeases(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpResetLeasesResp(rsp)
+}
+
+// DhcpSetConfigWithBodyWithResponse request with arbitrary body returning *DhcpSetConfigResp
+func (c *ClientWithResponses) DhcpSetConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DhcpSetConfigResp, error) {
+	rsp, err := c.DhcpSetConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpSetConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) DhcpSetConfigWithResponse(ctx context.Context, body DhcpSetConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*DhcpSetConfigResp, error) {
+	rsp, err := c.DhcpSetConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpSetConfigResp(rsp)
+}
+
+// DhcpStatusWithResponse request returning *DhcpStatusResp
+func (c *ClientWithResponses) DhcpStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DhcpStatusResp, error) {
+	rsp, err := c.DhcpStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDhcpStatusResp(rsp)
+}
+
+// DnsConfigWithBodyWithResponse request with arbitrary body returning *DnsConfigResp
+func (c *ClientWithResponses) DnsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsConfigResp, error) {
+	rsp, err := c.DnsConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) DnsConfigWithResponse(ctx context.Context, body DnsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsConfigResp, error) {
+	rsp, err := c.DnsConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsConfigResp(rsp)
+}
+
+// DnsInfoWithResponse request returning *DnsInfoResp
+func (c *ClientWithResponses) DnsInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DnsInfoResp, error) {
+	rsp, err := c.DnsInfo(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsInfoResp(rsp)
+}
+
+// FilteringAddURLWithBodyWithResponse request with arbitrary body returning *FilteringAddURLResp
+func (c *ClientWithResponses) FilteringAddURLWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringAddURLResp, error) {
+	rsp, err := c.FilteringAddURLWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringAddURLResp(rsp)
+}
+
+func (c *ClientWithResponses) FilteringAddURLWithResponse(ctx context.Context, body FilteringAddURLJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringAddURLResp, error) {
+	rsp, err := c.FilteringAddURL(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringAddURLResp(rsp)
+}
+
+// FilteringCheckHostWithResponse request returning *FilteringCheckHostResp
+func (c *ClientWithResponses) FilteringCheckHostWithResponse(ctx context.Context, params *FilteringCheckHostParams, reqEditors ...RequestEditorFn) (*FilteringCheckHostResp, error) {
+	rsp, err := c.FilteringCheckHost(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringCheckHostResp(rsp)
+}
+
+// FilteringConfigWithBodyWithResponse request with arbitrary body returning *FilteringConfigResp
+func (c *ClientWithResponses) FilteringConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringConfigResp, error) {
+	rsp, err := c.FilteringConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) FilteringConfigWithResponse(ctx context.Context, body FilteringConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringConfigResp, error) {
+	rsp, err := c.FilteringConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringConfigResp(rsp)
+}
+
+// FilteringRefreshWithBodyWithResponse request with arbitrary body returning *FilteringRefreshResp
+func (c *ClientWithResponses) FilteringRefreshWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringRefreshResp, error) {
+	rsp, err := c.FilteringRefreshWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringRefreshResp(rsp)
+}
+
+func (c *ClientWithResponses) FilteringRefreshWithResponse(ctx context.Context, body FilteringRefreshJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringRefreshResp, error) {
+	rsp, err := c.FilteringRefresh(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringRefreshResp(rsp)
+}
+
+// FilteringRemoveURLWithBodyWithResponse request with arbitrary body returning *FilteringRemoveURLResp
+func (c *ClientWithResponses) FilteringRemoveURLWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringRemoveURLResp, error) {
+	rsp, err := c.FilteringRemoveURLWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringRemoveURLResp(rsp)
+}
+
+func (c *ClientWithResponses) FilteringRemoveURLWithResponse(ctx context.Context, body FilteringRemoveURLJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringRemoveURLResp, error) {
+	rsp, err := c.FilteringRemoveURL(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringRemoveURLResp(rsp)
+}
+
+// FilteringSetRulesWithBodyWithResponse request with arbitrary body returning *FilteringSetRulesResp
+func (c *ClientWithResponses) FilteringSetRulesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringSetRulesResp, error) {
+	rsp, err := c.FilteringSetRulesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringSetRulesResp(rsp)
+}
+
+func (c *ClientWithResponses) FilteringSetRulesWithResponse(ctx context.Context, body FilteringSetRulesJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringSetRulesResp, error) {
+	rsp, err := c.FilteringSetRules(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringSetRulesResp(rsp)
+}
+
+// FilteringSetURLWithBodyWithResponse request with arbitrary body returning *FilteringSetURLResp
+func (c *ClientWithResponses) FilteringSetURLWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FilteringSetURLResp, error) {
+	rsp, err := c.FilteringSetURLWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringSetURLResp(rsp)
+}
+
+func (c *ClientWithResponses) FilteringSetURLWithResponse(ctx context.Context, body FilteringSetURLJSONRequestBody, reqEditors ...RequestEditorFn) (*FilteringSetURLResp, error) {
+	rsp, err := c.FilteringSetURL(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringSetURLResp(rsp)
+}
+
+// FilteringStatusWithResponse request returning *FilteringStatusResp
+func (c *ClientWithResponses) FilteringStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*FilteringStatusResp, error) {
+	rsp, err := c.FilteringStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilteringStatusResp(rsp)
+}
+
+// ChangeLanguageWithBodyWithResponse request with arbitrary body returning *ChangeLanguageResp
+func (c *ClientWithResponses) ChangeLanguageWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error) {
+	rsp, err := c.ChangeLanguageWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseChangeLanguageResp(rsp)
+}
+
+func (c *ClientWithResponses) ChangeLanguageWithResponse(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error) {
+	rsp, err := c.ChangeLanguage(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseChangeLanguageResp(rsp)
+}
+
+// CurrentLanguageWithResponse request returning *CurrentLanguageResp
+func (c *ClientWithResponses) CurrentLanguageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CurrentLanguageResp, error) {
+	rsp, err := c.CurrentLanguage(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCurrentLanguageResp(rsp)
+}
+
+// InstallCheckConfigWithBodyWithResponse request with arbitrary body returning *InstallCheckConfigResp
+func (c *ClientWithResponses) InstallCheckConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InstallCheckConfigResp, error) {
+	rsp, err := c.InstallCheckConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallCheckConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) InstallCheckConfigWithResponse(ctx context.Context, body InstallCheckConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*InstallCheckConfigResp, error) {
+	rsp, err := c.InstallCheckConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallCheckConfigResp(rsp)
+}
+
+// InstallConfigureWithBodyWithResponse request with arbitrary body returning *InstallConfigureResp
+func (c *ClientWithResponses) InstallConfigureWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InstallConfigureResp, error) {
+	rsp, err := c.InstallConfigureWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallConfigureResp(rsp)
+}
+
+func (c *ClientWithResponses) InstallConfigureWithResponse(ctx context.Context, body InstallConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*InstallConfigureResp, error) {
+	rsp, err := c.InstallConfigure(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallConfigureResp(rsp)
+}
+
+// InstallGetAddressesWithResponse request returning *InstallGetAddressesResp
+func (c *ClientWithResponses) InstallGetAddressesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*InstallGetAddressesResp, error) {
+	rsp, err := c.InstallGetAddresses(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseInstallGetAddressesResp(rsp)
+}
+
+// LoginWithBodyWithResponse request with arbitrary body returning *LoginResp
+func (c *ClientWithResponses) LoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoginResp, error) {
+	rsp, err := c.LoginWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLoginResp(rsp)
+}
+
+func (c *ClientWithResponses) LoginWithResponse(ctx context.Context, body LoginJSONRequestBody, reqEditors ...RequestEditorFn) (*LoginResp, error) {
+	rsp, err := c.Login(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLoginResp(rsp)
+}
+
+// LogoutWithResponse request returning *LogoutResp
+func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResp, error) {
+	rsp, err := c.Logout(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLogoutResp(rsp)
+}
+
+// ParentalDisableWithResponse request returning *ParentalDisableResp
+func (c *ClientWithResponses) ParentalDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ParentalDisableResp, error) {
+	rsp, err := c.ParentalDisable(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseParentalDisableResp(rsp)
+}
+
+// ParentalEnableWithResponse request returning *ParentalEnableResp
+func (c *ClientWithResponses) ParentalEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ParentalEnableResp, error) {
+	rsp, err := c.ParentalEnable(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseParentalEnableResp(rsp)
+}
+
+// ParentalStatusWithResponse request returning *ParentalStatusResp
+func (c *ClientWithResponses) ParentalStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ParentalStatusResp, error) {
+	rsp, err := c.ParentalStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseParentalStatusResp(rsp)
+}
+
+// GetProfileWithResponse request returning *GetProfileResp
+func (c *ClientWithResponses) GetProfileWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetProfileResp, error) {
+	rsp, err := c.GetProfile(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProfileResp(rsp)
+}
+
+// UpdateProfileWithBodyWithResponse request with arbitrary body returning *UpdateProfileResp
+func (c *ClientWithResponses) UpdateProfileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProfileResp, error) {
+	rsp, err := c.UpdateProfileWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProfileResp(rsp)
+}
+
+func (c *ClientWithResponses) UpdateProfileWithResponse(ctx context.Context, body UpdateProfileJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProfileResp, error) {
+	rsp, err := c.UpdateProfile(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProfileResp(rsp)
+}
+
+// SetProtectionWithBodyWithResponse request with arbitrary body returning *SetProtectionResp
+func (c *ClientWithResponses) SetProtectionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetProtectionResp, error) {
+	rsp, err := c.SetProtectionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetProtectionResp(rsp)
+}
+
+func (c *ClientWithResponses) SetProtectionWithResponse(ctx context.Context, body SetProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*SetProtectionResp, error) {
+	rsp, err := c.SetProtection(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetProtectionResp(rsp)
+}
+
+// QueryLogWithResponse request returning *QueryLogResp
+func (c *ClientWithResponses) QueryLogWithResponse(ctx context.Context, params *QueryLogParams, reqEditors ...RequestEditorFn) (*QueryLogResp, error) {
+	rsp, err := c.QueryLog(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseQueryLogResp(rsp)
+}
+
+// GetQueryLogConfigWithResponse request returning *GetQueryLogConfigResp
+func (c *ClientWithResponses) GetQueryLogConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetQueryLogConfigResp, error) {
+	rsp, err := c.GetQueryLogConfig(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetQueryLogConfigResp(rsp)
+}
+
+// PutQueryLogConfigWithBodyWithResponse request with arbitrary body returning *PutQueryLogConfigResp
+func (c *ClientWithResponses) PutQueryLogConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutQueryLogConfigResp, error) {
+	rsp, err := c.PutQueryLogConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutQueryLogConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) PutQueryLogConfigWithResponse(ctx context.Context, body PutQueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutQueryLogConfigResp, error) {
+	rsp, err := c.PutQueryLogConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutQueryLogConfigResp(rsp)
+}
+
+// QuerylogClearWithResponse request returning *QuerylogClearResp
+func (c *ClientWithResponses) QuerylogClearWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QuerylogClearResp, error) {
+	rsp, err := c.QuerylogClear(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseQuerylogClearResp(rsp)
+}
+
+// QueryLogConfigWithBodyWithResponse request with arbitrary body returning *QueryLogConfigResp
+func (c *ClientWithResponses) QueryLogConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error) {
+	rsp, err := c.QueryLogConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseQueryLogConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) QueryLogConfigWithResponse(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error) {
+	rsp, err := c.QueryLogConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseQueryLogConfigResp(rsp)
+}
+
+// QueryLogInfoWithResponse request returning *QueryLogInfoResp
+func (c *ClientWithResponses) QueryLogInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QueryLogInfoResp, error) {
+	rsp, err := c.QueryLogInfo(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseQueryLogInfoResp(rsp)
+}
+
+// RewriteAddWithBodyWithResponse request with arbitrary body returning *RewriteAddResp
+func (c *ClientWithResponses) RewriteAddWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteAddResp, error) {
+	rsp, err := c.RewriteAddWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteAddResp(rsp)
+}
+
+func (c *ClientWithResponses) RewriteAddWithResponse(ctx context.Context, body RewriteAddJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteAddResp, error) {
+	rsp, err := c.RewriteAdd(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteAddResp(rsp)
+}
+
+// RewriteDeleteWithBodyWithResponse request with arbitrary body returning *RewriteDeleteResp
+func (c *ClientWithResponses) RewriteDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteDeleteResp, error) {
+	rsp, err := c.RewriteDeleteWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteDeleteResp(rsp)
+}
+
+func (c *ClientWithResponses) RewriteDeleteWithResponse(ctx context.Context, body RewriteDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteDeleteResp, error) {
+	rsp, err := c.RewriteDelete(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteDeleteResp(rsp)
+}
+
+// RewriteListWithResponse request returning *RewriteListResp
+func (c *ClientWithResponses) RewriteListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RewriteListResp, error) {
+	rsp, err := c.RewriteList(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteListResp(rsp)
+}
+
+// RewriteUpdateWithBodyWithResponse request with arbitrary body returning *RewriteUpdateResp
+func (c *ClientWithResponses) RewriteUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteUpdateResp, error) {
+	rsp, err := c.RewriteUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteUpdateResp(rsp)
+}
+
+func (c *ClientWithResponses) RewriteUpdateWithResponse(ctx context.Context, body RewriteUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteUpdateResp, error) {
+	rsp, err := c.RewriteUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteUpdateResp(rsp)
+}
+
+// SafebrowsingDisableWithResponse request returning *SafebrowsingDisableResp
+func (c *ClientWithResponses) SafebrowsingDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingDisableResp, error) {
+	rsp, err := c.SafebrowsingDisable(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafebrowsingDisableResp(rsp)
+}
+
+// SafebrowsingEnableWithResponse request returning *SafebrowsingEnableResp
+func (c *ClientWithResponses) SafebrowsingEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingEnableResp, error) {
+	rsp, err := c.SafebrowsingEnable(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafebrowsingEnableResp(rsp)
+}
+
+// SafebrowsingStatusWithResponse request returning *SafebrowsingStatusResp
+func (c *ClientWithResponses) SafebrowsingStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingStatusResp, error) {
+	rsp, err := c.SafebrowsingStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafebrowsingStatusResp(rsp)
+}
+
+// SafesearchDisableWithResponse request returning *SafesearchDisableResp
+func (c *ClientWithResponses) SafesearchDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchDisableResp, error) {
+	rsp, err := c.SafesearchDisable(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafesearchDisableResp(rsp)
+}
+
+// SafesearchEnableWithResponse request returning *SafesearchEnableResp
+func (c *ClientWithResponses) SafesearchEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchEnableResp, error) {
+	rsp, err := c.SafesearchEnable(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafesearchEnableResp(rsp)
+}
+
+// SafesearchSettingsWithBodyWithResponse request with arbitrary body returning *SafesearchSettingsResp
+func (c *ClientWithResponses) SafesearchSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SafesearchSettingsResp, error) {
+	rsp, err := c.SafesearchSettingsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafesearchSettingsResp(rsp)
+}
+
+func (c *ClientWithResponses) SafesearchSettingsWithResponse(ctx context.Context, body SafesearchSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*SafesearchSettingsResp, error) {
+	rsp, err := c.SafesearchSettings(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafesearchSettingsResp(rsp)
+}
+
+// SafesearchStatusWithResponse request returning *SafesearchStatusResp
+func (c *ClientWithResponses) SafesearchStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchStatusResp, error) {
+	rsp, err := c.SafesearchStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSafesearchStatusResp(rsp)
+}
+
+// StatsWithResponse request returning *StatsResp
+func (c *ClientWithResponses) StatsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsResp, error) {
+	rsp, err := c.Stats(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStatsResp(rsp)
+}
+
+// GetStatsConfigWithResponse request returning *GetStatsConfigResp
+func (c *ClientWithResponses) GetStatsConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStatsConfigResp, error) {
+	rsp, err := c.GetStatsConfig(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetStatsConfigResp(rsp)
+}
+
+// PutStatsConfigWithBodyWithResponse request with arbitrary body returning *PutStatsConfigResp
+func (c *ClientWithResponses) PutStatsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutStatsConfigResp, error) {
+	rsp, err := c.PutStatsConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutStatsConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) PutStatsConfigWithResponse(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutStatsConfigResp, error) {
+	rsp, err := c.PutStatsConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutStatsConfigResp(rsp)
+}
+
+// StatsConfigWithBodyWithResponse request with arbitrary body returning *StatsConfigResp
+func (c *ClientWithResponses) StatsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StatsConfigResp, error) {
+	rsp, err := c.StatsConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStatsConfigResp(rsp)
+}
+
+func (c *ClientWithResponses) StatsConfigWithResponse(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*StatsConfigResp, error) {
+	rsp, err := c.StatsConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStatsConfigResp(rsp)
+}
+
+// StatsInfoWithResponse request returning *StatsInfoResp
+func (c *ClientWithResponses) StatsInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsInfoResp, error) {
+	rsp, err := c.StatsInfo(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStatsInfoResp(rsp)
+}
+
+// StatsResetWithResponse request returning *StatsResetResp
+func (c *ClientWithResponses) StatsResetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsResetResp, error) {
+	rsp, err := c.StatsReset(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStatsResetResp(rsp)
+}
+
+// StatusWithResponse request returning *StatusResp
+func (c *ClientWithResponses) StatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatusResp, error) {
+	rsp, err := c.Status(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStatusResp(rsp)
+}
+
+// TestUpstreamDNSWithBodyWithResponse request with arbitrary body returning *TestUpstreamDNSResp
+func (c *ClientWithResponses) TestUpstreamDNSWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TestUpstreamDNSResp, error) {
+	rsp, err := c.TestUpstreamDNSWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTestUpstreamDNSResp(rsp)
+}
+
+func (c *ClientWithResponses) TestUpstreamDNSWithResponse(ctx context.Context, body TestUpstreamDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*TestUpstreamDNSResp, error) {
+	rsp, err := c.TestUpstreamDNS(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTestUpstreamDNSResp(rsp)
+}
+
+// TlsConfigureWithBodyWithResponse request with arbitrary body returning *TlsConfigureResp
+func (c *ClientWithResponses) TlsConfigureWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TlsConfigureResp, error) {
+	rsp, err := c.TlsConfigureWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTlsConfigureResp(rsp)
+}
+
+func (c *ClientWithResponses) TlsConfigureWithResponse(ctx context.Context, body TlsConfigureJSONRequestBody, reqEditors ...RequestEditorFn) (*TlsConfigureResp, error) {
+	rsp, err := c.TlsConfigure(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTlsConfigureResp(rsp)
+}
+
+// TlsStatusWithResponse request returning *TlsStatusResp
+func (c *ClientWithResponses) TlsStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*TlsStatusResp, error) {
+	rsp, err := c.TlsStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTlsStatusResp(rsp)
+}
+
+// TlsValidateWithBodyWithResponse request with arbitrary body returning *TlsValidateResp
+func (c *ClientWithResponses) TlsValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TlsValidateResp, error) {
+	rsp, err := c.TlsValidateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTlsValidateResp(rsp)
+}
+
+func (c *ClientWithResponses) TlsValidateWithResponse(ctx context.Context, body TlsValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*TlsValidateResp, error) {
+	rsp, err := c.TlsValidate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseTlsValidateResp(rsp)
+}
+
+// BeginUpdateWithResponse request returning *BeginUpdateResp
+func (c *ClientWithResponses) BeginUpdateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BeginUpdateResp, error) {
+	rsp, err := c.BeginUpdate(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBeginUpdateResp(rsp)
+}
+
+// GetVersionJsonWithBodyWithResponse request with arbitrary body returning *GetVersionJsonResp
+func (c *ClientWithResponses) GetVersionJsonWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetVersionJsonResp, error) {
+	rsp, err := c.GetVersionJsonWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVersionJsonResp(rsp)
+}
+
+func (c *ClientWithResponses) GetVersionJsonWithResponse(ctx context.Context, body GetVersionJsonJSONRequestBody, reqEditors ...RequestEditorFn) (*GetVersionJsonResp, error) {
+	rsp, err := c.GetVersionJson(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVersionJsonResp(rsp)
+}
+
+// ParseAccessListResp parses an HTTP response from a AccessListWithResponse call
+func ParseAccessListResp(rsp *http.Response) (*AccessListResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AccessListResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AccessListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAccessSetResp parses an HTTP response from a AccessSetWithResponse call
+func ParseAccessSetResp(rsp *http.Response) (*AccessSetResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AccessSetResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseMobileConfigDoHResp parses an HTTP response from a MobileConfigDoHWithResponse call
+func ParseMobileConfigDoHResp(rsp *http.Response) (*MobileConfigDoHResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MobileConfigDoHResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMobileConfigDoTResp parses an HTTP response from a MobileConfigDoTWithResponse call
+func ParseMobileConfigDoTResp(rsp *http.Response) (*MobileConfigDoTResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MobileConfigDoTResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBlockedServicesAllResp parses an HTTP response from a BlockedServicesAllWithResponse call
+func ParseBlockedServicesAllResp(rsp *http.Response) (*BlockedServicesAllResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BlockedServicesAllResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BlockedServicesAll
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBlockedServicesListResp parses an HTTP response from a BlockedServicesListWithResponse call
+func ParseBlockedServicesListResp(rsp *http.Response) (*BlockedServicesListResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BlockedServicesListResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BlockedServicesArray
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBlockedServicesAvailableServicesResp parses an HTTP response from a BlockedServicesAvailableServicesWithResponse call
+func ParseBlockedServicesAvailableServicesResp(rsp *http.Response) (*BlockedServicesAvailableServicesResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BlockedServicesAvailableServicesResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BlockedServicesArray
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBlockedServicesSetResp parses an HTTP response from a BlockedServicesSetWithResponse call
+func ParseBlockedServicesSetResp(rsp *http.Response) (*BlockedServicesSetResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BlockedServicesSetResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseCacheClearResp parses an HTTP response from a CacheClearWithResponse call
+func ParseCacheClearResp(rsp *http.Response) (*CacheClearResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CacheClearResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseClientsStatusResp parses an HTTP response from a ClientsStatusWithResponse call
+func ParseClientsStatusResp(rsp *http.Response) (*ClientsStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClientsStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Clients
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseClientsAddResp parses an HTTP response from a ClientsAddWithResponse call
+func ParseClientsAddResp(rsp *http.Response) (*ClientsAddResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClientsAddResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseClientsDeleteResp parses an HTTP response from a ClientsDeleteWithResponse call
+func ParseClientsDeleteResp(rsp *http.Response) (*ClientsDeleteResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClientsDeleteResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseClientsFindResp parses an HTTP response from a ClientsFindWithResponse call
+func ParseClientsFindResp(rsp *http.Response) (*ClientsFindResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClientsFindResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ClientsFindResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseClientsUpdateResp parses an HTTP response from a ClientsUpdateWithResponse call
+func ParseClientsUpdateResp(rsp *http.Response) (*ClientsUpdateResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClientsUpdateResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDhcpAddStaticLeaseResp parses an HTTP response from a DhcpAddStaticLeaseWithResponse call
+func ParseDhcpAddStaticLeaseResp(rsp *http.Response) (*DhcpAddStaticLeaseResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpAddStaticLeaseResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCheckActiveDhcpResp parses an HTTP response from a CheckActiveDhcpWithResponse call
+func ParseCheckActiveDhcpResp(rsp *http.Response) (*CheckActiveDhcpResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CheckActiveDhcpResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DhcpSearchResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDhcpInterfacesResp parses an HTTP response from a DhcpInterfacesWithResponse call
+func ParseDhcpInterfacesResp(rsp *http.Response) (*DhcpInterfacesResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpInterfacesResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NetInterfaces
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDhcpRemoveStaticLeaseResp parses an HTTP response from a DhcpRemoveStaticLeaseWithResponse call
+func ParseDhcpRemoveStaticLeaseResp(rsp *http.Response) (*DhcpRemoveStaticLeaseResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpRemoveStaticLeaseResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDhcpResetResp parses an HTTP response from a DhcpResetWithResponse call
+func ParseDhcpResetResp(rsp *http.Response) (*DhcpResetResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpResetResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDhcpResetLeasesResp parses an HTTP response from a DhcpResetLeasesWithResponse call
+func ParseDhcpResetLeasesResp(rsp *http.Response) (*DhcpResetLeasesResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpResetLeasesResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDhcpSetConfigResp parses an HTTP response from a DhcpSetConfigWithResponse call
+func ParseDhcpSetConfigResp(rsp *http.Response) (*DhcpSetConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpSetConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDhcpStatusResp parses an HTTP response from a DhcpStatusWithResponse call
+func ParseDhcpStatusResp(rsp *http.Response) (*DhcpStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DhcpStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DhcpStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDnsConfigResp parses an HTTP response from a DnsConfigWithResponse call
+func ParseDnsConfigResp(rsp *http.Response) (*DnsConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DnsConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDnsInfoResp parses an HTTP response from a DnsInfoWithResponse call
+func ParseDnsInfoResp(rsp *http.Response) (*DnsInfoResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DnsInfoResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DNSConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFilteringAddURLResp parses an HTTP response from a FilteringAddURLWithResponse call
+func ParseFilteringAddURLResp(rsp *http.Response) (*FilteringAddURLResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringAddURLResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseFilteringCheckHostResp parses an HTTP response from a FilteringCheckHostWithResponse call
+func ParseFilteringCheckHostResp(rsp *http.Response) (*FilteringCheckHostResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringCheckHostResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FilterCheckHostResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFilteringConfigResp parses an HTTP response from a FilteringConfigWithResponse call
+func ParseFilteringConfigResp(rsp *http.Response) (*FilteringConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseFilteringRefreshResp parses an HTTP response from a FilteringRefreshWithResponse call
+func ParseFilteringRefreshResp(rsp *http.Response) (*FilteringRefreshResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringRefreshResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FilterRefreshResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFilteringRemoveURLResp parses an HTTP response from a FilteringRemoveURLWithResponse call
+func ParseFilteringRemoveURLResp(rsp *http.Response) (*FilteringRemoveURLResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringRemoveURLResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseFilteringSetRulesResp parses an HTTP response from a FilteringSetRulesWithResponse call
+func ParseFilteringSetRulesResp(rsp *http.Response) (*FilteringSetRulesResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringSetRulesResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseFilteringSetURLResp parses an HTTP response from a FilteringSetURLWithResponse call
+func ParseFilteringSetURLResp(rsp *http.Response) (*FilteringSetURLResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringSetURLResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseFilteringStatusResp parses an HTTP response from a FilteringStatusWithResponse call
+func ParseFilteringStatusResp(rsp *http.Response) (*FilteringStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilteringStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest FilterStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseChangeLanguageResp parses an HTTP response from a ChangeLanguageWithResponse call
+func ParseChangeLanguageResp(rsp *http.Response) (*ChangeLanguageResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ChangeLanguageResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseCurrentLanguageResp parses an HTTP response from a CurrentLanguageWithResponse call
+func ParseCurrentLanguageResp(rsp *http.Response) (*CurrentLanguageResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CurrentLanguageResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LanguageSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseInstallCheckConfigResp parses an HTTP response from a InstallCheckConfigWithResponse call
+func ParseInstallCheckConfigResp(rsp *http.Response) (*InstallCheckConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &InstallCheckConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CheckConfigResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseInstallConfigureResp parses an HTTP response from a InstallConfigureWithResponse call
+func ParseInstallConfigureResp(rsp *http.Response) (*InstallConfigureResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &InstallConfigureResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseInstallGetAddressesResp parses an HTTP response from a InstallGetAddressesWithResponse call
+func ParseInstallGetAddressesResp(rsp *http.Response) (*InstallGetAddressesResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &InstallGetAddressesResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AddressesInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseLoginResp parses an HTTP response from a LoginWithResponse call
+func ParseLoginResp(rsp *http.Response) (*LoginResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LoginResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseLogoutResp parses an HTTP response from a LogoutWithResponse call
+func ParseLogoutResp(rsp *http.Response) (*LogoutResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LogoutResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseParentalDisableResp parses an HTTP response from a ParentalDisableWithResponse call
+func ParseParentalDisableResp(rsp *http.Response) (*ParentalDisableResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ParentalDisableResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseParentalEnableResp parses an HTTP response from a ParentalEnableWithResponse call
+func ParseParentalEnableResp(rsp *http.Response) (*ParentalEnableResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ParentalEnableResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseParentalStatusResp parses an HTTP response from a ParentalStatusWithResponse call
+func ParseParentalStatusResp(rsp *http.Response) (*ParentalStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ParentalStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Enable      *bool `json:"enable,omitempty"`
+			Sensitivity *int  `json:"sensitivity,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProfileResp parses an HTTP response from a GetProfileWithResponse call
+func ParseGetProfileResp(rsp *http.Response) (*GetProfileResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProfileResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProfileInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateProfileResp parses an HTTP response from a UpdateProfileWithResponse call
+func ParseUpdateProfileResp(rsp *http.Response) (*UpdateProfileResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateProfileResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSetProtectionResp parses an HTTP response from a SetProtectionWithResponse call
+func ParseSetProtectionResp(rsp *http.Response) (*SetProtectionResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetProtectionResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseQueryLogResp parses an HTTP response from a QueryLogWithResponse call
+func ParseQueryLogResp(rsp *http.Response) (*QueryLogResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &QueryLogResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest QueryLog
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetQueryLogConfigResp parses an HTTP response from a GetQueryLogConfigWithResponse call
+func ParseGetQueryLogConfigResp(rsp *http.Response) (*GetQueryLogConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetQueryLogConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GetQueryLogConfigResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutQueryLogConfigResp parses an HTTP response from a PutQueryLogConfigWithResponse call
+func ParsePutQueryLogConfigResp(rsp *http.Response) (*PutQueryLogConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutQueryLogConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseQuerylogClearResp parses an HTTP response from a QuerylogClearWithResponse call
+func ParseQuerylogClearResp(rsp *http.Response) (*QuerylogClearResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &QuerylogClearResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseQueryLogConfigResp parses an HTTP response from a QueryLogConfigWithResponse call
+func ParseQueryLogConfigResp(rsp *http.Response) (*QueryLogConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &QueryLogConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseQueryLogInfoResp parses an HTTP response from a QueryLogInfoWithResponse call
+func ParseQueryLogInfoResp(rsp *http.Response) (*QueryLogInfoResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &QueryLogInfoResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest QueryLogConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRewriteAddResp parses an HTTP response from a RewriteAddWithResponse call
+func ParseRewriteAddResp(rsp *http.Response) (*RewriteAddResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RewriteAddResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRewriteDeleteResp parses an HTTP response from a RewriteDeleteWithResponse call
+func ParseRewriteDeleteResp(rsp *http.Response) (*RewriteDeleteResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RewriteDeleteResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseRewriteListResp parses an HTTP response from a RewriteListWithResponse call
+func ParseRewriteListResp(rsp *http.Response) (*RewriteListResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RewriteListResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RewriteList
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRewriteUpdateResp parses an HTTP response from a RewriteUpdateWithResponse call
+func ParseRewriteUpdateResp(rsp *http.Response) (*RewriteUpdateResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RewriteUpdateResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSafebrowsingDisableResp parses an HTTP response from a SafebrowsingDisableWithResponse call
+func ParseSafebrowsingDisableResp(rsp *http.Response) (*SafebrowsingDisableResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafebrowsingDisableResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSafebrowsingEnableResp parses an HTTP response from a SafebrowsingEnableWithResponse call
+func ParseSafebrowsingEnableResp(rsp *http.Response) (*SafebrowsingEnableResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafebrowsingEnableResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSafebrowsingStatusResp parses an HTTP response from a SafebrowsingStatusWithResponse call
+func ParseSafebrowsingStatusResp(rsp *http.Response) (*SafebrowsingStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafebrowsingStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Enabled *bool `json:"enabled,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSafesearchDisableResp parses an HTTP response from a SafesearchDisableWithResponse call
+func ParseSafesearchDisableResp(rsp *http.Response) (*SafesearchDisableResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafesearchDisableResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSafesearchEnableResp parses an HTTP response from a SafesearchEnableWithResponse call
+func ParseSafesearchEnableResp(rsp *http.Response) (*SafesearchEnableResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafesearchEnableResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSafesearchSettingsResp parses an HTTP response from a SafesearchSettingsWithResponse call
+func ParseSafesearchSettingsResp(rsp *http.Response) (*SafesearchSettingsResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafesearchSettingsResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSafesearchStatusResp parses an HTTP response from a SafesearchStatusWithResponse call
+func ParseSafesearchStatusResp(rsp *http.Response) (*SafesearchStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SafesearchStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SafeSearchConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStatsResp parses an HTTP response from a StatsWithResponse call
+func ParseStatsResp(rsp *http.Response) (*StatsResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StatsResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Stats
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetStatsConfigResp parses an HTTP response from a GetStatsConfigWithResponse call
+func ParseGetStatsConfigResp(rsp *http.Response) (*GetStatsConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetStatsConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GetStatsConfigResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutStatsConfigResp parses an HTTP response from a PutStatsConfigWithResponse call
+func ParsePutStatsConfigResp(rsp *http.Response) (*PutStatsConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutStatsConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseStatsConfigResp parses an HTTP response from a StatsConfigWithResponse call
+func ParseStatsConfigResp(rsp *http.Response) (*StatsConfigResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StatsConfigResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseStatsInfoResp parses an HTTP response from a StatsInfoWithResponse call
+func ParseStatsInfoResp(rsp *http.Response) (*StatsInfoResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StatsInfoResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest StatsConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStatsResetResp parses an HTTP response from a StatsResetWithResponse call
+func ParseStatsResetResp(rsp *http.Response) (*StatsResetResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StatsResetResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseStatusResp parses an HTTP response from a StatusWithResponse call
+func ParseStatusResp(rsp *http.Response) (*StatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ServerStatus
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTestUpstreamDNSResp parses an HTTP response from a TestUpstreamDNSWithResponse call
+func ParseTestUpstreamDNSResp(rsp *http.Response) (*TestUpstreamDNSResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TestUpstreamDNSResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UpstreamsConfigResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTlsConfigureResp parses an HTTP response from a TlsConfigureWithResponse call
+func ParseTlsConfigureResp(rsp *http.Response) (*TlsConfigureResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TlsConfigureResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TlsConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTlsStatusResp parses an HTTP response from a TlsStatusWithResponse call
+func ParseTlsStatusResp(rsp *http.Response) (*TlsStatusResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TlsStatusResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TlsConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseTlsValidateResp parses an HTTP response from a TlsValidateWithResponse call
+func ParseTlsValidateResp(rsp *http.Response) (*TlsValidateResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &TlsValidateResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TlsConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBeginUpdateResp parses an HTTP response from a BeginUpdateWithResponse call
+func ParseBeginUpdateResp(rsp *http.Response) (*BeginUpdateResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BeginUpdateResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetVersionJsonResp parses an HTTP response from a GetVersionJsonWithResponse call
+func ParseGetVersionJsonResp(rsp *http.Response) (*GetVersionJsonResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVersionJsonResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VersionInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
 }

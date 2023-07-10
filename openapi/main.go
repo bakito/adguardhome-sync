@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v3"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func main() {
@@ -34,14 +35,22 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if comp, ok := child(schema, "components"); ok {
-		if rb, ok := child(comp, "requestBodies"); ok {
-			for k, v := range rb {
-				v.(map[string]interface{})["x-go-name"] = k + "Body"
-			}
+	if requestBodies, ok, _ := unstructured.NestedMap(schema, "components", "requestBodies"); ok {
+		for k := range requestBodies {
+			_ = unstructured.SetNestedField(schema, k+"Body", "components", "requestBodies", k, "x-go-name")
 		}
 	}
 
+	if dnsInfo, ok, _ := unstructured.NestedMap(schema,
+		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); ok {
+		if allOf, ok, _ := unstructured.NestedSlice(dnsInfo, "allOf"); ok && len(allOf) == 2 {
+			delete(dnsInfo, "allOf")
+			if err := unstructured.SetNestedMap(schema, allOf[0].(map[string]interface{}),
+				"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); err != nil {
+				log.Fatalln(err)
+			}
+		}
+	}
 	b, err := yaml.Marshal(&schema)
 	if err != nil {
 		log.Fatalln(err)
@@ -51,11 +60,4 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func child(parent map[string]interface{}, key string) (map[string]interface{}, bool) {
-	if ch, ok := parent[key]; ok {
-		return ch.(map[string]interface{}), ok
-	}
-	return nil, false
 }
