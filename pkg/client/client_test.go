@@ -95,8 +95,8 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientGet("status.json", "/status")
 			fs, err := cl.Status()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(fs.DNSAddresses).Should(HaveLen(1))
-			Ω(fs.DNSAddresses[0]).Should(Equal("192.168.1.2"))
+			Ω(fs.DnsAddresses).Should(HaveLen(1))
+			Ω(fs.DnsAddresses[0]).Should(Equal("192.168.1.2"))
 			Ω(fs.Version).Should(Equal("v0.105.2"))
 		})
 		It("should return ErrSetupNeeded", func() {

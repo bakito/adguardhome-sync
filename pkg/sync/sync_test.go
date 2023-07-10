@@ -199,13 +199,13 @@ var _ = Describe("Sync", func() {
 		Context("syncGeneralSettings", func() {
 			var (
 				o  *origin
-				rs *types.Status
+				rs *model.ServerStatus
 			)
 			BeforeEach(func() {
 				o = &origin{
-					status: &types.Status{},
+					status: &model.ServerStatus{},
 				}
-				rs = &types.Status{}
+				rs = &model.ServerStatus{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Parental()
@@ -290,11 +290,11 @@ var _ = Describe("Sync", func() {
 		})
 		Context("statusWithSetup", func() {
 			var (
-				status *types.Status
+				status *model.ServerStatus
 				inst   types.AdGuardInstance
 			)
 			BeforeEach(func() {
-				status = &types.Status{}
+				status = &model.ServerStatus{}
 				inst = types.AdGuardInstance{
 					AutoSetup: true,
 				}
@@ -502,7 +502,7 @@ var _ = Describe("Sync", func() {
 			It("should have no changes", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -518,7 +518,7 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -551,7 +551,7 @@ var _ = Describe("Sync", func() {
 				w.cfg.Features.DHCP.StaticLeases = false
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -566,7 +566,7 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -594,13 +594,13 @@ var _ = Describe("Sync", func() {
 			It("origin version is too small", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
 				w.sync()
 			})
 			It("replica version is too small", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -616,13 +616,13 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
 				w.sync()
 			})
 			It("replica version is with incompatible API", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearch()
 				cl.EXPECT().SafeBrowsing()
@@ -638,7 +638,7 @@ var _ = Describe("Sync", func() {
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.IncompatibleAPI}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.IncompatibleAPI}, nil)
 				w.sync()
 			})
 		})

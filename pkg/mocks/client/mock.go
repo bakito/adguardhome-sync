@@ -502,10 +502,10 @@ func (mr *MockClientMockRecorder) StatsConfig() *gomock.Call {
 }
 
 // Status mocks base method.
-func (m *MockClient) Status() (*types.Status, error) {
+func (m *MockClient) Status() (*model.ServerStatus, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Status")
-	ret0, _ := ret[0].(*types.Status)
+	ret0, _ := ret[0].(*model.ServerStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

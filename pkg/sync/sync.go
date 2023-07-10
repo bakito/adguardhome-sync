@@ -277,7 +277,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl.Info("Sync done")
 }
 
-func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*types.Status, error) {
+func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*model.ServerStatus, error) {
 	rs, err := rc.Status()
 	if err != nil {
 		if replica.AutoSetup && errors.Is(err, client.ErrSetupNeeded) {
@@ -402,7 +402,7 @@ func (w *worker) syncClients(oc *model.Clients, replica client.Client) error {
 	return nil
 }
 
-func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client.Client) error {
+func (w *worker) syncGeneralSettings(o *origin, rs *model.ServerStatus, replica client.Client) error {
 	if w.cfg.Features.GeneralSettings {
 		if o.status.ProtectionEnabled != rs.ProtectionEnabled {
 			if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
@@ -527,7 +527,7 @@ func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica
 }
 
 type origin struct {
-	status           *types.Status
+	status           *model.ServerStatus
 	rewrites         *model.RewriteEntries
 	services         types.Services
 	filters          *model.FilterStatus

@@ -109,18 +109,6 @@ type Protection struct {
 	ProtectionEnabled bool `json:"protection_enabled"`
 }
 
-// Status API struct
-type Status struct {
-	Protection
-	DNSAddresses  []string `json:"dns_addresses"`
-	DNSPort       int      `json:"dns_port"`
-	HTTPPort      int      `json:"http_port"`
-	DhcpAvailable bool     `json:"dhcp_available"`
-	Running       bool     `json:"running"`
-	Version       string   `json:"version"`
-	Language      string   `json:"language"`
-}
-
 // FilterUpdate  API struct
 type FilterUpdate struct {
 	URL       string       `json:"url"`
