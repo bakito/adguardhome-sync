@@ -81,6 +81,7 @@ type AdGuardInstance struct {
 	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
+	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
 	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
 	InterfaceName      string `json:"interfaceName" yaml:"interfaceName"`

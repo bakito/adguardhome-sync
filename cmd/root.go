@@ -40,18 +40,21 @@ const (
 	configOriginAPIPath            = "origin.apiPath"
 	configOriginUsername           = "origin.username"
 	configOriginPassword           = "origin.password"
+	configOriginCookie             = "origin.cookie"
 	configOriginInsecureSkipVerify = "origin.insecureSkipVerify"
 
 	configReplicaURL                = "replica.url"
 	configReplicaAPIPath            = "replica.apiPath"
 	configReplicaUsername           = "replica.username"
 	configReplicaPassword           = "replica.password"
+	configReplicaCookie             = "replica.cookie"
 	configReplicaInsecureSkipVerify = "replica.insecureSkipVerify"
 	configReplicaAutoSetup          = "replica.autoSetup"
 	configReplicaInterfaceName      = "replica.interfaceName"
 
 	envReplicasUsernameFormat           = "REPLICA%s_USERNAME" // #nosec G101
 	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD" // #nosec G101
+	envReplicasCookieFormat             = "REPLICA%s_COOKIE"   // #nosec G101
 	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
 	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
 	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
@@ -148,11 +151,13 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 				URL:                sm[2],
 				Username:           os.Getenv(fmt.Sprintf(envReplicasUsernameFormat, sm[1])),
 				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
+				Cookie:             os.Getenv(fmt.Sprintf(envReplicasCookieFormat, sm[1])),
 				APIPath:            os.Getenv(fmt.Sprintf(envReplicasAPIPathFormat, sm[1])),
 				InsecureSkipVerify: strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasInsecureSkipVerifyFormat, sm[1])), "true"),
 				AutoSetup:          strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasAutoSetup, sm[1])), "true"),
 				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
 			}
+
 			if re.InterfaceName == "" {
 				if in, ok := os.LookupEnv(fmt.Sprintf(envReplicasInterfaceNameDeprecated, sm[1])); ok {
 					logger.
