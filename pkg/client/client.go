@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
@@ -58,7 +59,13 @@ func New(config types.AdGuardInstance) (Client, error) {
 		cl.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
-	if config.Username != "" && config.Password != "" {
+	cookieParts := strings.Split(config.Cookie, "=")
+	if len(cookieParts) == 2 {
+		cl.SetCookie(&http.Cookie{
+			Name:  cookieParts[0],
+			Value: cookieParts[1],
+		})
+	} else if config.Username != "" && config.Password != "" {
 		cl = cl.SetBasicAuth(config.Username, config.Password)
 	}
 

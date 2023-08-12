@@ -72,6 +72,8 @@ func init() {
 	_ = viper.BindPFlag(configOriginUsername, doCmd.PersistentFlags().Lookup("origin-username"))
 	doCmd.PersistentFlags().String("origin-password", "", "Origin instance password")
 	_ = viper.BindPFlag(configOriginPassword, doCmd.PersistentFlags().Lookup("origin-password"))
+	doCmd.PersistentFlags().String("origin-cookie", "", "If Set, uses a cookie for authentication")
+	_ = viper.BindPFlag(configOriginCookie, doCmd.PersistentFlags().Lookup("origin-cookie"))
 	doCmd.PersistentFlags().Bool("origin-insecure-skip-verify", false, "Enable Origin instance InsecureSkipVerify")
 	_ = viper.BindPFlag(configOriginInsecureSkipVerify, doCmd.PersistentFlags().Lookup("origin-insecure-skip-verify"))
 
@@ -83,6 +85,8 @@ func init() {
 	_ = viper.BindPFlag(configReplicaUsername, doCmd.PersistentFlags().Lookup("replica-username"))
 	doCmd.PersistentFlags().String("replica-password", "", "Replica instance password")
 	_ = viper.BindPFlag(configReplicaPassword, doCmd.PersistentFlags().Lookup("replica-password"))
+	doCmd.PersistentFlags().String("replica-cookie", "", "If Set, uses a cookie for authentication")
+	_ = viper.BindPFlag(configReplicaCookie, doCmd.PersistentFlags().Lookup("replica-cookie"))
 	doCmd.PersistentFlags().Bool("replica-insecure-skip-verify", false, "Enable Replica instance InsecureSkipVerify")
 	_ = viper.BindPFlag(configReplicaInsecureSkipVerify, doCmd.PersistentFlags().Lookup("replica-insecure-skip-verify"))
 	doCmd.PersistentFlags().Bool("replica-auto-setup", false, "Enable automatic setup of new AdguardHome instances. This replaces the setup wizard.")
