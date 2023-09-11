@@ -38,7 +38,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Modify Dockerfile
         run: |
           sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
