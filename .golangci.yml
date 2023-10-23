@@ -23,7 +23,6 @@ linters:
   - misspell
   - nakedret
   - nolintlint
-  - revive
   - staticcheck
   - unconvert
   - unparam
