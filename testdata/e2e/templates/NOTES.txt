@@ -1,0 +1,4 @@
+Installed adguardhome-sync end-2-end test with {{ len .Values.replica.versions }} replica instances.
+{{- range $_, $version := .Values.replica.versions }}
+  - {{ $version }}
+{{- end }}

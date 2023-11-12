@@ -1,3 +1,4 @@
 replica:
   versions:
+    - v0.107.40
     - latest
