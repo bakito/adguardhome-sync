@@ -313,32 +313,25 @@ func (f *Filter) Equals(o *Filter) bool {
 
 // Equals QueryLogConfig equal check
 func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
-	return equalsBool(qlc.Enabled, o.Enabled) &&
-		equalsBool(qlc.AnonymizeClientIp, o.AnonymizeClientIp) &&
+	return ptrEquals(qlc.Enabled, o.Enabled) &&
+		ptrEquals(qlc.AnonymizeClientIp, o.AnonymizeClientIp) &&
 		qlc.Interval.Equals(o.Interval)
 }
 
 // Equals QueryLogConfigInterval equal check
 func (qlc *QueryLogConfigInterval) Equals(o *QueryLogConfigInterval) bool {
-	if qlc == nil && o == nil {
-		return true
-	}
-	if qlc == nil || o == nil {
-		return false
-	}
-
-	return *qlc == *o
+	return ptrEquals(qlc, o)
 }
 
-func equalsBool(a *bool, b *bool) bool {
+func ptrEquals[T comparable](a *T, b *T) bool {
 	if a == nil && b == nil {
 		return true
 	}
-	var aa bool
+	var aa T
 	if a != nil {
 		aa = *a
 	}
-	var bb bool
+	var bb T
 	if b != nil {
 		bb = *b
 	}
