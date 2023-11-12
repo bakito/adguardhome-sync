@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/utils/ptr"
 )
 
 var (
@@ -175,12 +174,12 @@ var _ = Describe("Client", func() {
 		})
 		It("should enable safesearch", func() {
 			ts, cl = ClientPut("/safesearch/settings", `{"enabled":true}`)
-			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: ptr.To(true)})
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: utils.Ptr(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should disable safesearch", func() {
 			ts, cl = ClientPut("/safesearch/settings", `{"enabled":false}`)
-			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: ptr.To(false)})
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: utils.Ptr(false)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -242,11 +241,11 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/blocked_services/update",
 				`{"ids":["bar","foo"],"schedule":{"mon":{"end":99,"start":1}}}`)
 			err := cl.SetBlockedServicesSchedule(&model.BlockedServicesSchedule{
-				Ids: ptr.To([]string{"foo", "bar"}),
+				Ids: utils.Ptr([]string{"foo", "bar"}),
 				Schedule: &model.Schedule{
 					Mon: &model.DayRange{
-						Start: ptr.To(float32(1.0)),
-						End:   ptr.To(float32(99.0)),
+						Start: utils.Ptr(float32(1.0)),
+						End:   utils.Ptr(float32(99.0)),
 					},
 				},
 			})
@@ -298,7 +297,7 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/querylog_config", `{"anonymize_client_ip":true,"enabled":true,"interval":123}`)
 
 			var interval model.QueryLogConfigInterval = 123
-			err := cl.SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: ptr.To(true), Interval: &interval, Enabled: ptr.To(true)})
+			err := cl.SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: utils.Ptr(true), Interval: &interval, Enabled: utils.Ptr(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})

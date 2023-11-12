@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/utils/ptr"
 )
 
 var _ = Describe("Types", func() {
@@ -124,18 +123,18 @@ var _ = Describe("Types", func() {
 				b = &model.QueryLogConfig{}
 			})
 			It("should be equal", func() {
-				a.Enabled = ptr.To(true)
+				a.Enabled = utils.Ptr(true)
 				var interval model.QueryLogConfigInterval = 1
 				a.Interval = &interval
-				a.AnonymizeClientIp = ptr.To(true)
-				b.Enabled = ptr.To(true)
+				a.AnonymizeClientIp = utils.Ptr(true)
+				b.Enabled = utils.Ptr(true)
 				b.Interval = &interval
-				b.AnonymizeClientIp = ptr.To(true)
+				b.AnonymizeClientIp = utils.Ptr(true)
 				Ω(a.Equals(b)).Should(BeTrue())
 			})
 			It("should not be equal when enabled differs", func() {
-				a.Enabled = ptr.To(true)
-				b.Enabled = ptr.To(false)
+				a.Enabled = utils.Ptr(true)
+				b.Enabled = utils.Ptr(false)
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 			It("should not be equal when interval differs", func() {
@@ -146,8 +145,8 @@ var _ = Describe("Types", func() {
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 			It("should not be equal when anonymizeClientIP differs", func() {
-				a.AnonymizeClientIp = ptr.To(true)
-				b.AnonymizeClientIp = ptr.To(false)
+				a.AnonymizeClientIp = utils.Ptr(true)
+				b.AnonymizeClientIp = utils.Ptr(false)
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 		})

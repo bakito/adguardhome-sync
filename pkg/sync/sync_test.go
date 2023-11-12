@@ -13,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/utils/ptr"
 )
 
 var boolTrue = true
@@ -242,7 +241,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have safeSearch enabled changes", func() {
-				o.safeSearch = &model.SafeSearchConfig{Enabled: ptr.To(true)}
+				o.safeSearch = &model.SafeSearchConfig{Enabled: utils.Ptr(true)}
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
@@ -252,10 +251,10 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have Duckduckgo safeSearch enabled changed", func() {
-				o.safeSearch = &model.SafeSearchConfig{Duckduckgo: ptr.To(true)}
+				o.safeSearch = &model.SafeSearchConfig{Duckduckgo: utils.Ptr(true)}
 				cl.EXPECT().Parental()
 				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: ptr.To(true)}, nil)
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: utils.Ptr(true)}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
 

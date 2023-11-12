@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -19,9 +18,7 @@ func (c *DhcpStatus) Clone() *DhcpStatus {
 
 // Equals dhcp server config equal check
 func (c *DhcpStatus) Equals(o *DhcpStatus) bool {
-	a, _ := json.Marshal(c)
-	b, _ := json.Marshal(o)
-	return string(a) == string(b)
+	return utils.JsonEquals(c, o)
 }
 
 func (c *DhcpStatus) HasConfig() bool {
@@ -79,9 +76,7 @@ func (c *DNSConfig) Equals(o *DNSConfig) bool {
 	cc.Sort()
 	oo.Sort()
 
-	a, _ := json.Marshal(cc)
-	b, _ := json.Marshal(oo)
-	return string(a) == string(b)
+	return utils.JsonEquals(cc, oo)
 }
 
 func (c *DNSConfig) Clone() *DNSConfig {
@@ -157,9 +152,7 @@ func (cl *Client) Equals(o *Client) bool {
 	cl.Sort()
 	o.Sort()
 
-	a, _ := json.Marshal(cl)
-	b, _ := json.Marshal(o)
-	return string(a) == string(b)
+	return utils.JsonEquals(cl, o)
 }
 
 // Add ac client
@@ -362,9 +355,7 @@ func (pi *ProfileInfo) Equals(o *ProfileInfo) bool {
 }
 
 func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
-	a, _ := json.Marshal(bss)
-	b, _ := json.Marshal(o)
-	return string(a) == string(b)
+	return utils.JsonEquals(bss, o)
 }
 
 func (bss *BlockedServicesSchedule) ServicesString() string {

@@ -17,7 +17,6 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
-	"k8s.io/utils/ptr"
 )
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
@@ -271,7 +270,7 @@ func (cl *client) UpdateFilters(whitelist bool, filters ...model.Filter) error {
 
 func (cl *client) RefreshFilters(whitelist bool) error {
 	cl.log.With("whitelist", whitelist).Info("Refresh filter")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: ptr.To(whitelist)}), "/filtering/refresh")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: utils.Ptr(whitelist)}), "/filtering/refresh")
 }
 
 func (cl *client) ToggleProtection(enable bool) error {
