@@ -225,8 +225,31 @@ var _ = Describe("Client", func() {
 			Ω(*s).Should(HaveLen(2))
 		})
 		It("should set BlockedServices", func() {
-			ts, cl = ClientPost("/blocked_services/set", `["foo","bar"]`)
+			ts, cl = ClientPost("/blocked_services/set", `["bar","foo"]`)
 			err := cl.SetBlockedServices(&model.BlockedServicesArray{"foo", "bar"})
+			Ω(err).ShouldNot(HaveOccurred())
+		})
+	})
+
+	Context("BlockedServicesSchedule", func() {
+		It("should read BlockedServicesSchedule", func() {
+			ts, cl = ClientGet("blockedservicesschedule-get.json", "/blocked_services/get")
+			s, err := cl.BlockedServicesSchedule()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(*s.Ids).Should(HaveLen(3))
+		})
+		It("should set BlockedServicesSchedule", func() {
+			ts, cl = ClientPost("/blocked_services/update",
+				`{"ids":["bar","foo"],"schedule":{"mon":{"end":99,"start":1}}}`)
+			err := cl.SetBlockedServicesSchedule(&model.BlockedServicesSchedule{
+				Ids: ptr.To([]string{"foo", "bar"}),
+				Schedule: &model.Schedule{
+					Mon: &model.DayRange{
+						Start: ptr.To(float32(1.0)),
+						End:   ptr.To(float32(99.0)),
+					},
+				},
+			})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})

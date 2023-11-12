@@ -299,7 +299,7 @@ func (cl *client) BlockedServices() (*model.BlockedServicesArray, error) {
 }
 
 func (cl *client) SetBlockedServices(services *model.BlockedServicesArray) error {
-	cl.log.With("services", len(*services)).Info("Set blocked services")
+	cl.log.With("services", model.ArrayString(services)).Info("Set blocked services")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(services), "/blocked_services/set")
 }
 
@@ -310,7 +310,7 @@ func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, err
 }
 
 func (cl *client) SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error {
-	cl.log.Info("Set blocked services schedule")
+	cl.log.With("services", schedule.ServicesString()).Info("Set blocked services schedule")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(schedule), "/blocked_services/update")
 }
 

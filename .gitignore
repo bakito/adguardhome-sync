@@ -1,7 +1,7 @@
 .vscode
 .idea
 .run
-coverage.out
+coverage.out*
 dist
 adguardhome-sync
 main
@@ -10,4 +10,3 @@ tmp
 bin
 config.yaml
 *.log
-.oapi-codegen.yaml

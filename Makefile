@@ -16,7 +16,8 @@ test: generate lint test-ci
 
 # Run ci tests
 test-ci: mocks tidy
-	go test ./...  -coverprofile=coverage.out
+	go test ./...  -coverprofile=coverage.out.tmp
+	cat coverage.out.tmp | grep -v "_generated.go" > coverage.out
 	go tool cover -func=coverage.out
 
 mocks: mockgen
@@ -128,7 +129,7 @@ kind-test:
 model: oapi-codegen
 	@mkdir -p tmp
 	go run openapi/main.go v0.107.40
-	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model.go
+	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
 	go run openapi/main.go v0.107.40

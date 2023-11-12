@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
@@ -364,4 +365,17 @@ func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
 	a, _ := json.Marshal(bss)
 	b, _ := json.Marshal(o)
 	return string(a) == string(b)
+}
+
+func (bss *BlockedServicesSchedule) ServicesString() string {
+	return ArrayString(bss.Ids)
+}
+
+func ArrayString(a *[]string) string {
+	if a == nil {
+		return "[]"
+	}
+	sorted := *a
+	sort.Strings(sorted)
+	return fmt.Sprintf("[%s]", strings.Join(sorted, ","))
 }
