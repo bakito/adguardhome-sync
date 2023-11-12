@@ -310,3 +310,43 @@ func MergeFilters(this *[]Filter, other *[]Filter) ([]Filter, []Filter, []Filter
 func (f *Filter) Equals(o *Filter) bool {
 	return f.Enabled == o.Enabled && f.Url == o.Url && f.Name == o.Name
 }
+
+// Equals QueryLogConfig equal check
+func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
+	return equalsBool(qlc.Enabled, o.Enabled) &&
+		equalsBool(qlc.AnonymizeClientIp, o.AnonymizeClientIp) &&
+		qlc.Interval.Equals(o.Interval)
+}
+
+// Equals QueryLogConfigInterval equal check
+func (qlc *QueryLogConfigInterval) Equals(o *QueryLogConfigInterval) bool {
+	if qlc == nil && o == nil {
+		return true
+	}
+	if qlc == nil || o == nil {
+		return false
+	}
+
+	return *qlc == *o
+}
+
+func equalsBool(a *bool, b *bool) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	var aa bool
+	if a != nil {
+		aa = *a
+	}
+	var bb bool
+	if b != nil {
+		bb = *b
+	}
+
+	return aa == bb
+}
+
+// EnableConfig API struct
+type EnableConfig struct {
+	Enabled bool `json:"enabled"`
+}

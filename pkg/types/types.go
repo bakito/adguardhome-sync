@@ -107,28 +107,6 @@ type Protection struct {
 	ProtectionEnabled bool `json:"protection_enabled"`
 }
 
-// EnableConfig API struct
-type EnableConfig struct {
-	Enabled bool `json:"enabled"`
-}
-
-// IntervalConfig API struct
-type IntervalConfig struct {
-	Interval float64 `json:"interval"`
-}
-
-// QueryLogConfig API struct
-type QueryLogConfig struct {
-	EnableConfig
-	IntervalConfig
-	AnonymizeClientIP bool `json:"anonymize_client_ip"`
-}
-
-// Equals QueryLogConfig equal check
-func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
-	return qlc.Enabled == o.Enabled && qlc.AnonymizeClientIP == o.AnonymizeClientIP && qlc.Interval == o.Interval
-}
-
 // InstallConfig AdguardHome install config
 type InstallConfig struct {
 	Web      InstallPort `json:"web"`

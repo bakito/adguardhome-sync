@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 
 	model "github.com/bakito/adguardhome-sync/pkg/client/model"
-	types "github.com/bakito/adguardhome-sync/pkg/types"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -286,10 +285,10 @@ func (mr *MockClientMockRecorder) Parental() *gomock.Call {
 }
 
 // QueryLogConfig mocks base method.
-func (m *MockClient) QueryLogConfig() (*types.QueryLogConfig, error) {
+func (m *MockClient) QueryLogConfig() (*model.QueryLogConfig, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueryLogConfig")
-	ret0, _ := ret[0].(*types.QueryLogConfig)
+	ret0, _ := ret[0].(*model.QueryLogConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -431,17 +430,17 @@ func (mr *MockClientMockRecorder) SetDhcpConfig(arg0 interface{}) *gomock.Call {
 }
 
 // SetQueryLogConfig mocks base method.
-func (m *MockClient) SetQueryLogConfig(arg0 bool, arg1 float64, arg2 bool) error {
+func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfig) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetQueryLogConfig indicates an expected call of SetQueryLogConfig.
-func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), arg0)
 }
 
 // SetServices mocks base method.
@@ -459,7 +458,7 @@ func (mr *MockClientMockRecorder) SetServices(arg0 interface{}) *gomock.Call {
 }
 
 // SetStatsConfig mocks base method.
-func (m *MockClient) SetStatsConfig(arg0 float64) error {
+func (m *MockClient) SetStatsConfig(arg0 *model.StatsConfig) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatsConfig", arg0)
 	ret0, _ := ret[0].(error)
@@ -487,10 +486,10 @@ func (mr *MockClientMockRecorder) Setup() *gomock.Call {
 }
 
 // StatsConfig mocks base method.
-func (m *MockClient) StatsConfig() (*types.IntervalConfig, error) {
+func (m *MockClient) StatsConfig() (*model.StatsConfig, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StatsConfig")
-	ret0, _ := ret[0].(*types.IntervalConfig)
+	ret0, _ := ret[0].(*model.StatsConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

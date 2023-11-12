@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/utils/ptr"
 )
 
 var (
@@ -264,12 +265,16 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientGet("querylog_info.json", "/querylog_info")
 			qlc, err := cl.QueryLogConfig()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(qlc.Enabled).Should(BeTrue())
-			Ω(qlc.Interval).Should(Equal(90.0))
+			Ω(qlc.Enabled).ShouldNot(BeNil())
+			Ω(*qlc.Enabled).Should(BeTrue())
+			Ω(qlc.Interval).ShouldNot(BeNil())
+			Ω(*qlc.Interval).Should(Equal(model.QueryLogConfigInterval(90)))
 		})
 		It("should set QueryLogConfig", func() {
-			ts, cl = ClientPost("/querylog_config", `{"enabled":true,"interval":123,"anonymize_client_ip":true}`)
-			err := cl.SetQueryLogConfig(true, 123, true)
+			ts, cl = ClientPost("/querylog_config", `{"anonymize_client_ip":true,"enabled":true,"interval":123}`)
+
+			var interval model.QueryLogConfigInterval = 123
+			err := cl.SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: ptr.To(true), Interval: &interval, Enabled: ptr.To(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -278,11 +283,14 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientGet("stats_info.json", "/stats_info")
 			sc, err := cl.StatsConfig()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(sc.Interval).Should(Equal(1.0))
+			Ω(sc.Interval).ShouldNot(BeNil())
+			Ω(*sc.Interval).Should(Equal(model.StatsConfigInterval(1)))
 		})
 		It("should set StatsConfig", func() {
 			ts, cl = ClientPost("/stats_config", `{"interval":123}`)
-			err := cl.SetStatsConfig(123.0)
+
+			var interval model.StatsConfigInterval = 123
+			err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -307,7 +315,8 @@ var _ = Describe("Client", func() {
 
 		Context("doPost", func() {
 			It("should return an error on status code != 200", func() {
-				err := cl.SetStatsConfig(123)
+				var interval model.StatsConfigInterval = 123
+				err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(Equal("401 Unauthorized"))
 			})

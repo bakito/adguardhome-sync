@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/utils/ptr"
 )
 
 var _ = Describe("Types", func() {
@@ -115,35 +116,38 @@ var _ = Describe("Types", func() {
 	Context("QueryLogConfig", func() {
 		Context("Equal", func() {
 			var (
-				a *types.QueryLogConfig
-				b *types.QueryLogConfig
+				a *model.QueryLogConfig
+				b *model.QueryLogConfig
 			)
 			BeforeEach(func() {
-				a = &types.QueryLogConfig{}
-				b = &types.QueryLogConfig{}
+				a = &model.QueryLogConfig{}
+				b = &model.QueryLogConfig{}
 			})
 			It("should be equal", func() {
-				a.Enabled = true
-				a.Interval = 1
-				a.AnonymizeClientIP = true
-				b.Enabled = true
-				b.Interval = 1
-				b.AnonymizeClientIP = true
+				a.Enabled = ptr.To(true)
+				var interval model.QueryLogConfigInterval = 1
+				a.Interval = &interval
+				a.AnonymizeClientIp = ptr.To(true)
+				b.Enabled = ptr.To(true)
+				b.Interval = &interval
+				b.AnonymizeClientIp = ptr.To(true)
 				Ω(a.Equals(b)).Should(BeTrue())
 			})
 			It("should not be equal when enabled differs", func() {
-				a.Enabled = true
-				b.Enabled = false
+				a.Enabled = ptr.To(true)
+				b.Enabled = ptr.To(false)
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 			It("should not be equal when interval differs", func() {
-				a.Interval = 1
-				b.Interval = 2
+				var interval1 model.QueryLogConfigInterval = 1
+				var interval2 model.QueryLogConfigInterval = 2
+				a.Interval = &interval1
+				b.Interval = &interval2
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 			It("should not be equal when anonymizeClientIP differs", func() {
-				a.AnonymizeClientIP = true
-				b.AnonymizeClientIP = false
+				a.AnonymizeClientIp = ptr.To(true)
+				b.AnonymizeClientIp = ptr.To(false)
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 		})

@@ -115,10 +115,10 @@ type Client interface {
 	AddClients(client ...*model.Client) error
 	UpdateClients(client ...*model.Client) error
 	DeleteClients(client ...*model.Client) error
-	QueryLogConfig() (*types.QueryLogConfig, error)
-	SetQueryLogConfig(enabled bool, interval float64, anonymizeClientIP bool) error
-	StatsConfig() (*types.IntervalConfig, error)
-	SetStatsConfig(interval float64) error
+	QueryLogConfig() (*model.QueryLogConfig, error)
+	SetQueryLogConfig(*model.QueryLogConfig) error
+	StatsConfig() (*model.StatsConfig, error)
+	SetStatsConfig(sc *model.StatsConfig) error
 	Setup() error
 	AccessList() (*model.AccessList, error)
 	SetAccessList(*model.AccessList) error
@@ -265,7 +265,7 @@ func (cl *client) ToggleSafeSearch(enable bool) error {
 }
 
 func (cl *client) toggleStatus(mode string) (bool, error) {
-	fs := &types.EnableConfig{}
+	fs := &model.EnableConfig{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(fs), fmt.Sprintf("/%s/status", mode))
 	return fs.Enabled, err
 }
@@ -401,30 +401,26 @@ func (cl *client) DeleteClients(clients ...*model.Client) error {
 	return nil
 }
 
-func (cl *client) QueryLogConfig() (*types.QueryLogConfig, error) {
-	qlc := &types.QueryLogConfig{}
+func (cl *client) QueryLogConfig() (*model.QueryLogConfig, error) {
+	qlc := &model.QueryLogConfig{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(qlc), "/querylog_info")
 	return qlc, err
 }
 
-func (cl *client) SetQueryLogConfig(enabled bool, interval float64, anonymizeClientIP bool) error {
-	cl.log.With("enabled", enabled, "interval", interval, "anonymizeClientIP", anonymizeClientIP).Info("Set query log config")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.QueryLogConfig{
-		EnableConfig:      types.EnableConfig{Enabled: enabled},
-		IntervalConfig:    types.IntervalConfig{Interval: interval},
-		AnonymizeClientIP: anonymizeClientIP,
-	}), "/querylog_config")
+func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfig) error {
+	cl.log.With("enabled", *qlc.Enabled, "interval", *qlc.Interval, "anonymizeClientIP", *qlc.AnonymizeClientIp).Info("Set query log config")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(qlc), "/querylog_config")
 }
 
-func (cl *client) StatsConfig() (*types.IntervalConfig, error) {
-	stats := &types.IntervalConfig{}
+func (cl *client) StatsConfig() (*model.StatsConfig, error) {
+	stats := &model.StatsConfig{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats_info")
 	return stats, err
 }
 
-func (cl *client) SetStatsConfig(interval float64) error {
-	cl.log.With("interval", interval).Info("Set stats config")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.IntervalConfig{Interval: interval}), "/stats_config")
+func (cl *client) SetStatsConfig(sc *model.StatsConfig) error {
+	cl.log.With("interval", *sc.Interval).Info("Set stats config")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(sc), "/stats_config")
 }
 
 func (cl *client) Setup() error {

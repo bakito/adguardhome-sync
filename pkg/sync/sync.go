@@ -441,7 +441,7 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 			return err
 		}
 		if !o.queryLogConfig.Equals(qlc) {
-			if err = rc.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+			if err = rc.SetQueryLogConfig(o.queryLogConfig); err != nil {
 				return err
 			}
 		}
@@ -452,7 +452,7 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 			return err
 		}
 		if o.statsConfig.Interval != sc.Interval {
-			if err = rc.SetStatsConfig(o.statsConfig.Interval); err != nil {
+			if err = rc.SetStatsConfig(o.statsConfig); err != nil {
 				return err
 			}
 		}
@@ -532,8 +532,8 @@ type origin struct {
 	services         *model.BlockedServicesArray
 	filters          *model.FilterStatus
 	clients          *model.Clients
-	queryLogConfig   *types.QueryLogConfig
-	statsConfig      *types.IntervalConfig
+	queryLogConfig   *model.QueryLogConfig
+	statsConfig      *model.StatsConfig
 	accessList       *model.AccessList
 	dnsConfig        *model.DNSConfig
 	dhcpServerConfig *model.DhcpStatus
