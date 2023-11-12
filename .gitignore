@@ -9,3 +9,4 @@ tmp
 bin
 config.yaml
 *.log
+.oapi-codegen.yaml
