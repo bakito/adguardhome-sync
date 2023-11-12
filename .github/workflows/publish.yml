@@ -22,30 +22,30 @@ jobs:
       - name: Get current date
         run: echo "curr_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to Quay
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Login to ghcr.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Modify Dockerfile
         run: |
           sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
 
       - name: Build and push ${{github.event.release.tag_name }}
         id: docker_build_release
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         if: ${{ github.event.release.tag_name != '' }}
         with:
           context: .
@@ -60,7 +60,7 @@ jobs:
 
       - name: Build and push main
         id: docker_build_main
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         if: ${{ github.event.release.tag_name == '' }}
         with:
           context: .
