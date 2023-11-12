@@ -204,6 +204,10 @@ var _ = Describe("Sync", func() {
 			)
 			BeforeEach(func() {
 				o = &origin{
+					profileInfo: &model.ProfileInfo{
+						Name:     "test",
+						Language: "en",
+					},
 					status:     &model.ServerStatus{},
 					safeSearch: &model.SafeSearchConfig{},
 				}
@@ -211,7 +215,8 @@ var _ = Describe("Sync", func() {
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -220,7 +225,8 @@ var _ = Describe("Sync", func() {
 				o.status.ProtectionEnabled = true
 				cl.EXPECT().ToggleProtection(true)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -229,7 +235,8 @@ var _ = Describe("Sync", func() {
 				o.parental = true
 				cl.EXPECT().Parental()
 				cl.EXPECT().ToggleParental(true)
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -238,6 +245,7 @@ var _ = Describe("Sync", func() {
 				o.safeSearch = &model.SafeSearchConfig{Enabled: ptr.To(true)}
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
 				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
@@ -246,16 +254,29 @@ var _ = Describe("Sync", func() {
 			It("should have Duckduckgo safeSearch enabled changed", func() {
 				o.safeSearch = &model.SafeSearchConfig{Duckduckgo: ptr.To(true)}
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: ptr.To(true)}, nil)
 				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
+
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have profileInfo language changed", func() {
+				o.profileInfo.Language = "de"
+				cl.EXPECT().Parental()
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Language: "en"}, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetProfileInfo(o.profileInfo)
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have safeBrowsing enabled changes", func() {
 				o.safeBrowsing = true
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().ToggleSafeBrowsing(true)
 				err := w.syncGeneralSettings(o, rs, cl)
@@ -516,6 +537,7 @@ var _ = Describe("Sync", func() {
 				// origin
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
@@ -532,6 +554,7 @@ var _ = Describe("Sync", func() {
 				// replica
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
@@ -565,6 +588,7 @@ var _ = Describe("Sync", func() {
 				// origin
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
@@ -580,6 +604,7 @@ var _ = Describe("Sync", func() {
 				// replica
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
@@ -614,6 +639,7 @@ var _ = Describe("Sync", func() {
 				// origin
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
@@ -636,6 +662,7 @@ var _ = Describe("Sync", func() {
 				// origin
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()

@@ -121,6 +121,12 @@ func (w *worker) sync() {
 
 	sl.With("version", o.status.Version).Info("Connected to origin")
 
+	o.profileInfo, err = oc.ProfileInfo()
+	if err != nil {
+		sl.With("error", err).Error("Error getting profileInfo info")
+		return
+	}
+
 	o.parental, err = oc.Parental()
 	if err != nil {
 		sl.With("error", err).Error("Error getting parental status")
@@ -404,6 +410,15 @@ func (w *worker) syncClients(oc *model.Clients, replica client.Client) error {
 
 func (w *worker) syncGeneralSettings(o *origin, rs *model.ServerStatus, replica client.Client) error {
 	if w.cfg.Features.GeneralSettings {
+
+		if pro, err := replica.ProfileInfo(); err != nil {
+			return err
+		} else if !o.profileInfo.Equals(pro) {
+			if err = replica.SetProfileInfo(o.profileInfo); err != nil {
+				return err
+			}
+		}
+
 		if o.status.ProtectionEnabled != rs.ProtectionEnabled {
 			if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
 				return err
@@ -539,5 +554,6 @@ type origin struct {
 	dhcpServerConfig *model.DhcpStatus
 	parental         bool
 	safeSearch       *model.SafeSearchConfig
+	profileInfo      *model.ProfileInfo
 	safeBrowsing     bool
 }

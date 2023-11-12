@@ -108,8 +108,8 @@ type Client interface {
 	ToggleParental(enable bool) error
 	SafeSearchConfig() (*model.SafeSearchConfig, error)
 	SetSafeSearchConfig(settings *model.SafeSearchConfig) error
-	Profile() (*model.ProfileInfo, error)
-	SetProfile(settings *model.ProfileInfo) error
+	ProfileInfo() (*model.ProfileInfo, error)
+	SetProfileInfo(settings *model.ProfileInfo) error
 	Services() (*model.BlockedServicesArray, error)
 	SetServices(services *model.BlockedServicesArray) error
 	Clients() (*model.Clients, error)
@@ -456,13 +456,13 @@ func (cl *client) SetSafeSearchConfig(settings *model.SafeSearchConfig) error {
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(settings), "/safesearch/settings")
 }
 
-func (cl *client) Profile() (*model.ProfileInfo, error) {
+func (cl *client) ProfileInfo() (*model.ProfileInfo, error) {
 	p := &model.ProfileInfo{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(p), "/profile")
 	return p, err
 }
 
-func (cl *client) SetProfile(profile *model.ProfileInfo) error {
+func (cl *client) SetProfileInfo(profile *model.ProfileInfo) error {
 	cl.log.With("language", profile.Language, "theme", profile.Theme).Info("Set profile")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(profile), "/profile/update")
 }

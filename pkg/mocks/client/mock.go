@@ -284,19 +284,19 @@ func (mr *MockClientMockRecorder) Parental() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Parental", reflect.TypeOf((*MockClient)(nil).Parental))
 }
 
-// Profile mocks base method.
-func (m *MockClient) Profile() (*model.ProfileInfo, error) {
+// ProfileInfo mocks base method.
+func (m *MockClient) ProfileInfo() (*model.ProfileInfo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Profile")
+	ret := m.ctrl.Call(m, "ProfileInfo")
 	ret0, _ := ret[0].(*model.ProfileInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Profile indicates an expected call of Profile.
-func (mr *MockClientMockRecorder) Profile() *gomock.Call {
+// ProfileInfo indicates an expected call of ProfileInfo.
+func (mr *MockClientMockRecorder) ProfileInfo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Profile", reflect.TypeOf((*MockClient)(nil).Profile))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProfileInfo", reflect.TypeOf((*MockClient)(nil).ProfileInfo))
 }
 
 // QueryLogConfig mocks base method.
@@ -444,18 +444,18 @@ func (mr *MockClientMockRecorder) SetDhcpConfig(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDhcpConfig", reflect.TypeOf((*MockClient)(nil).SetDhcpConfig), arg0)
 }
 
-// SetProfile mocks base method.
-func (m *MockClient) SetProfile(arg0 *model.ProfileInfo) error {
+// SetProfileInfo mocks base method.
+func (m *MockClient) SetProfileInfo(arg0 *model.ProfileInfo) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetProfile", arg0)
+	ret := m.ctrl.Call(m, "SetProfileInfo", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetProfile indicates an expected call of SetProfile.
-func (mr *MockClientMockRecorder) SetProfile(arg0 interface{}) *gomock.Call {
+// SetProfileInfo indicates an expected call of SetProfileInfo.
+func (mr *MockClientMockRecorder) SetProfileInfo(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetProfile", reflect.TypeOf((*MockClient)(nil).SetProfile), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetProfileInfo", reflect.TypeOf((*MockClient)(nil).SetProfileInfo), arg0)
 }
 
 // SetQueryLogConfig mocks base method.
