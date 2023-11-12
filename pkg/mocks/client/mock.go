@@ -122,6 +122,36 @@ func (mr *MockClientMockRecorder) AddRewriteEntries(arg0 ...interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRewriteEntries", reflect.TypeOf((*MockClient)(nil).AddRewriteEntries), arg0...)
 }
 
+// BlockedServices mocks base method.
+func (m *MockClient) BlockedServices() (*[]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BlockedServices")
+	ret0, _ := ret[0].(*[]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BlockedServices indicates an expected call of BlockedServices.
+func (mr *MockClientMockRecorder) BlockedServices() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockedServices", reflect.TypeOf((*MockClient)(nil).BlockedServices))
+}
+
+// BlockedServicesSchedule mocks base method.
+func (m *MockClient) BlockedServicesSchedule() (*model.BlockedServicesSchedule, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BlockedServicesSchedule")
+	ret0, _ := ret[0].(*model.BlockedServicesSchedule)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BlockedServicesSchedule indicates an expected call of BlockedServicesSchedule.
+func (mr *MockClientMockRecorder) BlockedServicesSchedule() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockedServicesSchedule", reflect.TypeOf((*MockClient)(nil).BlockedServicesSchedule))
+}
+
 // Clients mocks base method.
 func (m *MockClient) Clients() (*model.Clients, error) {
 	m.ctrl.T.Helper()
@@ -373,21 +403,6 @@ func (mr *MockClientMockRecorder) SafeSearchConfig() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeSearchConfig", reflect.TypeOf((*MockClient)(nil).SafeSearchConfig))
 }
 
-// Services mocks base method.
-func (m *MockClient) Services() (*[]string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Services")
-	ret0, _ := ret[0].(*[]string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Services indicates an expected call of Services.
-func (mr *MockClientMockRecorder) Services() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Services", reflect.TypeOf((*MockClient)(nil).Services))
-}
-
 // SetAccessList mocks base method.
 func (m *MockClient) SetAccessList(arg0 *model.AccessList) error {
 	m.ctrl.T.Helper()
@@ -400,6 +415,34 @@ func (m *MockClient) SetAccessList(arg0 *model.AccessList) error {
 func (mr *MockClientMockRecorder) SetAccessList(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessList", reflect.TypeOf((*MockClient)(nil).SetAccessList), arg0)
+}
+
+// SetBlockedServices mocks base method.
+func (m *MockClient) SetBlockedServices(arg0 *[]string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetBlockedServices", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetBlockedServices indicates an expected call of SetBlockedServices.
+func (mr *MockClientMockRecorder) SetBlockedServices(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetBlockedServices", reflect.TypeOf((*MockClient)(nil).SetBlockedServices), arg0)
+}
+
+// SetBlockedServicesSchedule mocks base method.
+func (m *MockClient) SetBlockedServicesSchedule(arg0 *model.BlockedServicesSchedule) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetBlockedServicesSchedule", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetBlockedServicesSchedule indicates an expected call of SetBlockedServicesSchedule.
+func (mr *MockClientMockRecorder) SetBlockedServicesSchedule(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetBlockedServicesSchedule", reflect.TypeOf((*MockClient)(nil).SetBlockedServicesSchedule), arg0)
 }
 
 // SetCustomRules mocks base method.
@@ -484,20 +527,6 @@ func (m *MockClient) SetSafeSearchConfig(arg0 *model.SafeSearchConfig) error {
 func (mr *MockClientMockRecorder) SetSafeSearchConfig(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSafeSearchConfig", reflect.TypeOf((*MockClient)(nil).SetSafeSearchConfig), arg0)
-}
-
-// SetServices mocks base method.
-func (m *MockClient) SetServices(arg0 *[]string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetServices", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetServices indicates an expected call of SetServices.
-func (mr *MockClientMockRecorder) SetServices(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetServices", reflect.TypeOf((*MockClient)(nil).SetServices), arg0)
 }
 
 // SetStatsConfig mocks base method.

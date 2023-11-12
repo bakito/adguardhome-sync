@@ -149,9 +149,15 @@ func (w *worker) sync() {
 		return
 	}
 
-	o.services, err = oc.Services()
+	o.blockedServices, err = oc.BlockedServices()
 	if err != nil {
-		sl.With("error", err).Error("Error getting origin services")
+		sl.With("error", err).Error("Error getting origin blocked services")
+		return
+	}
+
+	o.blockedServicesSchedule, err = oc.BlockedServicesSchedule()
+	if err != nil {
+		sl.With("error", err).Error("Error getting origin blocked services schedule")
 		return
 	}
 
@@ -252,9 +258,9 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	err = w.syncServices(o.services, rc)
+	err = w.syncServices(o.blockedServices, o.blockedServicesSchedule, rc)
 	if err != nil {
-		rl.With("error", err).Error("Error syncing services")
+		rl.With("error", err).Error("Error syncing blockedServices")
 		return
 	}
 
@@ -293,15 +299,26 @@ func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardIns
 	return rs, err
 }
 
-func (w *worker) syncServices(os *model.BlockedServicesArray, replica client.Client) error {
+func (w *worker) syncServices(os *model.BlockedServicesArray, obss *model.BlockedServicesSchedule, replica client.Client) error {
 	if w.cfg.Features.Services {
-		rs, err := replica.Services()
+		rs, err := replica.BlockedServices()
 		if err != nil {
 			return err
 		}
 
 		if !model.EqualsStringSlice(os, rs, true) {
-			if err := replica.SetServices(os); err != nil {
+			if err := replica.SetBlockedServices(os); err != nil {
+				return err
+			}
+		}
+
+		rbss, err := replica.BlockedServicesSchedule()
+		if err != nil {
+			return err
+		}
+
+		if !obss.Equals(rbss) {
+			if err := replica.SetBlockedServicesSchedule(obss); err != nil {
 				return err
 			}
 		}
@@ -537,18 +554,19 @@ func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica
 }
 
 type origin struct {
-	status           *model.ServerStatus
-	rewrites         *model.RewriteEntries
-	services         *model.BlockedServicesArray
-	filters          *model.FilterStatus
-	clients          *model.Clients
-	queryLogConfig   *model.QueryLogConfig
-	statsConfig      *model.StatsConfig
-	accessList       *model.AccessList
-	dnsConfig        *model.DNSConfig
-	dhcpServerConfig *model.DhcpStatus
-	parental         bool
-	safeSearch       *model.SafeSearchConfig
-	profileInfo      *model.ProfileInfo
-	safeBrowsing     bool
+	status                  *model.ServerStatus
+	rewrites                *model.RewriteEntries
+	blockedServices         *model.BlockedServicesArray
+	blockedServicesSchedule *model.BlockedServicesSchedule
+	filters                 *model.FilterStatus
+	clients                 *model.Clients
+	queryLogConfig          *model.QueryLogConfig
+	statsConfig             *model.StatsConfig
+	accessList              *model.AccessList
+	dnsConfig               *model.DNSConfig
+	dhcpServerConfig        *model.DhcpStatus
+	parental                bool
+	safeSearch              *model.SafeSearchConfig
+	profileInfo             *model.ProfileInfo
+	safeBrowsing            bool
 }

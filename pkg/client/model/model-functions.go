@@ -359,3 +359,9 @@ func (pi *ProfileInfo) Equals(o *ProfileInfo) bool {
 		pi.Language == o.Language &&
 		pi.Theme == o.Theme
 }
+
+func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
+	a, _ := json.Marshal(bss)
+	b, _ := json.Marshal(o)
+	return string(a) == string(b)
+}

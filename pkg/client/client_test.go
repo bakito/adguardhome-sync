@@ -217,16 +217,16 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Context("Services", func() {
-		It("should read Services", func() {
+	Context("BlockedServices", func() {
+		It("should read BlockedServices", func() {
 			ts, cl = ClientGet("blockedservices-list.json", "/blocked_services/list")
-			s, err := cl.Services()
+			s, err := cl.BlockedServices()
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(*s).Should(HaveLen(2))
 		})
-		It("should set Services", func() {
+		It("should set BlockedServices", func() {
 			ts, cl = ClientPost("/blocked_services/set", `["foo","bar"]`)
-			err := cl.SetServices(&model.BlockedServicesArray{"foo", "bar"})
+			err := cl.SetBlockedServices(&model.BlockedServicesArray{"foo", "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})

@@ -357,23 +357,28 @@ var _ = Describe("Sync", func() {
 		})
 		Context("syncServices", func() {
 			var (
-				os *model.BlockedServicesArray
-				rs *model.BlockedServicesArray
+				obs  *model.BlockedServicesArray
+				rbs  *model.BlockedServicesArray
+				obss *model.BlockedServicesSchedule
 			)
 			BeforeEach(func() {
-				os = &model.BlockedServicesArray{"foo"}
-				rs = &model.BlockedServicesArray{"foo"}
+				obs = &model.BlockedServicesArray{"foo"}
+				rbs = &model.BlockedServicesArray{"foo"}
+				obss = &model.BlockedServicesSchedule{}
 			})
 			It("should have no changes", func() {
-				cl.EXPECT().Services().Return(rs, nil)
-				err := w.syncServices(os, cl)
+				cl.EXPECT().BlockedServices().Return(rbs, nil)
+				cl.EXPECT().BlockedServicesSchedule().Return(obss, nil)
+				err := w.syncServices(obs, obss, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
-			It("should have services changes", func() {
-				os = &model.BlockedServicesArray{"bar"}
-				cl.EXPECT().Services().Return(rs, nil)
-				cl.EXPECT().SetServices(os)
-				err := w.syncServices(os, cl)
+			It("should have blockedServices changes", func() {
+				obs = &model.BlockedServicesArray{"bar"}
+
+				cl.EXPECT().BlockedServices().Return(rbs, nil)
+				cl.EXPECT().BlockedServicesSchedule().Return(obss, nil)
+				cl.EXPECT().SetBlockedServices(obs)
+				err := w.syncServices(obs, obss, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})
@@ -542,7 +547,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
@@ -570,7 +576,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AddFilters(true)
 				cl.EXPECT().UpdateFilters(true)
 				cl.EXPECT().DeleteFilters(true)
-				cl.EXPECT().Services()
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients()
@@ -593,7 +600,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
@@ -620,7 +628,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AddFilters(true)
 				cl.EXPECT().UpdateFilters(true)
 				cl.EXPECT().DeleteFilters(true)
-				cl.EXPECT().Services()
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients()
@@ -644,7 +653,8 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)

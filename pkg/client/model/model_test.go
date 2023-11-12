@@ -304,7 +304,7 @@ var _ = Describe("Types", func() {
 			})
 		})
 	})
-	Context("Services", func() {
+	Context("BlockedServices", func() {
 		Context("Equals", func() {
 			It("should be equal", func() {
 				s1 := &model.BlockedServicesArray{"a", "b"}

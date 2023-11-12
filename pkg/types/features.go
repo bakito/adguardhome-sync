@@ -60,7 +60,7 @@ func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 		features = append(features, "ClientSettings")
 	}
 	if !f.Services {
-		features = append(features, "Services")
+		features = append(features, "BlockedServices")
 	}
 	if !f.Filters {
 		features = append(features, "Filters")

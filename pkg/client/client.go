@@ -110,8 +110,10 @@ type Client interface {
 	SetSafeSearchConfig(settings *model.SafeSearchConfig) error
 	ProfileInfo() (*model.ProfileInfo, error)
 	SetProfileInfo(settings *model.ProfileInfo) error
-	Services() (*model.BlockedServicesArray, error)
-	SetServices(services *model.BlockedServicesArray) error
+	BlockedServices() (*model.BlockedServicesArray, error)
+	BlockedServicesSchedule() (*model.BlockedServicesSchedule, error)
+	SetBlockedServices(services *model.BlockedServicesArray) error
+	SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error
 	Clients() (*model.Clients, error)
 	AddClients(client ...*model.Client) error
 	UpdateClients(client ...*model.Client) error
@@ -290,15 +292,26 @@ func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	}), "/filtering/config")
 }
 
-func (cl *client) Services() (*model.BlockedServicesArray, error) {
+func (cl *client) BlockedServices() (*model.BlockedServicesArray, error) {
 	svcs := &model.BlockedServicesArray{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(&svcs), "/blocked_services/list")
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(svcs), "/blocked_services/list")
 	return svcs, err
 }
 
-func (cl *client) SetServices(services *model.BlockedServicesArray) error {
-	cl.log.With("services", len(*services)).Info("Set services")
+func (cl *client) SetBlockedServices(services *model.BlockedServicesArray) error {
+	cl.log.With("services", len(*services)).Info("Set blocked services")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(services), "/blocked_services/set")
+}
+
+func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, error) {
+	sched := &model.BlockedServicesSchedule{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(sched), "/blocked_services/get")
+	return sched, err
+}
+
+func (cl *client) SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error {
+	cl.log.Info("Set blocked services schedule")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(schedule), "/blocked_services/update")
 }
 
 func (cl *client) Clients() (*model.Clients, error) {
