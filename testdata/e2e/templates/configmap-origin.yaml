@@ -5,9 +5,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   AdGuardHome.yaml: |
-    bind_host: 0.0.0.0
-    bind_port: 3000
-    beta_bind_port: 0
+    http:
+      pprof:
+        port: 6060
+        enabled: false
+      address: 0.0.0.0:3000
+      session_ttl: 720h
     users:
       - name: username
         password: $2a$10$yrrX.EvDpUUnZxr74u6euOMeF6dPFd/mEyohDq1LkpH76JyeObPBm
@@ -15,25 +18,12 @@ data:
     block_auth_min: 15
     http_proxy: ""
     language: en
-    debug_pprof: false
-    web_session_ttl: 720
+    theme: auto
     dns:
       bind_hosts:
         - 0.0.0.0
       port: 53
-      statistics_interval: 1
-      querylog_enabled: true
-      querylog_file_enabled: true
-      querylog_interval: 6h
-      querylog_size_memory: 1000
       anonymize_client_ip: false
-      protection_enabled: true
-      blocking_mode: default
-      blocking_ipv4: ""
-      blocking_ipv6: ""
-      blocked_response_ttl: 10
-      parental_block_host: family-block.dns.adguard.com
-      safebrowsing_block_host: standard-block.dns.adguard.com
       ratelimit: 20
       ratelimit_whitelist: []
       refuse_any: true
@@ -42,6 +32,7 @@ data:
       upstream_dns_file: ""
       bootstrap_dns:
         - 1.1.1.1:53
+      fallback_dns: []
       all_servers: false
       fastest_addr: false
       fastest_timeout: 1s
@@ -61,30 +52,21 @@ data:
       bogus_nxdomain: []
       aaaa_disabled: false
       enable_dnssec: false
-      edns_client_subnet: false
+      edns_client_subnet:
+        custom_ip: ""
+        enabled: false
+        use_custom: false
       max_goroutines: 300
       handle_ddr: true
       ipset: []
       ipset_file: ""
-      filtering_enabled: true
-      filters_update_interval: 12
-      parental_enabled: true
-      safesearch_enabled: true
-      safebrowsing_enabled: true
-      safebrowsing_cache_size: 1048576
-      safesearch_cache_size: 1048576
-      parental_cache_size: 1048576
-      cache_time: 30
-      rewrites:
-        - domain: foo.bar.com
-          answer: 1.2.3.4
-      blocked_services:
-        - 9gag
-        - dailymotion
+      bootstrap_prefer_ipv6: false
       upstream_timeout: 10s
       private_networks: []
       use_private_ptr_resolvers: true
       local_ptr_upstreams: []
+      use_dns64: false
+      dns64_prefixes: []
       serve_http3: false
       use_http3_upstreams: false
     tls:
@@ -97,11 +79,21 @@ data:
       port_dnscrypt: 0
       dnscrypt_config_file: ""
       allow_unencrypted_doh: false
-      strict_sni_check: false
       certificate_chain: ""
       private_key: ""
       certificate_path: ""
       private_key_path: ""
+      strict_sni_check: false
+    querylog:
+      ignored: []
+      interval: 6h
+      size_memory: 1000
+      enabled: true
+      file_enabled: true
+    statistics:
+      ignored: []
+      interval: 24h
+      enabled: true
     filters:
       - enabled: true
         url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
@@ -134,6 +126,48 @@ data:
         lease_duration: 86400
         ra_slaac_only: false
         ra_allow_slaac: false
+    filtering:
+      blocking_ipv4: ""
+      blocking_ipv6: ""
+      blocked_services:
+        schedule:
+          time_zone: Europe/Zurich
+          tue:
+            start: 0s
+            end: 23h59m
+          thu:
+            start: 0s
+            end: 23h59m
+          sat:
+            start: 0s
+            end: 9h59m
+        ids:
+          - 9gag
+          - dailymotion
+          - disneyplus
+      protection_disabled_until: null
+      safe_search:
+        enabled: true
+        bing: true
+        duckduckgo: true
+        google: true
+        pixabay: true
+        yandex: true
+        youtube: true
+      blocking_mode: default
+      parental_block_host: family-block.dns.adguard.com
+      safebrowsing_block_host: standard-block.dns.adguard.com
+      rewrites: []
+      safebrowsing_cache_size: 1048576
+      safesearch_cache_size: 1048576
+      parental_cache_size: 1048576
+      cache_time: 30
+      filters_update_interval: 24
+      blocked_response_ttl: 10
+      filtering_enabled: true
+      parental_enabled: true
+      safebrowsing_enabled: true
+      protection_enabled: true
     clients:
       runtime_sources:
         whois: true
@@ -148,27 +182,32 @@ data:
           ids:
             - 2.2.2.2
           blocked_services:
-            - facebook
-            - ok
-            - vk
-            - mail_ru
-            - qq
+            schedule:
+              time_zone: Europe/Zurich
+            ids:
+              - facebook
+              - mail_ru
+              - qq
+              - vk
+              - ok
           upstreams: []
           use_global_settings: true
           filtering_enabled: false
           parental_enabled: false
-          safesearch_enabled: false
           safebrowsing_enabled: false
           use_global_blocked_services: false
-    log_file: ""
-    log_max_backups: 0
-    log_max_size: 100
-    log_max_age: 3
-    log_compress: false
-    log_localtime: false
-    verbose: false
+          ignore_querylog: false
+          ignore_statistics: false
+    log:
+      file: ""
+      max_backups: 0
+      max_size: 100
+      max_age: 3
+      compress: false
+      local_time: false
+      verbose: false
     os:
       group: ""
       user: ""
       rlimit_nofile: 0
-    schema_version: 14
+    schema_version: 27
