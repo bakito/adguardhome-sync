@@ -18,6 +18,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
+	"k8s.io/utils/ptr"
 )
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
@@ -108,8 +109,8 @@ type Client interface {
 	ToggleParental(enable bool) error
 	SafeSearch() (bool, error)
 	ToggleSafeSearch(enable bool) error
-	Services() (types.Services, error)
-	SetServices(services types.Services) error
+	Services() (*model.BlockedServicesArray, error)
+	SetServices(services *model.BlockedServicesArray) error
 	Clients() (*model.Clients, error)
 	AddClients(client ...*model.Client) error
 	UpdateClients(client ...*model.Client) error
@@ -327,7 +328,7 @@ func (cl *client) UpdateFilters(whitelist bool, filters ...model.Filter) error {
 
 func (cl *client) RefreshFilters(whitelist bool) error {
 	cl.log.With("whitelist", whitelist).Info("Refresh filter")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&types.RefreshFilter{Whitelist: whitelist}), "/filtering/refresh")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: ptr.To(whitelist)}), "/filtering/refresh")
 }
 
 func (cl *client) ToggleProtection(enable bool) error {
@@ -348,15 +349,15 @@ func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	}), "/filtering/config")
 }
 
-func (cl *client) Services() (types.Services, error) {
-	svcs := types.Services{}
+func (cl *client) Services() (*model.BlockedServicesArray, error) {
+	svcs := &model.BlockedServicesArray{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(&svcs), "/blocked_services/list")
 	return svcs, err
 }
 
-func (cl *client) SetServices(services types.Services) error {
-	cl.log.With("services", len(services)).Info("Set services")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&services), "/blocked_services/set")
+func (cl *client) SetServices(services *model.BlockedServicesArray) error {
+	cl.log.With("services", len(*services)).Info("Set services")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(services), "/blocked_services/set")
 }
 
 func (cl *client) Clients() (*model.Clients, error) {

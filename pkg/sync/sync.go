@@ -292,14 +292,14 @@ func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardIns
 	return rs, err
 }
 
-func (w *worker) syncServices(os types.Services, replica client.Client) error {
+func (w *worker) syncServices(os *model.BlockedServicesArray, replica client.Client) error {
 	if w.cfg.Features.Services {
 		rs, err := replica.Services()
 		if err != nil {
 			return err
 		}
 
-		if !os.Equals(rs) {
+		if !model.EqualsStringSlice(os, rs, true) {
 			if err := replica.SetServices(os); err != nil {
 				return err
 			}
@@ -529,7 +529,7 @@ func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica
 type origin struct {
 	status           *model.ServerStatus
 	rewrites         *model.RewriteEntries
-	services         types.Services
+	services         *model.BlockedServicesArray
 	filters          *model.FilterStatus
 	clients          *model.Clients
 	queryLogConfig   *types.QueryLogConfig

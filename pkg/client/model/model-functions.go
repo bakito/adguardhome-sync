@@ -104,12 +104,12 @@ func (c *DNSConfig) Sort() {
 
 // Equals access list equal check
 func (al *AccessList) Equals(o *AccessList) bool {
-	return equals(al.AllowedClients, o.AllowedClients) &&
-		equals(al.DisallowedClients, o.DisallowedClients) &&
-		equals(al.BlockedHosts, o.BlockedHosts)
+	return EqualsStringSlice(al.AllowedClients, o.AllowedClients, true) &&
+		EqualsStringSlice(al.DisallowedClients, o.DisallowedClients, true) &&
+		EqualsStringSlice(al.BlockedHosts, o.BlockedHosts, true)
 }
 
-func equals(a *[]string, b *[]string) bool {
+func EqualsStringSlice(a *[]string, b *[]string, sortIt bool) bool {
 	if a == nil && b == nil {
 		return true
 	}
@@ -120,6 +120,10 @@ func equals(a *[]string, b *[]string) bool {
 
 	aa := *a
 	bb := *b
+	if sortIt {
+		sort.Strings(aa)
+		sort.Strings(bb)
+	}
 	if len(aa) != len(bb) {
 		return false
 	}

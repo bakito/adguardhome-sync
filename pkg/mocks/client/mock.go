@@ -360,10 +360,10 @@ func (mr *MockClientMockRecorder) SafeSearch() *gomock.Call {
 }
 
 // Services mocks base method.
-func (m *MockClient) Services() (types.Services, error) {
+func (m *MockClient) Services() (*[]string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Services")
-	ret0, _ := ret[0].(types.Services)
+	ret0, _ := ret[0].(*[]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -445,7 +445,7 @@ func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0, arg1, arg2 interface{}
 }
 
 // SetServices mocks base method.
-func (m *MockClient) SetServices(arg0 types.Services) error {
+func (m *MockClient) SetServices(arg0 *[]string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetServices", arg0)
 	ret0, _ := ret[0].(error)

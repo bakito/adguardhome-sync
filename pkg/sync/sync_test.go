@@ -323,12 +323,12 @@ var _ = Describe("Sync", func() {
 		})
 		Context("syncServices", func() {
 			var (
-				os types.Services
-				rs types.Services
+				os *model.BlockedServicesArray
+				rs *model.BlockedServicesArray
 			)
 			BeforeEach(func() {
-				os = []string{"foo"}
-				rs = []string{"foo"}
+				os = &model.BlockedServicesArray{"foo"}
+				rs = &model.BlockedServicesArray{"foo"}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Services().Return(rs, nil)
@@ -336,7 +336,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have services changes", func() {
-				os = []string{"bar"}
+				os = &model.BlockedServicesArray{"bar"}
 				cl.EXPECT().Services().Return(rs, nil)
 				cl.EXPECT().SetServices(os)
 				err := w.syncServices(os, cl)

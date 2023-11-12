@@ -2,10 +2,7 @@ package types
 
 import (
 	"fmt"
-	"sort"
-	"strings"
 
-	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"go.uber.org/zap"
 )
 
@@ -110,31 +107,6 @@ type Protection struct {
 	ProtectionEnabled bool `json:"protection_enabled"`
 }
 
-// FilterUpdate  API struct
-type FilterUpdate struct {
-	URL       string       `json:"url"`
-	Data      model.Filter `json:"data"`
-	Whitelist bool         `json:"whitelist"`
-}
-
-// UserRules API struct
-type UserRules []string
-
-// String toString of Users
-func (ur UserRules) String() string {
-	return strings.Join(ur, "\n")
-}
-
-// UserRulesRequest API struct
-type UserRulesRequest struct {
-	Rules UserRules
-}
-
-// String toString of Users
-func (ur UserRulesRequest) String() string {
-	return ur.Rules.String()
-}
-
 // EnableConfig API struct
 type EnableConfig struct {
 	Enabled bool `json:"enabled"`
@@ -155,38 +127,6 @@ type QueryLogConfig struct {
 // Equals QueryLogConfig equal check
 func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
 	return qlc.Enabled == o.Enabled && qlc.AnonymizeClientIP == o.AnonymizeClientIP && qlc.Interval == o.Interval
-}
-
-// RefreshFilter API struct
-type RefreshFilter struct {
-	Whitelist bool `json:"whitelist"`
-}
-
-// Services API struct
-type Services []string
-
-// Sort sort Services
-func (s Services) Sort() {
-	sort.Strings(s)
-}
-
-// Equals Services equal check
-func (s Services) Equals(o Services) bool {
-	s.Sort()
-	o.Sort()
-	return equals(s, o)
-}
-
-func equals(a []string, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
 }
 
 // InstallConfig AdguardHome install config

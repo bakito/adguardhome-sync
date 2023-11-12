@@ -211,22 +211,6 @@ var _ = Describe("Types", func() {
 			})
 		})
 	})
-	Context("UserRules", func() {
-		It("should join the rules correctly", func() {
-			r1 := uuid.NewString()
-			r2 := uuid.NewString()
-			ur := types.UserRules([]string{r1, r2})
-			Ω(ur.String()).Should(Equal(r1 + "\n" + r2))
-		})
-	})
-	Context("UserRulesRequest", func() {
-		It("should join the rules correctly", func() {
-			r1 := uuid.NewString()
-			r2 := uuid.NewString()
-			urr := types.UserRulesRequest{Rules: []string{r1, r2}}
-			Ω(urr.String()).Should(Equal(r1 + "\n" + r2))
-		})
-	})
 	Context("Config", func() {
 		var cfg *types.Config
 		BeforeEach(func() {
@@ -319,19 +303,19 @@ var _ = Describe("Types", func() {
 	Context("Services", func() {
 		Context("Equals", func() {
 			It("should be equal", func() {
-				s1 := types.Services([]string{"a", "b"})
-				s2 := types.Services([]string{"b", "a"})
-				Ω(s1.Equals(s2)).Should(BeTrue())
+				s1 := &model.BlockedServicesArray{"a", "b"}
+				s2 := &model.BlockedServicesArray{"b", "a"}
+				Ω(model.EqualsStringSlice(s1, s2, true)).Should(BeTrue())
 			})
 			It("should not be equal different values", func() {
-				s1 := types.Services([]string{"a", "b"})
-				s2 := types.Services([]string{"B", "a"})
-				Ω(s1.Equals(s2)).ShouldNot(BeTrue())
+				s1 := &model.BlockedServicesArray{"a", "b"}
+				s2 := &model.BlockedServicesArray{"B", "a"}
+				Ω(model.EqualsStringSlice(s1, s2, true)).ShouldNot(BeTrue())
 			})
 			It("should not be equal different length", func() {
-				s1 := types.Services([]string{"a", "b"})
-				s2 := types.Services([]string{"b", "a", "c"})
-				Ω(s1.Equals(s2)).ShouldNot(BeTrue())
+				s1 := &model.BlockedServicesArray{"a", "b"}
+				s2 := &model.BlockedServicesArray{"b", "a", "c"}
+				Ω(model.EqualsStringSlice(s1, s2, true)).ShouldNot(BeTrue())
 			})
 		})
 	})
