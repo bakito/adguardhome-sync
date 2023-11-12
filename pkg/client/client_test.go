@@ -165,21 +165,22 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Context("SafeSearch", func() {
+	Context("SafeSearchConfig", func() {
 		It("should read safesearch status", func() {
 			ts, cl = ClientGet("safesearch-status.json", "/safesearch/status")
-			ss, err := cl.SafeSearch()
+			ss, err := cl.SafeSearchConfig()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(ss).Should(BeTrue())
+			Ω(ss.Enabled).ShouldNot(BeNil())
+			Ω(*ss.Enabled).Should(BeTrue())
 		})
 		It("should enable safesearch", func() {
-			ts, cl = ClientPost("/safesearch/enable", "")
-			err := cl.ToggleSafeSearch(true)
+			ts, cl = ClientPut("/safesearch/settings", `{"enabled":true}`)
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: ptr.To(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should disable safesearch", func() {
-			ts, cl = ClientPost("/safesearch/disable", "")
-			err := cl.ToggleSafeSearch(false)
+			ts, cl = ClientPut("/safesearch/settings", `{"enabled":false}`)
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: ptr.To(false)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -339,6 +340,21 @@ func ClientGet(file string, path string) (*httptest.Server, client.Client) {
 }
 
 func ClientPost(path string, content ...string) (*httptest.Server, client.Client) {
+	index := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
+		body, err := io.ReadAll(r.Body)
+		Ω(err).ShouldNot(HaveOccurred())
+		Ω(body).Should(Equal([]byte(content[index])))
+		index++
+	}))
+
+	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password})
+	Ω(err).ShouldNot(HaveOccurred())
+	return ts, cl
+}
+
+func ClientPut(path string, content ...string) (*httptest.Server, client.Client) {
 	index := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))

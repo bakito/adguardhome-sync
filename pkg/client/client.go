@@ -2,7 +2,6 @@ package client
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -107,8 +106,10 @@ type Client interface {
 	ToggleSafeBrowsing(enable bool) error
 	Parental() (bool, error)
 	ToggleParental(enable bool) error
-	SafeSearch() (bool, error)
-	ToggleSafeSearch(enable bool) error
+	SafeSearchConfig() (*model.SafeSearchConfig, error)
+	SetSafeSearchConfig(settings *model.SafeSearchConfig) error
+	Profile() (*model.ProfileInfo, error)
+	SetProfile(settings *model.ProfileInfo) error
 	Services() (*model.BlockedServicesArray, error)
 	SetServices(services *model.BlockedServicesArray) error
 	Clients() (*model.Clients, error)
@@ -139,58 +140,6 @@ type client struct {
 
 func (cl *client) Host() string {
 	return cl.host
-}
-
-func (cl *client) doGet(req *resty.Request, url string) error {
-	rl := cl.log.With("method", "GET", "path", url)
-	if cl.client.UserInfo != nil {
-		rl = rl.With("username", cl.client.UserInfo.Username)
-	}
-	req.ForceContentType("application/json")
-	rl.Debug("do get")
-	resp, err := req.Get(url)
-	if err != nil {
-		if resp != nil && resp.StatusCode() == http.StatusFound {
-			loc := resp.Header().Get("Location")
-			if loc == "/install.html" || loc == "/control/install.html" {
-				return ErrSetupNeeded
-			}
-		}
-		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")
-		return detailedError(resp, err)
-	}
-	rl.With(
-		"status", resp.StatusCode(),
-		"body", string(resp.Body()),
-		"content-type", resp.Header()["Content-Type"],
-	).Debug("got response")
-	if resp.StatusCode() != http.StatusOK {
-		return detailedError(resp, nil)
-	}
-	return nil
-}
-
-func (cl *client) doPost(req *resty.Request, url string) error {
-	rl := cl.log.With("method", "POST", "path", url)
-	if cl.client.UserInfo != nil {
-		rl = rl.With("username", cl.client.UserInfo.Username)
-	}
-	b, _ := json.Marshal(req.Body)
-	rl.With("body", string(b)).Debug("do post")
-	resp, err := req.Post(url)
-	if err != nil {
-		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do post")
-		return detailedError(resp, err)
-	}
-	rl.With(
-		"status", resp.StatusCode(),
-		"body", string(resp.Body()),
-		"content-type", contentType(resp),
-	).Debug("got response")
-	if resp.StatusCode() != http.StatusOK {
-		return detailedError(resp, nil)
-	}
-	return nil
 }
 
 func contentType(resp *resty.Response) string {
@@ -254,14 +203,6 @@ func (cl *client) Parental() (bool, error) {
 
 func (cl *client) ToggleParental(enable bool) error {
 	return cl.toggleBool("parental", enable)
-}
-
-func (cl *client) SafeSearch() (bool, error) {
-	return cl.toggleStatus("safesearch")
-}
-
-func (cl *client) ToggleSafeSearch(enable bool) error {
-	return cl.toggleBool("safesearch", enable)
 }
 
 func (cl *client) toggleStatus(mode string) (bool, error) {
@@ -502,4 +443,26 @@ func (cl *client) DeleteDHCPStaticLeases(leases ...model.DhcpStaticLease) error 
 		}
 	}
 	return nil
+}
+
+func (cl *client) SafeSearchConfig() (*model.SafeSearchConfig, error) {
+	sss := &model.SafeSearchConfig{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(sss), "/safesearch/status")
+	return sss, err
+}
+
+func (cl *client) SetSafeSearchConfig(settings *model.SafeSearchConfig) error {
+	cl.log.With("enabled", *settings.Enabled).Info("Set safesearch settings")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(settings), "/safesearch/settings")
+}
+
+func (cl *client) Profile() (*model.ProfileInfo, error) {
+	p := &model.ProfileInfo{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(p), "/profile")
+	return p, err
+}
+
+func (cl *client) SetProfile(profile *model.ProfileInfo) error {
+	cl.log.With("language", profile.Language, "theme", profile.Theme).Info("Set profile")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(profile), "/profile/update")
 }

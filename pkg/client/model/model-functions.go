@@ -343,3 +343,19 @@ func ptrEquals[T comparable](a *T, b *T) bool {
 type EnableConfig struct {
 	Enabled bool `json:"enabled"`
 }
+
+func (ssc *SafeSearchConfig) Equals(o *SafeSearchConfig) bool {
+	return ptrEquals(ssc.Enabled, o.Enabled) &&
+		ptrEquals(ssc.Bing, o.Bing) &&
+		ptrEquals(ssc.Duckduckgo, o.Duckduckgo) &&
+		ptrEquals(ssc.Google, o.Google) &&
+		ptrEquals(ssc.Pixabay, o.Pixabay) &&
+		ptrEquals(ssc.Yandex, o.Yandex) &&
+		ptrEquals(ssc.Youtube, o.Youtube)
+}
+
+func (pi *ProfileInfo) Equals(o *ProfileInfo) bool {
+	return pi.Name == o.Name &&
+		pi.Language == o.Language &&
+		pi.Theme == o.Theme
+}

@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/utils/ptr"
 )
 
 var boolTrue = true
@@ -203,13 +204,14 @@ var _ = Describe("Sync", func() {
 			)
 			BeforeEach(func() {
 				o = &origin{
-					status: &model.ServerStatus{},
+					status:     &model.ServerStatus{},
+					safeSearch: &model.SafeSearchConfig{},
 				}
 				rs = &model.ServerStatus{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -218,7 +220,7 @@ var _ = Describe("Sync", func() {
 				o.status.ProtectionEnabled = true
 				cl.EXPECT().ToggleProtection(true)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -227,16 +229,25 @@ var _ = Describe("Sync", func() {
 				o.parental = true
 				cl.EXPECT().Parental()
 				cl.EXPECT().ToggleParental(true)
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have safeSearch enabled changes", func() {
-				o.safeSearch = true
+				o.safeSearch = &model.SafeSearchConfig{Enabled: ptr.To(true)}
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
-				cl.EXPECT().ToggleSafeSearch(true)
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
+				cl.EXPECT().SafeBrowsing()
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have Duckduckgo safeSearch enabled changed", func() {
+				o.safeSearch = &model.SafeSearchConfig{Duckduckgo: ptr.To(true)}
+				cl.EXPECT().Parental()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -244,7 +255,7 @@ var _ = Describe("Sync", func() {
 			It("should have safeBrowsing enabled changes", func() {
 				o.safeBrowsing = true
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().ToggleSafeBrowsing(true)
 				err := w.syncGeneralSettings(o, rs, cl)
@@ -506,7 +517,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
@@ -522,7 +533,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
@@ -555,7 +566,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
@@ -570,7 +581,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
@@ -604,7 +615,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()
@@ -626,7 +637,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Host()
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().Services()

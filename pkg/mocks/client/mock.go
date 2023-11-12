@@ -284,6 +284,21 @@ func (mr *MockClientMockRecorder) Parental() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Parental", reflect.TypeOf((*MockClient)(nil).Parental))
 }
 
+// Profile mocks base method.
+func (m *MockClient) Profile() (*model.ProfileInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Profile")
+	ret0, _ := ret[0].(*model.ProfileInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Profile indicates an expected call of Profile.
+func (mr *MockClientMockRecorder) Profile() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Profile", reflect.TypeOf((*MockClient)(nil).Profile))
+}
+
 // QueryLogConfig mocks base method.
 func (m *MockClient) QueryLogConfig() (*model.QueryLogConfig, error) {
 	m.ctrl.T.Helper()
@@ -343,19 +358,19 @@ func (mr *MockClientMockRecorder) SafeBrowsing() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeBrowsing", reflect.TypeOf((*MockClient)(nil).SafeBrowsing))
 }
 
-// SafeSearch mocks base method.
-func (m *MockClient) SafeSearch() (bool, error) {
+// SafeSearchConfig mocks base method.
+func (m *MockClient) SafeSearchConfig() (*model.SafeSearchConfig, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SafeSearch")
-	ret0, _ := ret[0].(bool)
+	ret := m.ctrl.Call(m, "SafeSearchConfig")
+	ret0, _ := ret[0].(*model.SafeSearchConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SafeSearch indicates an expected call of SafeSearch.
-func (mr *MockClientMockRecorder) SafeSearch() *gomock.Call {
+// SafeSearchConfig indicates an expected call of SafeSearchConfig.
+func (mr *MockClientMockRecorder) SafeSearchConfig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeSearch", reflect.TypeOf((*MockClient)(nil).SafeSearch))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeSearchConfig", reflect.TypeOf((*MockClient)(nil).SafeSearchConfig))
 }
 
 // Services mocks base method.
@@ -429,6 +444,20 @@ func (mr *MockClientMockRecorder) SetDhcpConfig(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDhcpConfig", reflect.TypeOf((*MockClient)(nil).SetDhcpConfig), arg0)
 }
 
+// SetProfile mocks base method.
+func (m *MockClient) SetProfile(arg0 *model.ProfileInfo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetProfile", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetProfile indicates an expected call of SetProfile.
+func (mr *MockClientMockRecorder) SetProfile(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetProfile", reflect.TypeOf((*MockClient)(nil).SetProfile), arg0)
+}
+
 // SetQueryLogConfig mocks base method.
 func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfig) error {
 	m.ctrl.T.Helper()
@@ -441,6 +470,20 @@ func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfig) error {
 func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), arg0)
+}
+
+// SetSafeSearchConfig mocks base method.
+func (m *MockClient) SetSafeSearchConfig(arg0 *model.SafeSearchConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetSafeSearchConfig", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetSafeSearchConfig indicates an expected call of SetSafeSearchConfig.
+func (mr *MockClientMockRecorder) SetSafeSearchConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSafeSearchConfig", reflect.TypeOf((*MockClient)(nil).SetSafeSearchConfig), arg0)
 }
 
 // SetServices mocks base method.
@@ -569,20 +612,6 @@ func (m *MockClient) ToggleSafeBrowsing(arg0 bool) error {
 func (mr *MockClientMockRecorder) ToggleSafeBrowsing(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToggleSafeBrowsing", reflect.TypeOf((*MockClient)(nil).ToggleSafeBrowsing), arg0)
-}
-
-// ToggleSafeSearch mocks base method.
-func (m *MockClient) ToggleSafeSearch(arg0 bool) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ToggleSafeSearch", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ToggleSafeSearch indicates an expected call of ToggleSafeSearch.
-func (mr *MockClientMockRecorder) ToggleSafeSearch(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToggleSafeSearch", reflect.TypeOf((*MockClient)(nil).ToggleSafeSearch), arg0)
 }
 
 // UpdateClients mocks base method.
