@@ -33,9 +33,10 @@ func (w *worker) handleSync(c *gin.Context) {
 
 func (w *worker) handleRoot(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
-		"DarkMode": w.cfg.API.DarkMode,
-		"Version":  version.Version,
-		"Build":    version.Build,
+		"DarkMode":   w.cfg.API.DarkMode,
+		"Version":    version.Version,
+		"Build":      version.Build,
+		"SyncStatus": w.status(),
 	},
 	)
 }
@@ -46,6 +47,10 @@ func (w *worker) handleFavicon(c *gin.Context) {
 
 func (w *worker) handleLogs(c *gin.Context) {
 	c.Data(http.StatusOK, "text/plain", []byte(strings.Join(log.Logs(), "")))
+}
+
+func (w *worker) handleStatus(c *gin.Context) {
+	c.JSON(http.StatusOK, w.status())
 }
 
 func (w *worker) listenAndServe() {
@@ -69,6 +74,7 @@ func (w *worker) listenAndServe() {
 	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(string(index))))
 	r.POST("/api/v1/sync", w.handleSync)
 	r.GET("/api/v1/logs", w.handleLogs)
+	r.GET("/api/v1/status", w.handleStatus)
 	r.GET("/favicon.ico", w.handleFavicon)
 	r.GET("/", w.handleRoot)
 
@@ -114,4 +120,15 @@ func (w *worker) listenAndServe() {
 	cancel()
 
 	defer os.Exit(0)
+}
+
+type syncStatus struct {
+	Origin   replicaStatus   `json:"origin"`
+	Replicas []replicaStatus `json:"replicas"`
+}
+
+type replicaStatus struct {
+	Host   string `json:"origin"`
+	Status string `json:"status"`
+	Error  string `json:"error,omitempty"`
 }

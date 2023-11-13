@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"sort"
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
@@ -89,6 +90,45 @@ type worker struct {
 	running      bool
 	cron         *cron.Cron
 	createClient func(instance types.AdGuardInstance) (client.Client, error)
+}
+
+func (w *worker) status() *syncStatus {
+	syncStatus := &syncStatus{
+		Origin: w.getStatus(w.cfg.Origin),
+	}
+
+	for _, replica := range w.cfg.Replicas {
+		st := w.getStatus(replica)
+		if w.running {
+			st.Status = "info"
+		}
+		syncStatus.Replicas = append(syncStatus.Replicas, st)
+	}
+
+	sort.Slice(syncStatus.Replicas, func(i, j int) bool {
+		return syncStatus.Replicas[i].Host < syncStatus.Replicas[j].Host
+	})
+
+	return syncStatus
+}
+
+func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
+	oc, err := w.createClient(inst)
+	if err != nil {
+		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
+		return replicaStatus{Host: oc.Host(), Error: err.Error(), Status: "danger"}
+	}
+	sl := l.With("from", oc.Host())
+	_, err = oc.Status()
+	if err != nil {
+		if errors.Is(err, client.ErrSetupNeeded) {
+			return replicaStatus{Host: oc.Host(), Error: err.Error(), Status: "warning"}
+		}
+		sl.With("error", err).Error("Error getting origin status")
+		return replicaStatus{Host: oc.Host(), Error: err.Error(), Status: "danger"}
+	}
+	st := replicaStatus{Host: oc.Host(), Status: "success"}
+	return st
 }
 
 func (w *worker) sync() {

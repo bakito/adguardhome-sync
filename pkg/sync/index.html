@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 <head>
     <title>AdGuardHome sync</title>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js">
@@ -18,27 +18,51 @@
                         $('#logs').html(data);
                     }
                 );
+                $.get("api/v1/status", {}, function (status) {
+                        $('#origin').removeClass(function (index, className) {
+                            return (className.match(/(^|\s)btn-\S+/g) || []).join(' ');
+                        }).addClass("btn-" + status.origin.status);
+                        status.replicas.forEach(function (replica, i) {
+                            $('#replica_' + i).removeClass(function (index, className) {
+                                return (className.match(/(^|\s)btn-\S+/g) || []).join(' ');
+                            }).addClass("btn-" + replica.status);
+                        });
+                    }
+                );
             });
             $("#sync").click(function () {
                 $.post("api/v1/sync", {}, function (data) {
                 });
+                $("#showLogs").click();
             });
-            $("#showLogs").click()
+            $("#showLogs").click();
         });
     </script>
     <link rel="shortcut icon" href="favicon.ico">
 </head>
 <body>
-<div class="container-fluid  px-4">
+<div class="container-fluid px-4">
     <div class="row">
-        <p class="h1">AdGuardHome sync
-        <p class="h6">{{ .Version }} ({{ .Build }})</p></p>
+        <p class="h1">
+            AdGuardHome sync
+        <p class="h6">{{ .Version }} ({{ .Build }})</p>
+        </p>
     </div>
     <div class="row">
         <div class="col">
             <div class="btn-group" role="group">
                 <input class="btn btn-success" type="button" id="sync" value="Synchronize"/>
                 <input class="btn btn-secondary" type="button" id="showLogs" value="Update Logs"/>
+            </div>
+        </div>
+        <div class="col col-md-auto">
+            <div class="float-right">
+                <input class="btn btn-{{ .SyncStatus.Origin.Status }}" type="button" id="origin"
+                       value="Origin {{ .SyncStatus.Origin.Host }}"/>
+                {{ range $i, $r := .SyncStatus.Replicas }}
+                <input class="btn btn-{{ $r.Status }}" type="button" id="replica_{{ $i }}" value="Replica {{ $r.Host }}"
+                       {{ if $r.Error }} title="{{ $r.Error }}" {{ end }}/>
+                {{ end }}
             </div>
         </div>
     </div>
