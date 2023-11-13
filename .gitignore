@@ -1,6 +1,7 @@
 .vscode
 .idea
-coverage.out
+.run
+coverage.out*
 dist
 adguardhome-sync
 main

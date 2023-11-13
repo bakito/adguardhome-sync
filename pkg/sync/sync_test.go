@@ -2,11 +2,12 @@ package sync
 
 import (
 	"errors"
-	"net"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	clientmock "github.com/bakito/adguardhome-sync/pkg/mocks/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
 	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -62,15 +63,15 @@ var _ = Describe("Sync", func() {
 			var (
 				domain string
 				answer string
-				reO    types.RewriteEntries
-				reR    types.RewriteEntries
+				reO    model.RewriteEntries
+				reR    model.RewriteEntries
 			)
 
 			BeforeEach(func() {
 				domain = uuid.NewString()
 				answer = uuid.NewString()
-				reO = []types.RewriteEntry{{Domain: domain, Answer: answer}}
-				reR = []types.RewriteEntry{{Domain: domain, Answer: answer}}
+				reO = []model.RewriteEntry{{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}}
+				reR = []model.RewriteEntry{{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}}
 			})
 			It("should have no changes (empty slices)", func() {
 				cl.EXPECT().RewriteList().Return(&reR, nil)
@@ -80,7 +81,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should add one rewrite entry", func() {
-				reR = []types.RewriteEntry{}
+				reR = []model.RewriteEntry{}
 				cl.EXPECT().RewriteList().Return(&reR, nil)
 				cl.EXPECT().AddRewriteEntries(reO[0])
 				cl.EXPECT().DeleteRewriteEntries()
@@ -88,7 +89,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should remove one rewrite entry", func() {
-				reO = []types.RewriteEntry{}
+				reO = []model.RewriteEntry{}
 				cl.EXPECT().RewriteList().Return(&reR, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries(reR[0])
@@ -96,7 +97,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should remove one rewrite entry", func() {
-				reO = []types.RewriteEntry{}
+				reO = []model.RewriteEntry{}
 				cl.EXPECT().RewriteList().Return(&reR, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries(reR[0])
@@ -124,14 +125,14 @@ var _ = Describe("Sync", func() {
 		})
 		Context("syncClients", func() {
 			var (
-				clO  *types.Clients
-				clR  *types.Clients
+				clO  *model.Clients
+				clR  *model.Clients
 				name string
 			)
 			BeforeEach(func() {
 				name = uuid.NewString()
-				clO = &types.Clients{Clients: []types.Client{{Name: name}}}
-				clR = &types.Clients{Clients: []types.Client{{Name: name}}}
+				clO = &model.Clients{Clients: &model.ClientsArray{{Name: utils.Ptr(name)}}}
+				clR = &model.Clients{Clients: &model.ClientsArray{{Name: utils.Ptr(name)}}}
 			})
 			It("should have no changes (empty slices)", func() {
 				cl.EXPECT().Clients().Return(clR, nil)
@@ -142,29 +143,29 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should add one client", func() {
-				clR.Clients = []types.Client{}
+				clR.Clients = &model.ClientsArray{}
 				cl.EXPECT().Clients().Return(clR, nil)
-				cl.EXPECT().AddClients(clO.Clients[0])
+				cl.EXPECT().AddClients(&(*clO.Clients)[0])
 				cl.EXPECT().UpdateClients()
 				cl.EXPECT().DeleteClients()
 				err := w.syncClients(clO, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should update one client", func() {
-				clR.Clients[0].Disallowed = true
+				(*clR.Clients)[0].FilteringEnabled = utils.Ptr(true)
 				cl.EXPECT().Clients().Return(clR, nil)
 				cl.EXPECT().AddClients()
-				cl.EXPECT().UpdateClients(clO.Clients[0])
+				cl.EXPECT().UpdateClients(&(*clO.Clients)[0])
 				cl.EXPECT().DeleteClients()
 				err := w.syncClients(clO, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should delete one client", func() {
-				clO.Clients = []types.Client{}
+				clO.Clients = &model.ClientsArray{}
 				cl.EXPECT().Clients().Return(clR, nil)
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients()
-				cl.EXPECT().DeleteClients(clR.Clients[0])
+				cl.EXPECT().DeleteClients(&(*clR.Clients)[0])
 				err := w.syncClients(clO, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -198,17 +199,23 @@ var _ = Describe("Sync", func() {
 		Context("syncGeneralSettings", func() {
 			var (
 				o  *origin
-				rs *types.Status
+				rs *model.ServerStatus
 			)
 			BeforeEach(func() {
 				o = &origin{
-					status: &types.Status{},
+					profileInfo: &model.ProfileInfo{
+						Name:     "test",
+						Language: "en",
+					},
+					status:     &model.ServerStatus{},
+					safeSearch: &model.SafeSearchConfig{},
 				}
-				rs = &types.Status{}
+				rs = &model.ServerStatus{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -217,7 +224,8 @@ var _ = Describe("Sync", func() {
 				o.status.ProtectionEnabled = true
 				cl.EXPECT().ToggleProtection(true)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -226,24 +234,48 @@ var _ = Describe("Sync", func() {
 				o.parental = true
 				cl.EXPECT().Parental()
 				cl.EXPECT().ToggleParental(true)
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have safeSearch enabled changes", func() {
-				o.safeSearch = true
+				o.safeSearch = &model.SafeSearchConfig{Enabled: utils.Ptr(true)}
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
-				cl.EXPECT().ToggleSafeSearch(true)
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
 				cl.EXPECT().SafeBrowsing()
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have Duckduckgo safeSearch enabled changed", func() {
+				o.safeSearch = &model.SafeSearchConfig{Duckduckgo: utils.Ptr(true)}
+				cl.EXPECT().Parental()
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: utils.Ptr(true)}, nil)
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetSafeSearchConfig(o.safeSearch)
+
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should have profileInfo language changed", func() {
+				o.profileInfo.Language = "de"
+				cl.EXPECT().Parental()
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Language: "en"}, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetProfileInfo(o.profileInfo)
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have safeBrowsing enabled changes", func() {
 				o.safeBrowsing = true
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().ProfileInfo().Return(o.profileInfo, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().ToggleSafeBrowsing(true)
 				err := w.syncGeneralSettings(o, rs, cl)
@@ -253,16 +285,16 @@ var _ = Describe("Sync", func() {
 		Context("syncConfigs", func() {
 			var (
 				o   *origin
-				qlc *types.QueryLogConfig
-				sc  *types.IntervalConfig
+				qlc *model.QueryLogConfig
+				sc  *model.StatsConfig
 			)
 			BeforeEach(func() {
 				o = &origin{
-					queryLogConfig: &types.QueryLogConfig{},
-					statsConfig:    &types.IntervalConfig{},
+					queryLogConfig: &model.QueryLogConfig{},
+					statsConfig:    &model.StatsConfig{},
 				}
-				qlc = &types.QueryLogConfig{}
-				sc = &types.IntervalConfig{}
+				qlc = &model.QueryLogConfig{}
+				sc = &model.StatsConfig{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
@@ -271,29 +303,31 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have QueryLogConfig changes", func() {
-				o.queryLogConfig.Interval = 123
+				var interval model.QueryLogConfigInterval = 123
+				o.queryLogConfig.Interval = &interval
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
-				cl.EXPECT().SetQueryLogConfig(false, 123.0, false)
+				cl.EXPECT().SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil})
 				cl.EXPECT().StatsConfig().Return(sc, nil)
 				err := w.syncConfigs(o, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have StatsConfig changes", func() {
-				o.statsConfig.Interval = 123
+				var interval model.StatsConfigInterval = 123
+				o.statsConfig.Interval = &interval
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
 				cl.EXPECT().StatsConfig().Return(sc, nil)
-				cl.EXPECT().SetStatsConfig(123.0)
+				cl.EXPECT().SetStatsConfig(&model.StatsConfig{Interval: &interval})
 				err := w.syncConfigs(o, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})
 		Context("statusWithSetup", func() {
 			var (
-				status *types.Status
+				status *model.ServerStatus
 				inst   types.AdGuardInstance
 			)
 			BeforeEach(func() {
-				status = &types.Status{}
+				status = &model.ServerStatus{}
 				inst = types.AdGuardInstance{
 					AutoSetup: true,
 				}
@@ -322,34 +356,39 @@ var _ = Describe("Sync", func() {
 		})
 		Context("syncServices", func() {
 			var (
-				os types.Services
-				rs types.Services
+				obs  *model.BlockedServicesArray
+				rbs  *model.BlockedServicesArray
+				obss *model.BlockedServicesSchedule
 			)
 			BeforeEach(func() {
-				os = []string{"foo"}
-				rs = []string{"foo"}
+				obs = &model.BlockedServicesArray{"foo"}
+				rbs = &model.BlockedServicesArray{"foo"}
+				obss = &model.BlockedServicesSchedule{}
 			})
 			It("should have no changes", func() {
-				cl.EXPECT().Services().Return(rs, nil)
-				err := w.syncServices(os, cl)
+				cl.EXPECT().BlockedServices().Return(rbs, nil)
+				cl.EXPECT().BlockedServicesSchedule().Return(obss, nil)
+				err := w.syncServices(obs, obss, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
-			It("should have services changes", func() {
-				os = []string{"bar"}
-				cl.EXPECT().Services().Return(rs, nil)
-				cl.EXPECT().SetServices(os)
-				err := w.syncServices(os, cl)
+			It("should have blockedServices changes", func() {
+				obs = &model.BlockedServicesArray{"bar"}
+
+				cl.EXPECT().BlockedServices().Return(rbs, nil)
+				cl.EXPECT().BlockedServicesSchedule().Return(obss, nil)
+				cl.EXPECT().SetBlockedServices(obs)
+				err := w.syncServices(obs, obss, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})
 		Context("syncFilters", func() {
 			var (
-				of *types.FilteringStatus
-				rf *types.FilteringStatus
+				of *model.FilterStatus
+				rf *model.FilterStatus
 			)
 			BeforeEach(func() {
-				of = &types.FilteringStatus{}
-				rf = &types.FilteringStatus{}
+				of = &model.FilterStatus{}
+				rf = &model.FilterStatus{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().Filtering().Return(rf, nil)
@@ -363,7 +402,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changes user roles", func() {
-				of.UserRules = []string{"foo"}
+				of.UserRules = utils.Ptr([]string{"foo"})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
@@ -376,8 +415,8 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changed filtering config", func() {
-				of.Enabled = true
-				of.Interval = 123
+				of.Enabled = utils.Ptr(true)
+				of.Interval = utils.Ptr(123)
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
@@ -385,7 +424,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AddFilters(true)
 				cl.EXPECT().UpdateFilters(true)
 				cl.EXPECT().DeleteFilters(true)
-				cl.EXPECT().ToggleFiltering(of.Enabled, of.Interval)
+				cl.EXPECT().ToggleFiltering(*of.Enabled, *of.Interval)
 				err := w.syncFilters(of, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -393,16 +432,16 @@ var _ = Describe("Sync", func() {
 
 		Context("syncDNS", func() {
 			var (
-				oal *types.AccessList
-				ral *types.AccessList
-				odc *types.DNSConfig
-				rdc *types.DNSConfig
+				oal *model.AccessList
+				ral *model.AccessList
+				odc *model.DNSConfig
+				rdc *model.DNSConfig
 			)
 			BeforeEach(func() {
-				oal = &types.AccessList{}
-				ral = &types.AccessList{}
-				odc = &types.DNSConfig{}
-				rdc = &types.DNSConfig{}
+				oal = &model.AccessList{}
+				ral = &model.AccessList{}
+				odc = &model.DNSConfig{}
+				rdc = &model.DNSConfig{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().AccessList().Return(ral, nil)
@@ -411,7 +450,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have access list changes", func() {
-				ral.BlockedHosts = []string{"foo"}
+				ral.BlockedHosts = utils.Ptr([]string{"foo"})
 				cl.EXPECT().AccessList().Return(ral, nil)
 				cl.EXPECT().DNSConfig().Return(rdc, nil)
 				cl.EXPECT().SetAccessList(oal)
@@ -419,7 +458,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have dns config changes", func() {
-				rdc.Bootstraps = []string{"foo"}
+				rdc.BootstrapDns = utils.Ptr([]string{"foo"})
 				cl.EXPECT().AccessList().Return(ral, nil)
 				cl.EXPECT().DNSConfig().Return(rdc, nil)
 				cl.EXPECT().SetDNSConfig(odc)
@@ -430,45 +469,45 @@ var _ = Describe("Sync", func() {
 
 		Context("syncDHCPServer", func() {
 			var (
-				osc *types.DHCPServerConfig
-				rsc *types.DHCPServerConfig
+				osc *model.DhcpStatus
+				rsc *model.DhcpStatus
 			)
 			BeforeEach(func() {
-				osc = &types.DHCPServerConfig{V4: &types.V4ServerConfJSON{
-					GatewayIP:  net.IPv4(1, 2, 3, 4),
-					RangeStart: net.IPv4(1, 2, 3, 5),
-					RangeEnd:   net.IPv4(1, 2, 3, 6),
-					SubnetMask: net.IPv4(255, 255, 255, 0),
+				osc = &model.DhcpStatus{V4: &model.DhcpConfigV4{
+					GatewayIp:  utils.Ptr("1.2.3.4"),
+					RangeStart: utils.Ptr("1.2.3.5"),
+					RangeEnd:   utils.Ptr("1.2.3.6"),
+					SubnetMask: utils.Ptr("255.255.255.0"),
 				}}
-				rsc = &types.DHCPServerConfig{}
+				rsc = &model.DhcpStatus{}
 				w.cfg.Features.DHCP.StaticLeases = false
 			})
 			It("should have no changes", func() {
 				rsc.V4 = osc.V4
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changes", func() {
-				rsc.Enabled = true
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
-				cl.EXPECT().SetDHCPServerConfig(osc)
+				rsc.Enabled = utils.Ptr(true)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				cl.EXPECT().SetDhcpConfig(osc)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should use replica interface name", func() {
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := osc.Clone()
-				oscClone.InterfaceName = "foo"
-				cl.EXPECT().SetDHCPServerConfig(oscClone)
+				oscClone.InterfaceName = utils.Ptr("foo")
+				cl.EXPECT().SetDhcpConfig(oscClone)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{InterfaceName: "foo"})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should enable the target dhcp server", func() {
-				cl.EXPECT().DHCPServerConfig().Return(rsc, nil)
+				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := osc.Clone()
-				oscClone.Enabled = true
-				cl.EXPECT().SetDHCPServerConfig(oscClone)
+				oscClone.Enabled = utils.Ptr(true)
+				cl.EXPECT().SetDhcpConfig(oscClone)
 				err := w.syncDHCPServer(osc, cl, types.AdGuardInstance{DHCPServerEnabled: &boolTrue})
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -501,46 +540,50 @@ var _ = Describe("Sync", func() {
 			It("should have no changes", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
-				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
-				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
-				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
 				cl.EXPECT().DeleteFilters(false)
 				cl.EXPECT().AddFilters(true)
 				cl.EXPECT().UpdateFilters(true)
 				cl.EXPECT().DeleteFilters(true)
-				cl.EXPECT().Services()
-				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
+				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients()
 				cl.EXPECT().DeleteClients()
-				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 				cl.EXPECT().AddDHCPStaticLeases().Return(nil)
 				cl.EXPECT().DeleteDHCPStaticLeases().Return(nil)
 				w.sync()
@@ -550,94 +593,78 @@ var _ = Describe("Sync", func() {
 				w.cfg.Features.DHCP.StaticLeases = false
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
-				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
-				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
-				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().AddFilters(false)
 				cl.EXPECT().UpdateFilters(false)
 				cl.EXPECT().DeleteFilters(false)
 				cl.EXPECT().AddFilters(true)
 				cl.EXPECT().UpdateFilters(true)
 				cl.EXPECT().DeleteFilters(true)
-				cl.EXPECT().Services()
-				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
+				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().AddClients()
 				cl.EXPECT().UpdateClients()
 				cl.EXPECT().DeleteClients()
-				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				w.sync()
 			})
 			It("origin version is too small", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
 				w.sync()
 			})
 			It("replica version is too small", func() {
 				// origin
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
-				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
-				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
+				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				cl.EXPECT().BlockedServices()
+				cl.EXPECT().BlockedServicesSchedule()
+				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: "v0.106.9"}, nil)
-				w.sync()
-			})
-			It("replica version is with incompatible API", func() {
-				// origin
-				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.MinAgh}, nil)
-				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearch()
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&types.RewriteEntries{}, nil)
-				cl.EXPECT().Services()
-				cl.EXPECT().Filtering().Return(&types.FilteringStatus{}, nil)
-				cl.EXPECT().Clients().Return(&types.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&types.QueryLogConfig{}, nil)
-				cl.EXPECT().StatsConfig().Return(&types.IntervalConfig{}, nil)
-				cl.EXPECT().AccessList().Return(&types.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&types.DNSConfig{}, nil)
-				cl.EXPECT().DHCPServerConfig().Return(&types.DHCPServerConfig{}, nil)
-
-				// replica
-				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&types.Status{Version: versions.IncompatibleAPI}, nil)
+				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
 				w.sync()
 			})
 		})

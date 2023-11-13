@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"sort"
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/bakito/adguardhome-sync/version"
 	"github.com/robfig/cron/v3"
@@ -89,6 +92,45 @@ type worker struct {
 	createClient func(instance types.AdGuardInstance) (client.Client, error)
 }
 
+func (w *worker) status() *syncStatus {
+	syncStatus := &syncStatus{
+		Origin: w.getStatus(w.cfg.Origin),
+	}
+
+	for _, replica := range w.cfg.Replicas {
+		st := w.getStatus(replica)
+		if w.running {
+			st.Status = "info"
+		}
+		syncStatus.Replicas = append(syncStatus.Replicas, st)
+	}
+
+	sort.Slice(syncStatus.Replicas, func(i, j int) bool {
+		return syncStatus.Replicas[i].Host < syncStatus.Replicas[j].Host
+	})
+
+	return syncStatus
+}
+
+func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
+	oc, err := w.createClient(inst)
+	if err != nil {
+		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
+		return replicaStatus{Host: oc.Host(), Error: err.Error(), Status: "danger"}
+	}
+	sl := l.With("from", oc.Host())
+	_, err = oc.Status()
+	if err != nil {
+		if errors.Is(err, client.ErrSetupNeeded) {
+			return replicaStatus{Host: oc.Host(), Error: err.Error(), Status: "warning"}
+		}
+		sl.With("error", err).Error("Error getting origin status")
+		return replicaStatus{Host: oc.Host(), Error: err.Error(), Status: "danger"}
+	}
+	st := replicaStatus{Host: oc.Host(), Status: "success"}
+	return st
+}
+
 func (w *worker) sync() {
 	if w.running {
 		l.Info("Sync already running")
@@ -119,12 +161,18 @@ func (w *worker) sync() {
 
 	sl.With("version", o.status.Version).Info("Connected to origin")
 
+	o.profileInfo, err = oc.ProfileInfo()
+	if err != nil {
+		sl.With("error", err).Error("Error getting profileInfo info")
+		return
+	}
+
 	o.parental, err = oc.Parental()
 	if err != nil {
 		sl.With("error", err).Error("Error getting parental status")
 		return
 	}
-	o.safeSearch, err = oc.SafeSearch()
+	o.safeSearch, err = oc.SafeSearchConfig()
 	if err != nil {
 		sl.With("error", err).Error("Error getting safe search status")
 		return
@@ -141,9 +189,15 @@ func (w *worker) sync() {
 		return
 	}
 
-	o.services, err = oc.Services()
+	o.blockedServices, err = oc.BlockedServices()
 	if err != nil {
-		sl.With("error", err).Error("Error getting origin services")
+		sl.With("error", err).Error("Error getting origin blocked services")
+		return
+	}
+
+	o.blockedServicesSchedule, err = oc.BlockedServicesSchedule()
+	if err != nil {
+		sl.With("error", err).Error("Error getting origin blocked services schedule")
 		return
 	}
 
@@ -181,7 +235,7 @@ func (w *worker) sync() {
 	}
 
 	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
-		o.dhcpServerConfig, err = oc.DHCPServerConfig()
+		o.dhcpServerConfig, err = oc.DhcpConfig()
 		if err != nil {
 			sl.With("error", err).Error("Error getting dhcp server config")
 			return
@@ -217,11 +271,6 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	if versions.IsSame(rs.Version, versions.IncompatibleAPI) {
-		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home runs with an incompatible API - Please ugrade to version %s or newer", versions.FixedIncompatibleAPI)
-		return
-	}
-
 	if o.status.Version != rs.Version {
 		rl.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
 	}
@@ -249,9 +298,9 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		return
 	}
 
-	err = w.syncServices(o.services, rc)
+	err = w.syncServices(o.blockedServices, o.blockedServicesSchedule, rc)
 	if err != nil {
-		rl.With("error", err).Error("Error syncing services")
+		rl.With("error", err).Error("Error syncing blockedServices")
 		return
 	}
 
@@ -275,7 +324,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl.Info("Sync done")
 }
 
-func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*types.Status, error) {
+func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*model.ServerStatus, error) {
 	rs, err := rc.Status()
 	if err != nil {
 		if replica.AutoSetup && errors.Is(err, client.ErrSetupNeeded) {
@@ -290,15 +339,26 @@ func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardIns
 	return rs, err
 }
 
-func (w *worker) syncServices(os types.Services, replica client.Client) error {
+func (w *worker) syncServices(os *model.BlockedServicesArray, obss *model.BlockedServicesSchedule, replica client.Client) error {
 	if w.cfg.Features.Services {
-		rs, err := replica.Services()
+		rs, err := replica.BlockedServices()
 		if err != nil {
 			return err
 		}
 
-		if !os.Equals(rs) {
-			if err := replica.SetServices(os); err != nil {
+		if !model.EqualsStringSlice(os, rs, true) {
+			if err := replica.SetBlockedServices(os); err != nil {
+				return err
+			}
+		}
+
+		rbss, err := replica.BlockedServicesSchedule()
+		if err != nil {
+			return err
+		}
+
+		if !obss.Equals(rbss) {
+			if err := replica.SetBlockedServicesSchedule(obss); err != nil {
 				return err
 			}
 		}
@@ -306,7 +366,7 @@ func (w *worker) syncServices(os types.Services, replica client.Client) error {
 	return nil
 }
 
-func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) error {
+func (w *worker) syncFilters(of *model.FilterStatus, replica client.Client) error {
 	if w.cfg.Features.Filters {
 		rf, err := replica.Filtering()
 		if err != nil {
@@ -320,12 +380,12 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 			return err
 		}
 
-		if of.UserRules.String() != rf.UserRules.String() {
+		if utils.PtrToString(of.UserRules) != utils.PtrToString(rf.UserRules) {
 			return replica.SetCustomRules(of.UserRules)
 		}
 
 		if of.Enabled != rf.Enabled || of.Interval != rf.Interval {
-			if err = replica.ToggleFiltering(of.Enabled, of.Interval); err != nil {
+			if err = replica.ToggleFiltering(*of.Enabled, *of.Interval); err != nil {
 				return err
 			}
 		}
@@ -333,8 +393,8 @@ func (w *worker) syncFilters(of *types.FilteringStatus, replica client.Client) e
 	return nil
 }
 
-func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitelist bool, replica client.Client) error {
-	fa, fu, fd := rFilters.Merge(of)
+func (w *worker) syncFilterType(of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client) error {
+	fa, fu, fd := model.MergeFilters(rFilters, of)
 
 	if err := replica.DeleteFilters(whitelist, fd...); err != nil {
 		return err
@@ -354,7 +414,7 @@ func (w *worker) syncFilterType(of types.Filters, rFilters types.Filters, whitel
 	return nil
 }
 
-func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, replica client.Client) error {
+func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *model.RewriteEntries, replica client.Client) error {
 	if w.cfg.Features.DNS.Rewrites {
 		replicaRewrites, err := replica.RewriteList()
 		if err != nil {
@@ -378,7 +438,7 @@ func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *types.RewriteEntries, r
 	return nil
 }
 
-func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
+func (w *worker) syncClients(oc *model.Clients, replica client.Client) error {
 	if w.cfg.Features.ClientSettings {
 		rc, err := replica.Clients()
 		if err != nil {
@@ -400,8 +460,17 @@ func (w *worker) syncClients(oc *types.Clients, replica client.Client) error {
 	return nil
 }
 
-func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client.Client) error {
+func (w *worker) syncGeneralSettings(o *origin, rs *model.ServerStatus, replica client.Client) error {
 	if w.cfg.Features.GeneralSettings {
+
+		if pro, err := replica.ProfileInfo(); err != nil {
+			return err
+		} else if !o.profileInfo.Equals(pro) {
+			if err = replica.SetProfileInfo(o.profileInfo); err != nil {
+				return err
+			}
+		}
+
 		if o.status.ProtectionEnabled != rs.ProtectionEnabled {
 			if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
 				return err
@@ -414,10 +483,10 @@ func (w *worker) syncGeneralSettings(o *origin, rs *types.Status, replica client
 				return err
 			}
 		}
-		if rs, err := replica.SafeSearch(); err != nil {
+		if ssc, err := replica.SafeSearchConfig(); err != nil {
 			return err
-		} else if o.safeSearch != rs {
-			if err = replica.ToggleSafeSearch(o.safeSearch); err != nil {
+		} else if !o.safeSearch.Equals(ssc) {
+			if err = replica.SetSafeSearchConfig(o.safeSearch); err != nil {
 				return err
 			}
 		}
@@ -439,7 +508,7 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 			return err
 		}
 		if !o.queryLogConfig.Equals(qlc) {
-			if err = rc.SetQueryLogConfig(o.queryLogConfig.Enabled, o.queryLogConfig.Interval, o.queryLogConfig.AnonymizeClientIP); err != nil {
+			if err = rc.SetQueryLogConfig(o.queryLogConfig); err != nil {
 				return err
 			}
 		}
@@ -450,7 +519,7 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 			return err
 		}
 		if o.statsConfig.Interval != sc.Interval {
-			if err = rc.SetStatsConfig(o.statsConfig.Interval); err != nil {
+			if err = rc.SetStatsConfig(o.statsConfig); err != nil {
 				return err
 			}
 		}
@@ -459,7 +528,7 @@ func (w *worker) syncConfigs(o *origin, rc client.Client) error {
 	return nil
 }
 
-func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.Client) error {
+func (w *worker) syncDNS(oal *model.AccessList, odc *model.DNSConfig, rc client.Client) error {
 	if w.cfg.Features.DNS.AccessLists {
 		al, err := rc.AccessList()
 		if err != nil {
@@ -485,11 +554,11 @@ func (w *worker) syncDNS(oal *types.AccessList, odc *types.DNSConfig, rc client.
 	return nil
 }
 
-func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, replica types.AdGuardInstance) error {
+func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica types.AdGuardInstance) error {
 	if !w.cfg.Features.DHCP.ServerConfig && !w.cfg.Features.DHCP.StaticLeases {
 		return nil
 	}
-	sc, err := rc.DHCPServerConfig()
+	sc, err := rc.DhcpConfig()
 	if w.cfg.Features.DHCP.ServerConfig && osc.HasConfig() {
 		if err != nil {
 			return err
@@ -497,22 +566,22 @@ func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, r
 		origClone := osc.Clone()
 		if replica.InterfaceName != "" {
 			// overwrite interface name
-			origClone.InterfaceName = replica.InterfaceName
+			origClone.InterfaceName = utils.Ptr(replica.InterfaceName)
 		}
 		if replica.DHCPServerEnabled != nil {
 			// overwrite dhcp enabled
-			origClone.Enabled = *replica.DHCPServerEnabled
+			origClone.Enabled = replica.DHCPServerEnabled
 		}
 
 		if !sc.Equals(origClone) {
-			if err = rc.SetDHCPServerConfig(origClone); err != nil {
+			if err = rc.SetDhcpConfig(origClone); err != nil {
 				return err
 			}
 		}
 	}
 
 	if w.cfg.Features.DHCP.StaticLeases {
-		a, r := sc.StaticLeases.Merge(osc.StaticLeases)
+		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, osc.StaticLeases)
 
 		if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
 			return err
@@ -525,17 +594,19 @@ func (w *worker) syncDHCPServer(osc *types.DHCPServerConfig, rc client.Client, r
 }
 
 type origin struct {
-	status           *types.Status
-	rewrites         *types.RewriteEntries
-	services         types.Services
-	filters          *types.FilteringStatus
-	clients          *types.Clients
-	queryLogConfig   *types.QueryLogConfig
-	statsConfig      *types.IntervalConfig
-	accessList       *types.AccessList
-	dnsConfig        *types.DNSConfig
-	dhcpServerConfig *types.DHCPServerConfig
-	parental         bool
-	safeSearch       bool
-	safeBrowsing     bool
+	status                  *model.ServerStatus
+	rewrites                *model.RewriteEntries
+	blockedServices         *model.BlockedServicesArray
+	blockedServicesSchedule *model.BlockedServicesSchedule
+	filters                 *model.FilterStatus
+	clients                 *model.Clients
+	queryLogConfig          *model.QueryLogConfig
+	statsConfig             *model.StatsConfig
+	accessList              *model.AccessList
+	dnsConfig               *model.DNSConfig
+	dhcpServerConfig        *model.DhcpStatus
+	parental                bool
+	safeSearch              *model.SafeSearchConfig
+	profileInfo             *model.ProfileInfo
+	safeBrowsing            bool
 }

@@ -7,7 +7,7 @@ package client
 import (
 	reflect "reflect"
 
-	types "github.com/bakito/adguardhome-sync/pkg/types"
+	model "github.com/bakito/adguardhome-sync/pkg/client/model"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,10 +35,10 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // AccessList mocks base method.
-func (m *MockClient) AccessList() (*types.AccessList, error) {
+func (m *MockClient) AccessList() (*model.AccessList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AccessList")
-	ret0, _ := ret[0].(*types.AccessList)
+	ret0, _ := ret[0].(*model.AccessList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,7 +50,7 @@ func (mr *MockClientMockRecorder) AccessList() *gomock.Call {
 }
 
 // AddClients mocks base method.
-func (m *MockClient) AddClients(arg0 ...types.Client) error {
+func (m *MockClient) AddClients(arg0 ...*model.Client) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -68,7 +68,7 @@ func (mr *MockClientMockRecorder) AddClients(arg0 ...interface{}) *gomock.Call {
 }
 
 // AddDHCPStaticLeases mocks base method.
-func (m *MockClient) AddDHCPStaticLeases(arg0 ...types.Lease) error {
+func (m *MockClient) AddDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -86,7 +86,7 @@ func (mr *MockClientMockRecorder) AddDHCPStaticLeases(arg0 ...interface{}) *gomo
 }
 
 // AddFilters mocks base method.
-func (m *MockClient) AddFilters(arg0 bool, arg1 ...types.Filter) error {
+func (m *MockClient) AddFilters(arg0 bool, arg1 ...model.Filter) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
@@ -105,7 +105,7 @@ func (mr *MockClientMockRecorder) AddFilters(arg0 interface{}, arg1 ...interface
 }
 
 // AddRewriteEntries mocks base method.
-func (m *MockClient) AddRewriteEntries(arg0 ...types.RewriteEntry) error {
+func (m *MockClient) AddRewriteEntries(arg0 ...model.RewriteEntry) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -122,11 +122,41 @@ func (mr *MockClientMockRecorder) AddRewriteEntries(arg0 ...interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRewriteEntries", reflect.TypeOf((*MockClient)(nil).AddRewriteEntries), arg0...)
 }
 
+// BlockedServices mocks base method.
+func (m *MockClient) BlockedServices() (*[]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BlockedServices")
+	ret0, _ := ret[0].(*[]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BlockedServices indicates an expected call of BlockedServices.
+func (mr *MockClientMockRecorder) BlockedServices() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockedServices", reflect.TypeOf((*MockClient)(nil).BlockedServices))
+}
+
+// BlockedServicesSchedule mocks base method.
+func (m *MockClient) BlockedServicesSchedule() (*model.BlockedServicesSchedule, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BlockedServicesSchedule")
+	ret0, _ := ret[0].(*model.BlockedServicesSchedule)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BlockedServicesSchedule indicates an expected call of BlockedServicesSchedule.
+func (mr *MockClientMockRecorder) BlockedServicesSchedule() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockedServicesSchedule", reflect.TypeOf((*MockClient)(nil).BlockedServicesSchedule))
+}
+
 // Clients mocks base method.
-func (m *MockClient) Clients() (*types.Clients, error) {
+func (m *MockClient) Clients() (*model.Clients, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Clients")
-	ret0, _ := ret[0].(*types.Clients)
+	ret0, _ := ret[0].(*model.Clients)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -137,26 +167,11 @@ func (mr *MockClientMockRecorder) Clients() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clients", reflect.TypeOf((*MockClient)(nil).Clients))
 }
 
-// DHCPServerConfig mocks base method.
-func (m *MockClient) DHCPServerConfig() (*types.DHCPServerConfig, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DHCPServerConfig")
-	ret0, _ := ret[0].(*types.DHCPServerConfig)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DHCPServerConfig indicates an expected call of DHCPServerConfig.
-func (mr *MockClientMockRecorder) DHCPServerConfig() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DHCPServerConfig", reflect.TypeOf((*MockClient)(nil).DHCPServerConfig))
-}
-
 // DNSConfig mocks base method.
-func (m *MockClient) DNSConfig() (*types.DNSConfig, error) {
+func (m *MockClient) DNSConfig() (*model.DNSConfig, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DNSConfig")
-	ret0, _ := ret[0].(*types.DNSConfig)
+	ret0, _ := ret[0].(*model.DNSConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -168,7 +183,7 @@ func (mr *MockClientMockRecorder) DNSConfig() *gomock.Call {
 }
 
 // DeleteClients mocks base method.
-func (m *MockClient) DeleteClients(arg0 ...types.Client) error {
+func (m *MockClient) DeleteClients(arg0 ...*model.Client) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -186,7 +201,7 @@ func (mr *MockClientMockRecorder) DeleteClients(arg0 ...interface{}) *gomock.Cal
 }
 
 // DeleteDHCPStaticLeases mocks base method.
-func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...types.Lease) error {
+func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -204,7 +219,7 @@ func (mr *MockClientMockRecorder) DeleteDHCPStaticLeases(arg0 ...interface{}) *g
 }
 
 // DeleteFilters mocks base method.
-func (m *MockClient) DeleteFilters(arg0 bool, arg1 ...types.Filter) error {
+func (m *MockClient) DeleteFilters(arg0 bool, arg1 ...model.Filter) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
@@ -223,7 +238,7 @@ func (mr *MockClientMockRecorder) DeleteFilters(arg0 interface{}, arg1 ...interf
 }
 
 // DeleteRewriteEntries mocks base method.
-func (m *MockClient) DeleteRewriteEntries(arg0 ...types.RewriteEntry) error {
+func (m *MockClient) DeleteRewriteEntries(arg0 ...model.RewriteEntry) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -240,11 +255,26 @@ func (mr *MockClientMockRecorder) DeleteRewriteEntries(arg0 ...interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRewriteEntries", reflect.TypeOf((*MockClient)(nil).DeleteRewriteEntries), arg0...)
 }
 
+// DhcpConfig mocks base method.
+func (m *MockClient) DhcpConfig() (*model.DhcpStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DhcpConfig")
+	ret0, _ := ret[0].(*model.DhcpStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DhcpConfig indicates an expected call of DhcpConfig.
+func (mr *MockClientMockRecorder) DhcpConfig() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DhcpConfig", reflect.TypeOf((*MockClient)(nil).DhcpConfig))
+}
+
 // Filtering mocks base method.
-func (m *MockClient) Filtering() (*types.FilteringStatus, error) {
+func (m *MockClient) Filtering() (*model.FilterStatus, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Filtering")
-	ret0, _ := ret[0].(*types.FilteringStatus)
+	ret0, _ := ret[0].(*model.FilterStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -284,11 +314,26 @@ func (mr *MockClientMockRecorder) Parental() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Parental", reflect.TypeOf((*MockClient)(nil).Parental))
 }
 
+// ProfileInfo mocks base method.
+func (m *MockClient) ProfileInfo() (*model.ProfileInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProfileInfo")
+	ret0, _ := ret[0].(*model.ProfileInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProfileInfo indicates an expected call of ProfileInfo.
+func (mr *MockClientMockRecorder) ProfileInfo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProfileInfo", reflect.TypeOf((*MockClient)(nil).ProfileInfo))
+}
+
 // QueryLogConfig mocks base method.
-func (m *MockClient) QueryLogConfig() (*types.QueryLogConfig, error) {
+func (m *MockClient) QueryLogConfig() (*model.QueryLogConfig, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueryLogConfig")
-	ret0, _ := ret[0].(*types.QueryLogConfig)
+	ret0, _ := ret[0].(*model.QueryLogConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -314,10 +359,10 @@ func (mr *MockClientMockRecorder) RefreshFilters(arg0 interface{}) *gomock.Call 
 }
 
 // RewriteList mocks base method.
-func (m *MockClient) RewriteList() (*types.RewriteEntries, error) {
+func (m *MockClient) RewriteList() (*model.RewriteEntries, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RewriteList")
-	ret0, _ := ret[0].(*types.RewriteEntries)
+	ret0, _ := ret[0].(*model.RewriteEntries)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -343,38 +388,23 @@ func (mr *MockClientMockRecorder) SafeBrowsing() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeBrowsing", reflect.TypeOf((*MockClient)(nil).SafeBrowsing))
 }
 
-// SafeSearch mocks base method.
-func (m *MockClient) SafeSearch() (bool, error) {
+// SafeSearchConfig mocks base method.
+func (m *MockClient) SafeSearchConfig() (*model.SafeSearchConfig, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SafeSearch")
-	ret0, _ := ret[0].(bool)
+	ret := m.ctrl.Call(m, "SafeSearchConfig")
+	ret0, _ := ret[0].(*model.SafeSearchConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SafeSearch indicates an expected call of SafeSearch.
-func (mr *MockClientMockRecorder) SafeSearch() *gomock.Call {
+// SafeSearchConfig indicates an expected call of SafeSearchConfig.
+func (mr *MockClientMockRecorder) SafeSearchConfig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeSearch", reflect.TypeOf((*MockClient)(nil).SafeSearch))
-}
-
-// Services mocks base method.
-func (m *MockClient) Services() (types.Services, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Services")
-	ret0, _ := ret[0].(types.Services)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Services indicates an expected call of Services.
-func (mr *MockClientMockRecorder) Services() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Services", reflect.TypeOf((*MockClient)(nil).Services))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SafeSearchConfig", reflect.TypeOf((*MockClient)(nil).SafeSearchConfig))
 }
 
 // SetAccessList mocks base method.
-func (m *MockClient) SetAccessList(arg0 *types.AccessList) error {
+func (m *MockClient) SetAccessList(arg0 *model.AccessList) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetAccessList", arg0)
 	ret0, _ := ret[0].(error)
@@ -387,8 +417,36 @@ func (mr *MockClientMockRecorder) SetAccessList(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessList", reflect.TypeOf((*MockClient)(nil).SetAccessList), arg0)
 }
 
+// SetBlockedServices mocks base method.
+func (m *MockClient) SetBlockedServices(arg0 *[]string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetBlockedServices", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetBlockedServices indicates an expected call of SetBlockedServices.
+func (mr *MockClientMockRecorder) SetBlockedServices(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetBlockedServices", reflect.TypeOf((*MockClient)(nil).SetBlockedServices), arg0)
+}
+
+// SetBlockedServicesSchedule mocks base method.
+func (m *MockClient) SetBlockedServicesSchedule(arg0 *model.BlockedServicesSchedule) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetBlockedServicesSchedule", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetBlockedServicesSchedule indicates an expected call of SetBlockedServicesSchedule.
+func (mr *MockClientMockRecorder) SetBlockedServicesSchedule(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetBlockedServicesSchedule", reflect.TypeOf((*MockClient)(nil).SetBlockedServicesSchedule), arg0)
+}
+
 // SetCustomRules mocks base method.
-func (m *MockClient) SetCustomRules(arg0 types.UserRules) error {
+func (m *MockClient) SetCustomRules(arg0 *[]string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetCustomRules", arg0)
 	ret0, _ := ret[0].(error)
@@ -401,22 +459,8 @@ func (mr *MockClientMockRecorder) SetCustomRules(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCustomRules", reflect.TypeOf((*MockClient)(nil).SetCustomRules), arg0)
 }
 
-// SetDHCPServerConfig mocks base method.
-func (m *MockClient) SetDHCPServerConfig(arg0 *types.DHCPServerConfig) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetDHCPServerConfig", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetDHCPServerConfig indicates an expected call of SetDHCPServerConfig.
-func (mr *MockClientMockRecorder) SetDHCPServerConfig(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDHCPServerConfig", reflect.TypeOf((*MockClient)(nil).SetDHCPServerConfig), arg0)
-}
-
 // SetDNSConfig mocks base method.
-func (m *MockClient) SetDNSConfig(arg0 *types.DNSConfig) error {
+func (m *MockClient) SetDNSConfig(arg0 *model.DNSConfig) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetDNSConfig", arg0)
 	ret0, _ := ret[0].(error)
@@ -429,36 +473,64 @@ func (mr *MockClientMockRecorder) SetDNSConfig(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDNSConfig", reflect.TypeOf((*MockClient)(nil).SetDNSConfig), arg0)
 }
 
-// SetQueryLogConfig mocks base method.
-func (m *MockClient) SetQueryLogConfig(arg0 bool, arg1 float64, arg2 bool) error {
+// SetDhcpConfig mocks base method.
+func (m *MockClient) SetDhcpConfig(arg0 *model.DhcpStatus) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetDhcpConfig", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetDhcpConfig indicates an expected call of SetDhcpConfig.
+func (mr *MockClientMockRecorder) SetDhcpConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDhcpConfig", reflect.TypeOf((*MockClient)(nil).SetDhcpConfig), arg0)
+}
+
+// SetProfileInfo mocks base method.
+func (m *MockClient) SetProfileInfo(arg0 *model.ProfileInfo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetProfileInfo", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetProfileInfo indicates an expected call of SetProfileInfo.
+func (mr *MockClientMockRecorder) SetProfileInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetProfileInfo", reflect.TypeOf((*MockClient)(nil).SetProfileInfo), arg0)
+}
+
+// SetQueryLogConfig mocks base method.
+func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetQueryLogConfig indicates an expected call of SetQueryLogConfig.
-func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), arg0)
 }
 
-// SetServices mocks base method.
-func (m *MockClient) SetServices(arg0 types.Services) error {
+// SetSafeSearchConfig mocks base method.
+func (m *MockClient) SetSafeSearchConfig(arg0 *model.SafeSearchConfig) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetServices", arg0)
+	ret := m.ctrl.Call(m, "SetSafeSearchConfig", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetServices indicates an expected call of SetServices.
-func (mr *MockClientMockRecorder) SetServices(arg0 interface{}) *gomock.Call {
+// SetSafeSearchConfig indicates an expected call of SetSafeSearchConfig.
+func (mr *MockClientMockRecorder) SetSafeSearchConfig(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetServices", reflect.TypeOf((*MockClient)(nil).SetServices), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSafeSearchConfig", reflect.TypeOf((*MockClient)(nil).SetSafeSearchConfig), arg0)
 }
 
 // SetStatsConfig mocks base method.
-func (m *MockClient) SetStatsConfig(arg0 float64) error {
+func (m *MockClient) SetStatsConfig(arg0 *model.StatsConfig) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatsConfig", arg0)
 	ret0, _ := ret[0].(error)
@@ -486,10 +558,10 @@ func (mr *MockClientMockRecorder) Setup() *gomock.Call {
 }
 
 // StatsConfig mocks base method.
-func (m *MockClient) StatsConfig() (*types.IntervalConfig, error) {
+func (m *MockClient) StatsConfig() (*model.StatsConfig, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StatsConfig")
-	ret0, _ := ret[0].(*types.IntervalConfig)
+	ret0, _ := ret[0].(*model.StatsConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -501,10 +573,10 @@ func (mr *MockClientMockRecorder) StatsConfig() *gomock.Call {
 }
 
 // Status mocks base method.
-func (m *MockClient) Status() (*types.Status, error) {
+func (m *MockClient) Status() (*model.ServerStatus, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Status")
-	ret0, _ := ret[0].(*types.Status)
+	ret0, _ := ret[0].(*model.ServerStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -516,7 +588,7 @@ func (mr *MockClientMockRecorder) Status() *gomock.Call {
 }
 
 // ToggleFiltering mocks base method.
-func (m *MockClient) ToggleFiltering(arg0 bool, arg1 float64) error {
+func (m *MockClient) ToggleFiltering(arg0 bool, arg1 int) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ToggleFiltering", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -571,22 +643,8 @@ func (mr *MockClientMockRecorder) ToggleSafeBrowsing(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToggleSafeBrowsing", reflect.TypeOf((*MockClient)(nil).ToggleSafeBrowsing), arg0)
 }
 
-// ToggleSafeSearch mocks base method.
-func (m *MockClient) ToggleSafeSearch(arg0 bool) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ToggleSafeSearch", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ToggleSafeSearch indicates an expected call of ToggleSafeSearch.
-func (mr *MockClientMockRecorder) ToggleSafeSearch(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToggleSafeSearch", reflect.TypeOf((*MockClient)(nil).ToggleSafeSearch), arg0)
-}
-
 // UpdateClients mocks base method.
-func (m *MockClient) UpdateClients(arg0 ...types.Client) error {
+func (m *MockClient) UpdateClients(arg0 ...*model.Client) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -604,7 +662,7 @@ func (mr *MockClientMockRecorder) UpdateClients(arg0 ...interface{}) *gomock.Cal
 }
 
 // UpdateFilters mocks base method.
-func (m *MockClient) UpdateFilters(arg0 bool, arg1 ...types.Filter) error {
+func (m *MockClient) UpdateFilters(arg0 bool, arg1 ...model.Filter) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {

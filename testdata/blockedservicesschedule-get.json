@@ -1,0 +1,22 @@
+{
+  "schedule": {
+    "time_zone": "Europe/Zurich",
+    "tue": {
+      "start": 0,
+      "end": 86340000
+    },
+    "thu": {
+      "start": 0,
+      "end": 86340000
+    },
+    "sat": {
+      "start": 0,
+      "end": 35940000
+    }
+  },
+  "ids": [
+    "9gag",
+    "dailymotion",
+    "disneyplus"
+  ]
+}

@@ -1,4 +1,4 @@
-package types_test
+package model_test
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestTypes(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Types Suite")
+	RunSpecs(t, "Model Suite")
 }

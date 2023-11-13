@@ -9,7 +9,9 @@ import (
 	"path/filepath"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -39,13 +41,13 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Context("Filtering", func() {
-		It("should read filtering status", func() {
+	Context("Filter", func() {
+		It("should read filter status", func() {
 			ts, cl = ClientGet("filtering-status.json", "/filtering/status")
 			fs, err := cl.Filtering()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(fs.Enabled).Should(BeTrue())
-			Ω(fs.Filters).Should(HaveLen(2))
+			Ω(*fs.Enabled).Should(BeTrue())
+			Ω(*fs.Filters).Should(HaveLen(2))
 		})
 		It("should enable protection", func() {
 			ts, cl = ClientPost("/filtering/config", `{"enabled":true,"interval":123}`)
@@ -64,35 +66,26 @@ var _ = Describe("Client", func() {
 		})
 		It("should add Filters", func() {
 			ts, cl = ClientPost("/filtering/add_url",
-				`{"id":0,"enabled":false,"url":"foo","name":"","rules_count":0,"whitelist":true}`,
-				`{"id":0,"enabled":false,"url":"bar","name":"","rules_count":0,"whitelist":true}`,
+				`{"name":"","url":"foo","whitelist":true}`,
+				`{"name":"","url":"bar","whitelist":true}`,
 			)
-			err := cl.AddFilters(true, types.Filter{URL: "foo"}, types.Filter{URL: "bar"})
+			err := cl.AddFilters(true, model.Filter{Url: "foo"}, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should update Filters", func() {
 			ts, cl = ClientPost("/filtering/set_url",
-				`{"url":"foo","data":{"id":0,"enabled":false,"url":"foo","name":"","rules_count":0,"whitelist":true},"whitelist":true}`,
-				`{"url":"bar","data":{"id":0,"enabled":false,"url":"bar","name":"","rules_count":0,"whitelist":true},"whitelist":true}`,
+				`{"data":{"enabled":false,"name":"","url":"foo"},"url":"foo","whitelist":true}`,
+				`{"data":{"enabled":false,"name":"","url":"bar"},"url":"bar","whitelist":true}`,
 			)
-			err := cl.UpdateFilters(true, types.Filter{URL: "foo"}, types.Filter{URL: "bar"})
+			err := cl.UpdateFilters(true, model.Filter{Url: "foo"}, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete Filters", func() {
 			ts, cl = ClientPost("/filtering/remove_url",
-				`{"id":0,"enabled":false,"url":"foo","name":"","rules_count":0,"whitelist":true}`,
-				`{"id":0,"enabled":false,"url":"bar","name":"","rules_count":0,"whitelist":true}`,
+				`{"url":"foo","whitelist":true}`,
+				`{"url":"bar","whitelist":true}`,
 			)
-			err := cl.DeleteFilters(true, types.Filter{URL: "foo"}, types.Filter{URL: "bar"})
-			Ω(err).ShouldNot(HaveOccurred())
-		})
-	})
-
-	Context("CustomRules", func() {
-		It("should set SetCustomRules", func() {
-			ts, cl = ClientPost("/filtering/set_rules", `foo
-bar`)
-			err := cl.SetCustomRules([]string{"foo", "bar"})
+			err := cl.DeleteFilters(true, model.Filter{Url: "foo"}, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -102,8 +95,8 @@ bar`)
 			ts, cl = ClientGet("status.json", "/status")
 			fs, err := cl.Status()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(fs.DNSAddresses).Should(HaveLen(1))
-			Ω(fs.DNSAddresses[0]).Should(Equal("192.168.1.2"))
+			Ω(fs.DnsAddresses).Should(HaveLen(1))
+			Ω(fs.DnsAddresses[0]).Should(Equal("192.168.1.2"))
 			Ω(fs.Version).Should(Equal("v0.105.2"))
 		})
 		It("should return ErrSetupNeeded", func() {
@@ -135,13 +128,19 @@ bar`)
 			Ω(*rwl).Should(HaveLen(2))
 		})
 		It("should add RewriteList", func() {
-			ts, cl = ClientPost("/rewrite/add", `{"domain":"foo","answer":"foo"}`, `{"domain":"bar","answer":"bar"}`)
-			err := cl.AddRewriteEntries(types.RewriteEntry{Answer: "foo", Domain: "foo"}, types.RewriteEntry{Answer: "bar", Domain: "bar"})
+			ts, cl = ClientPost("/rewrite/add", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
+			err := cl.AddRewriteEntries(
+				model.RewriteEntry{Answer: utils.Ptr("foo"), Domain: utils.Ptr("foo")},
+				model.RewriteEntry{Answer: utils.Ptr("bar"), Domain: utils.Ptr("bar")},
+			)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete RewriteList", func() {
-			ts, cl = ClientPost("/rewrite/delete", `{"domain":"foo","answer":"foo"}`, `{"domain":"bar","answer":"bar"}`)
-			err := cl.DeleteRewriteEntries(types.RewriteEntry{Answer: "foo", Domain: "foo"}, types.RewriteEntry{Answer: "bar", Domain: "bar"})
+			ts, cl = ClientPost("/rewrite/delete", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
+			err := cl.DeleteRewriteEntries(
+				model.RewriteEntry{Answer: utils.Ptr("foo"), Domain: utils.Ptr("foo")},
+				model.RewriteEntry{Answer: utils.Ptr("bar"), Domain: utils.Ptr("bar")},
+			)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -165,21 +164,22 @@ bar`)
 		})
 	})
 
-	Context("SafeSearch", func() {
+	Context("SafeSearchConfig", func() {
 		It("should read safesearch status", func() {
 			ts, cl = ClientGet("safesearch-status.json", "/safesearch/status")
-			ss, err := cl.SafeSearch()
+			ss, err := cl.SafeSearchConfig()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(ss).Should(BeTrue())
+			Ω(ss.Enabled).ShouldNot(BeNil())
+			Ω(*ss.Enabled).Should(BeTrue())
 		})
 		It("should enable safesearch", func() {
-			ts, cl = ClientPost("/safesearch/enable", "")
-			err := cl.ToggleSafeSearch(true)
+			ts, cl = ClientPut("/safesearch/settings", `{"enabled":true}`)
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: utils.Ptr(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should disable safesearch", func() {
-			ts, cl = ClientPost("/safesearch/disable", "")
-			err := cl.ToggleSafeSearch(false)
+			ts, cl = ClientPut("/safesearch/settings", `{"enabled":false}`)
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: utils.Ptr(false)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -216,16 +216,39 @@ bar`)
 		})
 	})
 
-	Context("Services", func() {
-		It("should read Services", func() {
+	Context("BlockedServices", func() {
+		It("should read BlockedServices", func() {
 			ts, cl = ClientGet("blockedservices-list.json", "/blocked_services/list")
-			s, err := cl.Services()
+			s, err := cl.BlockedServices()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(s).Should(HaveLen(2))
+			Ω(*s).Should(HaveLen(2))
 		})
-		It("should set Services", func() {
-			ts, cl = ClientPost("/blocked_services/set", `["foo","bar"]`)
-			err := cl.SetServices([]string{"foo", "bar"})
+		It("should set BlockedServices", func() {
+			ts, cl = ClientPost("/blocked_services/set", `["bar","foo"]`)
+			err := cl.SetBlockedServices(&model.BlockedServicesArray{"foo", "bar"})
+			Ω(err).ShouldNot(HaveOccurred())
+		})
+	})
+
+	Context("BlockedServicesSchedule", func() {
+		It("should read BlockedServicesSchedule", func() {
+			ts, cl = ClientGet("blockedservicesschedule-get.json", "/blocked_services/get")
+			s, err := cl.BlockedServicesSchedule()
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(*s.Ids).Should(HaveLen(3))
+		})
+		It("should set BlockedServicesSchedule", func() {
+			ts, cl = ClientPost("/blocked_services/update",
+				`{"ids":["bar","foo"],"schedule":{"mon":{"end":99,"start":1}}}`)
+			err := cl.SetBlockedServicesSchedule(&model.BlockedServicesSchedule{
+				Ids: utils.Ptr([]string{"foo", "bar"}),
+				Schedule: &model.Schedule{
+					Mon: &model.DayRange{
+						Start: utils.Ptr(float32(1.0)),
+						End:   utils.Ptr(float32(99.0)),
+					},
+				},
+			})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -235,27 +258,27 @@ bar`)
 			ts, cl = ClientGet("clients.json", "/clients")
 			c, err := cl.Clients()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(c.Clients).Should(HaveLen(2))
+			Ω(*c.Clients).Should(HaveLen(2))
 		})
 		It("should add Clients", func() {
 			ts, cl = ClientPost("/clients/add",
-				`{"ids":["id"],"use_global_settings":false,"use_global_blocked_services":false,"name":"foo","filtering_enabled":false,"parental_enabled":false,"safesearch_enabled":false,"safebrowsing_enabled":false,"disallowed":false,"disallowed_rule":""}`,
+				`{"ids":["id"],"name":"foo"}`,
 			)
-			err := cl.AddClients(types.Client{Name: "foo", Ids: []string{"id"}})
+			err := cl.AddClients(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should update Clients", func() {
 			ts, cl = ClientPost("/clients/update",
-				`{"name":"foo","data":{"ids":["id"],"use_global_settings":false,"use_global_blocked_services":false,"name":"foo","filtering_enabled":false,"parental_enabled":false,"safesearch_enabled":false,"safebrowsing_enabled":false,"disallowed":false,"disallowed_rule":""}}`,
+				`{"data":{"ids":["id"],"name":"foo"},"name":"foo"}`,
 			)
-			err := cl.UpdateClients(types.Client{Name: "foo", Ids: []string{"id"}})
+			err := cl.UpdateClients(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete Clients", func() {
 			ts, cl = ClientPost("/clients/delete",
-				`{"ids":["id"],"use_global_settings":false,"use_global_blocked_services":false,"name":"foo","filtering_enabled":false,"parental_enabled":false,"safesearch_enabled":false,"safebrowsing_enabled":false,"disallowed":false,"disallowed_rule":""}`,
+				`{"ids":["id"],"name":"foo"}`,
 			)
-			err := cl.DeleteClients(types.Client{Name: "foo", Ids: []string{"id"}})
+			err := cl.DeleteClients(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -265,12 +288,16 @@ bar`)
 			ts, cl = ClientGet("querylog_info.json", "/querylog_info")
 			qlc, err := cl.QueryLogConfig()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(qlc.Enabled).Should(BeTrue())
-			Ω(qlc.Interval).Should(Equal(90.0))
+			Ω(qlc.Enabled).ShouldNot(BeNil())
+			Ω(*qlc.Enabled).Should(BeTrue())
+			Ω(qlc.Interval).ShouldNot(BeNil())
+			Ω(*qlc.Interval).Should(Equal(model.QueryLogConfigInterval(90)))
 		})
 		It("should set QueryLogConfig", func() {
-			ts, cl = ClientPost("/querylog_config", `{"enabled":true,"interval":123,"anonymize_client_ip":true}`)
-			err := cl.SetQueryLogConfig(true, 123, true)
+			ts, cl = ClientPost("/querylog_config", `{"anonymize_client_ip":true,"enabled":true,"interval":123}`)
+
+			var interval model.QueryLogConfigInterval = 123
+			err := cl.SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: utils.Ptr(true), Interval: &interval, Enabled: utils.Ptr(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -279,11 +306,14 @@ bar`)
 			ts, cl = ClientGet("stats_info.json", "/stats_info")
 			sc, err := cl.StatsConfig()
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(sc.Interval).Should(Equal(1.0))
+			Ω(sc.Interval).ShouldNot(BeNil())
+			Ω(*sc.Interval).Should(Equal(model.StatsConfigInterval(1)))
 		})
 		It("should set StatsConfig", func() {
 			ts, cl = ClientPost("/stats_config", `{"interval":123}`)
-			err := cl.SetStatsConfig(123.0)
+
+			var interval model.StatsConfigInterval = 123
+			err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -308,7 +338,8 @@ bar`)
 
 		Context("doPost", func() {
 			It("should return an error on status code != 200", func() {
-				err := cl.SetStatsConfig(123)
+				var interval model.StatsConfigInterval = 123
+				err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(Equal("401 Unauthorized"))
 			})
@@ -331,6 +362,21 @@ func ClientGet(file string, path string) (*httptest.Server, client.Client) {
 }
 
 func ClientPost(path string, content ...string) (*httptest.Server, client.Client) {
+	index := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
+		body, err := io.ReadAll(r.Body)
+		Ω(err).ShouldNot(HaveOccurred())
+		Ω(body).Should(Equal([]byte(content[index])))
+		index++
+	}))
+
+	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password})
+	Ω(err).ShouldNot(HaveOccurred())
+	return ts, cl
+}
+
+func ClientPut(path string, content ...string) (*httptest.Server, client.Client) {
 	index := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
