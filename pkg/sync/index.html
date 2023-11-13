@@ -21,11 +21,11 @@
                 $.get("api/v1/status", {}, function (status) {
                         $('#origin').removeClass(function (index, className) {
                             return (className.match(/(^|\s)btn-\S+/g) || []).join(' ');
-                        }).addClass("btn-" + status.origin.status);
+                        }).addClass("btn-" + status.origin.status).attr('title', status.origin.error);
                         status.replicas.forEach(function (replica, i) {
                             $('#replica_' + i).removeClass(function (index, className) {
                                 return (className.match(/(^|\s)btn-\S+/g) || []).join(' ');
-                            }).addClass("btn-" + replica.status);
+                            }).addClass("btn-" + replica.status).attr('title', replica.error);
                         });
                     }
                 );
@@ -57,11 +57,13 @@
         </div>
         <div class="col col-md-auto">
             <div class="float-right">
-                <input class="btn btn-{{ .SyncStatus.Origin.Status }}" type="button" id="origin"
-                       value="Origin {{ .SyncStatus.Origin.Host }}"/>
+                <a href="{{ .SyncStatus.Origin.URL }}" target="_blank" class="btn btn-{{ .SyncStatus.Origin.Status }}"
+                   type="button" id="origin"
+                   {{ if .SyncStatus.Origin.Error }} title="{{ .SyncStatus.Origin.Error }}" {{ end }}>Origin {{ .SyncStatus.Origin.Host }}</a>
                 {{ range $i, $r := .SyncStatus.Replicas }}
-                <input class="btn btn-{{ $r.Status }}" type="button" id="replica_{{ $i }}" value="Replica {{ $r.Host }}"
-                       {{ if $r.Error }} title="{{ $r.Error }}" {{ end }}/>
+                <a href="{{ $r.URL }}" target="_blank" class="btn btn-{{ $r.Status }}"
+                   type="button" id="replica_{{ $i }}"
+                   {{ if $r.Error }} title="{{ $r.Error }}" {{ end }} >Replica {{ $r.Host }}</a>
                 {{ end }}
             </div>
         </div>
