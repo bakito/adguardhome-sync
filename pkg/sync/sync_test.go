@@ -204,8 +204,9 @@ var _ = Describe("Sync", func() {
 			BeforeEach(func() {
 				o = &origin{
 					profileInfo: &model.ProfileInfo{
-						Name:     "test",
+						Name:     "origin",
 						Language: "en",
+						Theme:    "auto",
 					},
 					status:     &model.ServerStatus{},
 					safeSearch: &model.SafeSearchConfig{},
@@ -264,10 +265,44 @@ var _ = Describe("Sync", func() {
 			It("should have profileInfo language changed", func() {
 				o.profileInfo.Language = "de"
 				cl.EXPECT().Parental()
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Language: "en"}, nil)
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en"}, nil)
 				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().SetProfileInfo(o.profileInfo)
+				cl.EXPECT().SetProfileInfo(&model.ProfileInfo{
+					Language: "de",
+					Name:     "replica",
+					Theme:    "auto",
+				})
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should not sync profileInfo if language is not set", func() {
+				o.profileInfo.Language = ""
+				cl.EXPECT().Parental()
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetProfileInfo(o.profileInfo).Times(0)
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should not sync profileInfo if language is not set", func() {
+				o.profileInfo.Language = ""
+				cl.EXPECT().Parental()
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetProfileInfo(o.profileInfo).Times(0)
+				err := w.syncGeneralSettings(o, rs, cl)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should not sync profileInfo if theme is not set", func() {
+				o.profileInfo.Theme = ""
+				cl.EXPECT().Parental()
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				cl.EXPECT().SafeSearchConfig().Return(o.safeSearch, nil)
+				cl.EXPECT().SafeBrowsing()
+				cl.EXPECT().SetProfileInfo(o.profileInfo).Times(0)
 				err := w.syncGeneralSettings(o, rs, cl)
 				Ω(err).ShouldNot(HaveOccurred())
 			})

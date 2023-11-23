@@ -349,9 +349,25 @@ func (ssc *SafeSearchConfig) Equals(o *SafeSearchConfig) bool {
 }
 
 func (pi *ProfileInfo) Equals(o *ProfileInfo) bool {
-	return pi.Name == o.Name &&
-		pi.Language == o.Language &&
+	return pi.Language == o.Language &&
 		pi.Theme == o.Theme
+}
+
+func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo) *ProfileInfo {
+	if pi.Equals(o) {
+		return nil
+	}
+	merged := &ProfileInfo{Name: pi.Name, Language: pi.Language, Theme: pi.Theme}
+	if o.Language != "" {
+		merged.Language = o.Language
+	}
+	if o.Theme != "" {
+		merged.Theme = o.Theme
+	}
+	if merged.Name == "" || merged.Language == "" || merged.Theme == "" || merged.Equals(pi) {
+		return nil
+	}
+	return merged
 }
 
 func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
