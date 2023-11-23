@@ -465,8 +465,8 @@ func (w *worker) syncGeneralSettings(o *origin, rs *model.ServerStatus, replica 
 
 		if pro, err := replica.ProfileInfo(); err != nil {
 			return err
-		} else if !o.profileInfo.Equals(pro) {
-			if err = replica.SetProfileInfo(o.profileInfo); err != nil {
+		} else if merged := pro.ShouldSyncFor(o.profileInfo); merged != nil {
+			if err = replica.SetProfileInfo(merged); err != nil {
 				return err
 			}
 		}
