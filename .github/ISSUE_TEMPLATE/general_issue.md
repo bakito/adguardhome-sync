@@ -1,14 +1,14 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: General Issue
+about: Report an issue with your setup
 title: ''
-labels: 'bug'
+labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Describe the issue**
+A clear and concise description of what the issue is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
