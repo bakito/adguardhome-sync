@@ -6,6 +6,9 @@ labels: ''
 assignees: ''
 
 ---
+**Please check the [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ) before opening an issue 🙏🏻**
+
+**⚠️ Issues without debug logs will not be processed ⚠️**
 
 **Describe the issue**
 A clear and concise description of what the issue is.
