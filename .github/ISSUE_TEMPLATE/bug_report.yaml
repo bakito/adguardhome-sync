@@ -45,6 +45,8 @@ body:
         Please copy and paste any relevant **debug** log output. This will be automatically formatted into code, so no need for backticks.
         Enable debug logs by defining the following environment variable `LOG_LEVEL=debug`.
       render: shell
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Anything else?
