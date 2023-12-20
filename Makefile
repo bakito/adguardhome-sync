@@ -128,10 +128,10 @@ kind-test:
 
 model: oapi-codegen
 	@mkdir -p tmp
-	go run openapi/main.go v0.107.40
+	go run openapi/main.go v0.107.43
 	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
-	go run openapi/main.go v0.107.40
+	go run openapi/main.go v0.107.43
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
