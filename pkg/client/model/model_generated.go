@@ -287,11 +287,28 @@ type Client struct {
 	SafeSearch          *SafeSearchConfig `json:"safe_search,omitempty"`
 	SafebrowsingEnabled *bool             `json:"safebrowsing_enabled,omitempty"`
 	// Deprecated:
-	SafesearchEnabled        *bool     `json:"safesearch_enabled,omitempty"`
-	Tags                     *[]string `json:"tags,omitempty"`
-	Upstreams                *[]string `json:"upstreams,omitempty"`
-	UseGlobalBlockedServices *bool     `json:"use_global_blocked_services,omitempty"`
-	UseGlobalSettings        *bool     `json:"use_global_settings,omitempty"`
+	SafesearchEnabled *bool     `json:"safesearch_enabled,omitempty"`
+	Tags              *[]string `json:"tags,omitempty"`
+	Upstreams         *[]string `json:"upstreams,omitempty"`
+
+	// UpstreamsCacheEnabled NOTE: If `upstreams_cache_enabled` is not set in HTTP API
+	// `GET /clients/add` request then default value (false) will be used.
+	//
+	// If `upstreams_cache_enabled` is not set in HTTP API
+	// `GET /clients/update` request then the existing value will not be
+	// changed.
+	//
+	// This behaviour can be changed in the future versions.
+	UpstreamsCacheEnabled *bool `json:"upstreams_cache_enabled,omitempty"`
+
+	// UpstreamsCacheSize NOTE: If `upstreams_cache_enabled` is not set in HTTP API
+	// `GET /clients/update` request then the existing value will not be
+	// changed.
+	//
+	// This behaviour can be changed in the future versions.
+	UpstreamsCacheSize       *int `json:"upstreams_cache_size,omitempty"`
+	UseGlobalBlockedServices *bool `json:"use_global_blocked_services,omitempty"`
+	UseGlobalSettings        *bool `json:"use_global_settings,omitempty"`
 }
 
 // ClientAuto Auto-Client information
@@ -402,7 +419,16 @@ type DNSConfig struct {
 	ProtectionDisabledUntil *string `json:"protection_disabled_until,omitempty"`
 	ProtectionEnabled       *bool   `json:"protection_enabled,omitempty"`
 	Ratelimit               *int    `json:"ratelimit,omitempty"`
-	ResolveClients          *bool   `json:"resolve_clients,omitempty"`
+
+	// RatelimitSubnetSubnetLenIpv4 Length of the subnet mask for IPv4 addresses.
+	RatelimitSubnetSubnetLenIpv4 *int `json:"ratelimit_subnet_subnet_len_ipv4,omitempty"`
+
+	// RatelimitSubnetSubnetLenIpv6 Length of the subnet mask for IPv6 addresses.
+	RatelimitSubnetSubnetLenIpv6 *int `json:"ratelimit_subnet_subnet_len_ipv6,omitempty"`
+
+	// RatelimitWhitelist List of IP addresses excluded from rate limiting.
+	RatelimitWhitelist *[]string `json:"ratelimit_whitelist,omitempty"`
+	ResolveClients     *bool     `json:"resolve_clients,omitempty"`
 
 	// UpstreamDns Upstream servers, port is optional after colon.  Empty value will reset it to default values.
 	UpstreamDns            *[]string    `json:"upstream_dns,omitempty"`
