@@ -3,7 +3,7 @@ FROM golang:1.21-bullseye as builder
 WORKDIR /go/src/app
 
 RUN apt-get update && \
-    apt-get install -y upx && \
+    apt-get install -y upx ca-certificates && \
     apt-get upgrade -y # upgrade to get latest ca-certs
 
 ARG VERSION=main
