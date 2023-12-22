@@ -119,7 +119,7 @@ func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 		return replicaStatus{Host: oc.Host(), URL: inst.URL, Error: err.Error(), Status: "danger"}
 	}
 	sl := l.With("from", oc.Host())
-	_, err = oc.Status()
+	st, err := oc.Status()
 	if err != nil {
 		if errors.Is(err, client.ErrSetupNeeded) {
 			return replicaStatus{Host: oc.Host(), URL: inst.URL, Error: err.Error(), Status: "warning"}
@@ -127,8 +127,12 @@ func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 		sl.With("error", err).Error("Error getting origin status")
 		return replicaStatus{Host: oc.Host(), URL: inst.URL, Error: err.Error(), Status: "danger"}
 	}
-	st := replicaStatus{Host: oc.Host(), URL: inst.URL, Status: "success"}
-	return st
+	return replicaStatus{
+		Host:              oc.Host(),
+		URL:               inst.URL,
+		Status:            "success",
+		ProtectionEnabled: utils.Ptr(st.ProtectionEnabled),
+	}
 }
 
 func (w *worker) sync() {
