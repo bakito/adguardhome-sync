@@ -90,6 +90,7 @@ type worker struct {
 	running      bool
 	cron         *cron.Cron
 	createClient func(instance types.AdGuardInstance) (client.Client, error)
+	actions      []syncAction
 }
 
 func (w *worker) status() *syncStatus {
@@ -246,6 +247,8 @@ func (w *worker) sync() {
 		}
 	}
 
+	w.actions = setupActions(w.cfg)
+
 	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
 		w.syncTo(sl, o, replica)
@@ -279,16 +282,14 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		rl.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
 	}
 
-	err = w.syncGeneralSettings(o, rs, rc)
-	if err != nil {
-		rl.With("error", err).Error("Error syncing general settings")
-		return
-	}
-
-	err = w.syncConfigs(o, rc)
-	if err != nil {
-		rl.With("error", err).Error("Error syncing configs")
-		return
+	continueOnError := false
+	for _, action := range w.actions {
+		if err := action.sync(o, rc, rs); err != nil {
+			rl.With("error", err).Errorf("Error syncing %s", action.name())
+			if !continueOnError {
+				return
+			}
+		}
 	}
 
 	err = w.syncRewrites(rl, o.rewrites, rc)
@@ -461,74 +462,6 @@ func (w *worker) syncClients(oc *model.Clients, replica client.Client) error {
 			return err
 		}
 	}
-	return nil
-}
-
-func (w *worker) syncGeneralSettings(o *origin, rs *model.ServerStatus, replica client.Client) error {
-	if w.cfg.Features.GeneralSettings {
-
-		if pro, err := replica.ProfileInfo(); err != nil {
-			return err
-		} else if merged := pro.ShouldSyncFor(o.profileInfo); merged != nil {
-			if err = replica.SetProfileInfo(merged); err != nil {
-				return err
-			}
-		}
-
-		if o.status.ProtectionEnabled != rs.ProtectionEnabled {
-			if err := replica.ToggleProtection(o.status.ProtectionEnabled); err != nil {
-				return err
-			}
-		}
-		if rp, err := replica.Parental(); err != nil {
-			return err
-		} else if o.parental != rp {
-			if err = replica.ToggleParental(o.parental); err != nil {
-				return err
-			}
-		}
-		if ssc, err := replica.SafeSearchConfig(); err != nil {
-			return err
-		} else if !o.safeSearch.Equals(ssc) {
-			if err = replica.SetSafeSearchConfig(o.safeSearch); err != nil {
-				return err
-			}
-		}
-		if rs, err := replica.SafeBrowsing(); err != nil {
-			return err
-		} else if o.safeBrowsing != rs {
-			if err = replica.ToggleSafeBrowsing(o.safeBrowsing); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (w *worker) syncConfigs(o *origin, rc client.Client) error {
-	if w.cfg.Features.QueryLogConfig {
-		qlc, err := rc.QueryLogConfig()
-		if err != nil {
-			return err
-		}
-		if !o.queryLogConfig.Equals(qlc) {
-			if err = rc.SetQueryLogConfig(o.queryLogConfig); err != nil {
-				return err
-			}
-		}
-	}
-	if w.cfg.Features.StatsConfig {
-		sc, err := rc.StatsConfig()
-		if err != nil {
-			return err
-		}
-		if o.statsConfig.Interval != sc.Interval {
-			if err = rc.SetStatsConfig(o.statsConfig); err != nil {
-				return err
-			}
-		}
-	}
-
 	return nil
 }
 
