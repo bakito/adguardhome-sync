@@ -128,7 +128,7 @@ type syncStatus struct {
 }
 
 type replicaStatus struct {
-	Host              string `json:"origin"`
+	Host              string `json:"host"`
 	URL               string `json:"url"`
 	Status            string `json:"status"`
 	Error             string `json:"error,omitempty"`
