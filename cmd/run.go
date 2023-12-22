@@ -20,6 +20,11 @@ var doCmd = &cobra.Command{
 			return err
 		}
 
+		if err := cfg.Init(); err != nil {
+			logger.Error(err)
+			return err
+		}
+
 		return sync.Sync(cfg)
 	},
 }
@@ -66,6 +71,8 @@ func init() {
 
 	doCmd.PersistentFlags().String("origin-url", "", "Origin instance url")
 	_ = viper.BindPFlag(configOriginURL, doCmd.PersistentFlags().Lookup("origin-url"))
+	doCmd.PersistentFlags().String("origin-weburl", "", "Origin instance web url used in the web interface (default: <origin-url>)")
+	_ = viper.BindPFlag(configOriginWebURL, doCmd.PersistentFlags().Lookup("origin-weburl"))
 	doCmd.PersistentFlags().String("origin-api-path", "/control", "Origin instance API path")
 	_ = viper.BindPFlag(configOriginAPIPath, doCmd.PersistentFlags().Lookup("origin-api-path"))
 	doCmd.PersistentFlags().String("origin-username", "", "Origin instance username")
@@ -79,6 +86,8 @@ func init() {
 
 	doCmd.PersistentFlags().String("replica-url", "", "Replica instance url")
 	_ = viper.BindPFlag(configReplicaURL, doCmd.PersistentFlags().Lookup("replica-url"))
+	doCmd.PersistentFlags().String("replica-weburl", "", "Replica instance web url used in the web interface (default: <replica-url>)")
+	_ = viper.BindPFlag(configOriginWebURL, doCmd.PersistentFlags().Lookup("replica-weburl"))
 	doCmd.PersistentFlags().String("replica-api-path", "/control", "Replica instance API path")
 	_ = viper.BindPFlag(configReplicaAPIPath, doCmd.PersistentFlags().Lookup("replica-api-path"))
 	doCmd.PersistentFlags().String("replica-username", "", "Replica instance username")
