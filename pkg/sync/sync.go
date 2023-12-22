@@ -123,7 +123,7 @@ func (w *worker) getStatus(inst types.AdGuardInstance) (st replicaStatus) {
 		return
 	}
 	sl := l.With("from", inst.WebHost)
-	_, err = oc.Status()
+	status, err := oc.Status()
 	if err != nil {
 		if errors.Is(err, client.ErrSetupNeeded) {
 			st.Status = "warning"
@@ -136,6 +136,7 @@ func (w *worker) getStatus(inst types.AdGuardInstance) (st replicaStatus) {
 		return
 	}
 	st.Status = "success"
+	st.ProtectionEnabled = utils.Ptr(status.ProtectionEnabled)
 	return
 }
 
