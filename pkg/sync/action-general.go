@@ -11,38 +11,38 @@ var (
 	actionProfileInfo = func(ac *actionContext) error {
 		if pro, err := ac.client.ProfileInfo(); err != nil {
 			return err
-		} else if merged := pro.ShouldSyncFor(ac.o.profileInfo); merged != nil {
+		} else if merged := pro.ShouldSyncFor(ac.origin.profileInfo); merged != nil {
 			return ac.client.SetProfileInfo(merged)
 		}
 		return nil
 	}
 	actionProtection = func(ac *actionContext) error {
-		if ac.o.status.ProtectionEnabled != ac.rs.ProtectionEnabled {
-			return ac.client.ToggleProtection(ac.o.status.ProtectionEnabled)
+		if ac.origin.status.ProtectionEnabled != ac.replicaStatus.ProtectionEnabled {
+			return ac.client.ToggleProtection(ac.origin.status.ProtectionEnabled)
 		}
 		return nil
 	}
 	actionParental = func(ac *actionContext) error {
 		if rp, err := ac.client.Parental(); err != nil {
 			return err
-		} else if ac.o.parental != rp {
-			return ac.client.ToggleParental(ac.o.parental)
+		} else if ac.origin.parental != rp {
+			return ac.client.ToggleParental(ac.origin.parental)
 		}
 		return nil
 	}
 	actionSafeSearchConfig = func(ac *actionContext) error {
 		if ssc, err := ac.client.SafeSearchConfig(); err != nil {
 			return err
-		} else if !ac.o.safeSearch.Equals(ssc) {
-			return ac.client.SetSafeSearchConfig(ac.o.safeSearch)
+		} else if !ac.origin.safeSearch.Equals(ssc) {
+			return ac.client.SetSafeSearchConfig(ac.origin.safeSearch)
 		}
 		return nil
 	}
 	actionSafeBrowsing = func(ac *actionContext) error {
 		if rs, err := ac.client.SafeBrowsing(); err != nil {
 			return err
-		} else if ac.o.safeBrowsing != rs {
-			if err = ac.client.ToggleSafeBrowsing(ac.o.safeBrowsing); err != nil {
+		} else if ac.origin.safeBrowsing != rs {
+			if err = ac.client.ToggleSafeBrowsing(ac.origin.safeBrowsing); err != nil {
 				return err
 			}
 		}
@@ -53,8 +53,8 @@ var (
 		if err != nil {
 			return err
 		}
-		if !ac.o.queryLogConfig.Equals(qlc) {
-			return ac.client.SetQueryLogConfig(ac.o.queryLogConfig)
+		if !ac.origin.queryLogConfig.Equals(qlc) {
+			return ac.client.SetQueryLogConfig(ac.origin.queryLogConfig)
 		}
 		return nil
 	}
@@ -63,18 +63,18 @@ var (
 		if err != nil {
 			return err
 		}
-		if ac.o.statsConfig.Interval != sc.Interval {
-			return ac.client.SetStatsConfig(ac.o.statsConfig)
+		if ac.origin.statsConfig.Interval != sc.Interval {
+			return ac.client.SetStatsConfig(ac.origin.statsConfig)
 		}
 		return nil
 	}
-	dnsRewrites = func(ac *actionContext) error {
+	actionDNSRewrites = func(ac *actionContext) error {
 		replicaRewrites, err := ac.client.RewriteList()
 		if err != nil {
 			return err
 		}
 
-		a, r, d := replicaRewrites.Merge(ac.o.rewrites)
+		a, r, d := replicaRewrites.Merge(ac.origin.rewrites)
 
 		if err = ac.client.DeleteRewriteEntries(r...); err != nil {
 			return err
@@ -88,58 +88,58 @@ var (
 		}
 		return nil
 	}
-	filters = func(ac *actionContext) error {
+	actionFilters = func(ac *actionContext) error {
 		rf, err := ac.client.Filtering()
 		if err != nil {
 			return err
 		}
 
-		if err = syncFilterType(ac.rl, ac.o.filters.Filters, rf.Filters, false, ac.client, ac.continueOnError); err != nil {
+		if err = syncFilterType(ac.rl, ac.origin.filters.Filters, rf.Filters, false, ac.client, ac.continueOnError); err != nil {
 			return err
 		}
-		if err = syncFilterType(ac.rl, ac.o.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client, ac.continueOnError); err != nil {
+		if err = syncFilterType(ac.rl, ac.origin.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client, ac.continueOnError); err != nil {
 			return err
 		}
 
-		if utils.PtrToString(ac.o.filters.UserRules) != utils.PtrToString(rf.UserRules) {
-			return ac.client.SetCustomRules(ac.o.filters.UserRules)
+		if utils.PtrToString(ac.origin.filters.UserRules) != utils.PtrToString(rf.UserRules) {
+			return ac.client.SetCustomRules(ac.origin.filters.UserRules)
 		}
 
-		if ac.o.filters.Enabled != rf.Enabled || ac.o.filters.Interval != rf.Interval {
-			return ac.client.ToggleFiltering(*ac.o.filters.Enabled, *ac.o.filters.Interval)
+		if ac.origin.filters.Enabled != rf.Enabled || ac.origin.filters.Interval != rf.Interval {
+			return ac.client.ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
 		}
 		return nil
 	}
 
-	blockedServices = func(ac *actionContext) error {
+	actionBlockedServices = func(ac *actionContext) error {
 		rs, err := ac.client.BlockedServices()
 		if err != nil {
 			return err
 		}
 
-		if !model.EqualsStringSlice(ac.o.blockedServices, rs, true) {
-			return ac.client.SetBlockedServices(ac.o.blockedServices)
+		if !model.EqualsStringSlice(ac.origin.blockedServices, rs, true) {
+			return ac.client.SetBlockedServices(ac.origin.blockedServices)
 		}
 		return nil
 	}
-	blockedServicesSchedule = func(ac *actionContext) error {
+	actionBlockedServicesSchedule = func(ac *actionContext) error {
 		rbss, err := ac.client.BlockedServicesSchedule()
 		if err != nil {
 			return err
 		}
 
-		if !ac.o.blockedServicesSchedule.Equals(rbss) {
-			return ac.client.SetBlockedServicesSchedule(ac.o.blockedServicesSchedule)
+		if !ac.origin.blockedServicesSchedule.Equals(rbss) {
+			return ac.client.SetBlockedServicesSchedule(ac.origin.blockedServicesSchedule)
 		}
 		return nil
 	}
-	clientSettings = func(ac *actionContext) error {
+	actionClientSettings = func(ac *actionContext) error {
 		rc, err := ac.client.Clients()
 		if err != nil {
 			return err
 		}
 
-		a, u, r := rc.Merge(ac.o.clients)
+		a, u, r := rc.Merge(ac.origin.clients)
 
 		for _, client := range r {
 			if err := ac.client.DeleteClient(client); err != nil {
@@ -171,35 +171,35 @@ var (
 		return nil
 	}
 
-	dnsAccessLists = func(ac *actionContext) error {
+	actionDNSAccessLists = func(ac *actionContext) error {
 		al, err := ac.client.AccessList()
 		if err != nil {
 			return err
 		}
-		if !al.Equals(ac.o.accessList) {
-			return ac.client.SetAccessList(ac.o.accessList)
+		if !al.Equals(ac.origin.accessList) {
+			return ac.client.SetAccessList(ac.origin.accessList)
 		}
 		return nil
 	}
-	dnsServerConfig = func(ac *actionContext) error {
+	actionDNSServerConfig = func(ac *actionContext) error {
 		dc, err := ac.client.DNSConfig()
 		if err != nil {
 			return err
 		}
-		if !dc.Equals(ac.o.dnsConfig) {
-			if err = ac.client.SetDNSConfig(ac.o.dnsConfig); err != nil {
+		if !dc.Equals(ac.origin.dnsConfig) {
+			if err = ac.client.SetDNSConfig(ac.origin.dnsConfig); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-	dhcpServerConfig = func(ac *actionContext) error {
-		if ac.o.dhcpServerConfig.HasConfig() {
+	actionDHCPServerConfig = func(ac *actionContext) error {
+		if ac.origin.dhcpServerConfig.HasConfig() {
 			sc, err := ac.client.DhcpConfig()
 			if err != nil {
 				return err
 			}
-			origClone := ac.o.dhcpServerConfig.Clone()
+			origClone := ac.origin.dhcpServerConfig.Clone()
 			if ac.replica.InterfaceName != "" {
 				// overwrite interface name
 				origClone.InterfaceName = utils.Ptr(ac.replica.InterfaceName)
@@ -215,13 +215,13 @@ var (
 		}
 		return nil
 	}
-	dhcpStaticLeases = func(ac *actionContext) error {
+	actionDHCPStaticLeases = func(ac *actionContext) error {
 		sc, err := ac.client.DhcpConfig()
 		if err != nil {
 			return err
 		}
 
-		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, ac.o.dhcpServerConfig.StaticLeases)
+		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, ac.origin.dhcpServerConfig.StaticLeases)
 
 		for _, lease := range r {
 			if err := ac.client.DeleteDHCPStaticLease(lease); err != nil {

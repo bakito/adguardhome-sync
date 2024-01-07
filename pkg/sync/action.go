@@ -29,47 +29,47 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 	}
 	if cfg.Features.DNS.Rewrites {
 		actions = append(actions,
-			action("DNS rewrites", dnsRewrites),
+			action("DNS rewrites", actionDNSRewrites),
 		)
 	}
 	if cfg.Features.Filters {
 		actions = append(actions,
-			action("filters", filters),
+			action("actionFilters", actionFilters),
 		)
 	}
 	if cfg.Features.Services {
 		actions = append(actions,
-			action("blocked services", blockedServices),
-			action("blocked services schedule", blockedServicesSchedule),
+			action("blocked services", actionBlockedServices),
+			action("blocked services schedule", actionBlockedServicesSchedule),
 		)
 	}
 	if cfg.Features.ClientSettings {
 		actions = append(actions,
-			action("client settings", clientSettings),
+			action("client settings", actionClientSettings),
 		)
 	}
 	if cfg.Features.DNS.AccessLists {
 		actions = append(actions,
-			action("DNS access lists", dnsAccessLists),
+			action("DNS access lists", actionDNSAccessLists),
 		)
 	}
 
 	if cfg.Features.DNS.ServerConfig {
 		actions = append(actions,
-			action("DNS server config", dnsServerConfig),
+			action("DNS server config", actionDNSServerConfig),
 		)
 	}
 	if cfg.Features.DHCP.ServerConfig {
 		actions = append(actions,
-			action("DHCP server config", dhcpServerConfig),
+			action("DHCP server config", actionDHCPServerConfig),
 		)
 	}
 	if cfg.Features.DHCP.StaticLeases {
 		actions = append(actions,
-			action("DHCP static leases", dhcpStaticLeases),
+			action("DHCP static leases", actionDHCPStaticLeases),
 		)
 	}
-	return
+	return actions
 }
 
 type syncAction interface {
@@ -79,9 +79,9 @@ type syncAction interface {
 
 type actionContext struct {
 	rl              *zap.SugaredLogger
-	o               *origin
+	origin          *origin
 	client          client.Client
-	rs              *model.ServerStatus
+	replicaStatus   *model.ServerStatus
 	continueOnError bool
 	replica         types.AdGuardInstance
 }

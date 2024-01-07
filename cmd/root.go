@@ -12,7 +12,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 const (
@@ -131,7 +130,7 @@ func initConfig() {
 	}
 }
 
-func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
+func getConfig() (*types.Config, error) {
 	cfg := &types.Config{}
 	if err := viper.Unmarshal(cfg); err != nil {
 		return nil, err
@@ -143,14 +142,14 @@ func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
 	}
 
 	if len(cfg.Replicas) == 0 {
-		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas(logger)...)
+		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas()...)
 	}
 
 	return cfg, nil
 }
 
 // Manually collect replicas from env.
-func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
+func collectEnvReplicas() []types.AdGuardInstance {
 	var replicas []types.AdGuardInstance
 	for _, v := range os.Environ() {
 		if envReplicasURLPattern.MatchString(v) {

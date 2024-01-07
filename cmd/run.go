@@ -15,7 +15,7 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg, err := getConfig(logger)
+		cfg, err := getConfig()
 		if err != nil {
 			logger.Error(err)
 			return err

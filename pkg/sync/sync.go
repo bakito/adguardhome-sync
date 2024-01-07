@@ -213,7 +213,7 @@ func (w *worker) sync() {
 
 	o.filters, err = oc.Filtering()
 	if err != nil {
-		sl.With("error", err).Error("Error getting origin filters")
+		sl.With("error", err).Error("Error getting origin actionFilters")
 		return
 	}
 	o.clients, err = oc.Clients()
@@ -270,29 +270,29 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl := l.With("to", rc.Host())
 	rl.Info("Start sync")
 
-	rs, err := w.statusWithSetup(rl, replica, rc)
+	replicaStatus, err := w.statusWithSetup(rl, replica, rc)
 	if err != nil {
 		rl.With("error", err).Error("Error getting replica status")
 		return
 	}
 
-	rl.With("version", rs.Version).Info("Connected to replica")
+	rl.With("version", replicaStatus.Version).Info("Connected to replica")
 
-	if versions.IsNewerThan(versions.MinAgh, rs.Version) {
-		rl.With("error", err, "version", rs.Version).Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
+	if versions.IsNewerThan(versions.MinAgh, replicaStatus.Version) {
+		rl.With("error", err, "version", replicaStatus.Version).Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}
 
-	if o.status.Version != rs.Version {
-		rl.With("originVersion", o.status.Version, "replicaVersion", rs.Version).Warn("Versions do not match")
+	if o.status.Version != replicaStatus.Version {
+		rl.With("originVersion", o.status.Version, "replicaVersion", replicaStatus.Version).Warn("Versions do not match")
 	}
 
 	continueOnError := false
 	ac := &actionContext{
 		continueOnError: continueOnError,
 		rl:              rl,
-		o:               o,
-		rs:              rs,
+		origin:          o,
+		replicaStatus:   replicaStatus,
 		client:          rc,
 		replica:         replica,
 	}
