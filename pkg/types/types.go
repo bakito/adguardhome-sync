@@ -20,10 +20,11 @@ type Config struct {
 	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty"`
 	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
-	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
-	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
+	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" mapstructure:"PRINT_CONFIG_ONLY"`
+	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" mapstructure:"CONTINUE_ON_ERROR"`
 	API             API               `json:"api,omitempty" yaml:"api,omitempty"`
 	Features        Features          `json:"features,omitempty" yaml:"features,omitempty"`
+	LogLevel        string            `json:"logLevel,omitempty" yaml:"logLevel,omitempty" mapstructure:"LOG_LEVEL"`
 }
 
 // API configuration

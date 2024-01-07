@@ -17,8 +17,9 @@ import (
 const (
 	configCron            = "cron"
 	configRunOnStart      = "runOnStart"
-	configPrintConfigOnly = "printConfigOnly"
-	configContinueOnError = "continueOnError"
+	configPrintConfigOnly = "PRINT_CONFIG_ONLY"
+	configContinueOnError = "CONTINUE_ON_ERROR"
+	configLogLevel        = "LOG_LEVEL"
 
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"
