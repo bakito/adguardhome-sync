@@ -50,6 +50,9 @@ func init() {
 	doCmd.PersistentFlags().Bool("printConfigOnly", false, "Prints the configuration only and exists. "+
 		"Can be used to debug the config E.g: when having authentication issues.")
 	_ = viper.BindPFlag(configPrintConfigOnly, doCmd.PersistentFlags().Lookup("printConfigOnly"))
+	doCmd.PersistentFlags().Bool("continueOnError", false, "If enabled, the synchronisation task "+
+		"will not fail on single errors, but will log the errors and continue.")
+	_ = viper.BindPFlag(configContinueOnError, doCmd.PersistentFlags().Lookup("continueOnError"))
 	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
 	_ = viper.BindPFlag(configAPIPort, doCmd.PersistentFlags().Lookup("api-port"))
 	doCmd.PersistentFlags().String("api-username", "", "Sync API username")

@@ -287,9 +287,8 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		rl.With("originVersion", o.status.Version, "replicaVersion", replicaStatus.Version).Warn("Versions do not match")
 	}
 
-	continueOnError := false
 	ac := &actionContext{
-		continueOnError: continueOnError,
+		continueOnError: w.cfg.ContinueOnError,
 		rl:              rl,
 		origin:          o,
 		replicaStatus:   replicaStatus,
@@ -299,7 +298,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	for _, action := range w.actions {
 		if err := action.sync(ac); err != nil {
 			rl.With("error", err).Errorf("Error syncing %s", action.name())
-			if !continueOnError {
+			if !w.cfg.ContinueOnError {
 				return
 			}
 		}

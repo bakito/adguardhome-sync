@@ -21,6 +21,7 @@ type Config struct {
 	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty"`
 	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
 	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
+	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
 	API             API               `json:"api,omitempty" yaml:"api,omitempty"`
 	Features        Features          `json:"features,omitempty" yaml:"features,omitempty"`
 }

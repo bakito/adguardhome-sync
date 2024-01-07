@@ -18,6 +18,7 @@ const (
 	configCron            = "cron"
 	configRunOnStart      = "runOnStart"
 	configPrintConfigOnly = "printConfigOnly"
+	configContinueOnError = "continueOnError"
 
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"
