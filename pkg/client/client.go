@@ -96,9 +96,9 @@ type Client interface {
 	DeleteRewriteEntries(e ...model.RewriteEntry) error
 	Filtering() (*model.FilterStatus, error)
 	ToggleFiltering(enabled bool, interval int) error
-	AddFilters(whitelist bool, e ...model.Filter) error
-	DeleteFilters(whitelist bool, e ...model.Filter) error
-	UpdateFilters(whitelist bool, e ...model.Filter) error
+	AddFilter(whitelist bool, f model.Filter) error
+	DeleteFilter(whitelist bool, f model.Filter) error
+	UpdateFilter(whitelist bool, f model.Filter) error
 	RefreshFilters(whitelist bool) error
 	SetCustomRules(rules *[]string) error
 	SafeBrowsing() (bool, error)
@@ -229,43 +229,25 @@ func (cl *client) Filtering() (*model.FilterStatus, error) {
 	return f, err
 }
 
-func (cl *client) AddFilters(whitelist bool, filters ...model.Filter) error {
-	for _, f := range filters {
-		cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
-		ff := &model.AddUrlRequest{Name: utils.Ptr(f.Name), Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) AddFilter(whitelist bool, f model.Filter) error {
+	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
+	ff := &model.AddUrlRequest{Name: utils.Ptr(f.Name), Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
 }
 
-func (cl *client) DeleteFilters(whitelist bool, filters ...model.Filter) error {
-	for _, f := range filters {
-		cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
-		ff := &model.RemoveUrlRequest{Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) DeleteFilter(whitelist bool, f model.Filter) error {
+	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
+	ff := &model.RemoveUrlRequest{Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
 }
 
-func (cl *client) UpdateFilters(whitelist bool, filters ...model.Filter) error {
-	for _, f := range filters {
-		cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
-		fu := &model.FilterSetUrl{
-			Whitelist: utils.Ptr(whitelist), Url: utils.Ptr(f.Url),
-			Data: &model.FilterSetUrlData{Name: f.Name, Url: f.Url, Enabled: f.Enabled},
-		}
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
-		if err != nil {
-			return err
-		}
+func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
+	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
+	fu := &model.FilterSetUrl{
+		Whitelist: utils.Ptr(whitelist), Url: utils.Ptr(f.Url),
+		Data: &model.FilterSetUrlData{Name: f.Name, Url: f.Url, Enabled: f.Enabled},
 	}
-	return nil
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
 }
 
 func (cl *client) RefreshFilters(whitelist bool) error {

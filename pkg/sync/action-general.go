@@ -4,6 +4,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
+	"go.uber.org/zap"
 )
 
 var (
@@ -93,10 +94,10 @@ var (
 			return err
 		}
 
-		if err = syncFilterType(ac.o.filters.Filters, rf.Filters, false, ac.client); err != nil {
+		if err = syncFilterType(ac.rl, ac.o.filters.Filters, rf.Filters, false, ac.client, ac.continueOnError); err != nil {
 			return err
 		}
-		if err = syncFilterType(ac.o.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client); err != nil {
+		if err = syncFilterType(ac.rl, ac.o.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client, ac.continueOnError); err != nil {
 			return err
 		}
 
@@ -113,17 +114,34 @@ var (
 	}
 )
 
-func syncFilterType(of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client) error {
+func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client, continueOnError bool) error {
 	fa, fu, fd := model.MergeFilters(rFilters, of)
 
-	if err := replica.DeleteFilters(whitelist, fd...); err != nil {
-		return err
+	for _, f := range fd {
+		if err := replica.DeleteFilter(whitelist, f); err != nil {
+			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist).Error("error deleting filter")
+			if !continueOnError {
+				return err
+			}
+		}
 	}
-	if err := replica.AddFilters(whitelist, fa...); err != nil {
-		return err
+
+	for _, f := range fa {
+		if err := replica.AddFilter(whitelist, f); err != nil {
+			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist).Error("error adding filter")
+			if !continueOnError {
+				return err
+			}
+		}
 	}
-	if err := replica.UpdateFilters(whitelist, fu...); err != nil {
-		return err
+
+	for _, f := range fu {
+		if err := replica.UpdateFilter(whitelist, f); err != nil {
+			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist).Error("error updating filter")
+			if !continueOnError {
+				return err
+			}
+		}
 	}
 
 	if len(fa) > 0 || len(fu) > 0 {

@@ -372,27 +372,6 @@ func (w *worker) syncServices(os *model.BlockedServicesArray, obss *model.Blocke
 	return nil
 }
 
-func (w *worker) syncFilterType(of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client) error {
-	fa, fu, fd := model.MergeFilters(rFilters, of)
-
-	if err := replica.DeleteFilters(whitelist, fd...); err != nil {
-		return err
-	}
-	if err := replica.AddFilters(whitelist, fa...); err != nil {
-		return err
-	}
-	if err := replica.UpdateFilters(whitelist, fu...); err != nil {
-		return err
-	}
-
-	if len(fa) > 0 || len(fu) > 0 {
-		if err := replica.RefreshFilters(whitelist); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (w *worker) syncClients(oc *model.Clients, replica client.Client) error {
 	if w.cfg.Features.ClientSettings {
 		rc, err := replica.Clients()
