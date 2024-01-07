@@ -163,7 +163,7 @@ services:
       # REPLICA1_DHCPSERVERENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: "*/10 * * * *" # run every 10 minutes
       RUNONSTART: true
-      # CONTINUEONERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
+      # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
 
       # Configure the sync API server, disabled if api port is 0
       API_PORT: 8080
