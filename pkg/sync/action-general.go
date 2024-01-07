@@ -112,6 +112,33 @@ var (
 		}
 		return nil
 	}
+
+	blockedServices = func(ac *actionContext) error {
+		rs, err := ac.client.BlockedServices()
+		if err != nil {
+			return err
+		}
+
+		if !model.EqualsStringSlice(ac.o.blockedServices, rs, true) {
+			if err := ac.client.SetBlockedServices(ac.o.blockedServices); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	blockedServicesSchedule = func(ac *actionContext) error {
+		rbss, err := ac.client.BlockedServicesSchedule()
+		if err != nil {
+			return err
+		}
+
+		if !ac.o.blockedServicesSchedule.Equals(rbss) {
+			if err := ac.client.SetBlockedServicesSchedule(ac.o.blockedServicesSchedule); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 )
 
 func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client, continueOnError bool) error {
