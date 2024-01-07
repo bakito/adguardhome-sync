@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"go.uber.org/zap"
 )
 
 var envVars = []string{
@@ -24,14 +22,11 @@ var envVars = []string{
 	"FEATURES_DNS_ACCESSLISTS",
 	"FEATURES_DNS_REWRITES",
 	"REPLICA1_INTERFACENAME",
-	"REPLICA1_INTERFACWENAME",
 	"REPLICA1_DHCPSERVERENABLED",
 }
 
 var _ = Describe("Run", func() {
-	var logger *zap.SugaredLogger
 	BeforeEach(func() {
-		logger = log.GetLogger("root")
 		for _, envVar := range envVars {
 			Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 		}
@@ -44,7 +39,7 @@ var _ = Describe("Run", func() {
 	})
 	Context("getConfig", func() {
 		It("features should be true by default", func() {
-			cfg, err := getConfig(logger)
+			cfg, err := getConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			verifyFeatures(cfg, true)
 		})
@@ -52,7 +47,7 @@ var _ = Describe("Run", func() {
 			for _, envVar := range envVars {
 				Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 			}
-			cfg, err := getConfig(logger)
+			cfg, err := getConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			verifyFeatures(cfg, false)
 		})
@@ -60,22 +55,7 @@ var _ = Describe("Run", func() {
 			It("should set interface name of replica 1", func() {
 				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 				Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceName, "1"), "eth0")).ShouldNot(HaveOccurred())
-				cfg, err := getConfig(logger)
-				Ω(err).ShouldNot(HaveOccurred())
-				Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
-			})
-			It("should set interface name of replica 1 from deprecated env", func() {
-				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-				Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceNameDeprecated, "1"), "eth0")).ShouldNot(HaveOccurred())
-				cfg, err := getConfig(logger)
-				Ω(err).ShouldNot(HaveOccurred())
-				Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
-			})
-			It("deprecated should not overwrite the correct", func() {
-				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-				Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceNameDeprecated, "1"), "eth1")).ShouldNot(HaveOccurred())
-				Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceName, "1"), "eth0")).ShouldNot(HaveOccurred())
-				cfg, err := getConfig(logger)
+				cfg, err := getConfig()
 				Ω(err).ShouldNot(HaveOccurred())
 				Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
 			})
@@ -84,7 +64,7 @@ var _ = Describe("Run", func() {
 			It("should enable the dhcp server of replica 1", func() {
 				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 				Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "true")).ShouldNot(HaveOccurred())
-				cfg, err := getConfig(logger)
+				cfg, err := getConfig()
 				Ω(err).ShouldNot(HaveOccurred())
 				Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
 				Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeTrue())
@@ -92,7 +72,7 @@ var _ = Describe("Run", func() {
 			It("should disable the dhcp server of replica 1", func() {
 				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 				Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "false")).ShouldNot(HaveOccurred())
-				cfg, err := getConfig(logger)
+				cfg, err := getConfig()
 				Ω(err).ShouldNot(HaveOccurred())
 				Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
 				Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())

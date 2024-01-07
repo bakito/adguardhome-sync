@@ -72,7 +72,9 @@ var _ = Describe("Client", func() {
 				`{"name":"","url":"foo","whitelist":true}`,
 				`{"name":"","url":"bar","whitelist":true}`,
 			)
-			err := cl.AddFilters(true, model.Filter{Url: "foo"}, model.Filter{Url: "bar"})
+			err := cl.AddFilter(true, model.Filter{Url: "foo"})
+			Ω(err).ShouldNot(HaveOccurred())
+			err = cl.AddFilter(true, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should update Filters", func() {
@@ -80,7 +82,9 @@ var _ = Describe("Client", func() {
 				`{"data":{"enabled":false,"name":"","url":"foo"},"url":"foo","whitelist":true}`,
 				`{"data":{"enabled":false,"name":"","url":"bar"},"url":"bar","whitelist":true}`,
 			)
-			err := cl.UpdateFilters(true, model.Filter{Url: "foo"}, model.Filter{Url: "bar"})
+			err := cl.UpdateFilter(true, model.Filter{Url: "foo"})
+			Ω(err).ShouldNot(HaveOccurred())
+			err = cl.UpdateFilter(true, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete Filters", func() {
@@ -88,7 +92,9 @@ var _ = Describe("Client", func() {
 				`{"url":"foo","whitelist":true}`,
 				`{"url":"bar","whitelist":true}`,
 			)
-			err := cl.DeleteFilters(true, model.Filter{Url: "foo"}, model.Filter{Url: "bar"})
+			err := cl.DeleteFilter(true, model.Filter{Url: "foo"})
+			Ω(err).ShouldNot(HaveOccurred())
+			err = cl.DeleteFilter(true, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -267,21 +273,21 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/clients/add",
 				`{"ids":["id"],"name":"foo"}`,
 			)
-			err := cl.AddClients(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
+			err := cl.AddClient(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should update Clients", func() {
 			ts, cl = ClientPost("/clients/update",
 				`{"data":{"ids":["id"],"name":"foo"},"name":"foo"}`,
 			)
-			err := cl.UpdateClients(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
+			err := cl.UpdateClient(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete Clients", func() {
 			ts, cl = ClientPost("/clients/delete",
 				`{"ids":["id"],"name":"foo"}`,
 			)
-			err := cl.DeleteClients(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
+			err := cl.DeleteClient(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})

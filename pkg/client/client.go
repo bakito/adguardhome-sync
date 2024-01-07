@@ -96,9 +96,9 @@ type Client interface {
 	DeleteRewriteEntries(e ...model.RewriteEntry) error
 	Filtering() (*model.FilterStatus, error)
 	ToggleFiltering(enabled bool, interval int) error
-	AddFilters(whitelist bool, e ...model.Filter) error
-	DeleteFilters(whitelist bool, e ...model.Filter) error
-	UpdateFilters(whitelist bool, e ...model.Filter) error
+	AddFilter(whitelist bool, f model.Filter) error
+	DeleteFilter(whitelist bool, f model.Filter) error
+	UpdateFilter(whitelist bool, f model.Filter) error
 	RefreshFilters(whitelist bool) error
 	SetCustomRules(rules *[]string) error
 	SafeBrowsing() (bool, error)
@@ -114,9 +114,9 @@ type Client interface {
 	SetBlockedServices(services *model.BlockedServicesArray) error
 	SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error
 	Clients() (*model.Clients, error)
-	AddClients(client ...*model.Client) error
-	UpdateClients(client ...*model.Client) error
-	DeleteClients(client ...*model.Client) error
+	AddClient(client *model.Client) error
+	UpdateClient(client *model.Client) error
+	DeleteClient(client *model.Client) error
 	QueryLogConfig() (*model.QueryLogConfig, error)
 	SetQueryLogConfig(*model.QueryLogConfig) error
 	StatsConfig() (*model.StatsConfig, error)
@@ -128,8 +128,8 @@ type Client interface {
 	SetDNSConfig(*model.DNSConfig) error
 	DhcpConfig() (*model.DhcpStatus, error)
 	SetDhcpConfig(*model.DhcpStatus) error
-	AddDHCPStaticLeases(leases ...model.DhcpStaticLease) error
-	DeleteDHCPStaticLeases(leases ...model.DhcpStaticLease) error
+	AddDHCPStaticLease(lease model.DhcpStaticLease) error
+	DeleteDHCPStaticLease(lease model.DhcpStaticLease) error
 }
 
 type client struct {
@@ -169,7 +169,7 @@ func (cl *client) RewriteList() (*model.RewriteEntries, error) {
 func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 	for i := range entries {
 		e := entries[i]
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/add")
 		if err != nil {
 			return err
@@ -181,7 +181,7 @@ func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 func (cl *client) DeleteRewriteEntries(entries ...model.RewriteEntry) error {
 	for i := range entries {
 		e := entries[i]
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/delete")
 		if err != nil {
 			return err
@@ -229,43 +229,25 @@ func (cl *client) Filtering() (*model.FilterStatus, error) {
 	return f, err
 }
 
-func (cl *client) AddFilters(whitelist bool, filters ...model.Filter) error {
-	for _, f := range filters {
-		cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
-		ff := &model.AddUrlRequest{Name: utils.Ptr(f.Name), Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) AddFilter(whitelist bool, f model.Filter) error {
+	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
+	ff := &model.AddUrlRequest{Name: utils.Ptr(f.Name), Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
 }
 
-func (cl *client) DeleteFilters(whitelist bool, filters ...model.Filter) error {
-	for _, f := range filters {
-		cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
-		ff := &model.RemoveUrlRequest{Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) DeleteFilter(whitelist bool, f model.Filter) error {
+	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
+	ff := &model.RemoveUrlRequest{Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
 }
 
-func (cl *client) UpdateFilters(whitelist bool, filters ...model.Filter) error {
-	for _, f := range filters {
-		cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
-		fu := &model.FilterSetUrl{
-			Whitelist: utils.Ptr(whitelist), Url: utils.Ptr(f.Url),
-			Data: &model.FilterSetUrlData{Name: f.Name, Url: f.Url, Enabled: f.Enabled},
-		}
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
-		if err != nil {
-			return err
-		}
+func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
+	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
+	fu := &model.FilterSetUrl{
+		Whitelist: utils.Ptr(whitelist), Url: utils.Ptr(f.Url),
+		Data: &model.FilterSetUrlData{Name: f.Name, Url: f.Url, Enabled: f.Enabled},
 	}
-	return nil
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
 }
 
 func (cl *client) RefreshFilters(whitelist bool) error {
@@ -319,39 +301,19 @@ func (cl *client) Clients() (*model.Clients, error) {
 	return clients, err
 }
 
-func (cl *client) AddClients(clients ...*model.Client) error {
-	for i := range clients {
-		client := clients[i]
-		cl.log.With("name", *client.Name).Info("Add client")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/add")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) AddClient(client *model.Client) error {
+	cl.log.With("name", *client.Name).Info("Add client settings")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/add")
 }
 
-func (cl *client) UpdateClients(clients ...*model.Client) error {
-	for _, client := range clients {
-		cl.log.With("name", *client.Name).Info("Update client")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&model.ClientUpdate{Name: client.Name, Data: client}), "/clients/update")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) UpdateClient(client *model.Client) error {
+	cl.log.With("name", *client.Name).Info("Update client settings")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.ClientUpdate{Name: client.Name, Data: client}), "/clients/update")
 }
 
-func (cl *client) DeleteClients(clients ...*model.Client) error {
-	for i := range clients {
-		client := clients[i]
-		cl.log.With("name", *client.Name).Info("Delete client")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/delete")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) DeleteClient(client *model.Client) error {
+	cl.log.With("name", *client.Name).Info("Delete client settings")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/delete")
 }
 
 func (cl *client) QueryLogConfig() (*model.QueryLogConfig, error) {
@@ -435,24 +397,20 @@ func (cl *client) SetDhcpConfig(config *model.DhcpStatus) error {
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dhcp/set_config")
 }
 
-func (cl *client) AddDHCPStaticLeases(leases ...model.DhcpStaticLease) error {
-	for _, l := range leases {
-		cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Add static dhcp lease")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/add_static_lease")
-		if err != nil {
-			return err
-		}
+func (cl *client) AddDHCPStaticLease(l model.DhcpStaticLease) error {
+	cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Add static dhcp lease")
+	err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/add_static_lease")
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func (cl *client) DeleteDHCPStaticLeases(leases ...model.DhcpStaticLease) error {
-	for _, l := range leases {
-		cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Delete static dhcp lease")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/remove_static_lease")
-		if err != nil {
-			return err
-		}
+func (cl *client) DeleteDHCPStaticLease(l model.DhcpStaticLease) error {
+	cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Delete static dhcp lease")
+	err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/remove_static_lease")
+	if err != nil {
+		return err
 	}
 	return nil
 }

@@ -15,7 +15,7 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg, err := getConfig(logger)
+		cfg, err := getConfig()
 		if err != nil {
 			logger.Error(err)
 			return err
@@ -50,6 +50,13 @@ func init() {
 	doCmd.PersistentFlags().Bool("printConfigOnly", false, "Prints the configuration only and exists. "+
 		"Can be used to debug the config E.g: when having authentication issues.")
 	_ = viper.BindPFlag(configPrintConfigOnly, doCmd.PersistentFlags().Lookup("printConfigOnly"))
+	doCmd.PersistentFlags().Bool("continueOnError", false, "If enabled, the synchronisation task "+
+		"will not fail on single errors, but will log the errors and continue.")
+	_ = viper.BindPFlag(configContinueOnError, doCmd.PersistentFlags().Lookup("continueOnError"))
+
+	doCmd.PersistentFlags().String("logLevel", "info", "The log level to set. One of (debug, info, warn  and error)")
+	_ = viper.BindPFlag(configLogLevel, doCmd.PersistentFlags().Lookup("logLevel"))
+
 	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
 	_ = viper.BindPFlag(configAPIPort, doCmd.PersistentFlags().Lookup("api-port"))
 	doCmd.PersistentFlags().String("api-username", "", "Sync API username")

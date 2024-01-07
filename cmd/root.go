@@ -12,13 +12,14 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 const (
 	configCron            = "cron"
 	configRunOnStart      = "runOnStart"
-	configPrintConfigOnly = "printConfigOnly"
+	configPrintConfigOnly = "PRINT_CONFIG_ONLY"
+	configContinueOnError = "CONTINUE_ON_ERROR"
+	configLogLevel        = "LOG_LEVEL"
 
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"
@@ -62,10 +63,8 @@ const (
 	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
 	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
 	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
-	// Deprecated: use envReplicasInterfaceName instead
-	envReplicasInterfaceNameDeprecated = "REPLICA%s_INTERFACWENAME"
-	envDHCPServerEnabled               = "REPLICA%s_DHCPSERVERENABLED"
-	envWebURL                          = "REPLICA%s_WEBURL"
+	envDHCPServerEnabled                = "REPLICA%s_DHCPSERVERENABLED"
+	envWebURL                           = "REPLICA%s_WEBURL"
 )
 
 var (
@@ -133,7 +132,7 @@ func initConfig() {
 	}
 }
 
-func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
+func getConfig() (*types.Config, error) {
 	cfg := &types.Config{}
 	if err := viper.Unmarshal(cfg); err != nil {
 		return nil, err
@@ -145,14 +144,14 @@ func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
 	}
 
 	if len(cfg.Replicas) == 0 {
-		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas(logger)...)
+		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas()...)
 	}
 
 	return cfg, nil
 }
 
 // Manually collect replicas from env.
-func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
+func collectEnvReplicas() []types.AdGuardInstance {
 	var replicas []types.AdGuardInstance
 	for _, v := range os.Environ() {
 		if envReplicasURLPattern.MatchString(v) {
@@ -169,14 +168,6 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
 			}
 
-			if re.InterfaceName == "" {
-				if in, ok := os.LookupEnv(fmt.Sprintf(envReplicasInterfaceNameDeprecated, sm[1])); ok {
-					logger.
-						With("correct", envReplicasInterfaceName, "deprecated", envReplicasInterfaceNameDeprecated).
-						Warn("Deprecated env variable is used, please use the correct one")
-					re.InterfaceName = in
-				}
-			}
 			if dhcpEnabled, ok := os.LookupEnv(fmt.Sprintf(envDHCPServerEnabled, sm[1])); ok {
 				if strings.EqualFold(dhcpEnabled, "true") {
 					re.DHCPServerEnabled = boolPtr(true)

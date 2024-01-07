@@ -49,59 +49,46 @@ func (mr *MockClientMockRecorder) AccessList() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccessList", reflect.TypeOf((*MockClient)(nil).AccessList))
 }
 
-// AddClients mocks base method.
-func (m *MockClient) AddClients(arg0 ...*model.Client) error {
+// AddClient mocks base method.
+func (m *MockClient) AddClient(arg0 *model.Client) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "AddClients", varargs...)
+	ret := m.ctrl.Call(m, "AddClient", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddClients indicates an expected call of AddClients.
-func (mr *MockClientMockRecorder) AddClients(arg0 ...interface{}) *gomock.Call {
+// AddClient indicates an expected call of AddClient.
+func (mr *MockClientMockRecorder) AddClient(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClients", reflect.TypeOf((*MockClient)(nil).AddClients), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClient", reflect.TypeOf((*MockClient)(nil).AddClient), arg0)
 }
 
-// AddDHCPStaticLeases mocks base method.
-func (m *MockClient) AddDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
+// AddDHCPStaticLease mocks base method.
+func (m *MockClient) AddDHCPStaticLease(arg0 model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "AddDHCPStaticLeases", varargs...)
+	ret := m.ctrl.Call(m, "AddDHCPStaticLease", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddDHCPStaticLeases indicates an expected call of AddDHCPStaticLeases.
-func (mr *MockClientMockRecorder) AddDHCPStaticLeases(arg0 ...interface{}) *gomock.Call {
+// AddDHCPStaticLease indicates an expected call of AddDHCPStaticLease.
+func (mr *MockClientMockRecorder) AddDHCPStaticLease(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDHCPStaticLeases", reflect.TypeOf((*MockClient)(nil).AddDHCPStaticLeases), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDHCPStaticLease", reflect.TypeOf((*MockClient)(nil).AddDHCPStaticLease), arg0)
 }
 
-// AddFilters mocks base method.
-func (m *MockClient) AddFilters(arg0 bool, arg1 ...model.Filter) error {
+// AddFilter mocks base method.
+func (m *MockClient) AddFilter(arg0 bool, arg1 model.Filter) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "AddFilters", varargs...)
+	ret := m.ctrl.Call(m, "AddFilter", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddFilters indicates an expected call of AddFilters.
-func (mr *MockClientMockRecorder) AddFilters(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+// AddFilter indicates an expected call of AddFilter.
+func (mr *MockClientMockRecorder) AddFilter(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFilters", reflect.TypeOf((*MockClient)(nil).AddFilters), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFilter", reflect.TypeOf((*MockClient)(nil).AddFilter), arg0, arg1)
 }
 
 // AddRewriteEntries mocks base method.
@@ -182,59 +169,46 @@ func (mr *MockClientMockRecorder) DNSConfig() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DNSConfig", reflect.TypeOf((*MockClient)(nil).DNSConfig))
 }
 
-// DeleteClients mocks base method.
-func (m *MockClient) DeleteClients(arg0 ...*model.Client) error {
+// DeleteClient mocks base method.
+func (m *MockClient) DeleteClient(arg0 *model.Client) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DeleteClients", varargs...)
+	ret := m.ctrl.Call(m, "DeleteClient", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteClients indicates an expected call of DeleteClients.
-func (mr *MockClientMockRecorder) DeleteClients(arg0 ...interface{}) *gomock.Call {
+// DeleteClient indicates an expected call of DeleteClient.
+func (mr *MockClientMockRecorder) DeleteClient(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteClients", reflect.TypeOf((*MockClient)(nil).DeleteClients), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteClient", reflect.TypeOf((*MockClient)(nil).DeleteClient), arg0)
 }
 
-// DeleteDHCPStaticLeases mocks base method.
-func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
+// DeleteDHCPStaticLease mocks base method.
+func (m *MockClient) DeleteDHCPStaticLease(arg0 model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DeleteDHCPStaticLeases", varargs...)
+	ret := m.ctrl.Call(m, "DeleteDHCPStaticLease", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteDHCPStaticLeases indicates an expected call of DeleteDHCPStaticLeases.
-func (mr *MockClientMockRecorder) DeleteDHCPStaticLeases(arg0 ...interface{}) *gomock.Call {
+// DeleteDHCPStaticLease indicates an expected call of DeleteDHCPStaticLease.
+func (mr *MockClientMockRecorder) DeleteDHCPStaticLease(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDHCPStaticLeases", reflect.TypeOf((*MockClient)(nil).DeleteDHCPStaticLeases), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDHCPStaticLease", reflect.TypeOf((*MockClient)(nil).DeleteDHCPStaticLease), arg0)
 }
 
-// DeleteFilters mocks base method.
-func (m *MockClient) DeleteFilters(arg0 bool, arg1 ...model.Filter) error {
+// DeleteFilter mocks base method.
+func (m *MockClient) DeleteFilter(arg0 bool, arg1 model.Filter) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DeleteFilters", varargs...)
+	ret := m.ctrl.Call(m, "DeleteFilter", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteFilters indicates an expected call of DeleteFilters.
-func (mr *MockClientMockRecorder) DeleteFilters(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+// DeleteFilter indicates an expected call of DeleteFilter.
+func (mr *MockClientMockRecorder) DeleteFilter(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFilters", reflect.TypeOf((*MockClient)(nil).DeleteFilters), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFilter", reflect.TypeOf((*MockClient)(nil).DeleteFilter), arg0, arg1)
 }
 
 // DeleteRewriteEntries mocks base method.
@@ -643,39 +617,30 @@ func (mr *MockClientMockRecorder) ToggleSafeBrowsing(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToggleSafeBrowsing", reflect.TypeOf((*MockClient)(nil).ToggleSafeBrowsing), arg0)
 }
 
-// UpdateClients mocks base method.
-func (m *MockClient) UpdateClients(arg0 ...*model.Client) error {
+// UpdateClient mocks base method.
+func (m *MockClient) UpdateClient(arg0 *model.Client) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdateClients", varargs...)
+	ret := m.ctrl.Call(m, "UpdateClient", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateClients indicates an expected call of UpdateClients.
-func (mr *MockClientMockRecorder) UpdateClients(arg0 ...interface{}) *gomock.Call {
+// UpdateClient indicates an expected call of UpdateClient.
+func (mr *MockClientMockRecorder) UpdateClient(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateClients", reflect.TypeOf((*MockClient)(nil).UpdateClients), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateClient", reflect.TypeOf((*MockClient)(nil).UpdateClient), arg0)
 }
 
-// UpdateFilters mocks base method.
-func (m *MockClient) UpdateFilters(arg0 bool, arg1 ...model.Filter) error {
+// UpdateFilter mocks base method.
+func (m *MockClient) UpdateFilter(arg0 bool, arg1 model.Filter) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
-	for _, a := range arg1 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdateFilters", varargs...)
+	ret := m.ctrl.Call(m, "UpdateFilter", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateFilters indicates an expected call of UpdateFilters.
-func (mr *MockClientMockRecorder) UpdateFilters(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+// UpdateFilter indicates an expected call of UpdateFilter.
+func (mr *MockClientMockRecorder) UpdateFilter(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFilters", reflect.TypeOf((*MockClient)(nil).UpdateFilters), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFilter", reflect.TypeOf((*MockClient)(nil).UpdateFilter), arg0, arg1)
 }
