@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	configCron       = "cron"
-	configRunOnStart = "runOnStart"
+	configCron            = "cron"
+	configRunOnStart      = "runOnStart"
+	configPrintConfigOnly = "printConfigOnly"
 
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"
@@ -134,6 +135,11 @@ func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
 	if err := viper.Unmarshal(cfg); err != nil {
 		return nil, err
 	}
+	if cfg.Replica != nil &&
+		cfg.Replica.URL == "" &&
+		cfg.Replica.Username == "" {
+		cfg.Replica = nil
+	}
 
 	if len(cfg.Replicas) == 0 {
 		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas(logger)...)
@@ -172,6 +178,9 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 				} else if strings.EqualFold(dhcpEnabled, "false") {
 					re.DHCPServerEnabled = boolPtr(false)
 				}
+			}
+			if re.APIPath == "" {
+				re.APIPath = "/control"
 			}
 			replicas = append(replicas, re)
 		}
