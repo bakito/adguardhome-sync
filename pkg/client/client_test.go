@@ -35,7 +35,10 @@ var _ = Describe("Client", func() {
 
 	Context("Host", func() {
 		It("should read the current host", func() {
-			cl, _ := client.New(types.AdGuardInstance{URL: "https://foo.bar:3000"})
+			inst := types.AdGuardInstance{URL: "https://foo.bar:3000"}
+			err := inst.Init()
+			Ω(err).ShouldNot(HaveOccurred())
+			cl, _ := client.New(inst)
 			host := cl.Host()
 			Ω(host).Should(Equal("foo.bar:3000"))
 		})

@@ -80,9 +80,9 @@ func New(config types.AdGuardInstance) (Client, error) {
 	}
 
 	return &client{
-		host:   u.Host,
+		host:   config.Host,
 		client: cl,
-		log:    l.With("host", u.Host),
+		log:    l.With("host", config.Host),
 	}, nil
 }
 

@@ -113,27 +113,32 @@ func (w *worker) status() *syncStatus {
 	return syncStatus
 }
 
-func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
+func (w *worker) getStatus(inst types.AdGuardInstance) (st replicaStatus) {
+	st = replicaStatus{Host: inst.WebHost, URL: inst.WebURL}
+
 	oc, err := w.createClient(inst)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
-		return replicaStatus{Host: oc.Host(), URL: inst.URL, Error: err.Error(), Status: "danger"}
+		st.Status = "danger"
+		st.Error = err.Error()
+		return
 	}
-	sl := l.With("from", oc.Host())
-	st, err := oc.Status()
+	sl := l.With("from", inst.WebHost)
+	status, err := oc.Status()
 	if err != nil {
 		if errors.Is(err, client.ErrSetupNeeded) {
-			return replicaStatus{Host: oc.Host(), URL: inst.URL, Error: err.Error(), Status: "warning"}
+			st.Status = "warning"
+			st.Error = err.Error()
+			return
 		}
 		sl.With("error", err).Error("Error getting origin status")
-		return replicaStatus{Host: oc.Host(), URL: inst.URL, Error: err.Error(), Status: "danger"}
+		st.Status = "danger"
+		st.Error = err.Error()
+		return
 	}
-	return replicaStatus{
-		Host:              oc.Host(),
-		URL:               inst.URL,
-		Status:            "success",
-		ProtectionEnabled: utils.Ptr(st.ProtectionEnabled),
-	}
+	st.Status = "success"
+	st.ProtectionEnabled = utils.Ptr(status.ProtectionEnabled)
+	return
 }
 
 func (w *worker) sync() {

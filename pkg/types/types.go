@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"net/url"
 
 	"go.uber.org/zap"
 )
@@ -14,13 +15,14 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Origin     AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica    *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
-	Replicas   []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron       string            `json:"cron,omitempty" yaml:"cron,omitempty"`
-	RunOnStart bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
-	API        API               `json:"api,omitempty" yaml:"api,omitempty"`
-	Features   Features          `json:"features,omitempty" yaml:"features,omitempty"`
+	Origin          AdGuardInstance   `json:"origin" yaml:"origin"`
+	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
+	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
+	API             API               `json:"api,omitempty" yaml:"api,omitempty"`
+	Features        Features          `json:"features,omitempty" yaml:"features,omitempty"`
 }
 
 // API configuration
@@ -70,18 +72,35 @@ func (cfg *Config) Log(l *zap.SugaredLogger) {
 	l.With("config", c).Debug("Using config")
 }
 
+func (cfg *Config) Init() error {
+	if err := cfg.Origin.Init(); err != nil {
+		return err
+	}
+	for i := range cfg.Replicas {
+		replica := &cfg.Replicas[i]
+		if err := replica.Init(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url"`
+	WebURL             string `json:"webURL" yaml:"webURL"`
 	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
 	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
 	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
-	InterfaceName      string `json:"interfaceName" yaml:"interfaceName"`
+	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty"`
 	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
+
+	Host    string `json:"-" yaml:"-"`
+	WebHost string `json:"-" yaml:"-"`
 }
 
 // Key AdGuardInstance key
@@ -93,6 +112,26 @@ func (i *AdGuardInstance) Key() string {
 func (i *AdGuardInstance) Mask() {
 	i.Username = mask(i.Username)
 	i.Password = mask(i.Password)
+}
+
+func (i *AdGuardInstance) Init() error {
+	u, err := url.Parse(i.URL)
+	if err != nil {
+		return err
+	}
+	i.Host = u.Host
+
+	if i.WebURL == "" {
+		i.WebHost = i.Host
+		i.WebURL = i.URL
+	} else {
+		u, err := url.Parse(i.WebURL)
+		if err != nil {
+			return err
+		}
+		i.WebHost = u.Host
+	}
+	return nil
 }
 
 func mask(s string) string {

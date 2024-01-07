@@ -5,6 +5,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/sync"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 // runCmd represents the run command
@@ -20,6 +21,22 @@ var doCmd = &cobra.Command{
 			return err
 		}
 
+		if err := cfg.Init(); err != nil {
+			logger.Error(err)
+			return err
+		}
+
+		if cfg.PrintConfigOnly {
+			config, err := yaml.Marshal(cfg)
+			if err != nil {
+				logger.Error(err)
+				return err
+			}
+			logger.Infof("Printing adguardhome-sync config (THE APPLICATION WILL NOT START IN THIS MODE): \n%s",
+				string(config))
+			return nil
+		}
+
 		return sync.Sync(cfg)
 	},
 }
@@ -30,6 +47,9 @@ func init() {
 	_ = viper.BindPFlag(configCron, doCmd.PersistentFlags().Lookup("cron"))
 	doCmd.PersistentFlags().Bool("runOnStart", true, "Run the sync job on start.")
 	_ = viper.BindPFlag(configRunOnStart, doCmd.PersistentFlags().Lookup("runOnStart"))
+	doCmd.PersistentFlags().Bool("printConfigOnly", false, "Prints the configuration only and exists. "+
+		"Can be used to debug the config E.g: when having authentication issues.")
+	_ = viper.BindPFlag(configPrintConfigOnly, doCmd.PersistentFlags().Lookup("printConfigOnly"))
 	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
 	_ = viper.BindPFlag(configAPIPort, doCmd.PersistentFlags().Lookup("api-port"))
 	doCmd.PersistentFlags().String("api-username", "", "Sync API username")
@@ -66,6 +86,8 @@ func init() {
 
 	doCmd.PersistentFlags().String("origin-url", "", "Origin instance url")
 	_ = viper.BindPFlag(configOriginURL, doCmd.PersistentFlags().Lookup("origin-url"))
+	doCmd.PersistentFlags().String("origin-weburl", "", "Origin instance web url used in the web interface (default: <origin-url>)")
+	_ = viper.BindPFlag(configOriginWebURL, doCmd.PersistentFlags().Lookup("origin-weburl"))
 	doCmd.PersistentFlags().String("origin-api-path", "/control", "Origin instance API path")
 	_ = viper.BindPFlag(configOriginAPIPath, doCmd.PersistentFlags().Lookup("origin-api-path"))
 	doCmd.PersistentFlags().String("origin-username", "", "Origin instance username")
@@ -79,6 +101,8 @@ func init() {
 
 	doCmd.PersistentFlags().String("replica-url", "", "Replica instance url")
 	_ = viper.BindPFlag(configReplicaURL, doCmd.PersistentFlags().Lookup("replica-url"))
+	doCmd.PersistentFlags().String("replica-weburl", "", "Replica instance web url used in the web interface (default: <replica-url>)")
+	_ = viper.BindPFlag(configOriginWebURL, doCmd.PersistentFlags().Lookup("replica-weburl"))
 	doCmd.PersistentFlags().String("replica-api-path", "/control", "Replica instance API path")
 	_ = viper.BindPFlag(configReplicaAPIPath, doCmd.PersistentFlags().Lookup("replica-api-path"))
 	doCmd.PersistentFlags().String("replica-username", "", "Replica instance username")
