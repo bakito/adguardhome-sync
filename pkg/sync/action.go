@@ -48,6 +48,17 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("client settings", clientSettings),
 		)
 	}
+	if cfg.Features.DNS.AccessLists {
+		actions = append(actions,
+			action("DNS access lists", dnsAccessLists),
+		)
+	}
+
+	if cfg.Features.DNS.ServerConfig {
+		actions = append(actions,
+			action("DNS server config", dnsServerConfig),
+		)
+	}
 	return
 }
 

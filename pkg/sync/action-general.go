@@ -106,9 +106,7 @@ var (
 		}
 
 		if ac.o.filters.Enabled != rf.Enabled || ac.o.filters.Interval != rf.Interval {
-			if err = ac.client.ToggleFiltering(*ac.o.filters.Enabled, *ac.o.filters.Interval); err != nil {
-				return err
-			}
+			return ac.client.ToggleFiltering(*ac.o.filters.Enabled, *ac.o.filters.Interval)
 		}
 		return nil
 	}
@@ -120,9 +118,7 @@ var (
 		}
 
 		if !model.EqualsStringSlice(ac.o.blockedServices, rs, true) {
-			if err := ac.client.SetBlockedServices(ac.o.blockedServices); err != nil {
-				return err
-			}
+			return ac.client.SetBlockedServices(ac.o.blockedServices)
 		}
 		return nil
 	}
@@ -133,14 +129,11 @@ var (
 		}
 
 		if !ac.o.blockedServicesSchedule.Equals(rbss) {
-			if err := ac.client.SetBlockedServicesSchedule(ac.o.blockedServicesSchedule); err != nil {
-				return err
-			}
+			return ac.client.SetBlockedServicesSchedule(ac.o.blockedServicesSchedule)
 		}
 		return nil
 	}
 	clientSettings = func(ac *actionContext) error {
-
 		rc, err := ac.client.Clients()
 		if err != nil {
 			return err
@@ -175,6 +168,29 @@ var (
 			}
 		}
 
+		return nil
+	}
+
+	dnsAccessLists = func(ac *actionContext) error {
+		al, err := ac.client.AccessList()
+		if err != nil {
+			return err
+		}
+		if !al.Equals(ac.o.accessList) {
+			return ac.client.SetAccessList(ac.o.accessList)
+		}
+		return nil
+	}
+	dnsServerConfig = func(ac *actionContext) error {
+		dc, err := ac.client.DNSConfig()
+		if err != nil {
+			return err
+		}
+		if !dc.Equals(ac.o.dnsConfig) {
+			if err = ac.client.SetDNSConfig(ac.o.dnsConfig); err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 )
