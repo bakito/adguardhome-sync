@@ -294,6 +294,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		o:               o,
 		rs:              rs,
 		client:          rc,
+		replica:         replica,
 	}
 	for _, action := range w.actions {
 		if err := action.sync(ac); err != nil {
@@ -301,13 +302,6 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 			if !continueOnError {
 				return
 			}
-		}
-	}
-
-	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
-		if err = w.syncDHCPServer(o.dhcpServerConfig, rc, replica); err != nil {
-			rl.With("error", err).Error("Error syncing dhcp")
-			return
 		}
 	}
 
@@ -327,45 +321,6 @@ func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardIns
 		return nil, err
 	}
 	return rs, err
-}
-
-func (w *worker) syncDHCPServer(osc *model.DhcpStatus, rc client.Client, replica types.AdGuardInstance) error {
-	if !w.cfg.Features.DHCP.ServerConfig && !w.cfg.Features.DHCP.StaticLeases {
-		return nil
-	}
-	sc, err := rc.DhcpConfig()
-	if w.cfg.Features.DHCP.ServerConfig && osc.HasConfig() {
-		if err != nil {
-			return err
-		}
-		origClone := osc.Clone()
-		if replica.InterfaceName != "" {
-			// overwrite interface name
-			origClone.InterfaceName = utils.Ptr(replica.InterfaceName)
-		}
-		if replica.DHCPServerEnabled != nil {
-			// overwrite dhcp enabled
-			origClone.Enabled = replica.DHCPServerEnabled
-		}
-
-		if !sc.Equals(origClone) {
-			if err = rc.SetDhcpConfig(origClone); err != nil {
-				return err
-			}
-		}
-	}
-
-	if w.cfg.Features.DHCP.StaticLeases {
-		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, osc.StaticLeases)
-
-		if err = rc.DeleteDHCPStaticLeases(r...); err != nil {
-			return err
-		}
-		if err = rc.AddDHCPStaticLeases(a...); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 type origin struct {

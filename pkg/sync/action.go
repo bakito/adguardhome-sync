@@ -59,6 +59,16 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("DNS server config", dnsServerConfig),
 		)
 	}
+	if cfg.Features.DHCP.ServerConfig {
+		actions = append(actions,
+			action("DHCP server config", dhcpServerConfig),
+		)
+	}
+	if cfg.Features.DHCP.StaticLeases {
+		actions = append(actions,
+			action("DHCP static leases", dhcpStaticLeases),
+		)
+	}
 	return
 }
 
@@ -73,6 +83,7 @@ type actionContext struct {
 	client          client.Client
 	rs              *model.ServerStatus
 	continueOnError bool
+	replica         types.AdGuardInstance
 }
 
 type defaultAction struct {

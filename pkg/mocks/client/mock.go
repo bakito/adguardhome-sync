@@ -63,22 +63,18 @@ func (mr *MockClientMockRecorder) AddClient(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClient", reflect.TypeOf((*MockClient)(nil).AddClient), arg0)
 }
 
-// AddDHCPStaticLeases mocks base method.
-func (m *MockClient) AddDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
+// AddDHCPStaticLease mocks base method.
+func (m *MockClient) AddDHCPStaticLease(arg0 model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "AddDHCPStaticLeases", varargs...)
+	ret := m.ctrl.Call(m, "AddDHCPStaticLease", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AddDHCPStaticLeases indicates an expected call of AddDHCPStaticLeases.
-func (mr *MockClientMockRecorder) AddDHCPStaticLeases(arg0 ...interface{}) *gomock.Call {
+// AddDHCPStaticLease indicates an expected call of AddDHCPStaticLease.
+func (mr *MockClientMockRecorder) AddDHCPStaticLease(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDHCPStaticLeases", reflect.TypeOf((*MockClient)(nil).AddDHCPStaticLeases), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDHCPStaticLease", reflect.TypeOf((*MockClient)(nil).AddDHCPStaticLease), arg0)
 }
 
 // AddFilter mocks base method.
@@ -187,22 +183,18 @@ func (mr *MockClientMockRecorder) DeleteClient(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteClient", reflect.TypeOf((*MockClient)(nil).DeleteClient), arg0)
 }
 
-// DeleteDHCPStaticLeases mocks base method.
-func (m *MockClient) DeleteDHCPStaticLeases(arg0 ...model.DhcpStaticLease) error {
+// DeleteDHCPStaticLease mocks base method.
+func (m *MockClient) DeleteDHCPStaticLease(arg0 model.DhcpStaticLease) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DeleteDHCPStaticLeases", varargs...)
+	ret := m.ctrl.Call(m, "DeleteDHCPStaticLease", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteDHCPStaticLeases indicates an expected call of DeleteDHCPStaticLeases.
-func (mr *MockClientMockRecorder) DeleteDHCPStaticLeases(arg0 ...interface{}) *gomock.Call {
+// DeleteDHCPStaticLease indicates an expected call of DeleteDHCPStaticLease.
+func (mr *MockClientMockRecorder) DeleteDHCPStaticLease(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDHCPStaticLeases", reflect.TypeOf((*MockClient)(nil).DeleteDHCPStaticLeases), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDHCPStaticLease", reflect.TypeOf((*MockClient)(nil).DeleteDHCPStaticLease), arg0)
 }
 
 // DeleteFilter mocks base method.

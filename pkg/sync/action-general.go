@@ -193,6 +193,55 @@ var (
 		}
 		return nil
 	}
+	dhcpServerConfig = func(ac *actionContext) error {
+		if ac.o.dhcpServerConfig.HasConfig() {
+			sc, err := ac.client.DhcpConfig()
+			if err != nil {
+				return err
+			}
+			origClone := ac.o.dhcpServerConfig.Clone()
+			if ac.replica.InterfaceName != "" {
+				// overwrite interface name
+				origClone.InterfaceName = utils.Ptr(ac.replica.InterfaceName)
+			}
+			if ac.replica.DHCPServerEnabled != nil {
+				// overwrite dhcp enabled
+				origClone.Enabled = ac.replica.DHCPServerEnabled
+			}
+
+			if !sc.Equals(origClone) {
+				return ac.client.SetDhcpConfig(origClone)
+			}
+		}
+		return nil
+	}
+	dhcpStaticLeases = func(ac *actionContext) error {
+		sc, err := ac.client.DhcpConfig()
+		if err != nil {
+			return err
+		}
+
+		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, ac.o.dhcpServerConfig.StaticLeases)
+
+		for _, lease := range r {
+			if err := ac.client.DeleteDHCPStaticLease(lease); err != nil {
+				ac.rl.With("hostname", lease.Hostname, "error", err).Error("error deleting dhcp static lease")
+				if !ac.continueOnError {
+					return err
+				}
+			}
+		}
+
+		for _, lease := range a {
+			if err := ac.client.AddDHCPStaticLease(lease); err != nil {
+				ac.rl.With("hostname", lease.Hostname, "error", err).Error("error adding dhcp static lease")
+				if !ac.continueOnError {
+					return err
+				}
+			}
+		}
+		return nil
+	}
 )
 
 func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client, continueOnError bool) error {
