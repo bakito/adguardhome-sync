@@ -146,6 +146,8 @@ services:
     environment:
       LOG_LEVEL: "info"
       ORIGIN_URL: "https://192.168.1.2:3000"
+      # ORIGIN_WEBURL: "https://some-other.url" # used in the web interface (default: <origin-url>
+
       ORIGIN_USERNAME: "username"
       ORIGIN_PASSWORD: "password"
       REPLICA_URL: "http://192.168.1.3"
@@ -155,6 +157,7 @@ services:
       REPLICA1_USERNAME: "username"
       REPLICA1_PASSWORD: "password"
       REPLICA1_APIPATH: "/some/path/control"
+      # REPLICA1_WEBURL: "https://some-other.url" # used in the web interface (default: <replica-url>
       # REPLICA1_AUTOSETUP: true # if true, AdGuardHome is automatically initialized.
       # REPLICA1_INTERFACENAME: 'ens18' # use custom dhcp interface name
       # REPLICA1_DHCPSERVERENABLED: true/false (optional) enables/disables the dhcp server on the replica
@@ -208,6 +211,7 @@ replica:
   username: username
   password: password
   # cookie: Replica-Cookie-Name=CCCOOOKKKIIIEEE
+  # webURL: "https://some-other.url" # used in the web interface (default: <origin-url>
 
 # replicas instances (optional, if more than one)
 replicas:
@@ -221,6 +225,7 @@ replicas:
     password: password
     # cookie: Replica2-Cookie-Name=CCCOOOKKKIIIEEE
     # autoSetup: true # if true, AdGuardHome is automatically initialized.
+    # webURL: "https://some-other.url" # used in the web interface (default: <replica-url>
 
 # Configure the sync API server, disabled if api port is 0
 api:
@@ -229,6 +234,8 @@ api:
   # if username and password are defined, basic auth is applied to the sync API
   username: username
   password: password
+  # enable api dark mode
+  darkMode: true
 
 # Configure sync features; by default all features are enabled.
 features:

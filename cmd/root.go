@@ -38,6 +38,7 @@ const (
 	configFeatureFilters          = "features.filters"
 
 	configOriginURL                = "origin.url"
+	configOriginWebURL             = "origin.webURL"
 	configOriginAPIPath            = "origin.apiPath"
 	configOriginUsername           = "origin.username"
 	configOriginPassword           = "origin.password"
@@ -45,6 +46,7 @@ const (
 	configOriginInsecureSkipVerify = "origin.insecureSkipVerify"
 
 	configReplicaURL                = "replica.url"
+	configReplicaWebURL             = "replica.webURL"
 	configReplicaAPIPath            = "replica.apiPath"
 	configReplicaUsername           = "replica.username"
 	configReplicaPassword           = "replica.password"
@@ -63,6 +65,7 @@ const (
 	// Deprecated: use envReplicasInterfaceName instead
 	envReplicasInterfaceNameDeprecated = "REPLICA%s_INTERFACWENAME"
 	envDHCPServerEnabled               = "REPLICA%s_DHCPSERVERENABLED"
+	envWebURL                          = "REPLICA%s_WEBURL"
 )
 
 var (
@@ -144,6 +147,7 @@ func getConfig(logger *zap.SugaredLogger) (*types.Config, error) {
 	if len(cfg.Replicas) == 0 {
 		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas(logger)...)
 	}
+
 	return cfg, nil
 }
 
@@ -155,6 +159,7 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 			sm := envReplicasURLPattern.FindStringSubmatch(v)
 			re := types.AdGuardInstance{
 				URL:                sm[2],
+				WebURL:             os.Getenv(fmt.Sprintf(envWebURL, sm[1])),
 				Username:           os.Getenv(fmt.Sprintf(envReplicasUsernameFormat, sm[1])),
 				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
 				Cookie:             os.Getenv(fmt.Sprintf(envReplicasCookieFormat, sm[1])),

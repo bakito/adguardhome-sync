@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"net/url"
 
 	"go.uber.org/zap"
 )
@@ -71,10 +72,24 @@ func (cfg *Config) Log(l *zap.SugaredLogger) {
 	l.With("config", c).Debug("Using config")
 }
 
+func (cfg *Config) Init() error {
+	if err := cfg.Origin.Init(); err != nil {
+		return err
+	}
+	for i := range cfg.Replicas {
+		replica := &cfg.Replicas[i]
+		if err := replica.Init(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url"`
+	WebURL             string `json:"webURL" yaml:"webURL"`
 	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
@@ -83,6 +98,9 @@ type AdGuardInstance struct {
 	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
 	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty"`
 	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
+
+	Host    string `json:"-" yaml:"-"`
+	WebHost string `json:"-" yaml:"-"`
 }
 
 // Key AdGuardInstance key
@@ -94,6 +112,26 @@ func (i *AdGuardInstance) Key() string {
 func (i *AdGuardInstance) Mask() {
 	i.Username = mask(i.Username)
 	i.Password = mask(i.Password)
+}
+
+func (i *AdGuardInstance) Init() error {
+	u, err := url.Parse(i.URL)
+	if err != nil {
+		return err
+	}
+	i.Host = u.Host
+
+	if i.WebURL == "" {
+		i.WebHost = i.Host
+		i.WebURL = i.URL
+	} else {
+		u, err := url.Parse(i.WebURL)
+		if err != nil {
+			return err
+		}
+		i.WebHost = u.Host
+	}
+	return nil
 }
 
 func mask(s string) string {
