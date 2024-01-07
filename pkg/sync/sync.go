@@ -288,24 +288,20 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	}
 
 	continueOnError := false
+	ac := &actionContext{
+		continueOnError: continueOnError,
+		rl:              rl,
+		o:               o,
+		rs:              rs,
+		client:          rc,
+	}
 	for _, action := range w.actions {
-		if err := action.sync(o, rc, rs); err != nil {
+		if err := action.sync(ac); err != nil {
 			rl.With("error", err).Errorf("Error syncing %s", action.name())
 			if !continueOnError {
 				return
 			}
 		}
-	}
-
-	err = w.syncRewrites(rl, o.rewrites, rc)
-	if err != nil {
-		rl.With("error", err).Error("Error syncing rewrites")
-		return
-	}
-	err = w.syncFilters(o.filters, rc)
-	if err != nil {
-		rl.With("error", err).Error("Error syncing filters")
-		return
 	}
 
 	err = w.syncServices(o.blockedServices, o.blockedServicesSchedule, rc)
@@ -376,33 +372,6 @@ func (w *worker) syncServices(os *model.BlockedServicesArray, obss *model.Blocke
 	return nil
 }
 
-func (w *worker) syncFilters(of *model.FilterStatus, replica client.Client) error {
-	if w.cfg.Features.Filters {
-		rf, err := replica.Filtering()
-		if err != nil {
-			return err
-		}
-
-		if err = w.syncFilterType(of.Filters, rf.Filters, false, replica); err != nil {
-			return err
-		}
-		if err = w.syncFilterType(of.WhitelistFilters, rf.WhitelistFilters, true, replica); err != nil {
-			return err
-		}
-
-		if utils.PtrToString(of.UserRules) != utils.PtrToString(rf.UserRules) {
-			return replica.SetCustomRules(of.UserRules)
-		}
-
-		if of.Enabled != rf.Enabled || of.Interval != rf.Interval {
-			if err = replica.ToggleFiltering(*of.Enabled, *of.Interval); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 func (w *worker) syncFilterType(of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client) error {
 	fa, fu, fd := model.MergeFilters(rFilters, of)
 
@@ -421,30 +390,6 @@ func (w *worker) syncFilterType(of *[]model.Filter, rFilters *[]model.Filter, wh
 			return err
 		}
 	}
-	return nil
-}
-
-func (w *worker) syncRewrites(rl *zap.SugaredLogger, or *model.RewriteEntries, replica client.Client) error {
-	if w.cfg.Features.DNS.Rewrites {
-		replicaRewrites, err := replica.RewriteList()
-		if err != nil {
-			return err
-		}
-
-		a, r, d := replicaRewrites.Merge(or)
-
-		if err = replica.DeleteRewriteEntries(r...); err != nil {
-			return err
-		}
-		if err = replica.AddRewriteEntries(a...); err != nil {
-			return err
-		}
-
-		for _, dupl := range d {
-			rl.With("domain", dupl.Domain, "answer", dupl.Answer).Warn("Skipping duplicated rewrite from source")
-		}
-	}
-
 	return nil
 }
 

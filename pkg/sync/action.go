@@ -4,6 +4,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"go.uber.org/zap"
 )
 
 func setupActions(cfg *types.Config) (actions []syncAction) {
@@ -26,25 +27,43 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("stats config", actionStatsConfig),
 		)
 	}
+	if cfg.Features.DNS.Rewrites {
+		actions = append(actions,
+			action("DNS rewrites", dnsRewrites),
+		)
+	}
+	if cfg.Features.Filters {
+		actions = append(actions,
+			action("filters", filters),
+		)
+	}
 	return
 }
 
 type syncAction interface {
-	sync(o *origin, client client.Client, rs *model.ServerStatus) error
+	sync(ac *actionContext) error
 	name() string
+}
+
+type actionContext struct {
+	rl              *zap.SugaredLogger
+	o               *origin
+	client          client.Client
+	rs              *model.ServerStatus
+	continueOnError bool
 }
 
 type defaultAction struct {
 	myName string
-	doSync func(o *origin, client client.Client, rs *model.ServerStatus) error
+	doSync func(ac *actionContext) error
 }
 
-func action(name string, f func(o *origin, client client.Client, rs *model.ServerStatus) error) syncAction {
+func action(name string, f func(ac *actionContext) error) syncAction {
 	return &defaultAction{myName: name, doSync: f}
 }
 
-func (d *defaultAction) sync(o *origin, client client.Client, rs *model.ServerStatus) error {
-	return d.doSync(o, client, rs)
+func (d *defaultAction) sync(ac *actionContext) error {
+	return d.doSync(ac)
 }
 
 func (d *defaultAction) name() string {

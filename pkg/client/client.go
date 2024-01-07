@@ -169,7 +169,7 @@ func (cl *client) RewriteList() (*model.RewriteEntries, error) {
 func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 	for i := range entries {
 		e := entries[i]
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/add")
 		if err != nil {
 			return err
@@ -181,7 +181,7 @@ func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 func (cl *client) DeleteRewriteEntries(entries ...model.RewriteEntry) error {
 	for i := range entries {
 		e := entries[i]
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/delete")
 		if err != nil {
 			return err
