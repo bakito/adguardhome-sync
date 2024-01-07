@@ -3,7 +3,7 @@ FROM golang:1.21-bullseye as builder
 WORKDIR /go/src/app
 
 RUN apt-get update && \
-    apt-get install -y upx ca-certificates && \
+    apt-get install -y upx ca-certificates tzdata && \
     apt-get upgrade -y # upgrade to get latest ca-certs
 
 ARG VERSION=main
@@ -26,6 +26,7 @@ LABEL maintainer="bakito <github@bakito.ch>"
 EXPOSE 8080
 ENTRYPOINT ["/opt/go/adguardhome-sync"]
 CMD ["run", "--config", "/config/adguardhome-sync.yaml"]
-COPY --from=builder /go/src/app/adguardhome-sync  /opt/go/adguardhome-sync
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=builder /usr/share/zoneinfo/ /usr/share/zoneinfo/
+COPY --from=builder /go/src/app/adguardhome-sync  /opt/go/adguardhome-sync
 USER 1001

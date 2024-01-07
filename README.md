@@ -6,6 +6,10 @@
 
 Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to replica instances.
 
+## FAQ
+
+Please check the wiki for [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ).
+
 ## Current sync features
 
 - General Settings
@@ -39,7 +43,9 @@ Both the origin instance must be initially setup via the AdguardHome installatio
 
 ## Username / Password vs. Cookie
 
-Some instances of AdGuard Home do not support basic authentication. For instance, many routers with built-in Adguard Home support do not. If this is the case, a valid cookie may be provided instead. If the router protects the AdGuard instance behind its own authentication, the cookie from an authenticated request may allow the sync to succeed.
+Some instances of AdGuard Home do not support basic authentication. For instance, many routers with built-in Adguard
+Home support do not. If this is the case, a valid cookie may be provided instead. If the router protects the AdGuard
+instance behind its own authentication, the cookie from an authenticated request may allow the sync to succeed.
 
 - This has been tested successfully against GL.Inet routers with AdGuard Home.
 - Note: due to the short validity of cookies, this approach is likely only suitable for one-time syncs

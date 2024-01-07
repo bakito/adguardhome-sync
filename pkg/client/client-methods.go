@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
 )
 
 func (cl *client) doGet(req *resty.Request, url string) error {
@@ -22,9 +23,13 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 				return ErrSetupNeeded
 			}
 		}
+
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")
 		return detailedError(resp, err)
 	}
+
+	checkAuthenticationIssue(resp, rl)
+
 	rl.With(
 		"status", resp.StatusCode(),
 		"body", string(resp.Body()),
@@ -48,6 +53,9 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do post")
 		return detailedError(resp, err)
 	}
+
+	checkAuthenticationIssue(resp, rl)
+
 	rl.With(
 		"status", resp.StatusCode(),
 		"body", string(resp.Body()),
@@ -71,6 +79,9 @@ func (cl *client) doPut(req *resty.Request, url string) error {
 		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do put")
 		return detailedError(resp, err)
 	}
+
+	checkAuthenticationIssue(resp, rl)
+
 	rl.With(
 		"status", resp.StatusCode(),
 		"body", string(resp.Body()),
@@ -80,4 +91,11 @@ func (cl *client) doPut(req *resty.Request, url string) error {
 		return detailedError(resp, nil)
 	}
 	return nil
+}
+
+func checkAuthenticationIssue(resp *resty.Response, rl *zap.SugaredLogger) {
+	if resp != nil && (resp.StatusCode() == http.StatusUnauthorized || resp.StatusCode() == http.StatusForbidden) {
+		rl.With("status", resp.StatusCode()).Error("there seems to be an authentication issue - " +
+			"please check https://github.com/bakito/adguardhome-sync/wiki/FAQ")
+	}
 }

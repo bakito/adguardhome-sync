@@ -1,9 +1,9 @@
 name: docker-image
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch: # allows manual triggering
+  schedule:
+    - cron: '0 0 * * *'
   release:
     types:
       - published
@@ -39,6 +39,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Modify Dockerfile
         run: |
           sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
@@ -58,10 +59,14 @@ jobs:
             VERSION=${{ github.event.release.tag_name }}
             BUILD=${{ env.curr_date }}
 
+      - name: Check for commits in the last 24 hours
+        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+        if: ${{ github.event.release.tag_name == '' }}
+
       - name: Build and push main
         id: docker_build_main
         uses: docker/build-push-action@v5
-        if: ${{ github.event.release.tag_name == '' }}
+        if: ${{ github.event.release.tag_name == '' && env.NEW_COMMIT_COUNT > 0  }}
         with:
           context: .
           pull: true

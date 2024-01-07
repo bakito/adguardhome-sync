@@ -15,13 +15,14 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Origin     AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica    *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
-	Replicas   []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron       string            `json:"cron,omitempty" yaml:"cron,omitempty"`
-	RunOnStart bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
-	API        API               `json:"api,omitempty" yaml:"api,omitempty"`
-	Features   Features          `json:"features,omitempty" yaml:"features,omitempty"`
+	Origin          AdGuardInstance   `json:"origin" yaml:"origin"`
+	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
+	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
+	API             API               `json:"api,omitempty" yaml:"api,omitempty"`
+	Features        Features          `json:"features,omitempty" yaml:"features,omitempty"`
 }
 
 // API configuration
@@ -95,7 +96,7 @@ type AdGuardInstance struct {
 	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
 	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
-	InterfaceName      string `json:"interfaceName" yaml:"interfaceName"`
+	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty"`
 	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
 
 	Host    string `json:"-" yaml:"-"`
