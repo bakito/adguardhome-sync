@@ -5,6 +5,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/sync"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 // runCmd represents the run command
@@ -20,6 +21,17 @@ var doCmd = &cobra.Command{
 			return err
 		}
 
+		if cfg.PrintConfigOnly {
+			config, err := yaml.Marshal(cfg)
+			if err != nil {
+				logger.Error(err)
+				return err
+			}
+			logger.Infof("Printing adguardhome-sync config (THE APPLICATION WILL NOT START IN THIS MODE): \n%s",
+				string(config))
+			return nil
+		}
+
 		return sync.Sync(cfg)
 	},
 }
@@ -30,6 +42,9 @@ func init() {
 	_ = viper.BindPFlag(configCron, doCmd.PersistentFlags().Lookup("cron"))
 	doCmd.PersistentFlags().Bool("runOnStart", true, "Run the sync job on start.")
 	_ = viper.BindPFlag(configRunOnStart, doCmd.PersistentFlags().Lookup("runOnStart"))
+	doCmd.PersistentFlags().Bool("printConfigOnly", false, "Prints the configuration only and exists. "+
+		"Can be used to debug the config E.g: when having authentication issues.")
+	_ = viper.BindPFlag(configPrintConfigOnly, doCmd.PersistentFlags().Lookup("printConfigOnly"))
 	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
 	_ = viper.BindPFlag(configAPIPort, doCmd.PersistentFlags().Lookup("api-port"))
 	doCmd.PersistentFlags().String("api-username", "", "Sync API username")
