@@ -62,10 +62,8 @@ const (
 	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
 	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
 	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
-	// Deprecated: use envReplicasInterfaceName instead
-	envReplicasInterfaceNameDeprecated = "REPLICA%s_INTERFACWENAME"
-	envDHCPServerEnabled               = "REPLICA%s_DHCPSERVERENABLED"
-	envWebURL                          = "REPLICA%s_WEBURL"
+	envDHCPServerEnabled                = "REPLICA%s_DHCPSERVERENABLED"
+	envWebURL                           = "REPLICA%s_WEBURL"
 )
 
 var (
@@ -169,14 +167,6 @@ func collectEnvReplicas(logger *zap.SugaredLogger) []types.AdGuardInstance {
 				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
 			}
 
-			if re.InterfaceName == "" {
-				if in, ok := os.LookupEnv(fmt.Sprintf(envReplicasInterfaceNameDeprecated, sm[1])); ok {
-					logger.
-						With("correct", envReplicasInterfaceName, "deprecated", envReplicasInterfaceNameDeprecated).
-						Warn("Deprecated env variable is used, please use the correct one")
-					re.InterfaceName = in
-				}
-			}
 			if dhcpEnabled, ok := os.LookupEnv(fmt.Sprintf(envDHCPServerEnabled, sm[1])); ok {
 				if strings.EqualFold(dhcpEnabled, "true") {
 					re.DHCPServerEnabled = boolPtr(true)
