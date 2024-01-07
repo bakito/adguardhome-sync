@@ -114,9 +114,9 @@ type Client interface {
 	SetBlockedServices(services *model.BlockedServicesArray) error
 	SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error
 	Clients() (*model.Clients, error)
-	AddClients(client ...*model.Client) error
-	UpdateClients(client ...*model.Client) error
-	DeleteClients(client ...*model.Client) error
+	AddClient(client *model.Client) error
+	UpdateClient(client *model.Client) error
+	DeleteClient(client *model.Client) error
 	QueryLogConfig() (*model.QueryLogConfig, error)
 	SetQueryLogConfig(*model.QueryLogConfig) error
 	StatsConfig() (*model.StatsConfig, error)
@@ -301,39 +301,19 @@ func (cl *client) Clients() (*model.Clients, error) {
 	return clients, err
 }
 
-func (cl *client) AddClients(clients ...*model.Client) error {
-	for i := range clients {
-		client := clients[i]
-		cl.log.With("name", *client.Name).Info("Add client")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/add")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) AddClient(client *model.Client) error {
+	cl.log.With("name", *client.Name).Info("Add client settings")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/add")
 }
 
-func (cl *client) UpdateClients(clients ...*model.Client) error {
-	for _, client := range clients {
-		cl.log.With("name", *client.Name).Info("Update client")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&model.ClientUpdate{Name: client.Name, Data: client}), "/clients/update")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) UpdateClient(client *model.Client) error {
+	cl.log.With("name", *client.Name).Info("Update client settings")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.ClientUpdate{Name: client.Name, Data: client}), "/clients/update")
 }
 
-func (cl *client) DeleteClients(clients ...*model.Client) error {
-	for i := range clients {
-		client := clients[i]
-		cl.log.With("name", *client.Name).Info("Delete client")
-		err := cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/delete")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (cl *client) DeleteClient(client *model.Client) error {
+	cl.log.With("name", *client.Name).Info("Delete client settings")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/delete")
 }
 
 func (cl *client) QueryLogConfig() (*model.QueryLogConfig, error) {

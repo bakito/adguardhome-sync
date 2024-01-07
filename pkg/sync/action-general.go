@@ -139,6 +139,44 @@ var (
 		}
 		return nil
 	}
+	clientSettings = func(ac *actionContext) error {
+
+		rc, err := ac.client.Clients()
+		if err != nil {
+			return err
+		}
+
+		a, u, r := rc.Merge(ac.o.clients)
+
+		for _, client := range r {
+			if err := ac.client.DeleteClient(client); err != nil {
+				ac.rl.With("client-name", client.Name, "error", err).Error("error deleting client setting")
+				if !ac.continueOnError {
+					return err
+				}
+			}
+		}
+
+		for _, client := range a {
+			if err := ac.client.AddClient(client); err != nil {
+				ac.rl.With("client-name", client.Name, "error", err).Error("error adding client setting")
+				if !ac.continueOnError {
+					return err
+				}
+			}
+		}
+
+		for _, client := range u {
+			if err := ac.client.UpdateClient(client); err != nil {
+				ac.rl.With("client-name", client.Name, "error", err).Error("error updating client setting")
+				if !ac.continueOnError {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}
 )
 
 func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client, continueOnError bool) error {
@@ -146,7 +184,7 @@ func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model
 
 	for _, f := range fd {
 		if err := replica.DeleteFilter(whitelist, f); err != nil {
-			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist).Error("error deleting filter")
+			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist, "error", err).Error("error deleting filter")
 			if !continueOnError {
 				return err
 			}
@@ -155,7 +193,7 @@ func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model
 
 	for _, f := range fa {
 		if err := replica.AddFilter(whitelist, f); err != nil {
-			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist).Error("error adding filter")
+			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist, "error", err).Error("error adding filter")
 			if !continueOnError {
 				return err
 			}
@@ -164,7 +202,7 @@ func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model
 
 	for _, f := range fu {
 		if err := replica.UpdateFilter(whitelist, f); err != nil {
-			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist).Error("error updating filter")
+			rl.With("filter", f.Name, "url", f.Url, "whitelist", whitelist, "error", err).Error("error updating filter")
 			if !continueOnError {
 				return err
 			}
