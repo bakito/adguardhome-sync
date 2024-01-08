@@ -54,9 +54,6 @@ func init() {
 		"will not fail on single errors, but will log the errors and continue.")
 	_ = viper.BindPFlag(configContinueOnError, doCmd.PersistentFlags().Lookup("continueOnError"))
 
-	doCmd.PersistentFlags().String("logLevel", "info", "The log level to set. One of (debug, info, warn  and error)")
-	_ = viper.BindPFlag(configLogLevel, doCmd.PersistentFlags().Lookup("logLevel"))
-
 	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
 	_ = viper.BindPFlag(configAPIPort, doCmd.PersistentFlags().Lookup("api-port"))
 	doCmd.PersistentFlags().String("api-username", "", "Sync API username")

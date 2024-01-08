@@ -19,12 +19,11 @@ type Config struct {
 	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
 	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty"`
-	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty"`
+	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" mapstructure:"RUN_ON_START"`
 	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" mapstructure:"PRINT_CONFIG_ONLY"`
 	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" mapstructure:"CONTINUE_ON_ERROR"`
 	API             API               `json:"api,omitempty" yaml:"api,omitempty"`
 	Features        Features          `json:"features,omitempty" yaml:"features,omitempty"`
-	LogLevel        string            `json:"logLevel,omitempty" yaml:"logLevel,omitempty" mapstructure:"LOG_LEVEL"`
 }
 
 // API configuration
@@ -32,7 +31,7 @@ type API struct {
 	Port     int    `json:"port,omitempty" yaml:"port,omitempty"`
 	Username string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password string `json:"password,omitempty" yaml:"password,omitempty"`
-	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty"`
+	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" mapstructure:"DARK_MODE"`
 }
 
 // UniqueReplicas get unique replication instances

@@ -10,6 +10,22 @@ import (
 )
 
 var envVars = []string{
+	"FEATURES_GENERAL_SETTINGS",
+	"FEATURES_QUERY_LOG_CONFIG",
+	"FEATURES_STATS_CONFIG",
+	"FEATURES_CLIENT_SETTINGS",
+	"FEATURES_SERVICES",
+	"FEATURES_FILTERS",
+	"FEATURES_DHCP_SERVER_CONFIG",
+	"FEATURES_DHCP_STATIC_LEASES",
+	"FEATURES_DNS_SERVER_CONFIG",
+	"FEATURES_DNS_ACCESS_LISTS",
+	"FEATURES_DNS_REWRITES",
+	"REPLICA1_INTERFACENAME",
+	"REPLICA1_DHCPSERVERENABLED",
+}
+
+var deprecatedEnvVars = []string{
 	"FEATURES_GENERALSETTINGS",
 	"FEATURES_QUERYLOGCONFIG",
 	"FEATURES_STATSCONFIG",
@@ -26,56 +42,83 @@ var envVars = []string{
 }
 
 var _ = Describe("Run", func() {
-	BeforeEach(func() {
-		for _, envVar := range envVars {
-			Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
-		}
-		initConfig()
-	})
-	AfterEach(func() {
-		for _, envVar := range envVars {
-			Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
-		}
-	})
-	Context("getConfig", func() {
-		It("features should be true by default", func() {
-			cfg, err := getConfig()
-			Ω(err).ShouldNot(HaveOccurred())
-			verifyFeatures(cfg, true)
-		})
-		It("features should be false", func() {
-			for _, envVar := range envVars {
+	Context("deprecated", func() {
+		BeforeEach(func() {
+			for _, envVar := range deprecatedEnvVars {
 				Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 			}
-			cfg, err := getConfig()
-			Ω(err).ShouldNot(HaveOccurred())
-			verifyFeatures(cfg, false)
+			initConfig()
 		})
-		Context("interface name", func() {
-			It("should set interface name of replica 1", func() {
-				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-				Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceName, "1"), "eth0")).ShouldNot(HaveOccurred())
+		AfterEach(func() {
+			for _, envVar := range deprecatedEnvVars {
+				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
+			}
+		})
+		Context("getConfig", func() {
+			It("features should be false", func() {
 				cfg, err := getConfig()
 				Ω(err).ShouldNot(HaveOccurred())
-				Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
+				verifyFeatures(cfg, false)
 			})
 		})
-		Context("dhcp server", func() {
-			It("should enable the dhcp server of replica 1", func() {
-				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-				Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "true")).ShouldNot(HaveOccurred())
+	})
+	Context("current", func() {
+		BeforeEach(func() {
+			for _, envVar := range envVars {
+				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
+			}
+			initConfig()
+		})
+		AfterEach(func() {
+			for _, envVar := range envVars {
+				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
+			}
+		})
+		Context("getConfig", func() {
+			It("features should be true by default", func() {
 				cfg, err := getConfig()
 				Ω(err).ShouldNot(HaveOccurred())
-				Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-				Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeTrue())
+				verifyFeatures(cfg, true)
 			})
-			It("should disable the dhcp server of replica 1", func() {
-				Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-				Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "false")).ShouldNot(HaveOccurred())
+			It("features should be true by default", func() {
 				cfg, err := getConfig()
 				Ω(err).ShouldNot(HaveOccurred())
-				Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-				Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+				verifyFeatures(cfg, true)
+			})
+			It("features should be false", func() {
+				for _, envVar := range envVars {
+					Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
+				}
+				cfg, err := getConfig()
+				Ω(err).ShouldNot(HaveOccurred())
+				verifyFeatures(cfg, false)
+			})
+			Context("interface name", func() {
+				It("should set interface name of replica 1", func() {
+					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
+					Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceName, "1"), "eth0")).ShouldNot(HaveOccurred())
+					cfg, err := getConfig()
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
+				})
+			})
+			Context("dhcp server", func() {
+				It("should enable the dhcp server of replica 1", func() {
+					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
+					Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "true")).ShouldNot(HaveOccurred())
+					cfg, err := getConfig()
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeTrue())
+				})
+				It("should disable the dhcp server of replica 1", func() {
+					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
+					Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "false")).ShouldNot(HaveOccurred())
+					cfg, err := getConfig()
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+				})
 			})
 		})
 	})

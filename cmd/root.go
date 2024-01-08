@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
@@ -19,22 +20,21 @@ const (
 	configRunOnStart      = "runOnStart"
 	configPrintConfigOnly = "PRINT_CONFIG_ONLY"
 	configContinueOnError = "CONTINUE_ON_ERROR"
-	configLogLevel        = "LOG_LEVEL"
 
 	configAPIPort     = "api.port"
 	configAPIUsername = "api.username"
 	configAPIPassword = "api.password"
 	configAPIDarkMode = "api.darkMode"
 
-	configFeatureDHCPServerConfig = "features.dhcp.serverConfig"
-	configFeatureDHCPStaticLeases = "features.dhcp.staticLeases"
-	configFeatureDNServerConfig   = "features.dns.serverConfig"
-	configFeatureDNSPAccessLists  = "features.dns.accessLists"
+	configFeatureDHCPServerConfig = "features.dhcp.SERVER_CONFIG"
+	configFeatureDHCPStaticLeases = "features.dhcp.STATIC_LEASES"
+	configFeatureDNServerConfig   = "features.dns.SERVER_CONFIG"
+	configFeatureDNSPAccessLists  = "features.dns.ACCESS_LISTS"
 	configFeatureDNSRewrites      = "features.dns.rewrites"
-	configFeatureGeneralSettings  = "features.generalSettings"
-	configFeatureQueryLogConfig   = "features.queryLogConfig"
-	configFeatureStatsConfig      = "features.statsConfig"
-	configFeatureClientSettings   = "features.clientSettings"
+	configFeatureGeneralSettings  = "features.GENERAL_SETTINGS"
+	configFeatureQueryLogConfig   = "features.QUERY_LOG_CONFIG"
+	configFeatureStatsConfig      = "features.STATS_CONFIG"
+	configFeatureClientSettings   = "features.CLIENT_SETTINGS"
 	configFeatureServices         = "features.services"
 	configFeatureFilters          = "features.filters"
 
@@ -147,7 +147,66 @@ func getConfig() (*types.Config, error) {
 		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas()...)
 	}
 
+	handleDeprecatedEnvVars(cfg)
+
 	return cfg, nil
+}
+
+func handleDeprecatedEnvVars(cfg *types.Config) {
+	runOnStart := checkDeprecatedEnvVar("RUNONSTART", "RUN_ON_START")
+	if runOnStart != "" {
+		cfg.RunOnStart, _ = strconv.ParseBool(runOnStart)
+	}
+	darkMode := checkDeprecatedEnvVar("API_DARKMODE", "API_DARK_MODE")
+	if darkMode != "" {
+		cfg.API.DarkMode, _ = strconv.ParseBool(darkMode)
+	}
+	general := checkDeprecatedEnvVar("FEATURES_GENERALSETTINGS", "FEATURES_GENERAL_SETTINGS")
+	if general != "" {
+		cfg.Features.GeneralSettings, _ = strconv.ParseBool(general)
+	}
+	qlc := checkDeprecatedEnvVar("FEATURES_QUERYLOGCONFIG", "FEATURES_QUERY_LOG_CONFIG")
+	if qlc != "" {
+		cfg.Features.QueryLogConfig, _ = strconv.ParseBool(qlc)
+	}
+	stats := checkDeprecatedEnvVar("FEATURES_STATSCONFIG", "FEATURES_STATS_CONFIG")
+	if stats != "" {
+		cfg.Features.StatsConfig, _ = strconv.ParseBool(stats)
+	}
+	client := checkDeprecatedEnvVar("FEATURES_CLIENTSETTINGS", "FEATURES_CLIENT_SETTINGS")
+	if client != "" {
+		cfg.Features.ClientSettings, _ = strconv.ParseBool(client)
+	}
+	dhcpServerConfig := checkDeprecatedEnvVar("FEATURES_DHCP_SERVERCONFIG", "FEATURES_DHCP_SERVER_CONFIG")
+	if dhcpServerConfig != "" {
+		cfg.Features.DHCP.ServerConfig, _ = strconv.ParseBool(dhcpServerConfig)
+	}
+	dhcpStaticLeases := checkDeprecatedEnvVar("FEATURES_DHCP_STATICLEASES", "FEATURES_DHCP_STATIC_LEASES")
+	if dhcpStaticLeases != "" {
+		cfg.Features.DHCP.StaticLeases, _ = strconv.ParseBool(dhcpStaticLeases)
+	}
+	dnsAccessLists := checkDeprecatedEnvVar("FEATURES_DNS_ACCESSLISTS", "FEATURES_DNS_ACCESS_LISTS")
+	if dnsAccessLists != "" {
+		cfg.Features.DNS.AccessLists, _ = strconv.ParseBool(dnsAccessLists)
+	}
+	dnsServerConfig := checkDeprecatedEnvVar("FEATURES_DNS_SERVERCONFIG", "FEATURES_DNS_SERVER_CONFIG")
+	if dnsServerConfig != "" {
+		cfg.Features.DNS.ServerConfig, _ = strconv.ParseBool(dnsServerConfig)
+	}
+}
+
+func checkDeprecatedEnvVar(oldName string, newName string) string {
+	old, oldOK := os.LookupEnv(oldName)
+	if !oldOK {
+		return ""
+	}
+	logger.With("correct", newName, "deprecated", oldName).
+		Warn("Deprecated env variable is used, please use the correct one")
+	_, newOK := os.LookupEnv(newName)
+	if newOK {
+		return ""
+	}
+	return old
 }
 
 // Manually collect replicas from env.
