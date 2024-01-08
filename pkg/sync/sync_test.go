@@ -425,6 +425,50 @@ var _ = Describe("Sync", func() {
 				err := actionFilters(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
+			It("should add a filter", func() {
+				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				cl.EXPECT().Filtering().Return(rf, nil)
+				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
+				cl.EXPECT().RefreshFilters(gm.Any())
+				err := actionFilters(ac)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should delete a filter", func() {
+				rf.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				cl.EXPECT().Filtering().Return(rf, nil)
+				cl.EXPECT().DeleteFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
+				err := actionFilters(ac)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should update a filter", func() {
+				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar", Enabled: true}})
+				rf.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				cl.EXPECT().Filtering().Return(rf, nil)
+				cl.EXPECT().UpdateFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar", Enabled: true})
+				cl.EXPECT().RefreshFilters(gm.Any())
+				err := actionFilters(ac)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+
+			It("should abort after failed added filter", func() {
+				ac.continueOnError = false
+				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				cl.EXPECT().Filtering().Return(rf, nil)
+				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).Return(errors.New("test failure"))
+				err := actionFilters(ac)
+				Ω(err).Should(HaveOccurred())
+			})
+
+			It("should continue after failed added filter", func() {
+				ac.continueOnError = true
+				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}})
+				cl.EXPECT().Filtering().Return(rf, nil)
+				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).Return(errors.New("test failure"))
+				cl.EXPECT().AddFilter(false, model.Filter{Name: "bar", Url: "https://bar.foo"})
+				cl.EXPECT().RefreshFilters(gm.Any())
+				err := actionFilters(ac)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
 		})
 
 		Context("actionDNSAccessLists", func() {
