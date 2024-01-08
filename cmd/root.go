@@ -144,45 +144,66 @@ func getConfig() (*types.Config, error) {
 }
 
 func handleDeprecatedEnvVars(cfg *types.Config) {
-	runOnStart := checkDeprecatedEnvVar("RUNONSTART", "RUN_ON_START")
-	if runOnStart != "" {
-		cfg.RunOnStart, _ = strconv.ParseBool(runOnStart)
+	value := checkDeprecatedEnvVar("RUNONSTART", "RUN_ON_START")
+	if value != "" {
+		cfg.RunOnStart, _ = strconv.ParseBool(value)
 	}
-	darkMode := checkDeprecatedEnvVar("API_DARKMODE", "API_DARK_MODE")
-	if darkMode != "" {
-		cfg.API.DarkMode, _ = strconv.ParseBool(darkMode)
+	value = checkDeprecatedEnvVar("API_DARKMODE", "API_DARK_MODE")
+	if value != "" {
+		cfg.API.DarkMode, _ = strconv.ParseBool(value)
 	}
-	general := checkDeprecatedEnvVar("FEATURES_GENERALSETTINGS", "FEATURES_GENERAL_SETTINGS")
-	if general != "" {
-		cfg.Features.GeneralSettings, _ = strconv.ParseBool(general)
+	value = checkDeprecatedEnvVar("FEATURES_GENERALSETTINGS", "FEATURES_GENERAL_SETTINGS")
+	if value != "" {
+		cfg.Features.GeneralSettings, _ = strconv.ParseBool(value)
 	}
-	qlc := checkDeprecatedEnvVar("FEATURES_QUERYLOGCONFIG", "FEATURES_QUERY_LOG_CONFIG")
-	if qlc != "" {
-		cfg.Features.QueryLogConfig, _ = strconv.ParseBool(qlc)
+	value = checkDeprecatedEnvVar("FEATURES_QUERYLOGCONFIG", "FEATURES_QUERY_LOG_CONFIG")
+	if value != "" {
+		cfg.Features.QueryLogConfig, _ = strconv.ParseBool(value)
 	}
-	stats := checkDeprecatedEnvVar("FEATURES_STATSCONFIG", "FEATURES_STATS_CONFIG")
-	if stats != "" {
-		cfg.Features.StatsConfig, _ = strconv.ParseBool(stats)
+	value = checkDeprecatedEnvVar("FEATURES_STATSCONFIG", "FEATURES_STATS_CONFIG")
+	if value != "" {
+		cfg.Features.StatsConfig, _ = strconv.ParseBool(value)
 	}
-	client := checkDeprecatedEnvVar("FEATURES_CLIENTSETTINGS", "FEATURES_CLIENT_SETTINGS")
-	if client != "" {
-		cfg.Features.ClientSettings, _ = strconv.ParseBool(client)
+	value = checkDeprecatedEnvVar("FEATURES_CLIENTSETTINGS", "FEATURES_CLIENT_SETTINGS")
+	if value != "" {
+		cfg.Features.ClientSettings, _ = strconv.ParseBool(value)
 	}
-	dhcpServerConfig := checkDeprecatedEnvVar("FEATURES_DHCP_SERVERCONFIG", "FEATURES_DHCP_SERVER_CONFIG")
-	if dhcpServerConfig != "" {
-		cfg.Features.DHCP.ServerConfig, _ = strconv.ParseBool(dhcpServerConfig)
+	value = checkDeprecatedEnvVar("FEATURES_DHCP_SERVERCONFIG", "FEATURES_DHCP_SERVER_CONFIG")
+	if value != "" {
+		cfg.Features.DHCP.ServerConfig, _ = strconv.ParseBool(value)
 	}
-	dhcpStaticLeases := checkDeprecatedEnvVar("FEATURES_DHCP_STATICLEASES", "FEATURES_DHCP_STATIC_LEASES")
-	if dhcpStaticLeases != "" {
-		cfg.Features.DHCP.StaticLeases, _ = strconv.ParseBool(dhcpStaticLeases)
+	value = checkDeprecatedEnvVar("FEATURES_DHCP_STATICLEASES", "FEATURES_DHCP_STATIC_LEASES")
+	if value != "" {
+		cfg.Features.DHCP.StaticLeases, _ = strconv.ParseBool(value)
 	}
-	dnsAccessLists := checkDeprecatedEnvVar("FEATURES_DNS_ACCESSLISTS", "FEATURES_DNS_ACCESS_LISTS")
-	if dnsAccessLists != "" {
-		cfg.Features.DNS.AccessLists, _ = strconv.ParseBool(dnsAccessLists)
+	value = checkDeprecatedEnvVar("FEATURES_DNS_ACCESSLISTS", "FEATURES_DNS_ACCESS_LISTS")
+	if value != "" {
+		cfg.Features.DNS.AccessLists, _ = strconv.ParseBool(value)
 	}
-	dnsServerConfig := checkDeprecatedEnvVar("FEATURES_DNS_SERVERCONFIG", "FEATURES_DNS_SERVER_CONFIG")
-	if dnsServerConfig != "" {
-		cfg.Features.DNS.ServerConfig, _ = strconv.ParseBool(dnsServerConfig)
+	value = checkDeprecatedEnvVar("FEATURES_DNS_SERVERCONFIG", "FEATURES_DNS_SERVER_CONFIG")
+	if value != "" {
+		cfg.Features.DNS.ServerConfig, _ = strconv.ParseBool(value)
+	}
+
+	if cfg.Replica != nil {
+		value = checkDeprecatedEnvVar("REPLICA_WEBURL", "REPLICA_WEB_URL")
+		if value != "" {
+			cfg.Replica.WebURL = value
+		}
+		value = checkDeprecatedEnvVar("REPLICA_AUTOSETUP", "REPLICA_AUTO_SETUP")
+		if value != "" {
+			cfg.Replica.AutoSetup, _ = strconv.ParseBool(value)
+		}
+		value = checkDeprecatedEnvVar("REPLICA_INTERFACENAME", "REPLICA_INTERFACE_NAME")
+		if value != "" {
+			cfg.Replica.InterfaceName = value
+		}
+		value = checkDeprecatedEnvVar("REPLICA_DHCPSERVERENABLED", "REPLICA_DHCP_SERVER_ENABLED")
+		if value != "" {
+			if b, err := strconv.ParseBool(value); err != nil {
+				cfg.Replica.DHCPServerEnabled = utils.Ptr(b)
+			}
+		}
 	}
 }
 
