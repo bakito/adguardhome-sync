@@ -6,14 +6,14 @@ import (
 
 // Features feature flags
 type Features struct {
-	DNS             DNS  `json:"dns" yaml:"dns"`
-	DHCP            DHCP `json:"dhcp" yaml:"dhcp"`
+	DNS             DNS  `json:"dns" yaml:"dns" mapstructure:"DNS"`
+	DHCP            DHCP `json:"dhcp" yaml:"dhcp" mapstructure:"DHCP"`
 	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" mapstructure:"GENERAL_SETTINGS"`
 	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig" mapstructure:"QUERY_LOG_CONFIG"`
 	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig" mapstructure:"STATS_CONFIG"`
 	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" mapstructure:"CLIENT_SETTINGS"`
-	Services        bool `json:"services" yaml:"services"`
-	Filters         bool `json:"filters" yaml:"filters"`
+	Services        bool `json:"services" yaml:"services" mapstructure:"SERVICES"`
+	Filters         bool `json:"filters" yaml:"filters" mapstructure:"FILTERS"`
 }
 
 // DHCP features

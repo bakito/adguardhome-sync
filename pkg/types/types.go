@@ -15,22 +15,22 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Origin          AdGuardInstance   `json:"origin" yaml:"origin"`
-	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty"`
+	Origin          AdGuardInstance   `json:"origin" yaml:"origin" mapstructure:"ORIGIN"`
+	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty" mapstructure:"REPLICA"`
 	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty"`
+	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty" mapstructure:"CRON"`
 	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" mapstructure:"RUN_ON_START"`
 	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" mapstructure:"PRINT_CONFIG_ONLY"`
 	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" mapstructure:"CONTINUE_ON_ERROR"`
-	API             API               `json:"api,omitempty" yaml:"api,omitempty"`
-	Features        Features          `json:"features,omitempty" yaml:"features,omitempty"`
+	API             API               `json:"api,omitempty" yaml:"api,omitempty" mapstructure:"API"`
+	Features        Features          `json:"features,omitempty" yaml:"features,omitempty" mapstructure:"FEATURES"`
 }
 
 // API configuration
 type API struct {
-	Port     int    `json:"port,omitempty" yaml:"port,omitempty"`
-	Username string `json:"username,omitempty" yaml:"username,omitempty"`
-	Password string `json:"password,omitempty" yaml:"password,omitempty"`
+	Port     int    `json:"port,omitempty" yaml:"port,omitempty" mapstructure:"PORT"`
+	Username string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"USERNAME"`
+	Password string `json:"password,omitempty" yaml:"password,omitempty" mapstructure:"PASSWORD"`
 	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" mapstructure:"DARK_MODE"`
 }
 
@@ -89,12 +89,12 @@ func (cfg *Config) Init() error {
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
-	URL                string `json:"url" yaml:"url"`
+	URL                string `json:"url" yaml:"url" mapstructure:"URL"`
 	WebURL             string `json:"webURL" yaml:"webURL" mapstructure:"WEB_URL"`
 	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" mapstructure:"API_PATH"`
-	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
-	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
-	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty"`
+	Username           string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"USERNAME"`
+	Password           string `json:"password,omitempty" yaml:"password,omitempty" mapstructure:"PASSWORD"`
+	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty" mapstructure:"COOKIE"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify" mapstructure:"INSECURE_SKIP_VERIFY"`
 	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup" mapstructure:"AUTO_SETUP"`
 	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty" mapstructure:"INTERFACE_NAME"`
