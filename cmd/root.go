@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/version"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -15,56 +17,45 @@ import (
 )
 
 const (
-	configCron            = "cron"
-	configRunOnStart      = "runOnStart"
+	configCron            = "CRON"
+	configRunOnStart      = "RUN_ON_START"
 	configPrintConfigOnly = "PRINT_CONFIG_ONLY"
 	configContinueOnError = "CONTINUE_ON_ERROR"
-	configLogLevel        = "LOG_LEVEL"
 
-	configAPIPort     = "api.port"
-	configAPIUsername = "api.username"
-	configAPIPassword = "api.password"
-	configAPIDarkMode = "api.darkMode"
+	configAPIPort     = "API.PORT"
+	configAPIUsername = "API.USERNAME"
+	configAPIPassword = "API.PASSWORD"
+	configAPIDarkMode = "API.DARK_MODE"
 
-	configFeatureDHCPServerConfig = "features.dhcp.serverConfig"
-	configFeatureDHCPStaticLeases = "features.dhcp.staticLeases"
-	configFeatureDNServerConfig   = "features.dns.serverConfig"
-	configFeatureDNSPAccessLists  = "features.dns.accessLists"
-	configFeatureDNSRewrites      = "features.dns.rewrites"
-	configFeatureGeneralSettings  = "features.generalSettings"
-	configFeatureQueryLogConfig   = "features.queryLogConfig"
-	configFeatureStatsConfig      = "features.statsConfig"
-	configFeatureClientSettings   = "features.clientSettings"
-	configFeatureServices         = "features.services"
-	configFeatureFilters          = "features.filters"
+	configFeatureDHCPServerConfig = "FEATURES.DHCP.SERVER_CONFIG"
+	configFeatureDHCPStaticLeases = "FEATURES.DHCP.STATIC_LEASES"
+	configFeatureDNServerConfig   = "FEATURES.DNS.SERVER_CONFIG"
+	configFeatureDNSPAccessLists  = "FEATURES.DNS.ACCESS_LISTS"
+	configFeatureDNSRewrites      = "FEATURES.DNS.rewrites"
+	configFeatureGeneralSettings  = "FEATURES.GENERAL_SETTINGS"
+	configFeatureQueryLogConfig   = "FEATURES.QUERY_LOG_CONFIG"
+	configFeatureStatsConfig      = "FEATURES.STATS_CONFIG"
+	configFeatureClientSettings   = "FEATURES.CLIENT_SETTINGS"
+	configFeatureServices         = "FEATURES.SERVICES"
+	configFeatureFilters          = "FEATURES.FILTERS"
 
-	configOriginURL                = "origin.url"
-	configOriginWebURL             = "origin.webURL"
-	configOriginAPIPath            = "origin.apiPath"
-	configOriginUsername           = "origin.username"
-	configOriginPassword           = "origin.password"
-	configOriginCookie             = "origin.cookie"
-	configOriginInsecureSkipVerify = "origin.insecureSkipVerify"
+	configOriginURL                = "ORIGIN.URL"
+	configOriginWebURL             = "ORIGIN.WEB_URL"
+	configOriginAPIPath            = "ORIGIN.API_PATH"
+	configOriginUsername           = "ORIGIN.USERNAME"
+	configOriginPassword           = "ORIGIN.PASSWORD"
+	configOriginCookie             = "ORIGIN.COOKIE"
+	configOriginInsecureSkipVerify = "ORIGIN.INSECURE_SKIP_VERIFY"
 
-	configReplicaURL                = "replica.url"
-	configReplicaWebURL             = "replica.webURL"
-	configReplicaAPIPath            = "replica.apiPath"
-	configReplicaUsername           = "replica.username"
-	configReplicaPassword           = "replica.password"
-	configReplicaCookie             = "replica.cookie"
-	configReplicaInsecureSkipVerify = "replica.insecureSkipVerify"
-	configReplicaAutoSetup          = "replica.autoSetup"
-	configReplicaInterfaceName      = "replica.interfaceName"
-
-	envReplicasUsernameFormat           = "REPLICA%s_USERNAME" // #nosec G101
-	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD" // #nosec G101
-	envReplicasCookieFormat             = "REPLICA%s_COOKIE"   // #nosec G101
-	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
-	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
-	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
-	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
-	envDHCPServerEnabled                = "REPLICA%s_DHCPSERVERENABLED"
-	envWebURL                           = "REPLICA%s_WEBURL"
+	configReplicaURL                = "REPLICA.URL"
+	configReplicaWebURL             = "REPLICA.WEB_URL"
+	configReplicaAPIPath            = "REPLICA.API_PATH"
+	configReplicaUsername           = "REPLICA.USERNAME"
+	configReplicaPassword           = "REPLICA.PASSWORD"
+	configReplicaCookie             = "REPLICA.COOKIE"
+	configReplicaInsecureSkipVerify = "REPLICA.INSECURE_SKIP_VERIFY"
+	configReplicaAutoSetup          = "REPLICA.AUTO_SETUP"
+	configReplicaInterfaceName      = "REPLICA.INTERFACE_NAME"
 )
 
 var (
@@ -147,7 +138,90 @@ func getConfig() (*types.Config, error) {
 		cfg.Replicas = append(cfg.Replicas, collectEnvReplicas()...)
 	}
 
+	handleDeprecatedEnvVars(cfg)
+
 	return cfg, nil
+}
+
+func handleDeprecatedEnvVars(cfg *types.Config) {
+	value := checkDeprecatedEnvVar("RUNONSTART", "RUN_ON_START")
+	if value != "" {
+		cfg.RunOnStart, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("API_DARKMODE", "API_DARK_MODE")
+	if value != "" {
+		cfg.API.DarkMode, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_GENERALSETTINGS", "FEATURES_GENERAL_SETTINGS")
+	if value != "" {
+		cfg.Features.GeneralSettings, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_QUERYLOGCONFIG", "FEATURES_QUERY_LOG_CONFIG")
+	if value != "" {
+		cfg.Features.QueryLogConfig, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_STATSCONFIG", "FEATURES_STATS_CONFIG")
+	if value != "" {
+		cfg.Features.StatsConfig, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_CLIENTSETTINGS", "FEATURES_CLIENT_SETTINGS")
+	if value != "" {
+		cfg.Features.ClientSettings, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_DHCP_SERVERCONFIG", "FEATURES_DHCP_SERVER_CONFIG")
+	if value != "" {
+		cfg.Features.DHCP.ServerConfig, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_DHCP_STATICLEASES", "FEATURES_DHCP_STATIC_LEASES")
+	if value != "" {
+		cfg.Features.DHCP.StaticLeases, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_DNS_ACCESSLISTS", "FEATURES_DNS_ACCESS_LISTS")
+	if value != "" {
+		cfg.Features.DNS.AccessLists, _ = strconv.ParseBool(value)
+	}
+	value = checkDeprecatedEnvVar("FEATURES_DNS_SERVERCONFIG", "FEATURES_DNS_SERVER_CONFIG")
+	if value != "" {
+		cfg.Features.DNS.ServerConfig, _ = strconv.ParseBool(value)
+	}
+
+	if cfg.Replica != nil {
+		value = checkDeprecatedEnvVar("REPLICA_WEBURL", "REPLICA_WEB_URL")
+		if value != "" {
+			cfg.Replica.WebURL = value
+		}
+		value = checkDeprecatedEnvVar("REPLICA_AUTOSETUP", "REPLICA_AUTO_SETUP")
+		if value != "" {
+			cfg.Replica.AutoSetup, _ = strconv.ParseBool(value)
+		}
+		value = checkDeprecatedEnvVar("REPLICA_INTERFACENAME", "REPLICA_INTERFACE_NAME")
+		if value != "" {
+			cfg.Replica.InterfaceName = value
+		}
+		value = checkDeprecatedEnvVar("REPLICA_DHCPSERVERENABLED", "REPLICA_DHCP_SERVER_ENABLED")
+		if value != "" {
+			if b, err := strconv.ParseBool(value); err != nil {
+				cfg.Replica.DHCPServerEnabled = utils.Ptr(b)
+			}
+		}
+	}
+}
+
+func checkDeprecatedEnvVar(oldName string, newName string) string {
+	old, oldOK := os.LookupEnv(oldName)
+	if oldOK {
+		logger.With("deprecated", oldName, "replacement", newName).
+			Warn("Deprecated env variable is used, please use the correct one")
+	}
+	new, newOK := os.LookupEnv(newName)
+	if newOK {
+		return new
+	}
+	return old
+}
+
+func checkDeprecatedReplicaEnvVar(oldPattern, newPattern, replicaID string) string {
+	return checkDeprecatedEnvVar(fmt.Sprintf(oldPattern, replicaID), fmt.Sprintf(newPattern, replicaID))
 }
 
 // Manually collect replicas from env.
@@ -156,24 +230,24 @@ func collectEnvReplicas() []types.AdGuardInstance {
 	for _, v := range os.Environ() {
 		if envReplicasURLPattern.MatchString(v) {
 			sm := envReplicasURLPattern.FindStringSubmatch(v)
+			index := sm[1]
 			re := types.AdGuardInstance{
 				URL:                sm[2],
-				WebURL:             os.Getenv(fmt.Sprintf(envWebURL, sm[1])),
-				Username:           os.Getenv(fmt.Sprintf(envReplicasUsernameFormat, sm[1])),
-				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
-				Cookie:             os.Getenv(fmt.Sprintf(envReplicasCookieFormat, sm[1])),
-				APIPath:            os.Getenv(fmt.Sprintf(envReplicasAPIPathFormat, sm[1])),
-				InsecureSkipVerify: strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasInsecureSkipVerifyFormat, sm[1])), "true"),
-				AutoSetup:          strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasAutoSetup, sm[1])), "true"),
-				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
+				WebURL:             os.Getenv(fmt.Sprintf("REPLICA%s_WEB_URL", index)),
+				APIPath:            checkDeprecatedReplicaEnvVar("REPLICA%s_APIPATH", "REPLICA%s_API_PATH", index),
+				Username:           os.Getenv(fmt.Sprintf("REPLICA%s_USERNAME", index)),
+				Password:           os.Getenv(fmt.Sprintf("REPLICA%s_PASSWORD", index)),
+				Cookie:             os.Getenv(fmt.Sprintf("REPLICA%s_COOKIE", index)),
+				InsecureSkipVerify: strings.EqualFold(checkDeprecatedReplicaEnvVar("REPLICA%s_INSECURESKIPVERIFY", "REPLICA%s_INSECURE_SKIP_VERIFY", index), "true"),
+				AutoSetup:          strings.EqualFold(checkDeprecatedReplicaEnvVar("REPLICA%s_AUTOSETUP", "REPLICA%s_AUTO_SETUP", index), "true"),
+				InterfaceName:      checkDeprecatedReplicaEnvVar("REPLICA%s_INTERFACENAME", "REPLICA%s_INTERFACE_NAME", index),
 			}
 
-			if dhcpEnabled, ok := os.LookupEnv(fmt.Sprintf(envDHCPServerEnabled, sm[1])); ok {
-				if strings.EqualFold(dhcpEnabled, "true") {
-					re.DHCPServerEnabled = boolPtr(true)
-				} else if strings.EqualFold(dhcpEnabled, "false") {
-					re.DHCPServerEnabled = boolPtr(false)
-				}
+			dhcpEnabled := checkDeprecatedReplicaEnvVar("REPLICA%s_DHCPSERVERENABLED", "REPLICA%s_DHCP_SERVER_ENABLED", index)
+			if strings.EqualFold(dhcpEnabled, "true") {
+				re.DHCPServerEnabled = utils.Ptr(true)
+			} else if strings.EqualFold(dhcpEnabled, "false") {
+				re.DHCPServerEnabled = utils.Ptr(false)
 			}
 			if re.APIPath == "" {
 				re.APIPath = "/control"
@@ -183,8 +257,4 @@ func collectEnvReplicas() []types.AdGuardInstance {
 	}
 
 	return replicas
-}
-
-func boolPtr(b bool) *bool {
-	return &b
 }

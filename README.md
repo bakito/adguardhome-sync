@@ -146,7 +146,7 @@ services:
     environment:
       LOG_LEVEL: "info"
       ORIGIN_URL: "https://192.168.1.2:3000"
-      # ORIGIN_WEBURL: "https://some-other.url" # used in the web interface (default: <origin-url>
+      # ORIGIN_WEB_URL: "https://some-other.url" # used in the web interface (default: <origin-url>
 
       ORIGIN_USERNAME: "username"
       ORIGIN_PASSWORD: "password"
@@ -156,11 +156,11 @@ services:
       REPLICA1_URL: "http://192.168.1.4"
       REPLICA1_USERNAME: "username"
       REPLICA1_PASSWORD: "password"
-      REPLICA1_APIPATH: "/some/path/control"
-      # REPLICA1_WEBURL: "https://some-other.url" # used in the web interface (default: <replica-url>
-      # REPLICA1_AUTOSETUP: true # if true, AdGuardHome is automatically initialized.
-      # REPLICA1_INTERFACENAME: 'ens18' # use custom dhcp interface name
-      # REPLICA1_DHCPSERVERENABLED: true/false (optional) enables/disables the dhcp server on the replica
+      REPLICA1_API_PATH: "/some/path/control"
+      # REPLICA1_WEB_URL: "https://some-other.url" # used in the web interface (default: <replica-url>
+      # REPLICA1_AUTO_SETUP: true # if true, AdGuardHome is automatically initialized.
+      # REPLICA1_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
+      # REPLICA1_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: "*/10 * * * *" # run every 10 minutes
       RUNONSTART: true
       # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
@@ -169,16 +169,16 @@ services:
       API_PORT: 8080
 
       # Configure sync features; by default all features are enabled.
-      # FEATURES_GENERALSETTINGS: true
-      # FEATURES_QUERYLOGCONFIG: true
-      # FEATURES_STATSCONFIG: true
-      # FEATURES_CLIENTSETTINGS: true
+      # FEATURES_GENERAL_SETTINGS: true
+      # FEATURES_QUERY_LOG_CONFIG: true
+      # FEATURES_STATS_CONFIG: true
+      # FEATURES_CLIENT_SETTINGS: true
       # FEATURES_SERVICES: true
       # FEATURES_FILTERS: true
-      # FEATURES_DHCP_SERVERCONFIG: true
-      # FEATURES_DHCP_STATICLEASES: true
-      # FEATURES_DNS_SERVERCONFIG: true
-      # FEATURES_DNS_ACCESSLISTS: true
+      # FEATURES_DHCP_SERVER_CONFIG: true
+      # FEATURES_DHCP_STATIC_LEASES: true
+      # FEATURES_DNS_SERVER_CONFIG: true
+      # FEATURES_DNS_ACCESS_LISTS: true
       # FEATURES_DNS_REWRITES: true
     ports:
       - 8080:8080
