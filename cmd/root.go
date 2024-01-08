@@ -56,16 +56,6 @@ const (
 	configReplicaInsecureSkipVerify = "replica.INSECURE_SKIP_VERIFY"
 	configReplicaAutoSetup          = "replica.AUTO_SETUP"
 	configReplicaInterfaceName      = "replica.INTERFACE_NAME"
-
-	envReplicasUsernameFormat           = "REPLICA%s_USERNAME" // #nosec G101
-	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD" // #nosec G101
-	envReplicasCookieFormat             = "REPLICA%s_COOKIE"   // #nosec G101
-	envReplicasAPIPathFormat            = "REPLICA%s_API_PATH"
-	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURE_SKIP_VERIFY"
-	envReplicasAutoSetup                = "REPLICA%s_AUTO_SETUP"
-	envReplicasInterfaceName            = "REPLICA%s_INTERFACE_NAME"
-	envDHCPServerEnabled                = "REPLICA%s_DHCP_SERVER_ENABLED"
-	envWebURL                           = "REPLICA%s_WEB_URL"
 )
 
 var (
@@ -209,30 +199,34 @@ func checkDeprecatedEnvVar(oldName string, newName string) string {
 	return old
 }
 
+func checkDeprecatedReplicaEnvVar(oldPattern, newPattern, replicaID string) string {
+	return checkDeprecatedEnvVar(fmt.Sprintf(oldPattern, replicaID), fmt.Sprintf(newPattern, replicaID))
+}
+
 // Manually collect replicas from env.
 func collectEnvReplicas() []types.AdGuardInstance {
 	var replicas []types.AdGuardInstance
 	for _, v := range os.Environ() {
 		if envReplicasURLPattern.MatchString(v) {
 			sm := envReplicasURLPattern.FindStringSubmatch(v)
+			index := sm[1]
 			re := types.AdGuardInstance{
 				URL:                sm[2],
-				WebURL:             os.Getenv(fmt.Sprintf(envWebURL, sm[1])),
-				Username:           os.Getenv(fmt.Sprintf(envReplicasUsernameFormat, sm[1])),
-				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
-				Cookie:             os.Getenv(fmt.Sprintf(envReplicasCookieFormat, sm[1])),
-				APIPath:            getEnvOrDeprecated(envReplicasAPIPathFormat, "REPLICA%s_APIPATH", sm[1]),
-				InsecureSkipVerify: strings.EqualFold(getEnvOrDeprecated(envReplicasInsecureSkipVerifyFormat, "REPLICA%s_INSECURESKIPVERIFY", sm[1]), "true"),
-				AutoSetup:          strings.EqualFold(getEnvOrDeprecated(envReplicasAutoSetup, "REPLICA%s_AUTOSETUP", sm[1]), "true"),
-				InterfaceName:      getEnvOrDeprecated(envReplicasInterfaceName, "REPLICA%s_INTERFACENAME", sm[1]),
+				WebURL:             os.Getenv(fmt.Sprintf("REPLICA%s_WEB_URL", index)),
+				APIPath:            checkDeprecatedReplicaEnvVar("REPLICA%s_APIPATH", "REPLICA%s_API_PATH", index),
+				Username:           os.Getenv(fmt.Sprintf("REPLICA%s_USERNAME", index)),
+				Password:           os.Getenv(fmt.Sprintf("REPLICA%s_PASSWORD", index)),
+				Cookie:             os.Getenv(fmt.Sprintf("REPLICA%s_COOKIE", index)),
+				InsecureSkipVerify: strings.EqualFold(checkDeprecatedReplicaEnvVar("REPLICA%s_INSECURESKIPVERIFY", "REPLICA%s_INSECURE_SKIP_VERIFY", index), "true"),
+				AutoSetup:          strings.EqualFold(checkDeprecatedReplicaEnvVar("REPLICA%s_AUTOSETUP", "REPLICA%s_AUTO_SETUP", index), "true"),
+				InterfaceName:      checkDeprecatedReplicaEnvVar("REPLICA%s_INTERFACENAME", "REPLICA%s_INTERFACE_NAME", index),
 			}
 
-			if dhcpEnabled, ok := os.LookupEnv(fmt.Sprintf(envDHCPServerEnabled, sm[1])); ok {
-				if strings.EqualFold(dhcpEnabled, "true") {
-					re.DHCPServerEnabled = utils.Ptr(true)
-				} else if strings.EqualFold(dhcpEnabled, "false") {
-					re.DHCPServerEnabled = utils.Ptr(false)
-				}
+			dhcpEnabled := checkDeprecatedReplicaEnvVar("REPLICA%s_DHCPSERVERENABLED", "REPLICA%s_DHCP_SERVER_ENABLED", index)
+			if strings.EqualFold(dhcpEnabled, "true") {
+				re.DHCPServerEnabled = utils.Ptr(true)
+			} else if strings.EqualFold(dhcpEnabled, "false") {
+				re.DHCPServerEnabled = utils.Ptr(false)
 			}
 			if re.APIPath == "" {
 				re.APIPath = "/control"
@@ -242,8 +236,4 @@ func collectEnvReplicas() []types.AdGuardInstance {
 	}
 
 	return replicas
-}
-
-func getEnvOrDeprecated(newPattern string, oldPattern, replicaID string) string {
-	return checkDeprecatedEnvVar(fmt.Sprintf(oldPattern, replicaID), fmt.Sprintf(newPattern, replicaID))
 }

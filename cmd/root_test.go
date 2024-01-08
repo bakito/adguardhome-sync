@@ -96,7 +96,7 @@ var _ = Describe("Run", func() {
 			Context("interface name", func() {
 				It("should set interface name of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-					Ω(os.Setenv(fmt.Sprintf(envReplicasInterfaceName, "1"), "eth0")).ShouldNot(HaveOccurred())
+					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_INTERFACE_NAME", "1"), "eth0")).ShouldNot(HaveOccurred())
 					cfg, err := getConfig()
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
@@ -105,7 +105,7 @@ var _ = Describe("Run", func() {
 			Context("dhcp server", func() {
 				It("should enable the dhcp server of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-					Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "true")).ShouldNot(HaveOccurred())
+					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_DHCPSERVERENABLED", "1"), "true")).ShouldNot(HaveOccurred())
 					cfg, err := getConfig()
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
@@ -113,7 +113,7 @@ var _ = Describe("Run", func() {
 				})
 				It("should disable the dhcp server of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
-					Ω(os.Setenv(fmt.Sprintf(envDHCPServerEnabled, "1"), "false")).ShouldNot(HaveOccurred())
+					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_DHCPSERVERENABLED", "1"), "false")).ShouldNot(HaveOccurred())
 					cfg, err := getConfig()
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
