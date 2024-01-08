@@ -90,15 +90,15 @@ func (cfg *Config) Init() error {
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url"`
-	WebURL             string `json:"webURL" yaml:"webURL"`
-	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty"`
+	WebURL             string `json:"webURL" yaml:"webURL" mapstructure:"WEB_URL"`
+	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" mapstructure:"API_PATH"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty"`
 	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty"`
-	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
-	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup"`
-	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty"`
-	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
+	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify" mapstructure:"INSECURE_SKIP_VERIFY"`
+	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup" mapstructure:"AUTO_SETUP"`
+	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty" mapstructure:"INTERFACE_NAME"`
+	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty" mapstructure:"DHCP_SERVER_ENABLED"`
 
 	Host    string `json:"-" yaml:"-"`
 	WebHost string `json:"-" yaml:"-"`

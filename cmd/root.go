@@ -9,6 +9,7 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/version"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -16,8 +17,8 @@ import (
 )
 
 const (
-	configCron            = "cron"
-	configRunOnStart      = "runOnStart"
+	configCron            = "CRON"
+	configRunOnStart      = "RUN_ON_START"
 	configPrintConfigOnly = "PRINT_CONFIG_ONLY"
 	configContinueOnError = "CONTINUE_ON_ERROR"
 
@@ -40,31 +41,31 @@ const (
 
 	configOriginURL                = "origin.url"
 	configOriginWebURL             = "origin.webURL"
-	configOriginAPIPath            = "origin.apiPath"
+	configOriginAPIPath            = "origin.WEB_URL"
 	configOriginUsername           = "origin.username"
 	configOriginPassword           = "origin.password"
 	configOriginCookie             = "origin.cookie"
-	configOriginInsecureSkipVerify = "origin.insecureSkipVerify"
+	configOriginInsecureSkipVerify = "origin.INSECURE_SKIP_VERIFY"
 
 	configReplicaURL                = "replica.url"
-	configReplicaWebURL             = "replica.webURL"
-	configReplicaAPIPath            = "replica.apiPath"
+	configReplicaWebURL             = "replica.WEB_URL"
+	configReplicaAPIPath            = "replica.API_PATH"
 	configReplicaUsername           = "replica.username"
 	configReplicaPassword           = "replica.password"
 	configReplicaCookie             = "replica.cookie"
-	configReplicaInsecureSkipVerify = "replica.insecureSkipVerify"
-	configReplicaAutoSetup          = "replica.autoSetup"
-	configReplicaInterfaceName      = "replica.interfaceName"
+	configReplicaInsecureSkipVerify = "replica.INSECURE_SKIP_VERIFY"
+	configReplicaAutoSetup          = "replica.AUTO_SETUP"
+	configReplicaInterfaceName      = "replica.INTERFACE_NAME"
 
 	envReplicasUsernameFormat           = "REPLICA%s_USERNAME" // #nosec G101
 	envReplicasPasswordFormat           = "REPLICA%s_PASSWORD" // #nosec G101
 	envReplicasCookieFormat             = "REPLICA%s_COOKIE"   // #nosec G101
-	envReplicasAPIPathFormat            = "REPLICA%s_APIPATH"
-	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURESKIPVERIFY"
-	envReplicasAutoSetup                = "REPLICA%s_AUTOSETUP"
-	envReplicasInterfaceName            = "REPLICA%s_INTERFACENAME"
-	envDHCPServerEnabled                = "REPLICA%s_DHCPSERVERENABLED"
-	envWebURL                           = "REPLICA%s_WEBURL"
+	envReplicasAPIPathFormat            = "REPLICA%s_API_PATH"
+	envReplicasInsecureSkipVerifyFormat = "REPLICA%s_INSECURE_SKIP_VERIFY"
+	envReplicasAutoSetup                = "REPLICA%s_AUTO_SETUP"
+	envReplicasInterfaceName            = "REPLICA%s_INTERFACE_NAME"
+	envDHCPServerEnabled                = "REPLICA%s_DHCP_SERVER_ENABLED"
+	envWebURL                           = "REPLICA%s_WEB_URL"
 )
 
 var (
@@ -197,14 +198,13 @@ func handleDeprecatedEnvVars(cfg *types.Config) {
 
 func checkDeprecatedEnvVar(oldName string, newName string) string {
 	old, oldOK := os.LookupEnv(oldName)
-	if !oldOK {
-		return ""
+	if oldOK {
+		logger.With("deprecated", oldName, "replacement", newName).
+			Warn("Deprecated env variable is used, please use the correct one")
 	}
-	logger.With("correct", newName, "deprecated", oldName).
-		Warn("Deprecated env variable is used, please use the correct one")
-	_, newOK := os.LookupEnv(newName)
+	new, newOK := os.LookupEnv(newName)
 	if newOK {
-		return ""
+		return new
 	}
 	return old
 }
@@ -221,17 +221,17 @@ func collectEnvReplicas() []types.AdGuardInstance {
 				Username:           os.Getenv(fmt.Sprintf(envReplicasUsernameFormat, sm[1])),
 				Password:           os.Getenv(fmt.Sprintf(envReplicasPasswordFormat, sm[1])),
 				Cookie:             os.Getenv(fmt.Sprintf(envReplicasCookieFormat, sm[1])),
-				APIPath:            os.Getenv(fmt.Sprintf(envReplicasAPIPathFormat, sm[1])),
-				InsecureSkipVerify: strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasInsecureSkipVerifyFormat, sm[1])), "true"),
-				AutoSetup:          strings.EqualFold(os.Getenv(fmt.Sprintf(envReplicasAutoSetup, sm[1])), "true"),
-				InterfaceName:      os.Getenv(fmt.Sprintf(envReplicasInterfaceName, sm[1])),
+				APIPath:            getEnvOrDeprecated(envReplicasAPIPathFormat, "REPLICA%s_APIPATH", sm[1]),
+				InsecureSkipVerify: strings.EqualFold(getEnvOrDeprecated(envReplicasInsecureSkipVerifyFormat, "REPLICA%s_INSECURESKIPVERIFY", sm[1]), "true"),
+				AutoSetup:          strings.EqualFold(getEnvOrDeprecated(envReplicasAutoSetup, "REPLICA%s_AUTOSETUP", sm[1]), "true"),
+				InterfaceName:      getEnvOrDeprecated(envReplicasInterfaceName, "REPLICA%s_INTERFACENAME", sm[1]),
 			}
 
 			if dhcpEnabled, ok := os.LookupEnv(fmt.Sprintf(envDHCPServerEnabled, sm[1])); ok {
 				if strings.EqualFold(dhcpEnabled, "true") {
-					re.DHCPServerEnabled = boolPtr(true)
+					re.DHCPServerEnabled = utils.Ptr(true)
 				} else if strings.EqualFold(dhcpEnabled, "false") {
-					re.DHCPServerEnabled = boolPtr(false)
+					re.DHCPServerEnabled = utils.Ptr(false)
 				}
 			}
 			if re.APIPath == "" {
@@ -244,6 +244,6 @@ func collectEnvReplicas() []types.AdGuardInstance {
 	return replicas
 }
 
-func boolPtr(b bool) *bool {
-	return &b
+func getEnvOrDeprecated(newPattern string, oldPattern, replicaID string) string {
+	return checkDeprecatedEnvVar(fmt.Sprintf(oldPattern, replicaID), fmt.Sprintf(newPattern, replicaID))
 }
