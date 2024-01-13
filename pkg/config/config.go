@@ -13,7 +13,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/caarlos0/env/v10"
-	"gopkg.in/yaml.v3"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -34,21 +34,25 @@ func configFilePath(configFile string) string {
 	return configFile
 }
 
-func Get(configFile string) (*types.Config, error) {
+func Get(configFile string, cmd *cobra.Command) (*types.Config, error) {
 	path := configFilePath(configFile)
 
 	cfg := &types.Config{
 		Replica: &types.AdGuardInstance{},
 	}
-	if _, err := os.Stat(path); err == nil {
-		b, err := os.ReadFile(path)
-		if err != nil {
-			return nil, err
-		}
-		if err := yaml.Unmarshal(b, cfg); err != nil {
-			return nil, err
-		}
+
+	// read yaml config
+	if err := readFile(cfg, path); err != nil {
+		return nil, err
 	}
+
+	// overwrite from command flags
+	if err := readFlags(cfg, cmd); err != nil {
+		return nil, err
+	}
+
+	// overwrite from env vars
+
 	if err := env.Parse(cfg); err != nil {
 		return nil, err
 	}

@@ -15,7 +15,7 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg, err := config.Get(cfgFile)
+		cfg, err := config.Get(cfgFile, cmd)
 		if err != nil {
 			logger.Error(err)
 			return err
@@ -43,46 +43,47 @@ var doCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(doCmd)
-	doCmd.PersistentFlags().String("cron", "", "The cron expression to run in daemon mode")
-	doCmd.PersistentFlags().Bool("runOnStart", true, "Run the sync job on start.")
-	doCmd.PersistentFlags().Bool("printConfigOnly", false, "Prints the configuration only and exists. "+
+	doCmd.PersistentFlags().String(config.FlagCron, "", "The cron expression to run in daemon mode")
+	doCmd.PersistentFlags().Bool(config.FlagRunOnStart, true, "Run the sync job on start.")
+	doCmd.PersistentFlags().Bool(config.FlagPrintConfigOnly, false, "Prints the configuration only and exists. "+
 		"Can be used to debug the config E.g: when having authentication issues.")
-	doCmd.PersistentFlags().Bool("continueOnError", false, "If enabled, the synchronisation task "+
+	doCmd.PersistentFlags().Bool(config.FlagContinueOnError, false, "If enabled, the synchronisation task "+
 		"will not fail on single errors, but will log the errors and continue.")
 
-	doCmd.PersistentFlags().Int("api-port", 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
-	doCmd.PersistentFlags().String("api-username", "", "Sync API username")
-	doCmd.PersistentFlags().String("api-password", "", "Sync API password")
-	doCmd.PersistentFlags().String("api-darkMode", "", "API UI in dark mode")
+	doCmd.PersistentFlags().Int(config.FlagApiPort, 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
+	doCmd.PersistentFlags().String(config.FlagApiUsername, "", "Sync API username")
+	doCmd.PersistentFlags().String(config.FlagApiPassword, "", "Sync API password")
+	doCmd.PersistentFlags().String(config.FlagApiDarkMode, "", "API UI in dark mode")
 
-	doCmd.PersistentFlags().Bool("feature-dhcp-server-config", true, "Enable DHCP server config feature")
-	doCmd.PersistentFlags().Bool("feature-dhcp-static-leases", true, "Enable DHCP server static leases feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDhcpServerConfig, true, "Enable DHCP server config feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDhcpStaticLeases, true, "Enable DHCP server static leases feature")
 
-	doCmd.PersistentFlags().Bool("feature-dns-server-config", true, "Enable DNS server config feature")
-	doCmd.PersistentFlags().Bool("feature-dns-access-lists", true, "Enable DNS server access lists feature")
-	doCmd.PersistentFlags().Bool("feature-dns-rewrites", true, "Enable DNS rewrites feature")
-	doCmd.PersistentFlags().Bool("feature-general-settings", true, "Enable general settings feature")
-	doCmd.PersistentFlags().Bool("feature-query-log-config", true, "Enable query log config feature")
-	doCmd.PersistentFlags().Bool("feature-stats-config", true, "Enable stats config feature")
-	doCmd.PersistentFlags().Bool("feature-client-settings", true, "Enable client settings feature")
-	doCmd.PersistentFlags().Bool("feature-services", true, "Enable services sync feature")
-	doCmd.PersistentFlags().Bool("feature-filters", true, "Enable filters sync feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDnsServerConfig, true, "Enable DNS server config feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDnsAccessLists, true, "Enable DNS server access lists feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDnsRewrites, true, "Enable DNS rewrites feature")
 
-	doCmd.PersistentFlags().String("origin-url", "", "Origin instance url")
-	doCmd.PersistentFlags().String("origin-web-url", "", "Origin instance web url used in the web interface (default: <origin-url>)")
-	doCmd.PersistentFlags().String("origin-api-path", "/control", "Origin instance API path")
-	doCmd.PersistentFlags().String("origin-username", "", "Origin instance username")
-	doCmd.PersistentFlags().String("origin-password", "", "Origin instance password")
-	doCmd.PersistentFlags().String("origin-cookie", "", "If Set, uses a cookie for authentication")
-	doCmd.PersistentFlags().Bool("origin-insecure-skip-verify", false, "Enable Origin instance InsecureSkipVerify")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureGeneral, true, "Enable general settings feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureQueryLog, true, "Enable query log config feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureStats, true, "Enable stats config feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureClient, true, "Enable client settings feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureServices, true, "Enable services sync feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureFilters, true, "Enable filters sync feature")
 
-	doCmd.PersistentFlags().String("replica-url", "", "Replica instance url")
-	doCmd.PersistentFlags().String("replica-web-url", "", "Replica instance web url used in the web interface (default: <replica-url>)")
-	doCmd.PersistentFlags().String("replica-api-path", "/control", "Replica instance API path")
-	doCmd.PersistentFlags().String("replica-username", "", "Replica instance username")
-	doCmd.PersistentFlags().String("replica-password", "", "Replica instance password")
-	doCmd.PersistentFlags().String("replica-cookie", "", "If Set, uses a cookie for authentication")
-	doCmd.PersistentFlags().Bool("replica-insecure-skip-verify", false, "Enable Replica instance InsecureSkipVerify")
-	doCmd.PersistentFlags().Bool("replica-auto-setup", false, "Enable automatic setup of new AdguardHome instances. This replaces the setup wizard.")
-	doCmd.PersistentFlags().String("replica-interface-name", "", "Optional change the interface name of the replica if it differs from the master")
+	doCmd.PersistentFlags().String(config.FlagOriginURL, "", "Origin instance url")
+	doCmd.PersistentFlags().String(config.FlagOriginWebURL, "", "Origin instance web url used in the web interface (default: <origin-url>)")
+	doCmd.PersistentFlags().String(config.FlagOriginApiPath, "/control", "Origin instance API path")
+	doCmd.PersistentFlags().String(config.FlagOriginUsername, "", "Origin instance username")
+	doCmd.PersistentFlags().String(config.FlagOriginPassword, "", "Origin instance password")
+	doCmd.PersistentFlags().String(config.FlagOriginCookie, "", "If Set, uses a cookie for authentication")
+	doCmd.PersistentFlags().Bool(config.FlagOriginISV, false, "Enable Origin instance InsecureSkipVerify")
+
+	doCmd.PersistentFlags().String(config.FlagReplicaURL, "", "Replica instance url")
+	doCmd.PersistentFlags().String(config.FlagReplicaWebURL, "", "Replica instance web url used in the web interface (default: <replica-url>)")
+	doCmd.PersistentFlags().String(config.FlagReplicaApiPath, "/control", "Replica instance API path")
+	doCmd.PersistentFlags().String(config.FlagReplicaUsername, "", "Replica instance username")
+	doCmd.PersistentFlags().String(config.FlagReplicaPassword, "", "Replica instance password")
+	doCmd.PersistentFlags().String(config.FlagReplicaCookie, "", "If Set, uses a cookie for authentication")
+	doCmd.PersistentFlags().Bool(config.FlagReplicaISV, false, "Enable Replica instance InsecureSkipVerify")
+	doCmd.PersistentFlags().Bool(config.FlagReplicaAutoSetup, false, "Enable automatic setup of new AdguardHome instances. This replaces the setup wizard.")
+	doCmd.PersistentFlags().String(config.FlagReplicaInterfaceName, "", "Optional change the interface name of the replica if it differs from the master")
 }
