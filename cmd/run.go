@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/bakito/adguardhome-sync/pkg/config"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/sync"
 	"github.com/spf13/cobra"
@@ -14,7 +15,7 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg, err := getConfig()
+		cfg, err := config.Get(cfgFile)
 		if err != nil {
 			logger.Error(err)
 			return err
