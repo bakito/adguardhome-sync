@@ -20,9 +20,7 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 		return nil, err
 	}
 
-	cfg := &types.Config{
-		Replica: &types.AdGuardInstance{},
-	}
+	cfg := initialConfig()
 
 	// read yaml config
 	if err := readFile(cfg, path); err != nil {
@@ -67,4 +65,36 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 	cfg.Replicas, err = enrichReplicasFromEnv(cfg.Replicas)
 
 	return cfg, err
+}
+
+func initialConfig() *types.Config {
+	return &types.Config{
+		RunOnStart: true,
+		Origin: types.AdGuardInstance{
+			APIPath: "/control",
+		},
+		Replica: &types.AdGuardInstance{
+			APIPath: "/control",
+		},
+		API: types.API{
+			Port: 8080,
+		},
+		Features: types.Features{
+			DNS: types.DNS{
+				AccessLists:  true,
+				ServerConfig: true,
+				Rewrites:     true,
+			},
+			DHCP: types.DHCP{
+				ServerConfig: true,
+				StaticLeases: true,
+			},
+			GeneralSettings: true,
+			QueryLogConfig:  true,
+			StatsConfig:     true,
+			ClientSettings:  true,
+			Services:        true,
+			Filters:         true,
+		},
+	}
 }

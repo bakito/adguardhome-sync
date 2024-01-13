@@ -19,7 +19,7 @@ type Config struct {
 	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty" env:"REPLICA"`
 	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty" env:"CRON"`
-	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" env:"RUN_ON_START" envDefault:"true"`
+	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" env:"RUN_ON_START"`
 	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" env:"PRINT_CONFIG_ONLY"`
 	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" env:"CONTINUE_ON_ERROR"`
 	API             API               `json:"api,omitempty" yaml:"api,omitempty" env:"API"`
@@ -28,7 +28,7 @@ type Config struct {
 
 // API configuration
 type API struct {
-	Port     int    `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT" envDefault:"8080"`
+	Port     int    `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT"`
 	Username string `json:"username,omitempty" yaml:"username,omitempty" env:"API_USERNAME"`
 	Password string `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
 	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
@@ -91,7 +91,7 @@ func (cfg *Config) Init() error {
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url" env:"URL"`
 	WebURL             string `json:"webURL" yaml:"webURL" env:"WEB_URL"`
-	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" env:"API_PATH" envDefault:"/control"`
+	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" env:"API_PATH"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty" env:"USERNAME"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty" env:"PASSWORD"`
 	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty" env:"COOKIE"`
