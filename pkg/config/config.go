@@ -16,7 +16,10 @@ var (
 )
 
 func Get(configFile string, cmd *cobra.Command) (*types.Config, error) {
-	path := configFilePath(configFile)
+	path, err := configFilePath(configFile)
+	if err != nil {
+		return nil, err
+	}
 
 	cfg := &types.Config{
 		Replica: &types.AdGuardInstance{},
@@ -62,7 +65,6 @@ func Get(configFile string, cmd *cobra.Command) (*types.Config, error) {
 		cfg.Replica = nil
 	}
 
-	var err error
 	cfg.Replicas, err = enrichReplicasFromEnv(cfg.Replicas)
 
 	return cfg, err
