@@ -7,7 +7,6 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/caarlos0/env/v10"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -15,7 +14,7 @@ var (
 	logger                = log.GetLogger("config")
 )
 
-func Get(configFile string, cmd *cobra.Command) (*types.Config, error) {
+func Get(configFile string, flags Flags) (*types.Config, error) {
 	path, err := configFilePath(configFile)
 	if err != nil {
 		return nil, err
@@ -31,7 +30,7 @@ func Get(configFile string, cmd *cobra.Command) (*types.Config, error) {
 	}
 
 	// overwrite from command flags
-	if err := readFlags(cfg, cmd); err != nil {
+	if err := readFlags(cfg, flags); err != nil {
 		return nil, err
 	}
 
