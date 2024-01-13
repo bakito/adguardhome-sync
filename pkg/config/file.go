@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"gopkg.in/yaml.v3"
@@ -18,4 +20,17 @@ func readFile(cfg *types.Config, path string) error {
 		}
 	}
 	return nil
+}
+
+func configFilePath(configFile string) string {
+	if configFile == "" {
+		// Find home directory.
+		home, err := os.UserConfigDir()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		return filepath.Join(home, ".adguardhome-sync")
+	}
+	return configFile
 }
