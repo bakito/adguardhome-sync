@@ -42,7 +42,7 @@ var deprecatedEnvVars = []string{
 	"REPLICA1_DHCPSERVERENABLED",
 }
 
-var _ = Describe("Run", func() {
+var _ = Describe("Config", func() {
 	Context("deprecated", func() {
 		BeforeEach(func() {
 			for _, envVar := range deprecatedEnvVars {
