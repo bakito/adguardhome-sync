@@ -24,7 +24,7 @@ func readFile(cfg *types.Config, path string) error {
 func configFilePath(configFile string) (string, error) {
 	if configFile == "" {
 		// Find home directory.
-		home, err := os.UserConfigDir()
+		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", err
 		}

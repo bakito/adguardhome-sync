@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
@@ -22,14 +23,10 @@ var _ = Describe("Config", func() {
 		})
 		It("should the file in HOME dir", func() {
 			home := os.Getenv("HOME")
-			defer func() {
-				_ = os.Setenv("HOME", home)
-			}()
-			_ = os.Setenv("HOME", "/agh-test-home")
 			result, err := configFilePath("")
 
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(result).Should(Equal("/agh-test-home/.config/.adguardhome-sync"))
+			Ω(result).Should(Equal(filepath.Join(home, "/.adguardhome-sync")))
 		})
 	})
 })

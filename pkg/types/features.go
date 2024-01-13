@@ -31,6 +31,14 @@ type DNS struct {
 
 // LogDisabled log all disabled features
 func (f *Features) LogDisabled(l *zap.SugaredLogger) {
+	features := f.collectDisabled()
+
+	if len(features) > 0 {
+		l.With("features", features).Info("Disabled features")
+	}
+}
+
+func (f *Features) collectDisabled() []string {
 	var features []string
 	if !f.DHCP.ServerConfig {
 		features = append(features, "DHCP.ServerConfig")
@@ -65,8 +73,5 @@ func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 	if !f.Filters {
 		features = append(features, "Filters")
 	}
-
-	if len(features) > 0 {
-		l.With("features", features).Info("Disabled features")
-	}
+	return features
 }

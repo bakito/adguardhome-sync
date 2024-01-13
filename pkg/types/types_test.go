@@ -1,16 +1,15 @@
-package types_test
+package types
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("AdGuardInstance", func() {
-	var inst types.AdGuardInstance
+	var inst AdGuardInstance
 
 	BeforeEach(func() {
-		inst = types.AdGuardInstance{}
+		inst = AdGuardInstance{}
 	})
 	Context("Init", func() {
 		BeforeEach(func() {
@@ -33,6 +32,48 @@ var _ = Describe("AdGuardInstance", func() {
 			Ω(inst.WebURL).Should(Equal(inst.WebURL))
 			Ω(inst.URL).Should(Equal("https://localhost:3000"))
 			Ω(inst.WebURL).Should(Equal("https://127.0.0.1:4000"))
+		})
+	})
+	Context("LogDisabled", func() {
+		It("It should log all features", func() {
+			f := &Features{
+				DNS: DNS{
+					AccessLists:  false,
+					ServerConfig: false,
+					Rewrites:     false,
+				},
+				DHCP: DHCP{
+					ServerConfig: false,
+					StaticLeases: false,
+				},
+				GeneralSettings: false,
+				QueryLogConfig:  false,
+				StatsConfig:     false,
+				ClientSettings:  false,
+				Services:        false,
+				Filters:         false,
+			}
+			Ω(f.collectDisabled()).Should(HaveLen(11))
+		})
+		It("It should log no features", func() {
+			f := &Features{
+				DNS: DNS{
+					AccessLists:  true,
+					ServerConfig: true,
+					Rewrites:     true,
+				},
+				DHCP: DHCP{
+					ServerConfig: true,
+					StaticLeases: true,
+				},
+				GeneralSettings: true,
+				QueryLogConfig:  true,
+				StatsConfig:     true,
+				ClientSettings:  true,
+				Services:        true,
+				Filters:         true,
+			}
+			Ω(f.collectDisabled()).Should(BeEmpty())
 		})
 	})
 })
