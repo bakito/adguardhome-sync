@@ -62,7 +62,8 @@ func Get(configFile string, cmd *cobra.Command) (*types.Config, error) {
 		cfg.Replica = nil
 	}
 
-	cfg.Replicas = enrichReplicasFromEnv(cfg.Replicas)
+	var err error
+	cfg.Replicas, err = enrichReplicasFromEnv(cfg.Replicas)
 
-	return cfg, nil
+	return cfg, err
 }

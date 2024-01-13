@@ -78,16 +78,21 @@ func checkDeprecatedReplicaEnvVar(oldPattern string, newPattern string, replicaI
 }
 
 // Manually collect replicas from env.
-func enrichReplicasFromEnv(initialReplicas []types.AdGuardInstance) []types.AdGuardInstance {
+func enrichReplicasFromEnv(initialReplicas []types.AdGuardInstance) ([]types.AdGuardInstance, error) {
 	var replicas []types.AdGuardInstance
 	for _, v := range os.Environ() {
 		if envReplicasURLPattern.MatchString(v) {
 			sm := envReplicasURLPattern.FindStringSubmatch(v)
-			index, _ := strconv.Atoi(sm[1])
-			if index > len(initialReplicas) {
+			id, _ := strconv.Atoi(sm[1])
+
+			if id <= 0 {
+				return nil, fmt.Errorf("numbered replica env variables must have a number id >= 1, got %q", v)
+			}
+
+			if id > len(initialReplicas) {
 				replicas = append(replicas, types.AdGuardInstance{URL: sm[2]})
 			} else {
-				re := initialReplicas[index-1]
+				re := initialReplicas[id-1]
 				re.URL = sm[2]
 				replicas = append(replicas, re)
 			}
@@ -138,5 +143,5 @@ func enrichReplicasFromEnv(initialReplicas []types.AdGuardInstance) []types.AdGu
 		}
 	}
 
-	return replicas
+	return replicas, nil
 }
