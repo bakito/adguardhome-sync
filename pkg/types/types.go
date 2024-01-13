@@ -28,10 +28,10 @@ type Config struct {
 
 // API configuration
 type API struct {
-	Port     int    `json:"port,omitempty" yaml:"port,omitempty" env:"PORT"`
-	Username string `json:"username,omitempty" yaml:"username,omitempty" env:"USERNAME"`
-	Password string `json:"password,omitempty" yaml:"password,omitempty" env:"PASSWORD"`
-	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"DARK_MODE"`
+	Port     int    `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT" envDefault:"8080"`
+	Username string `json:"username,omitempty" yaml:"username,omitempty" env:"API_USERNAME"`
+	Password string `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
+	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
 }
 
 // UniqueReplicas get unique replication instances
@@ -91,7 +91,7 @@ func (cfg *Config) Init() error {
 type AdGuardInstance struct {
 	URL                string `json:"url" yaml:"url" env:"URL"`
 	WebURL             string `json:"webURL" yaml:"webURL" env:"WEB_URL"`
-	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" env:"API_PATH"`
+	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" env:"API_PATH" envDefault:"/control"`
 	Username           string `json:"username,omitempty" yaml:"username,omitempty" env:"USERNAME"`
 	Password           string `json:"password,omitempty" yaml:"password,omitempty" env:"PASSWORD"`
 	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty" env:"COOKIE"`

@@ -54,7 +54,7 @@ var _ = Describe("Run", func() {
 				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 			}
 		})
-		Context("getConfig", func() {
+		Context("Get", func() {
 			It("features should be false", func() {
 				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -73,7 +73,7 @@ var _ = Describe("Run", func() {
 				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 			}
 		})
-		Context("getConfig", func() {
+		Context("Get", func() {
 			It("features should be true by default", func() {
 				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())

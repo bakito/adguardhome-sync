@@ -48,7 +48,7 @@ func (fr *flagReader) readReplicaFlags() error {
 	}); err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginWebURL, func(cgf *types.Config, value string) {
+	if err := fr.setStringFlag(FlagReplicaWebURL, func(cgf *types.Config, value string) {
 		fr.cfg.Replica.WebURL = value
 	}); err != nil {
 		return err
