@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 	"regexp"
 	"strconv"
@@ -20,7 +21,7 @@ import (
 const (
 	configCron            = "CRON"
 	configRunOnStart      = "RUN_ON_START"
-	configPrintConfigOnly = "PRINT_CONFIG_ONLY"
+	configPrintConfigOnly = "printConfigOnly"
 	configContinueOnError = "CONTINUE_ON_ERROR"
 
 	configAPIPort     = "API.PORT"
@@ -54,7 +55,7 @@ const (
 	configReplicaUsername           = "REPLICA.USERNAME"
 	configReplicaPassword           = "REPLICA.PASSWORD"
 	configReplicaCookie             = "REPLICA.COOKIE"
-	configReplicaInsecureSkipVerify = "REPLICA.INSECURE_SKIP_VERIFY"
+	configReplicaInsecureSkipVerify = "REPLICA.insecureSkipVerify"
 	configReplicaAutoSetup          = "REPLICA.AUTO_SETUP"
 	configReplicaInterfaceName      = "REPLICA.INTERFACE_NAME"
 )
@@ -113,7 +114,7 @@ func initConfig() {
 		viper.SetConfigName(".adguardhome-sync")
 	}
 	viper.SetConfigType("yaml")
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(replacements()...))
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
@@ -125,7 +126,19 @@ func initConfig() {
 	}
 }
 
+func replacements() []string {
+	repl := []string{"-", "_", ".", "_"}
+	for i := 'A'; i <= 'Z'; i++ {
+		repl = append(repl, string(i), fmt.Sprintf("_%s", string(i)))
+	}
+	return repl
+}
+
 func getConfig() (*types.Config, error) {
+	c1 := &types.Config{}
+	b, _ := os.ReadFile(cfgFile)
+	_ = yaml.Unmarshal(b, c1)
+
 	cfg := &types.Config{}
 	if err := viper.Unmarshal(cfg); err != nil {
 		return nil, err
@@ -142,13 +155,14 @@ func getConfig() (*types.Config, error) {
 			"Do not use single replica and numbered (list) replica config combined")
 	}
 
+	handleDeprecatedEnvVars(cfg)
+
 	if cfg.Replica != nil {
 		cfg.Replicas = []types.AdGuardInstance{*cfg.Replica}
+		cfg.Replica = nil
 	}
 
 	cfg.Replicas = enrichReplicasFromEnv(cfg.Replicas)
-
-	handleDeprecatedEnvVars(cfg)
 
 	return cfg, nil
 }
@@ -236,6 +250,11 @@ func enrichReplicasFromEnv(initialReplicas []types.AdGuardInstance) []types.AdGu
 			}
 		}
 	}
+
+	if len(replicas) == 0 {
+		replicas = initialReplicas
+	}
+
 	for i := range replicas {
 		reID := i + 1
 

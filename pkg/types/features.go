@@ -6,27 +6,27 @@ import (
 
 // Features feature flags
 type Features struct {
-	DNS             DNS  `json:"dns" yaml:"dns" mapstructure:"DNS"`
-	DHCP            DHCP `json:"dhcp" yaml:"dhcp" mapstructure:"DHCP"`
-	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" mapstructure:"GENERAL_SETTINGS"`
-	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig" mapstructure:"QUERY_LOG_CONFIG"`
-	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig" mapstructure:"STATS_CONFIG"`
-	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" mapstructure:"CLIENT_SETTINGS"`
-	Services        bool `json:"services" yaml:"services" mapstructure:"SERVICES"`
-	Filters         bool `json:"filters" yaml:"filters" mapstructure:"FILTERS"`
+	DNS             DNS  `json:"dns" yaml:"dns" mapstructure:"dns"`
+	DHCP            DHCP `json:"dhcp" yaml:"dhcp" mapstructure:"dhcp"`
+	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" mapstructure:"generalSettings"`
+	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig" mapstructure:"queryLogConfig"`
+	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig" mapstructure:"statsConfig"`
+	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" mapstructure:"clientSettings"`
+	Services        bool `json:"services" yaml:"services" mapstructure:"services"`
+	Filters         bool `json:"filters" yaml:"filters" mapstructure:"filters"`
 }
 
 // DHCP features
 type DHCP struct {
-	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" mapstructure:"SERVER_CONFIG"`
-	StaticLeases bool `json:"staticLeases" yaml:"staticLeases" mapstructure:"STATIC_LEASES"`
+	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" mapstructure:"serverConfig"`
+	StaticLeases bool `json:"staticLeases" yaml:"staticLeases" mapstructure:"staticLeases"`
 }
 
 // DNS features
 type DNS struct {
-	AccessLists  bool `json:"accessLists" yaml:"accessLists" mapstructure:"ACCESS_LISTS"`
-	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" mapstructure:"SERVER_CONFIG"`
-	Rewrites     bool `json:"rewrites" yaml:"rewrites"`
+	AccessLists  bool `json:"accessLists" yaml:"accessLists" mapstructure:"accessLists"`
+	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" mapstructure:"serverConfig"`
+	Rewrites     bool `json:"rewrites" yaml:"rewrites" mapstructure:"rewrites"`
 }
 
 // LogDisabled log all disabled features

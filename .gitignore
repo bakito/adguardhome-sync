@@ -8,5 +8,5 @@ main
 .adguardhome-sync.yaml
 tmp
 bin
-config.yaml
+config*.yaml
 *.log
