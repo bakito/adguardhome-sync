@@ -3,8 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -13,51 +13,9 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/version"
-	"github.com/mitchellh/go-homedir"
+	"github.com/caarlos0/env/v10"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-)
-
-const (
-	configCron            = "CRON"
-	configRunOnStart      = "RUN_ON_START"
-	configPrintConfigOnly = "printConfigOnly"
-	configContinueOnError = "CONTINUE_ON_ERROR"
-
-	configAPIPort     = "API.PORT"
-	configAPIUsername = "API.USERNAME"
-	configAPIPassword = "API.PASSWORD"
-	configAPIDarkMode = "API.DARK_MODE"
-
-	configFeatureDHCPServerConfig = "FEATURES.DHCP.SERVER_CONFIG"
-	configFeatureDHCPStaticLeases = "FEATURES.DHCP.STATIC_LEASES"
-	configFeatureDNServerConfig   = "FEATURES.DNS.SERVER_CONFIG"
-	configFeatureDNSPAccessLists  = "FEATURES.DNS.ACCESS_LISTS"
-	configFeatureDNSRewrites      = "FEATURES.DNS.rewrites"
-	configFeatureGeneralSettings  = "FEATURES.GENERAL_SETTINGS"
-	configFeatureQueryLogConfig   = "FEATURES.QUERY_LOG_CONFIG"
-	configFeatureStatsConfig      = "FEATURES.STATS_CONFIG"
-	configFeatureClientSettings   = "FEATURES.CLIENT_SETTINGS"
-	configFeatureServices         = "FEATURES.SERVICES"
-	configFeatureFilters          = "FEATURES.FILTERS"
-
-	configOriginURL                = "ORIGIN.URL"
-	configOriginWebURL             = "ORIGIN.WEB_URL"
-	configOriginAPIPath            = "ORIGIN.API_PATH"
-	configOriginUsername           = "ORIGIN.USERNAME"
-	configOriginPassword           = "ORIGIN.PASSWORD"
-	configOriginCookie             = "ORIGIN.COOKIE"
-	configOriginInsecureSkipVerify = "ORIGIN.INSECURE_SKIP_VERIFY"
-
-	configReplicaURL                = "REPLICA.URL"
-	configReplicaWebURL             = "REPLICA.WEB_URL"
-	configReplicaAPIPath            = "REPLICA.API_PATH"
-	configReplicaUsername           = "REPLICA.USERNAME"
-	configReplicaPassword           = "REPLICA.PASSWORD"
-	configReplicaCookie             = "REPLICA.COOKIE"
-	configReplicaInsecureSkipVerify = "REPLICA.insecureSkipVerify"
-	configReplicaAutoSetup          = "REPLICA.AUTO_SETUP"
-	configReplicaInterfaceName      = "REPLICA.INTERFACE_NAME"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -83,8 +41,6 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
@@ -96,51 +52,39 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
+func configFilePath() string {
+	if cfgFile == "" {
 		// Find home directory.
-		home, err := homedir.Dir()
+		home, err := os.UserConfigDir()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		// Search config in home directory with name ".adguardhome-sync" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".adguardhome-sync")
+		cfgFile = filepath.Join(home, ".adguardhome-sync")
 	}
-	viper.SetConfigType("yaml")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(replacements()...))
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		logger.Info("Using config file:", viper.ConfigFileUsed())
-	} else if cfgFile != "" {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func replacements() []string {
-	repl := []string{"-", "_", ".", "_"}
-	for i := 'A'; i <= 'Z'; i++ {
-		repl = append(repl, string(i), fmt.Sprintf("_%s", string(i)))
-	}
-	return repl
+	return cfgFile
 }
 
 func getConfig() (*types.Config, error) {
-	c1 := &types.Config{}
-	b, _ := os.ReadFile(cfgFile)
-	_ = yaml.Unmarshal(b, c1)
-
-	cfg := &types.Config{}
-	if err := viper.Unmarshal(cfg); err != nil {
+	cfg := &types.Config{
+		Replica: &types.AdGuardInstance{},
+	}
+	if _, err := os.Stat(configFilePath()); err == nil {
+		b, err := os.ReadFile(configFilePath())
+		if err != nil {
+			return nil, err
+		}
+		if err := yaml.Unmarshal(b, cfg); err != nil {
+			return nil, err
+		}
+	}
+	if err := env.Parse(cfg); err != nil {
+		return nil, err
+	}
+	if err := env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
+		return nil, err
+	}
+	if err := env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
 		return nil, err
 	}
 

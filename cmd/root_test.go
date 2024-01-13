@@ -47,7 +47,6 @@ var _ = Describe("Run", func() {
 			for _, envVar := range deprecatedEnvVars {
 				Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 			}
-			initConfig()
 		})
 		AfterEach(func() {
 			for _, envVar := range deprecatedEnvVars {
@@ -67,7 +66,6 @@ var _ = Describe("Run", func() {
 			for _, envVar := range envVars {
 				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 			}
-			initConfig()
 		})
 		AfterEach(func() {
 			for _, envVar := range envVars {
