@@ -8,6 +8,7 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
+	"github.com/caarlos0/env/v10"
 )
 
 func handleDeprecatedEnvVars(cfg *types.Config) {
@@ -106,17 +107,8 @@ func enrichReplicasFromEnv(initialReplicas []types.AdGuardInstance) ([]types.AdG
 	for i := range replicas {
 		reID := i + 1
 
-		if val, ok := os.LookupEnv(fmt.Sprintf("REPLICA%d_WEB_URL", reID)); ok {
-			replicas[i].WebURL = val
-		}
-		if val, ok := os.LookupEnv(fmt.Sprintf("REPLICA%d_USERNAME", reID)); ok {
-			replicas[i].Username = val
-		}
-		if val, ok := os.LookupEnv(fmt.Sprintf("REPLICA%d_PASSWORD", reID)); ok {
-			replicas[i].Password = val
-		}
-		if val, ok := os.LookupEnv(fmt.Sprintf("REPLICA%d_COOKIE", reID)); ok {
-			replicas[i].Cookie = val
+		if err := env.ParseWithOptions(&replicas[i], env.Options{Prefix: fmt.Sprintf("REPLICA%d_", reID)}); err != nil {
+			return nil, err
 		}
 		if val, ok := checkDeprecatedReplicaEnvVar("REPLICA%d_APIPATH", "REPLICA%d_API_PATH", reID); ok {
 			replicas[i].APIPath = val
