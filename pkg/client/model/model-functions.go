@@ -26,7 +26,7 @@ func (c *DhcpStatus) HasConfig() bool {
 }
 
 func (j DhcpConfigV4) isValid() bool {
-	return j.GatewayIp != nil && j.SubnetMask != nil && j.RangeStart != nil && j.RangeEnd != nil
+	return j.GatewayIp != nil && *j.GatewayIp != "" && j.SubnetMask != nil && j.RangeStart != nil && j.RangeEnd != nil
 }
 
 func (j DhcpConfigV6) isValid() bool {

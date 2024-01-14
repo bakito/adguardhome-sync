@@ -514,12 +514,14 @@ var _ = Describe("Sync", func() {
 		Context("actionDHCPServerConfig", func() {
 			var rsc *model.DhcpStatus
 			BeforeEach(func() {
-				ac.origin.dhcpServerConfig = &model.DhcpStatus{V4: &model.DhcpConfigV4{
-					GatewayIp:  utils.Ptr("1.2.3.4"),
-					RangeStart: utils.Ptr("1.2.3.5"),
-					RangeEnd:   utils.Ptr("1.2.3.6"),
-					SubnetMask: utils.Ptr("255.255.255.0"),
-				}}
+				ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:  utils.Ptr("1.2.3.4"),
+						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeEnd:   utils.Ptr("1.2.3.6"),
+						SubnetMask: utils.Ptr("255.255.255.0"),
+					},
+				}
 				rsc = &model.DhcpStatus{}
 				w.cfg.Features.DHCP.StaticLeases = false
 			})
@@ -551,6 +553,14 @@ var _ = Describe("Sync", func() {
 				oscClone := ac.origin.dhcpServerConfig.Clone()
 				oscClone.Enabled = utils.Ptr(true)
 				cl.EXPECT().SetDhcpConfig(oscClone)
+				err := actionDHCPServerConfig(ac)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("should not sync empty IPv4", func() {
+				ac.replica.DHCPServerEnabled = utils.Ptr(false)
+				ac.origin.dhcpServerConfig.V4 = &model.DhcpConfigV4{
+					GatewayIp: utils.Ptr(""),
+				}
 				err := actionDHCPServerConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
