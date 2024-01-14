@@ -10,3 +10,4 @@ tmp
 bin
 config*.yaml
 *.log
+wiki
