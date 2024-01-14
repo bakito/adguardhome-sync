@@ -1,3 +1,4 @@
+{{- if eq .Values.mode "env" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,13 +6,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   API_PORT: '0'
-  LOG_LEVEL: 'debug'
   ORIGIN_URL: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
   ORIGIN_PASSWORD: 'password'
   ORIGIN_USERNAME: 'username'
-  {{ range $i,$version := .Values.replica.versions }}
+  {{- range $i,$version := .Values.replica.versions }}
   REPLICA{{ add 1 $i }}_AUTO_SETUP: 'true'
   REPLICA{{ add 1 $i }}_URL: 'http://service-replica-{{ $version | toString | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local:3000'
   REPLICA{{ add 1 $i }}_PASSWORD: 'password'
   REPLICA{{ add 1 $i }}_USERNAME: 'username'
+  {{- end }}
 {{- end }}

@@ -1,0 +1,36 @@
+{{- if eq .Values.mode "file" }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adguardhome-sync
+  namespace: {{ $.Release.Namespace }}
+spec:
+  serviceAccountName: agh-e2e
+  initContainers:
+    - name: wait-for-others
+      image: {{ .Values.kubectl.repository }}:{{ .Values.kubectl.tag }}
+      command:
+        - /bin/bash
+        - -c
+        - |
+          {{- .Files.Get "bin/wait-for-agh-pods.sh" | nindent 10}}
+  containers:
+    - name: adguardhome-sync
+      image: localhost:5001/adguardhome-sync:e2e
+      command:
+        - /opt/go/adguardhome-sync
+        - run
+        - '--config'
+        - /etc/go/adguardhome-sync/config.yaml
+      env:
+        - name: LOG_LEVEL
+          value: 'debug'
+      volumeMounts:
+        - name: config
+          mountPath: /etc/go/adguardhome-sync/
+  volumes:
+    - name: config
+      configMap:
+        name: sync-conf
+  restartPolicy: Never
+{{- end }}

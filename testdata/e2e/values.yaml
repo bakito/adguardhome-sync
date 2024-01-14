@@ -3,3 +3,9 @@ replica:
     - v0.107.40
     - v0.107.43
     - latest
+
+mode: env
+
+kubectl:
+  repository: bitnami/kubectl
+  tag: 1.27
