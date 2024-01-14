@@ -65,6 +65,24 @@ var _ = Describe("Types", func() {
 				Ω(replicas).Should(HaveLen(3))
 			})
 		})
+		Context("mask", func() {
+			It("should mask all names and passwords", func() {
+				cfg := Config{
+					Replicas: []AdGuardInstance{
+						{URL: "a", Username: "user", Password: "pass"},
+					},
+					Replica: &AdGuardInstance{URL: "a", Username: "user", Password: "pass"},
+					API:     API{Username: "user", Password: "pass"},
+				}
+				masked := cfg.mask()
+				Ω(masked.Replicas[0].Username).Should(Equal("u**r"))
+				Ω(masked.Replicas[0].Password).Should(Equal("p**s"))
+				Ω(masked.Replica.Username).Should(Equal("u**r"))
+				Ω(masked.Replica.Password).Should(Equal("p**s"))
+				Ω(masked.API.Username).Should(Equal("u**r"))
+				Ω(masked.API.Password).Should(Equal("p**s"))
+			})
+		})
 	})
 	Context("Feature", func() {
 		Context("LogDisabled", func() {

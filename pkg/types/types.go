@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -34,6 +35,12 @@ type API struct {
 	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
 }
 
+// Mask maks username and password
+func (a *API) Mask() {
+	a.Username = mask(a.Username)
+	a.Password = mask(a.Password)
+}
+
 // UniqueReplicas get unique replication instances
 func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	dedup := make(map[string]AdGuardInstance)
@@ -58,6 +65,11 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 
 // Log the current config
 func (cfg *Config) Log(l *zap.SugaredLogger) {
+	c := cfg.mask()
+	l.With("config", c).Debug("Using config")
+}
+
+func (cfg *Config) mask() *Config {
 	c := cfg.DeepCopy()
 	c.Origin.Mask()
 	if c.Replica != nil {
@@ -70,7 +82,8 @@ func (cfg *Config) Log(l *zap.SugaredLogger) {
 	for i := range c.Replicas {
 		c.Replicas[i].Mask()
 	}
-	l.With("config", c).Debug("Using config")
+	c.API.Mask()
+	return c
 }
 
 func (cfg *Config) Init() error {
@@ -139,7 +152,8 @@ func mask(s string) string {
 	if s == "" {
 		return "***"
 	}
-	return fmt.Sprintf("%v***%v", string(s[0]), string(s[len(s)-1]))
+	mask := strings.Repeat("*", len(s)-2)
+	return fmt.Sprintf("%v%s%v", string(s[0]), mask, string(s[len(s)-1]))
 }
 
 // Protection API struct
