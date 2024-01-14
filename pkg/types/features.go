@@ -4,33 +4,61 @@ import (
 	"go.uber.org/zap"
 )
 
+func NewFeatures(enabled bool) Features {
+	return Features{
+		DNS: DNS{
+			AccessLists:  enabled,
+			ServerConfig: enabled,
+			Rewrites:     enabled,
+		},
+		DHCP: DHCP{
+			ServerConfig: enabled,
+			StaticLeases: enabled,
+		},
+		GeneralSettings: enabled,
+		QueryLogConfig:  enabled,
+		StatsConfig:     enabled,
+		ClientSettings:  enabled,
+		Services:        enabled,
+		Filters:         enabled,
+	}
+}
+
 // Features feature flags
 type Features struct {
-	DNS             DNS  `json:"dns" yaml:"dns" mapstructure:"DNS"`
-	DHCP            DHCP `json:"dhcp" yaml:"dhcp" mapstructure:"DHCP"`
-	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" mapstructure:"GENERAL_SETTINGS"`
-	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig" mapstructure:"QUERY_LOG_CONFIG"`
-	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig" mapstructure:"STATS_CONFIG"`
-	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" mapstructure:"CLIENT_SETTINGS"`
-	Services        bool `json:"services" yaml:"services" mapstructure:"SERVICES"`
-	Filters         bool `json:"filters" yaml:"filters" mapstructure:"FILTERS"`
+	DNS             DNS  `json:"dns" yaml:"dns"`
+	DHCP            DHCP `json:"dhcp" yaml:"dhcp"`
+	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" env:"FEATURES_GENERAL_SETTINGS"`
+	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig" env:"FEATURES_QUERY_LOG_CONFIG"`
+	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig" env:"FEATURES_STATS_CONFIG"`
+	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" env:"FEATURES_CLIENT_SETTINGS"`
+	Services        bool `json:"services" yaml:"services" env:"FEATURES_SERVICES"`
+	Filters         bool `json:"filters" yaml:"filters" env:"FEATURES_FILTERS"`
 }
 
 // DHCP features
 type DHCP struct {
-	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" mapstructure:"SERVER_CONFIG"`
-	StaticLeases bool `json:"staticLeases" yaml:"staticLeases" mapstructure:"STATIC_LEASES"`
+	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" env:"FEATURES_DHCP_SERVER_CONFIG"`
+	StaticLeases bool `json:"staticLeases" yaml:"staticLeases" env:"FEATURES_DHCP_STATIC_LEASES"`
 }
 
 // DNS features
 type DNS struct {
-	AccessLists  bool `json:"accessLists" yaml:"accessLists" mapstructure:"ACCESS_LISTS"`
-	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" mapstructure:"SERVER_CONFIG"`
-	Rewrites     bool `json:"rewrites" yaml:"rewrites"`
+	AccessLists  bool `json:"accessLists" yaml:"accessLists" env:"FEATURES_DNS_ACCESS_LISTS"`
+	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" env:"FEATURES_DNS_SERVER_CONFIG"`
+	Rewrites     bool `json:"rewrites" yaml:"rewrites" env:"FEATURES_DNS_REWRITES"`
 }
 
 // LogDisabled log all disabled features
 func (f *Features) LogDisabled(l *zap.SugaredLogger) {
+	features := f.collectDisabled()
+
+	if len(features) > 0 {
+		l.With("features", features).Info("Disabled features")
+	}
+}
+
+func (f *Features) collectDisabled() []string {
 	var features []string
 	if !f.DHCP.ServerConfig {
 		features = append(features, "DHCP.ServerConfig")
@@ -65,8 +93,5 @@ func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 	if !f.Filters {
 		features = append(features, "Filters")
 	}
-
-	if len(features) > 0 {
-		l.With("features", features).Info("Disabled features")
-	}
+	return features
 }

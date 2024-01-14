@@ -237,16 +237,7 @@ origin:
   password: password
   # cookie: Origin-Cookie-Name=CCCOOOKKKIIIEEE
 
-# replica instance (optional, if only one)
-replica:
-  # url of the replica instance
-  url: http://192.168.1.3
-  username: username
-  password: password
-  # cookie: Replica-Cookie-Name=CCCOOOKKKIIIEEE
-  # webURL: "https://some-other.url" # used in the web interface (default: <origin-url>
-
-# replicas instances (optional, if more than one)
+# replicas instances
 replicas:
   # url of the replica instance
   - url: http://192.168.1.3

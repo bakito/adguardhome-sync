@@ -1,9 +1,10 @@
-package cmd
+package config_test
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/bakito/adguardhome-sync/pkg/config"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -41,22 +42,21 @@ var deprecatedEnvVars = []string{
 	"REPLICA1_DHCPSERVERENABLED",
 }
 
-var _ = Describe("Run", func() {
+var _ = Describe("Config", func() {
 	Context("deprecated", func() {
 		BeforeEach(func() {
 			for _, envVar := range deprecatedEnvVars {
 				Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 			}
-			initConfig()
 		})
 		AfterEach(func() {
 			for _, envVar := range deprecatedEnvVars {
 				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 			}
 		})
-		Context("getConfig", func() {
+		Context("Get", func() {
 			It("features should be false", func() {
-				cfg, err := getConfig()
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, false)
 			})
@@ -67,21 +67,20 @@ var _ = Describe("Run", func() {
 			for _, envVar := range envVars {
 				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 			}
-			initConfig()
 		})
 		AfterEach(func() {
 			for _, envVar := range envVars {
 				Ω(os.Unsetenv(envVar)).ShouldNot(HaveOccurred())
 			}
 		})
-		Context("getConfig", func() {
+		Context("Get", func() {
 			It("features should be true by default", func() {
-				cfg, err := getConfig()
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, true)
 			})
 			It("features should be true by default", func() {
-				cfg, err := getConfig()
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, true)
 			})
@@ -89,7 +88,7 @@ var _ = Describe("Run", func() {
 				for _, envVar := range envVars {
 					Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 				}
-				cfg, err := getConfig()
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, false)
 			})
@@ -97,7 +96,7 @@ var _ = Describe("Run", func() {
 				It("should set interface name of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_INTERFACE_NAME", "1"), "eth0")).ShouldNot(HaveOccurred())
-					cfg, err := getConfig()
+					cfg, err := config.Get("", nil)
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
 				})
@@ -106,7 +105,7 @@ var _ = Describe("Run", func() {
 				It("should enable the dhcp server of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_DHCPSERVERENABLED", "1"), "true")).ShouldNot(HaveOccurred())
-					cfg, err := getConfig()
+					cfg, err := config.Get("", nil)
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
 					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeTrue())
@@ -114,7 +113,7 @@ var _ = Describe("Run", func() {
 				It("should disable the dhcp server of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_DHCPSERVERENABLED", "1"), "false")).ShouldNot(HaveOccurred())
-					cfg, err := getConfig()
+					cfg, err := config.Get("", nil)
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
 					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())

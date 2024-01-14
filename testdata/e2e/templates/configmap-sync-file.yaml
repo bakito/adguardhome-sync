@@ -1,0 +1,22 @@
+{{- if eq .Values.mode "file" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sync-conf
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |
+    origin:
+      url: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
+      username: username
+      password: password
+    api:
+      port: 0
+    replicas:
+      {{- range $i,$version := .Values.replica.versions }}
+      - url: 'http://service-replica-{{ $version | toString | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local:3000'
+        username: username
+        password: password
+        autoSetup: true
+      {{- end }}
+{{- end }}

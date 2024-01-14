@@ -11,6 +11,11 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build:
+          - mode: env
+          - mode: file
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +27,7 @@ jobs:
         run: ./testdata/e2e/bin/build-image.sh
 
       - name: Install Helm Chart
-        run: ./testdata/e2e/bin/install-chart.sh
+        run: ./testdata/e2e/bin/install-chart.sh ${{ matrix.build.mode }}
       - name: Wait for sync to finish
         run: ./testdata/e2e/bin/wait-for-sync.sh
       - name: Show origin Logs

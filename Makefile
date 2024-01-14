@@ -22,6 +22,7 @@ test-ci: mocks tidy
 
 mocks: mockgen
 	$(MOCKGEN) -package client -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
+	$(MOCKGEN) -package client -destination pkg/mocks/flags/mock.go github.com/bakito/adguardhome-sync/pkg/config Flags
 
 release: semver goreleaser
 	@version=$$($(LOCALBIN)/semver); \

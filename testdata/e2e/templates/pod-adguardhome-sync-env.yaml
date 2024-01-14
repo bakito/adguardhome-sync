@@ -1,3 +1,4 @@
+{{- if eq .Values.mode "env" }}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -7,7 +8,7 @@ spec:
   serviceAccountName: agh-e2e
   initContainers:
     - name: wait-for-others
-      image: bitnami/kubectl:1.24
+      image: {{ .Values.kubectl.repository }}:{{ .Values.kubectl.tag }}
       command:
         - /bin/bash
         - -c
@@ -19,7 +20,11 @@ spec:
       command:
         - /opt/go/adguardhome-sync
         - run
+      env:
+        - name: LOG_LEVEL
+          value: 'debug'
       envFrom:
         - configMapRef:
             name: sync-conf
   restartPolicy: Never
+  {{- end }}

@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -15,32 +16,44 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Origin          AdGuardInstance   `json:"origin" yaml:"origin" mapstructure:"ORIGIN"`
-	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty" mapstructure:"REPLICA"`
+	Origin          AdGuardInstance   `json:"origin" yaml:"origin" env:"ORIGIN"`
+	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty" env:"REPLICA"`
 	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty" mapstructure:"CRON"`
-	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" mapstructure:"RUN_ON_START"`
-	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" mapstructure:"PRINT_CONFIG_ONLY"`
-	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" mapstructure:"CONTINUE_ON_ERROR"`
-	API             API               `json:"api,omitempty" yaml:"api,omitempty" mapstructure:"API"`
-	Features        Features          `json:"features,omitempty" yaml:"features,omitempty" mapstructure:"FEATURES"`
+	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty" env:"CRON"`
+	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" env:"RUN_ON_START"`
+	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" env:"PRINT_CONFIG_ONLY"`
+	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" env:"CONTINUE_ON_ERROR"`
+	API             API               `json:"api,omitempty" yaml:"api,omitempty" env:"API"`
+	Features        Features          `json:"features,omitempty" yaml:"features,omitempty" env:"FEATURES_"`
 }
 
 // API configuration
 type API struct {
-	Port     int    `json:"port,omitempty" yaml:"port,omitempty" mapstructure:"PORT"`
-	Username string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"USERNAME"`
-	Password string `json:"password,omitempty" yaml:"password,omitempty" mapstructure:"PASSWORD"`
-	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" mapstructure:"DARK_MODE"`
+	Port     int    `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT"`
+	Username string `json:"username,omitempty" yaml:"username,omitempty" env:"API_USERNAME"`
+	Password string `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
+	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
+}
+
+// Mask maks username and password
+func (a *API) Mask() {
+	a.Username = mask(a.Username)
+	a.Password = mask(a.Password)
 }
 
 // UniqueReplicas get unique replication instances
 func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	dedup := make(map[string]AdGuardInstance)
 	if cfg.Replica != nil && cfg.Replica.URL != "" {
+		if cfg.Replica.APIPath == "" {
+			cfg.Replica.APIPath = DefaultAPIPath
+		}
 		dedup[cfg.Replica.Key()] = *cfg.Replica
 	}
 	for _, replica := range cfg.Replicas {
+		if replica.APIPath == "" {
+			replica.APIPath = DefaultAPIPath
+		}
 		if replica.URL != "" {
 			dedup[replica.Key()] = replica
 		}
@@ -48,9 +61,6 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 
 	var r []AdGuardInstance
 	for _, replica := range dedup {
-		if replica.APIPath == "" {
-			replica.APIPath = DefaultAPIPath
-		}
 		r = append(r, replica)
 	}
 	return r
@@ -58,6 +68,11 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 
 // Log the current config
 func (cfg *Config) Log(l *zap.SugaredLogger) {
+	c := cfg.mask()
+	l.With("config", c).Debug("Using config")
+}
+
+func (cfg *Config) mask() *Config {
 	c := cfg.DeepCopy()
 	c.Origin.Mask()
 	if c.Replica != nil {
@@ -70,7 +85,8 @@ func (cfg *Config) Log(l *zap.SugaredLogger) {
 	for i := range c.Replicas {
 		c.Replicas[i].Mask()
 	}
-	l.With("config", c).Debug("Using config")
+	c.API.Mask()
+	return c
 }
 
 func (cfg *Config) Init() error {
@@ -89,16 +105,16 @@ func (cfg *Config) Init() error {
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
-	URL                string `json:"url" yaml:"url" mapstructure:"URL"`
-	WebURL             string `json:"webURL" yaml:"webURL" mapstructure:"WEB_URL"`
-	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" mapstructure:"API_PATH"`
-	Username           string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"USERNAME"`
-	Password           string `json:"password,omitempty" yaml:"password,omitempty" mapstructure:"PASSWORD"`
-	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty" mapstructure:"COOKIE"`
-	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify" mapstructure:"INSECURE_SKIP_VERIFY"`
-	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup" mapstructure:"AUTO_SETUP"`
-	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty" mapstructure:"INTERFACE_NAME"`
-	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty" mapstructure:"DHCP_SERVER_ENABLED"`
+	URL                string `json:"url" yaml:"url" env:"URL"`
+	WebURL             string `json:"webURL" yaml:"webURL" env:"WEB_URL"`
+	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" env:"API_PATH"`
+	Username           string `json:"username,omitempty" yaml:"username,omitempty" env:"USERNAME"`
+	Password           string `json:"password,omitempty" yaml:"password,omitempty" env:"PASSWORD"`
+	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty" env:"COOKIE"`
+	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify" env:"INSECURE_SKIP_VERIFY"`
+	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup" env:"AUTO_SETUP"`
+	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty" env:"INTERFACE_NAME"`
+	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty" env:"DHCP_SERVER_ENABLED"`
 
 	Host    string `json:"-" yaml:"-"`
 	WebHost string `json:"-" yaml:"-"`
@@ -139,7 +155,8 @@ func mask(s string) string {
 	if s == "" {
 		return "***"
 	}
-	return fmt.Sprintf("%v***%v", string(s[0]), string(s[len(s)-1]))
+	mask := strings.Repeat("*", len(s)-2)
+	return fmt.Sprintf("%v%s%v", string(s[0]), mask, string(s[len(s)-1]))
 }
 
 // Protection API struct
