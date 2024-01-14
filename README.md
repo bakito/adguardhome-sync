@@ -1,4 +1,5 @@
 [![Go](https://github.com/bakito/adguardhome-sync/actions/workflows/go.yml/badge.svg)](https://github.com/bakito/adguardhome-sync/actions/workflows/go.yml)
+[![e2e tests](https://github.com/bakito/adguardhome-sync/actions/workflows/e2e.yaml/badge.svg)](https://github.com/bakito/adguardhome-sync/actions/workflows/e2e.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bakito/adguardhome-sync)](https://goreportcard.com/report/github.com/bakito/adguardhome-sync)
 [![Coverage Status](https://coveralls.io/repos/github/bakito/adguardhome-sync/badge.svg?branch=main&service=github)](https://coveralls.io/github/bakito/adguardhome-sync?branch=main)
 
