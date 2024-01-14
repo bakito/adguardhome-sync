@@ -59,7 +59,7 @@ var _ = Describe("Types", func() {
 						{URL: "a", APIPath: "foo"},
 						{URL: "b", APIPath: DefaultAPIPath},
 					},
-					Replica: &AdGuardInstance{URL: "b", APIPath: DefaultAPIPath},
+					Replica: &AdGuardInstance{URL: "b"},
 				}
 				replicas := cfg.UniqueReplicas()
 				Ω(replicas).Should(HaveLen(3))
