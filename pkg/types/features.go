@@ -4,6 +4,26 @@ import (
 	"go.uber.org/zap"
 )
 
+func NewFeatures(enabled bool) Features {
+	return Features{
+		DNS: DNS{
+			AccessLists:  enabled,
+			ServerConfig: enabled,
+			Rewrites:     enabled,
+		},
+		DHCP: DHCP{
+			ServerConfig: enabled,
+			StaticLeases: enabled,
+		},
+		GeneralSettings: enabled,
+		QueryLogConfig:  enabled,
+		StatsConfig:     enabled,
+		ClientSettings:  enabled,
+		Services:        enabled,
+		Filters:         enabled,
+	}
+}
+
 // Features feature flags
 type Features struct {
 	DNS             DNS  `json:"dns" yaml:"dns"`

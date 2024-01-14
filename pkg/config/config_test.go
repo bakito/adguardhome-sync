@@ -24,6 +24,15 @@ var _ = Describe("Config", func() {
 			defer mockCtrl.Finish()
 		})
 		Context("Get", func() {
+			Context("Mixed Config", func() {
+				It("should have the origin URL from the config file", func() {
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+					_, err := config.Get("../../testdata/config_test_replicas_and_replica.yaml", flags)
+					Ω(err).Should(HaveOccurred())
+					Ω(err.Error()).Should(ContainSubstring("mixed replica config in use"))
+				})
+			})
 			Context("Origin Url", func() {
 				It("should have the origin URL from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()

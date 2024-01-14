@@ -79,22 +79,6 @@ func initialConfig() *types.Config {
 		API: types.API{
 			Port: 8080,
 		},
-		Features: types.Features{
-			DNS: types.DNS{
-				AccessLists:  true,
-				ServerConfig: true,
-				Rewrites:     true,
-			},
-			DHCP: types.DHCP{
-				ServerConfig: true,
-				StaticLeases: true,
-			},
-			GeneralSettings: true,
-			QueryLogConfig:  true,
-			StatsConfig:     true,
-			ClientSettings:  true,
-			Services:        true,
-			Filters:         true,
-		},
+		Features: types.NewFeatures(true),
 	}
 }

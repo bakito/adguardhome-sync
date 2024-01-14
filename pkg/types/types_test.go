@@ -36,43 +36,11 @@ var _ = Describe("AdGuardInstance", func() {
 	})
 	Context("LogDisabled", func() {
 		It("It should log all features", func() {
-			f := &Features{
-				DNS: DNS{
-					AccessLists:  false,
-					ServerConfig: false,
-					Rewrites:     false,
-				},
-				DHCP: DHCP{
-					ServerConfig: false,
-					StaticLeases: false,
-				},
-				GeneralSettings: false,
-				QueryLogConfig:  false,
-				StatsConfig:     false,
-				ClientSettings:  false,
-				Services:        false,
-				Filters:         false,
-			}
+			f := NewFeatures(false)
 			Ω(f.collectDisabled()).Should(HaveLen(11))
 		})
 		It("It should log no features", func() {
-			f := &Features{
-				DNS: DNS{
-					AccessLists:  true,
-					ServerConfig: true,
-					Rewrites:     true,
-				},
-				DHCP: DHCP{
-					ServerConfig: true,
-					StaticLeases: true,
-				},
-				GeneralSettings: true,
-				QueryLogConfig:  true,
-				StatsConfig:     true,
-				ClientSettings:  true,
-				Services:        true,
-				Filters:         true,
-			}
+			f := NewFeatures(true)
 			Ω(f.collectDisabled()).Should(BeEmpty())
 		})
 	})

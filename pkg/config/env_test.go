@@ -18,6 +18,7 @@ var _ = Describe("Config", func() {
 				_, err := enrichReplicasFromEnv(nil)
 
 				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(ContainSubstring("numbered replica env variables must have a number id >= 1"))
 			})
 		})
 	})
