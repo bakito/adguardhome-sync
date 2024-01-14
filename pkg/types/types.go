@@ -45,9 +45,15 @@ func (a *API) Mask() {
 func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 	dedup := make(map[string]AdGuardInstance)
 	if cfg.Replica != nil && cfg.Replica.URL != "" {
+		if cfg.Replica.APIPath == "" {
+			cfg.Replica.APIPath = DefaultAPIPath
+		}
 		dedup[cfg.Replica.Key()] = *cfg.Replica
 	}
 	for _, replica := range cfg.Replicas {
+		if replica.APIPath == "" {
+			replica.APIPath = DefaultAPIPath
+		}
 		if replica.URL != "" {
 			dedup[replica.Key()] = replica
 		}
@@ -55,9 +61,6 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 
 	var r []AdGuardInstance
 	for _, replica := range dedup {
-		if replica.APIPath == "" {
-			replica.APIPath = DefaultAPIPath
-		}
 		r = append(r, replica)
 	}
 	return r

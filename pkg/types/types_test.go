@@ -54,7 +54,7 @@ var _ = Describe("Types", func() {
 			It("should return unique replicas in the array", func() {
 				cfg := Config{
 					Replicas: []AdGuardInstance{
-						{URL: "a", APIPath: DefaultAPIPath},
+						{URL: "a"},
 						{URL: "a", APIPath: DefaultAPIPath},
 						{URL: "a", APIPath: "foo"},
 						{URL: "b", APIPath: DefaultAPIPath},
