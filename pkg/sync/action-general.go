@@ -209,7 +209,7 @@ var (
 				origClone.Enabled = ac.replica.DHCPServerEnabled
 			}
 
-			if !sc.Equals(origClone) {
+			if !sc.CleanAndEquals(origClone) {
 				return ac.client.SetDhcpConfig(origClone)
 			}
 		}

@@ -16,6 +16,22 @@ func (c *DhcpStatus) Clone() *DhcpStatus {
 	return clone
 }
 
+func (c *DhcpStatus) cleanV4V6() {
+	if c.V4 != nil && !c.V4.isValid() {
+		c.V4 = nil
+	}
+	if c.V6 != nil && !c.V6.isValid() {
+		c.V6 = nil
+	}
+}
+
+// CleanAndEquals dhcp server config equal check where V4 and V6 are cleaned in advance
+func (c *DhcpStatus) CleanAndEquals(o *DhcpStatus) bool {
+	c.cleanV4V6()
+	o.cleanV4V6()
+	return c.Equals(o)
+}
+
 // Equals dhcp server config equal check
 func (c *DhcpStatus) Equals(o *DhcpStatus) bool {
 	return utils.JsonEquals(c, o)
@@ -26,11 +42,14 @@ func (c *DhcpStatus) HasConfig() bool {
 }
 
 func (j DhcpConfigV4) isValid() bool {
-	return j.GatewayIp != nil && *j.GatewayIp != "" && j.SubnetMask != nil && j.RangeStart != nil && j.RangeEnd != nil
+	return j.GatewayIp != nil && *j.GatewayIp != "" &&
+		j.SubnetMask != nil && *j.SubnetMask != "" &&
+		j.RangeStart != nil && *j.RangeStart != "" &&
+		j.RangeEnd != nil && *j.RangeEnd != ""
 }
 
 func (j DhcpConfigV6) isValid() bool {
-	return j.RangeStart != nil
+	return j.RangeStart != nil && *j.RangeStart != ""
 }
 
 type DhcpStaticLeases []DhcpStaticLease

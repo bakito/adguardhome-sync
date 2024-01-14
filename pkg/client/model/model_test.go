@@ -403,7 +403,29 @@ var _ = Describe("Types", func() {
 				}
 				Ω(dc1.HasConfig()).Should(BeFalse())
 			})
-			It("should not have a v4 config", func() {
+			It("should not have a v4 config with nil IP", func() {
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp: nil,
+					},
+					V6: &model.DhcpConfigV6{
+						RangeStart: utils.Ptr("1.2.3.5"),
+					},
+				}
+				Ω(dc1.HasConfig()).Should(BeTrue())
+			})
+			It("should not have a v4 config with empty IP", func() {
+				dc1 := &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp: utils.Ptr(""),
+					},
+					V6: &model.DhcpConfigV6{
+						RangeStart: utils.Ptr("1.2.3.5"),
+					},
+				}
+				Ω(dc1.HasConfig()).Should(BeTrue())
+			})
+			It("should not have a v6 config", func() {
 				dc1 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
 						GatewayIp:     utils.Ptr("1.2.3.4"),
@@ -413,15 +435,6 @@ var _ = Describe("Types", func() {
 						SubnetMask:    utils.Ptr("255.255.255.0"),
 					},
 					V6: &model.DhcpConfigV6{},
-				}
-				Ω(dc1.HasConfig()).Should(BeTrue())
-			})
-			It("should not have a v6 config", func() {
-				dc1 := &model.DhcpStatus{
-					V4: &model.DhcpConfigV4{},
-					V6: &model.DhcpConfigV6{
-						RangeStart: utils.Ptr("1.2.3.5"),
-					},
 				}
 				Ω(dc1.HasConfig()).Should(BeTrue())
 			})
