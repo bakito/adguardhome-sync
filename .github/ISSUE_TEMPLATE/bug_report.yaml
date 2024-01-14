@@ -38,6 +38,13 @@ body:
     validations:
       required: true
   - type: textarea
+    id: applied-config
+    attributes:
+      label: Current Applied Configuration
+      description: |
+        - Run adguardhome-sync with environment variable `PRINT_CONFIG_ONLY=true` and provide the output here
+      render: shell
+  - type: textarea
     id: logs
     attributes:
       label: Relevant log output
