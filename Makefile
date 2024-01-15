@@ -15,8 +15,8 @@ generate: deepcopy-gen
 test: generate lint test-ci
 
 # Run ci tests
-test-ci: mocks tidy
-	go test ./...  -coverprofile=coverage.out.tmp
+test-ci: mocks tidy ginkgo
+	$(GINKGO) --cover --coverprofile coverage.out.tmp ./...
 	cat coverage.out.tmp | grep -v "_generated.go" > coverage.out
 	go tool cover -func=coverage.out
 
@@ -46,12 +46,12 @@ OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 MOCKGEN ?= $(LOCALBIN)/mockgen
 GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
 GORELEASER ?= $(LOCALBIN)/goreleaser
+GINKGO ?= $(LOCALBIN)/ginkgo
 DEEPCOPY_GEN ?= $(LOCALBIN)/deepcopy-gen
 
 ## Tool Versions
 SEMVER_VERSION ?= v1.1.3
 OAPI_CODEGEN_VERSION ?= v2.0.0
-MOCKGEN_VERSION ?= v1.6.0
 GOLANGCI_LINT_VERSION ?= v1.55.2
 GORELEASER_VERSION ?= v1.23.0
 DEEPCOPY_GEN_VERSION ?= v0.29.0
@@ -68,7 +68,7 @@ $(OAPI_CODEGEN): $(LOCALBIN)
 .PHONY: mockgen
 mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.
 $(MOCKGEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install github.com/golang/mock/mockgen@$(MOCKGEN_VERSION)
+	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install github.com/golang/mock/mockgen
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
@@ -77,6 +77,10 @@ $(GOLANGCI_LINT): $(LOCALBIN)
 goreleaser: $(GORELEASER) ## Download goreleaser locally if necessary.
 $(GORELEASER): $(LOCALBIN)
 	test -s $(LOCALBIN)/goreleaser || GOBIN=$(LOCALBIN) go install github.com/goreleaser/goreleaser@$(GORELEASER_VERSION)
+.PHONY: ginkgo
+ginkgo: $(GINKGO) ## Download ginkgo locally if necessary.
+$(GINKGO): $(LOCALBIN)
+	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo
 .PHONY: deepcopy-gen
 deepcopy-gen: $(DEEPCOPY_GEN) ## Download deepcopy-gen locally if necessary.
 $(DEEPCOPY_GEN): $(LOCALBIN)
@@ -91,6 +95,7 @@ update-toolbox-tools:
 		$(LOCALBIN)/mockgen \
 		$(LOCALBIN)/golangci-lint \
 		$(LOCALBIN)/goreleaser \
+		$(LOCALBIN)/ginkgo \
 		$(LOCALBIN)/deepcopy-gen
 	toolbox makefile -f $(LOCALDIR)/Makefile \
 		github.com/bakito/semver \
@@ -98,6 +103,7 @@ update-toolbox-tools:
 		github.com/golang/mock/mockgen \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
 		github.com/goreleaser/goreleaser \
+		github.com/onsi/ginkgo/v2/ginkgo \
 		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator
 ## toolbox - end
 
