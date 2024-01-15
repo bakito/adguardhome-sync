@@ -7,38 +7,10 @@
 
 Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to replica instances.
 
-## FAQ
+## FAQ & Deprecations
 
-Please check the wiki for [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ).
-
-## Deprecation of Environment Variables as of v0.6.0
-
-The following environment variables have been deprecated and replaced with better readable ones:
-Deprecated variables are still supported but will be logged as warning.
-| Deprecated | Replacement |
-| :----------- |:----------- |
-| RUNONSTART | RUN_ON_START |
-| PRINTCONFIGONLY | PRINT_CONFIG_ONLY |
-| CONTINUE_ON_ERROR | CONTINUE_ON_ERROR |
-| API_DARKMODE | API_DARK_MODE |
-| FEATURES_DHCP_SERVERCONFIG | FEATURES_DHCP_SERVER_CONFIG |
-| FEATURES_DHCP_STATICLEASES | FEATURES_DHCP_STATIC_LEASES |
-| FEATURES_DNS_ACCESSLISTS | FEATURES_DNS_ACCESS_LISTS |
-| FEATURES_DNS_SERVERCONFIG | FEATURES_DNS_SERVER_CONFIG |
-| FEATURES_GENERALSETTINGS | FEATURES_GENERAL_SETTINGS |
-| FEATURES_QUERYLOGCONFIG | FEATURES_QUERY_LOG_CONFIG |
-| FEATURES_STATSCONFIG | FEATURES_STATS_CONFIG |
-| FEATURES_CLIENTSETTINGS | FEATURES_CLIENT_SETTINGS |
-| ORIGIN_WEBURL | ORIGIN_WEB_URL |
-| ORIGIN_APIPATH | ORIGIN_API_PATH |
-| ORIGIN_INSECURE_SKIP_VERIFY | ORIGIN_INSECURE_SKIP_VERIFY |
-| *REPLICA_WEBURL | REPLICA_WEB_URL |
-| *REPLICA_APIPATH | REPLICA_API_PATH |
-| *REPLICA_INSECURE_SKIP_VERIFY | REPLICA_INSECURE_SKIP_VERIFY |
-| *REPLICA_AUTOSETUP | REPLICA_AUTO_SETUP |
-| *REPLICA_INTERFACENAME | REPLICA_INTERFACE_NAME |
-
-\* is also valid for numbered `REPLICA#_` variables
+Please check the wiki
+for [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ) and [Deprecations](https://github.com/bakito/adguardhome-sync/wiki/Deprecations).
 
 ## Current sync features
 
