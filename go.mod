@@ -8,7 +8,6 @@ require (
 	github.com/deepmap/oapi-codegen/v2 v2.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.9.1
-	github.com/golang/mock v1.6.0
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/google/uuid v1.5.0
 	github.com/goreleaser/goreleaser v1.23.0
@@ -18,6 +17,7 @@ require (
 	github.com/onsi/gomega v1.30.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.0
+	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/mod v0.14.0
 	gopkg.in/yaml.v3 v3.0.1

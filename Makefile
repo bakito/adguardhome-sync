@@ -49,8 +49,6 @@ MOCKGEN ?= $(LOCALBIN)/mockgen
 OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 SEMVER ?= $(LOCALBIN)/semver
 
-## Tool Versions
-
 ## Tool Installer
 .PHONY: deepcopy-gen
 deepcopy-gen: $(DEEPCOPY_GEN) ## Download deepcopy-gen locally if necessary.
@@ -71,7 +69,7 @@ $(GORELEASER): $(LOCALBIN)
 .PHONY: mockgen
 mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.
 $(MOCKGEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install github.com/golang/mock/mockgen
+	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install go.uber.org/mock/mockgen
 .PHONY: oapi-codegen
 oapi-codegen: $(OAPI_CODEGEN) ## Download oapi-codegen locally if necessary.
 $(OAPI_CODEGEN): $(LOCALBIN)

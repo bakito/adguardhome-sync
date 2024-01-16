@@ -9,10 +9,10 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
-	gm "github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	gm "go.uber.org/mock/gomock"
 )
 
 var _ = Describe("Sync", func() {

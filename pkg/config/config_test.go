@@ -5,9 +5,9 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/config"
 	flagsmock "github.com/bakito/adguardhome-sync/pkg/mocks/flags"
-	gm "github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	gm "go.uber.org/mock/gomock"
 )
 
 var _ = Describe("Config", func() {
