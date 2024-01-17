@@ -146,6 +146,61 @@ var _ = Describe("Config", func() {
 					Ω(cfg.API.Port).Should(Equal(9999))
 				})
 			})
+
+			Context("Replica DHCPServerEnabled", func() {
+				It("should have the dhcp server enabled from the config file", func() {
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+				})
+			})
+
+			Context("Replica 1 DHCPServerEnabled", func() {
+				It("should have the dhcp server enabled from the config file", func() {
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+				})
+			})
+			Context("API Port", func() {
+				It("should have the api port from the config file", func() {
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.API.Port).Should(Equal(9090))
+				})
+				It("should have the api port from the config flags", func() {
+					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
+
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.API.Port).Should(Equal(9990))
+				})
+				It("should have the api port from the config env var", func() {
+					os.Setenv("API_PORT", "9999")
+					defer func() {
+						_ = os.Unsetenv("API_PORT")
+					}()
+					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
+
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.API.Port).Should(Equal(9999))
+				})
+			})
+
+			//////
+
 			Context("Feature DNS Server Config", func() {
 				It("should have the feature dns server config from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
