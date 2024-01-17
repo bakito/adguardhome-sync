@@ -15,6 +15,7 @@ replica:
   insecureSkipVerify: false
   autoSetup: false
   interfaceName: eth3
+  dhcpServerEnabled: false
 cron: '*/15 * * * *'
 runOnStart: true
 printConfigOnly: true

@@ -107,8 +107,14 @@ func enrichReplicasFromEnv(initialReplicas []types.AdGuardInstance) ([]types.AdG
 	for i := range replicas {
 		reID := i + 1
 
+		// keep previously set value
+		replicaDhcpServer := replicas[i].DHCPServerEnabled
+		replicas[i].DHCPServerEnabled = nil
 		if err := env.ParseWithOptions(&replicas[i], env.Options{Prefix: fmt.Sprintf("REPLICA%d_", reID)}); err != nil {
 			return nil, err
+		}
+		if replicas[i].DHCPServerEnabled == nil {
+			replicas[i].DHCPServerEnabled = replicaDhcpServer
 		}
 		if val, ok := checkDeprecatedReplicaEnvVar("REPLICA%d_APIPATH", "REPLICA%d_API_PATH", reID); ok {
 			replicas[i].APIPath = val

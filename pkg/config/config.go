@@ -32,15 +32,26 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 		return nil, err
 	}
 
-	// overwrite from env vars
+	// *bool field creates issues when already not nil
+	cfg.Origin.DHCPServerEnabled = nil // origin filed makes no sense to be set.
 
+	// keep previously set value
+	replicaDhcpServer := cfg.Replica.DHCPServerEnabled
+	cfg.Replica.DHCPServerEnabled = nil
+
+	// overwrite from env vars
 	if err := env.Parse(cfg); err != nil {
 		return nil, err
 	}
-	if err := env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
+	if err := env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
 		return nil, err
 	}
-	if err := env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
+	// if not set from env, use previous value
+	if cfg.Replica.DHCPServerEnabled == nil {
+		cfg.Replica.DHCPServerEnabled = replicaDhcpServer
+	}
+
+	if err := env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
 		return nil, err
 	}
 
