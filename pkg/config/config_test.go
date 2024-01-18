@@ -13,14 +13,24 @@ import (
 var _ = Describe("Config", func() {
 	Context("Get", func() {
 		var (
-			flags    *flagsmock.MockFlags
-			mockCtrl *gm.Controller
+			flags          *flagsmock.MockFlags
+			mockCtrl       *gm.Controller
+			changedEnvVars []string
+			setEnv         = func(name string, value string) {
+				_ = os.Setenv(name, value)
+				changedEnvVars = append(changedEnvVars, name)
+			}
 		)
 		BeforeEach(func() {
 			mockCtrl = gm.NewController(GinkgoT())
 			flags = flagsmock.NewMockFlags(mockCtrl)
+			changedEnvVars = nil
 		})
 		AfterEach(func() {
+			for _, envVar := range changedEnvVars {
+				_ = os.Unsetenv(envVar)
+				println(envVar)
+			}
 			defer mockCtrl.Finish()
 		})
 		Context("Get", func() {
@@ -51,10 +61,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Origin.URL).Should(Equal("https://origin-flag:443"))
 				})
 				It("should have the origin URL from the config env var", func() {
-					os.Setenv("ORIGIN_URL", "https://origin-env:443")
-					defer func() {
-						_ = os.Unsetenv("ORIGIN_URL")
-					}()
+					setEnv("ORIGIN_URL", "https://origin-env:443")
 					flags.EXPECT().Changed(config.FlagOriginURL).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
@@ -82,10 +89,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeTrue())
 				})
 				It("should have the insecure skip verify from the config env var", func() {
-					os.Setenv("REPLICA_INSECURE_SKIP_VERIFY", "false")
-					defer func() {
-						_ = os.Unsetenv("REPLICA_INSECURE_SKIP_VERIFY")
-					}()
+					setEnv("REPLICA_INSECURE_SKIP_VERIFY", "false")
 					flags.EXPECT().Changed(config.FlagReplicaISV).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
@@ -105,10 +109,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeFalse())
 				})
 				It("should have the insecure skip verify from the config env var", func() {
-					os.Setenv("REPLICA1_INSECURE_SKIP_VERIFY", "true")
-					defer func() {
-						_ = os.Unsetenv("REPLICA1_INSECURE_SKIP_VERIFY")
-					}()
+					setEnv("REPLICA1_INSECURE_SKIP_VERIFY", "true")
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
@@ -133,10 +134,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.API.Port).Should(Equal(9990))
 				})
 				It("should have the api port from the config env var", func() {
-					os.Setenv("API_PORT", "9999")
-					defer func() {
-						_ = os.Unsetenv("API_PORT")
-					}()
+					setEnv("API_PORT", "9999")
 					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
@@ -185,10 +183,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.API.Port).Should(Equal(9990))
 				})
 				It("should have the api port from the config env var", func() {
-					os.Setenv("API_PORT", "9999")
-					defer func() {
-						_ = os.Unsetenv("API_PORT")
-					}()
+					setEnv("API_PORT", "9999")
 					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
@@ -218,10 +213,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Features.DNS.ServerConfig).Should(BeTrue())
 				})
 				It("should have the feature dns server config from the config env var", func() {
-					os.Setenv("FEATURES_DNS_SERVER_CONFIG", "false")
-					defer func() {
-						_ = os.Unsetenv("FEATURES_DNS_SERVER_CONFIG")
-					}()
+					setEnv("FEATURES_DNS_SERVER_CONFIG", "false")
 					flags.EXPECT().Changed(config.FlagFeatureDnsServerConfig).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
@@ -231,10 +223,7 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Features.DNS.ServerConfig).Should(BeFalse())
 				})
 				It("should have the feature dns server config from the config DEPRECATED env var", func() {
-					os.Setenv("FEATURES_DNS_SERVERCONFIG", "false")
-					defer func() {
-						_ = os.Unsetenv("FEATURES_DNS_SERVERCONFIG")
-					}()
+					setEnv("FEATURES_DNS_SERVERCONFIG", "false")
 					flags.EXPECT().Changed(config.FlagFeatureDnsServerConfig).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
