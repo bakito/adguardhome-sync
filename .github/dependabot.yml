@@ -10,6 +10,12 @@ updates:
     schedule:
       interval: "weekly"
     groups:
+      k8s:
+        patterns:
+          - "k8s.io/*"
+        update-types:
+          - "minor"
+          - "patch"
       onsi:
         patterns:
           - "github.com/onsi/*"
