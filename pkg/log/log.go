@@ -10,6 +10,7 @@ import (
 const (
 	logHistorySize = 50
 	envLogLevel    = "LOG_LEVEL"
+	envLogFormat   = "LOG_FORMAT"
 )
 
 var (
@@ -31,14 +32,23 @@ func init() {
 		}
 	}
 
+	format := "console"
+	if fmt, ok := os.LookupEnv(envLogFormat); ok {
+		format = fmt
+	}
+
 	cfg := zap.Config{
 		Level:            zap.NewAtomicLevelAt(level),
 		Development:      false,
-		Encoding:         "console",
-		EncoderConfig:    zap.NewDevelopmentEncoderConfig(),
+		Encoding:         format,
+		EncoderConfig:    zap.NewProductionEncoderConfig(),
 		OutputPaths:      []string{"stdout"},
 		ErrorOutputPaths: []string{"stderr"},
 	}
+	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg.EncoderConfig.EncodeDuration = zapcore.StringDurationEncoder
+	cfg.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+
 	opt := zap.WrapCore(func(c zapcore.Core) zapcore.Core {
 		return zapcore.NewTee(c, &logList{
 			enc:          zapcore.NewConsoleEncoder(cfg.EncoderConfig),

@@ -6,6 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   API_PORT: '0'
+  LOG_FORMAT: json
   ORIGIN_URL: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
   ORIGIN_PASSWORD: 'password'
   ORIGIN_USERNAME: 'username'

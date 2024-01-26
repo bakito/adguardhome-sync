@@ -10,7 +10,8 @@ Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to 
 ## FAQ & Deprecations
 
 Please check the wiki
-for [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ) and [Deprecations](https://github.com/bakito/adguardhome-sync/wiki/Deprecations).
+for [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ)
+and [Deprecations](https://github.com/bakito/adguardhome-sync/wiki/Deprecations).
 
 ## Current sync features
 
@@ -253,7 +254,7 @@ features:
 
 ## Log Level
 
-The log level can be set with the environment variable: LOG_LEVEL
+The log level can be set with the environment variable: `LOG_LEVEL`
 
 The following log levels are supported (default: info)
 
@@ -261,3 +262,8 @@ The following log levels are supported (default: info)
 - info
 - warn
 - error
+
+## Log Format
+
+Default log format is `console`.
+It can be changed to `json`by setting the environment variable: `LOG_FORMAT=json`
