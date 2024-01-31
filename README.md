@@ -62,9 +62,9 @@ export ORIGIN_URL=https://192.168.1.2:3000
 export ORIGIN_USERNAME=username
 export ORIGIN_PASSWORD=password
 # export ORIGIN_COOKIE=Origin-Cookie-Name=CCCOOOKKKIIIEEE
-export REPLICA_URL=http://192.168.1.3
-export REPLICA_USERNAME=username
-export REPLICA_PASSWORD=password
+export REPLICA1_URL=http://192.168.1.3
+export REPLICA1_USERNAME=username
+export REPLICA1_PASSWORD=password
 # export REPLICA_COOKIE=Replica-Cookie-Name=CCCOOOKKKIIIEEE
 
 # run once
@@ -90,10 +90,10 @@ set ORIGIN_USERNAME=username
 set ORIGIN_PASSWORD=password
 # set ORIGIN_COOKIE=Origin-Cookie-Name=CCCOOOKKKIIIEEE
 
-set REPLICA_URL=http://192.168.2.2:3000
-set REPLICA_USERNAME=username
-set REPLICA_PASSWORD=password
-# set REPLICA_COOKIE=Replica-Cookie-Name=CCCOOOKKKIIIEEE
+set REPLICA1_URL=http://192.168.2.2:3000
+set REPLICA1_USERNAME=username
+set REPLICA1_PASSWORD=password
+# set REPLICA1_COOKIE=Replica-Cookie-Name=CCCOOOKKKIIIEEE
 
 set FEATURES_DHCP=false
 set FEATURES_DHCP_SERVERCONFIG=false
@@ -153,17 +153,17 @@ services:
 
       ORIGIN_USERNAME: "username"
       ORIGIN_PASSWORD: "password"
-      REPLICA_URL: "http://192.168.1.3"
-      REPLICA_USERNAME: "username"
-      REPLICA_PASSWORD: "password"
-      REPLICA1_URL: "http://192.168.1.4"
+      REPLICA1_URL: "http://192.168.1.3"
       REPLICA1_USERNAME: "username"
       REPLICA1_PASSWORD: "password"
-      REPLICA1_API_PATH: "/some/path/control"
-      # REPLICA1_WEB_URL: "https://some-other.url" # used in the web interface (default: <replica-url>
-      # REPLICA1_AUTO_SETUP: true # if true, AdGuardHome is automatically initialized.
-      # REPLICA1_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
-      # REPLICA1_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
+      REPLICA2_URL: "http://192.168.1.4"
+      REPLICA2_USERNAME: "username"
+      REPLICA2_PASSWORD: "password"
+      REPLICA2_API_PATH: "/some/path/control"
+      # REPLICA2_WEB_URL: "https://some-other.url" # used in the web interface (default: <replica-url>
+      # REPLICA2_AUTO_SETUP: true # if true, AdGuardHome is automatically initialized.
+      # REPLICA2_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
+      # REPLICA2_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: "*/10 * * * *" # run every 10 minutes
       RUNONSTART: true
       # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
