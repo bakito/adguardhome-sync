@@ -99,8 +99,7 @@ var _ = Describe("Client", func() {
 		})
 		It("should set empty filter rules", func() {
 			ts, cl = ClientPost("/filtering/set_rules",
-				`{"url":"foo","whitelist":true}`,
-				`{"url":"bar","whitelist":true}`,
+				`{"rules":[]}`,
 			)
 			err := cl.SetCustomRules(nil)
 			Ω(err).ShouldNot(HaveOccurred())
