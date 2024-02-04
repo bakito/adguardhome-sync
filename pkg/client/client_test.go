@@ -101,6 +101,13 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/filtering/set_rules",
 				`{"rules":[]}`,
 			)
+			err := cl.SetCustomRules(utils.Ptr([]string{}))
+			Ω(err).ShouldNot(HaveOccurred())
+		})
+		It("should set nil filter rules", func() {
+			ts, cl = ClientPost("/filtering/set_rules",
+				`{"rules":null}`,
+			)
 			err := cl.SetCustomRules(nil)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
