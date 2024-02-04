@@ -106,7 +106,7 @@ var _ = Describe("Client", func() {
 		})
 		It("should set nil filter rules", func() {
 			ts, cl = ClientPost("/filtering/set_rules",
-				`{"rules":null}`,
+				`{}`,
 			)
 			err := cl.SetCustomRules(nil)
 			Ω(err).ShouldNot(HaveOccurred())
