@@ -97,6 +97,20 @@ var _ = Describe("Client", func() {
 			err = cl.DeleteFilter(true, model.Filter{Url: "bar"})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
+		It("should set empty filter rules", func() {
+			ts, cl = ClientPost("/filtering/set_rules",
+				`{"rules":[]}`,
+			)
+			err := cl.SetCustomRules(utils.Ptr([]string{}))
+			Ω(err).ShouldNot(HaveOccurred())
+		})
+		It("should set nil filter rules", func() {
+			ts, cl = ClientPost("/filtering/set_rules",
+				`{}`,
+			)
+			err := cl.SetCustomRules(nil)
+			Ω(err).ShouldNot(HaveOccurred())
+		})
 	})
 
 	Context("Status", func() {
