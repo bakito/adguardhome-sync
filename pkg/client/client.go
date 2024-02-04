@@ -261,13 +261,11 @@ func (cl *client) ToggleProtection(enable bool) error {
 }
 
 func (cl *client) SetCustomRules(rules *[]string) error {
-	var len int
-	if rules == nil {
-		len = 0
-	} else {
-		len = len(*rules)
+	var l int
+	if rules != nil {
+		l = len(*rules)
 	}
-	cl.log.With("rules", len).Info("Set user rules")
+	cl.log.With("rules", l).Info("Set user rules")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.SetRulesRequest{Rules: rules}), "/filtering/set_rules")
 }
 
