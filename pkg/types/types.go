@@ -41,6 +41,7 @@ type API struct {
 type Metrics struct {
 	Enabled        bool          `json:"enabled,omitempty" yaml:"enabled,omitempty" env:"API_METRICS_ENABLED"`
 	ScrapeInterval time.Duration `json:"scrapeInterval,omitempty" yaml:"scrapeInterval,omitempty" env:"API_METRICS_SCRAPE_INTERVAL"`
+	QueryLogLimit  int           `json:"queryLogLimit,omitempty" yaml:"queryLogLimit,omitempty" env:"API_METRICS_QUERY_LOG_LIMIT"`
 }
 
 // Mask maks username and password

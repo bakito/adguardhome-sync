@@ -12,7 +12,13 @@ func (w *worker) startScraping() {
 	if w.cfg.API.Metrics.ScrapeInterval == 0 {
 		w.cfg.API.Metrics.ScrapeInterval = 30 * time.Second
 	}
-	l.With("scrape-interval", w.cfg.API.Metrics.ScrapeInterval).Info("setup metrics")
+	if w.cfg.API.Metrics.QueryLogLimit == 0 {
+		w.cfg.API.Metrics.QueryLogLimit = 10_000
+	}
+	l.With(
+		"scrape-interval", w.cfg.API.Metrics.ScrapeInterval,
+		"query-log-limit", w.cfg.API.Metrics.QueryLogLimit,
+	).Info("setup metrics")
 	w.scrape()
 	for range time.Tick(w.cfg.API.Metrics.ScrapeInterval) {
 		w.scrape()
@@ -39,5 +45,6 @@ func (w *worker) getMetrics(inst types.AdGuardInstance) (im metrics.InstanceMetr
 	im.HostName = inst.Host
 	im.Status, _ = client.Status()
 	im.Stats, _ = client.Stats()
+	im.QueryLog, _ = client.QueryLog(w.cfg.API.Metrics.QueryLogLimit)
 	return
 }

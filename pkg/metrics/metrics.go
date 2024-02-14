@@ -203,12 +203,34 @@ func update(im InstanceMetrics) {
 			}
 		}
 	}
+
+	// LogQuery
+	m := make(map[string]int)
+	if im.QueryLog != nil && im.QueryLog.Data != nil {
+		logdata := *im.QueryLog.Data
+		for _, ld := range logdata {
+			if ld.Answer != nil {
+				dnsanswer := *ld.Answer
+				if len(dnsanswer) > 0 {
+					for _, dnsa := range dnsanswer {
+						dnsType := *dnsa.Type
+						m[dnsType] += 1
+					}
+				}
+			}
+		}
+	}
+
+	for key, value := range m {
+		queryTypes.WithLabelValues(im.HostName, key).Set(float64(value))
+	}
 }
 
 type InstanceMetrics struct {
 	HostName string
 	Status   *model.ServerStatus
 	Stats    *model.Stats
+	QueryLog *model.QueryLog
 }
 
 func safeMetric[T Number](v *T) float64 {
