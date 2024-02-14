@@ -170,6 +170,9 @@ services:
 
       # Configure the sync API server, disabled if api port is 0
       API_PORT: 8080
+      # API_DARK_MODE: true
+      # API_USERNAME: admin
+      # API_PASSWORD: secret
 
       # Configure sync features; by default all features are enabled.
       # FEATURES_GENERAL_SETTINGS: true
