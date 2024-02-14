@@ -80,7 +80,7 @@ func (w *worker) listenAndServe() {
 	r.GET("/", w.handleRoot)
 	if w.cfg.API.Metrics.Enabled {
 		r.GET("/metrics", metrics.Handler())
-		metrics.Init()
+
 		go w.startScraping()
 	}
 

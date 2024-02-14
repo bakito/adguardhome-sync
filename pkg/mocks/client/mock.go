@@ -536,6 +536,21 @@ func (mr *MockClientMockRecorder) Setup() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Setup", reflect.TypeOf((*MockClient)(nil).Setup))
 }
 
+// Stats mocks base method.
+func (m *MockClient) Stats() (*model.Stats, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Stats")
+	ret0, _ := ret[0].(*model.Stats)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Stats indicates an expected call of Stats.
+func (mr *MockClientMockRecorder) Stats() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stats", reflect.TypeOf((*MockClient)(nil).Stats))
+}
+
 // StatsConfig mocks base method.
 func (m *MockClient) StatsConfig() (*model.StatsConfig, error) {
 	m.ctrl.T.Helper()

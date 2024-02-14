@@ -157,29 +157,52 @@ func Update(ims ...InstanceMetrics) {
 		update(im)
 	}
 
-	l.Info("updated")
+	l.Debug("updated")
 }
+
 func update(im InstanceMetrics) {
-	//Status
+	// Status
 	var isRunning int = 0
-	if im.Status.Running == true {
+	if im.Status.Running {
 		isRunning = 1
 	}
 	running.WithLabelValues(im.HostName).Set(float64(isRunning))
 
 	var isProtected int = 0
-	if im.Status.ProtectionEnabled == true {
+	if im.Status.ProtectionEnabled {
 		isProtected = 1
 	}
 	protectionEnabled.WithLabelValues(im.HostName).Set(float64(isProtected))
 
-	//Stats
+	// Stats
 	avgProcessingTime.WithLabelValues(im.HostName).Set(safeMetric(im.Stats.AvgProcessingTime))
 	dnsQueries.WithLabelValues(im.HostName).Set(safeMetric(im.Stats.NumDnsQueries))
 	blockedFiltering.WithLabelValues(im.HostName).Set(safeMetric(im.Stats.NumBlockedFiltering))
 	parentalFiltering.WithLabelValues(im.HostName).Set(safeMetric(im.Stats.NumReplacedParental))
 	safeBrowsingFiltering.WithLabelValues(im.HostName).Set(safeMetric(im.Stats.NumReplacedSafebrowsing))
 	safeSearchFiltering.WithLabelValues(im.HostName).Set(safeMetric(im.Stats.NumReplacedSafesearch))
+
+	if im.Stats.TopQueriedDomains != nil {
+		for _, tq := range *im.Stats.TopQueriedDomains {
+			for domain, value := range tq.AdditionalProperties {
+				topQueries.WithLabelValues(im.HostName, domain).Set(float64(value))
+			}
+		}
+	}
+	if im.Stats.TopBlockedDomains != nil {
+		for _, tb := range *im.Stats.TopBlockedDomains {
+			for domain, value := range tb.AdditionalProperties {
+				topBlocked.WithLabelValues(im.HostName, domain).Set(float64(value))
+			}
+		}
+	}
+	if im.Stats.TopClients != nil {
+		for _, tc := range *im.Stats.TopClients {
+			for source, value := range tc.AdditionalProperties {
+				topClients.WithLabelValues(im.HostName, source).Set(float64(value))
+			}
+		}
+	}
 }
 
 type InstanceMetrics struct {

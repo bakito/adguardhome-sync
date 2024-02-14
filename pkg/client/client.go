@@ -160,6 +160,7 @@ func (cl *client) Status() (*model.ServerStatus, error) {
 	cl.version = status.Version
 	return status, err
 }
+
 func (cl *client) Stats() (*model.Stats, error) {
 	stats := &model.Stats{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "stats")
