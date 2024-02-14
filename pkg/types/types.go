@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -29,10 +30,17 @@ type Config struct {
 
 // API configuration
 type API struct {
-	Port     int    `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT"`
-	Username string `json:"username,omitempty" yaml:"username,omitempty" env:"API_USERNAME"`
-	Password string `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
-	DarkMode bool   `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
+	Port     int     `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT"`
+	Username string  `json:"username,omitempty" yaml:"username,omitempty" env:"API_USERNAME"`
+	Password string  `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
+	DarkMode bool    `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
+	Metrics  Metrics `json:"metrics,omitempty" yaml:"metrics,omitempty" env:"API_METRICS"`
+}
+
+// Metrics configuration
+type Metrics struct {
+	Enabled        bool          `json:"enabled,omitempty" yaml:"enabled,omitempty" env:"API_METRICS_ENABLED"`
+	ScrapeInterval time.Duration `json:"scrapeInterval,omitempty" yaml:"scrapeInterval,omitempty" env:"API_METRICS_SCRAPE_INTERVAL"`
 }
 
 // Mask maks username and password

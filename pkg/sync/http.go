@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/pkg/metrics"
 	"github.com/bakito/adguardhome-sync/version"
 	"github.com/gin-gonic/gin"
 )
@@ -77,6 +78,11 @@ func (w *worker) listenAndServe() {
 	r.GET("/api/v1/status", w.handleStatus)
 	r.GET("/favicon.ico", w.handleFavicon)
 	r.GET("/", w.handleRoot)
+	if w.cfg.API.Metrics.Enabled {
+		r.GET("/metrics", metrics.Handler())
+		metrics.Init()
+		go w.startScraping()
+	}
 
 	go func() {
 		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -101,7 +107,7 @@ func (w *worker) listenAndServe() {
 		l.Fatal("os.Kill - terminating...")
 	}()
 
-	gracefullCtx, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	gracefulCtx, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelShutdown()
 
 	if w.cron != nil {
@@ -109,7 +115,7 @@ func (w *worker) listenAndServe() {
 		w.cron.Stop()
 	}
 
-	if err := httpServer.Shutdown(gracefullCtx); err != nil {
+	if err := httpServer.Shutdown(gracefulCtx); err != nil {
 		l.With("error", err).Error("Shutdown error")
 		defer os.Exit(1)
 	} else {

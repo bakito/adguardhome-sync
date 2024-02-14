@@ -90,6 +90,7 @@ func New(config types.AdGuardInstance) (Client, error) {
 type Client interface {
 	Host() string
 	Status() (*model.ServerStatus, error)
+	Stats() (*model.Stats, error)
 	ToggleProtection(enable bool) error
 	RewriteList() (*model.RewriteEntries, error)
 	AddRewriteEntries(e ...model.RewriteEntry) error
@@ -158,6 +159,11 @@ func (cl *client) Status() (*model.ServerStatus, error) {
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(status), "status")
 	cl.version = status.Version
 	return status, err
+}
+func (cl *client) Stats() (*model.Stats, error) {
+	stats := &model.Stats{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "stats")
+	return stats, err
 }
 
 func (cl *client) RewriteList() (*model.RewriteEntries, error) {
