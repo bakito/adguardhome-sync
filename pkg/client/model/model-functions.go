@@ -189,8 +189,7 @@ func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) 
 	current := make(map[string]*Client)
 	if clients.Clients != nil {
 		cc := *clients.Clients
-		for i := range cc {
-			client := cc[i]
+		for _, client := range cc {
 			current[*client.Name] = &client
 		}
 	}
@@ -198,8 +197,7 @@ func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) 
 	expected := make(map[string]*Client)
 	if other.Clients != nil {
 		oc := *other.Clients
-		for i := range oc {
-			client := oc[i]
+		for _, client := range oc {
 			expected[*client.Name] = &client
 		}
 	}
@@ -292,15 +290,13 @@ func MergeFilters(this *[]Filter, other *[]Filter) ([]Filter, []Filter, []Filter
 	var updates []Filter
 	var removes []Filter
 	if this != nil {
-		for i := range *this {
-			fi := (*this)[i]
+		for _, fi := range *this {
 			current[fi.Url] = &fi
 		}
 	}
 
 	if other != nil {
-		for i := range *other {
-			rr := (*other)[i]
+		for _, rr := range *other {
 			if c, ok := current[rr.Url]; ok {
 				if !c.Equals(&rr) {
 					updates = append(updates, rr)
