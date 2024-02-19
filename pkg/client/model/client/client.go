@@ -33,12 +33,11 @@ func New(config types.AdGuardInstance) (Client, error) {
 	}
 	u.Path = path.Clean(u.Path)
 
-	httpClient := &http.Client{}
-	if config.InsecureSkipVerify {
-		// #nosec G402 has to be explicitly enabled
-		httpClient.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			// #nosec G402 has to be explicitly enabled
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: config.InsecureSkipVerify},
+		},
 	}
 
 	aghClient, err := model.NewClient(u.String(), func(client *model.AdguardHomeClient) error {

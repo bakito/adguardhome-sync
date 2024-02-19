@@ -1,5 +1,6 @@
 .vscode
 .idea
+.fleet
 .run
 coverage.out*
 dist
