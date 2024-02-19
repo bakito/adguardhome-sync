@@ -53,10 +53,8 @@ func New(config types.AdGuardInstance) (Client, error) {
 	u.Path = path.Clean(u.Path)
 	cl := resty.New().SetBaseURL(u.String()).SetDisableWarn(true)
 
-	if config.InsecureSkipVerify {
-		// #nosec G402 has to be explicitly enabled
-		cl.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
-	}
+	// #nosec G402 has to be explicitly enabled
+	cl.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: config.InsecureSkipVerify})
 
 	cookieParts := strings.Split(config.Cookie, "=")
 	if len(cookieParts) == 2 {
