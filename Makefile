@@ -30,7 +30,7 @@ release: semver goreleaser
 	$(GORELEASER) --clean
 
 test-release: goreleaser
-	$(GORELEASER) --skip-publish --snapshot --clean
+	$(GORELEASER) --skip=publish --snapshot --clean
 
 ## toolbox - start
 ## Current working directory
@@ -124,10 +124,10 @@ kind-test:
 
 model: oapi-codegen
 	@mkdir -p tmp
-	go run openapi/main.go v0.107.43
+	go run openapi/main.go v0.107.44
 	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
-	go run openapi/main.go v0.107.43
+	go run openapi/main.go v0.107.44
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
