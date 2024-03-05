@@ -5,7 +5,7 @@ metadata:
   name: sync-conf
   namespace: {{ .Release.Namespace }}
 data:
-  API_PORT: '0'
+  API_PORT: '0' # pod needs to terminate
   LOG_FORMAT: json
   ORIGIN_URL: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
   ORIGIN_PASSWORD: 'password'

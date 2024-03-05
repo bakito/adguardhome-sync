@@ -11,7 +11,7 @@ data:
       username: username
       password: password
     api:
-      port: 0
+      port: 0 # pod needs to terminate
     replicas:
       {{- range $i,$version := .Values.replica.versions }}
       - url: 'http://service-replica-{{ $version | toString | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local:3000'
