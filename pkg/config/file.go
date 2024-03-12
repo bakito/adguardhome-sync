@@ -28,7 +28,7 @@ func configFilePath(configFile string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return filepath.Join(home, ".adguardhome-sync"), nil
+		return filepath.Join(home, ".adguardhome-sync.yaml"), nil
 	}
 	return configFile, nil
 }
