@@ -12,3 +12,4 @@ bin
 config*.yaml
 *.log
 wiki
+Taskfile.yml

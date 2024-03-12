@@ -129,8 +129,9 @@ func (w *worker) listenAndServe() {
 }
 
 type syncStatus struct {
-	Origin   replicaStatus   `json:"origin"`
-	Replicas []replicaStatus `json:"replicas"`
+	SyncRunning bool            `json:"syncRunning"`
+	Origin      replicaStatus   `json:"origin"`
+	Replicas    []replicaStatus `json:"replicas"`
 }
 
 type replicaStatus struct {
