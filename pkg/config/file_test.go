@@ -26,7 +26,7 @@ var _ = Describe("Config", func() {
 			result, err := configFilePath("")
 
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(result).Should(Equal(filepath.Join(home, "/.adguardhome-sync")))
+			Ω(result).Should(Equal(filepath.Join(home, "/.adguardhome-sync.yaml")))
 		})
 	})
 })
