@@ -1,6 +1,6 @@
 module github.com/bakito/adguardhome-sync
 
-go 1.21
+go 1.22
 
 require (
 	github.com/bakito/semver v1.1.3
@@ -15,10 +15,12 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/ginkgo/v2 v2.16.0
 	github.com/onsi/gomega v1.31.1
+	github.com/prometheus/client_golang v1.17.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.27.0
+	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc
 	golang.org/x/mod v0.16.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.29.2
@@ -320,7 +322,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.4.8 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
@@ -399,7 +400,6 @@ require (
 	gocloud.dev v0.36.0 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.19.0 // indirect
-	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc // indirect
 	golang.org/x/exp/typeparams v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
@@ -418,7 +418,7 @@ require (
 	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
+	gopkg.in/go-jose/go-jose.v2 v2.6.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect

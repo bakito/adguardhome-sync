@@ -20,6 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup jq
+        uses: dcarbone/install-jq-action@v2
+
       - name: Install kind with registry
         uses: bakito/kind-with-registry-action@main
 
@@ -36,5 +39,7 @@ jobs:
         run: ./testdata/e2e/bin/show-replica-logs.sh
       - name: Show Sync Logs
         run: ./testdata/e2e/bin/show-sync-logs.sh
+      - name: Show Sync Metrics
+        run: ./testdata/e2e/bin/show-sync-metrics.sh
       - name: Read latest replica config
         run: ./testdata/e2e/bin/read-latest-replica-config.sh

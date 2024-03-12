@@ -110,6 +110,8 @@ func (w *worker) status() *syncStatus {
 		return syncStatus.Replicas[i].Host < syncStatus.Replicas[j].Host
 	})
 
+	syncStatus.SyncRunning = w.running
+
 	return syncStatus
 }
 

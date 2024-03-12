@@ -5,8 +5,10 @@ metadata:
   name: sync-conf
   namespace: {{ .Release.Namespace }}
 data:
-  API_PORT: '0'
-  LOG_FORMAT: json
+  API_PORT: '9090'
+  API_METRICS_ENABLED: 'true'
+  API_METRICS_SCRAPE_INTERVAL: '30s'
+  LOG_FORMAT: 'json'
   ORIGIN_URL: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
   ORIGIN_PASSWORD: 'password'
   ORIGIN_USERNAME: 'username'

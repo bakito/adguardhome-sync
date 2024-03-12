@@ -308,6 +308,21 @@ func (mr *MockClientMockRecorder) ProfileInfo() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProfileInfo", reflect.TypeOf((*MockClient)(nil).ProfileInfo))
 }
 
+// QueryLog mocks base method.
+func (m *MockClient) QueryLog(arg0 int) (*model.QueryLog, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueryLog", arg0)
+	ret0, _ := ret[0].(*model.QueryLog)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// QueryLog indicates an expected call of QueryLog.
+func (mr *MockClientMockRecorder) QueryLog(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryLog", reflect.TypeOf((*MockClient)(nil).QueryLog), arg0)
+}
+
 // QueryLogConfig mocks base method.
 func (m *MockClient) QueryLogConfig() (*model.QueryLogConfig, error) {
 	m.ctrl.T.Helper()
@@ -534,6 +549,21 @@ func (m *MockClient) Setup() error {
 func (mr *MockClientMockRecorder) Setup() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Setup", reflect.TypeOf((*MockClient)(nil).Setup))
+}
+
+// Stats mocks base method.
+func (m *MockClient) Stats() (*model.Stats, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Stats")
+	ret0, _ := ret[0].(*model.Stats)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Stats indicates an expected call of Stats.
+func (mr *MockClientMockRecorder) Stats() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stats", reflect.TypeOf((*MockClient)(nil).Stats))
 }
 
 // StatsConfig mocks base method.

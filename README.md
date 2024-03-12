@@ -238,6 +238,12 @@ api:
   # enable api dark mode
   darkMode: true
 
+  # enable metrics on path '/metrics' (api port must be != 0)
+  # metrics:
+    # enabled: true
+    # scrapeInterval: 30s 
+    # queryLogLimit: 10000
+
 # Configure sync features; by default all features are enabled.
 features:
   generalSettings: true
