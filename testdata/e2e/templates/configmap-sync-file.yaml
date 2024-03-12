@@ -11,7 +11,10 @@ data:
       username: username
       password: password
     api:
-      port: 0 # pod needs to terminate
+      port: 9090
+      metrics:
+        enabled: true
+        scrapeInterval: 30s
     replicas:
       {{- range $i,$version := .Values.replica.versions }}
       - url: 'http://service-replica-{{ $version | toString | replace "." "-" }}.{{ $.Release.Namespace }}.svc.cluster.local:3000'
