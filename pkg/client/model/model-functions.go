@@ -401,3 +401,11 @@ func ArrayString(a *[]string) string {
 	sort.Strings(sorted)
 	return fmt.Sprintf("[%s]", strings.Join(sorted, ","))
 }
+
+func (c *DNSConfig) Sanitize() {
+	// disable UsePrivatePtrResolvers if not configured
+	if c.UsePrivatePtrResolvers != nil && *c.UsePrivatePtrResolvers == true &&
+		(c.LocalPtrUpstreams == nil || len(*c.LocalPtrUpstreams) == 0) {
+		c.UsePrivatePtrResolvers = utils.Ptr(false)
+	}
+}
