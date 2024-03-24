@@ -187,10 +187,9 @@ var (
 			return err
 		}
 
-		dc.Sanitize()
+		dc.Sanitize(ac.rl)
 
 		if !dc.Equals(ac.origin.dnsConfig) {
-
 			if err = ac.client.SetDNSConfig(ac.origin.dnsConfig); err != nil {
 				return err
 			}

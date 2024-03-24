@@ -7,6 +7,7 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
+	"go.uber.org/zap"
 )
 
 // Clone the config
@@ -402,10 +403,11 @@ func ArrayString(a *[]string) string {
 	return fmt.Sprintf("[%s]", strings.Join(sorted, ","))
 }
 
-func (c *DNSConfig) Sanitize() {
+func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 	// disable UsePrivatePtrResolvers if not configured
-	if c.UsePrivatePtrResolvers != nil && *c.UsePrivatePtrResolvers == true &&
+	if c.UsePrivatePtrResolvers != nil && *c.UsePrivatePtrResolvers &&
 		(c.LocalPtrUpstreams == nil || len(*c.LocalPtrUpstreams) == 0) {
+		l.Warn("disabling replica 'Use private reverse DNS resolvers' as no 'Private reverse DNS servers' are configured on origin")
 		c.UsePrivatePtrResolvers = utils.Ptr(false)
 	}
 }
