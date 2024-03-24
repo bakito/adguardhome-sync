@@ -1,9 +1,11 @@
 package model
 
 import (
+	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"go.uber.org/zap"
 )
 
 var _ = Describe("Types", func() {
@@ -70,5 +72,32 @@ var _ = Describe("Types", func() {
 			Entry(`When SubnetMask is nil`, DhcpConfigV6{RangeStart: nil}),
 			Entry(`When SubnetMask is ""`, DhcpConfigV6{RangeStart: utils.Ptr("")}),
 		)
+	})
+	Context("DNSConfig", func() {
+		var (
+			cfg *DNSConfig
+			l   *zap.SugaredLogger
+		)
+
+		BeforeEach(func() {
+			cfg = &DNSConfig{
+				UsePrivatePtrResolvers: utils.Ptr(true),
+			}
+			l = log.GetLogger("test")
+		})
+		Context("Sanitize", func() {
+			It("should disable UsePrivatePtrResolvers resolvers is nil ", func() {
+				cfg.LocalPtrUpstreams = nil
+				cfg.Sanitize(l)
+				gomega.Ω(cfg.UsePrivatePtrResolvers).ShouldNot(gomega.BeNil())
+				gomega.Ω(*cfg.UsePrivatePtrResolvers).Should(gomega.Equal(false))
+			})
+			It("should disable UsePrivatePtrResolvers resolvers is empty ", func() {
+				cfg.LocalPtrUpstreams = utils.Ptr([]string{})
+				cfg.Sanitize(l)
+				gomega.Ω(cfg.UsePrivatePtrResolvers).ShouldNot(gomega.BeNil())
+				gomega.Ω(*cfg.UsePrivatePtrResolvers).Should(gomega.Equal(false))
+			})
+		})
 	})
 })
