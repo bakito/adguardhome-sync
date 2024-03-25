@@ -13,8 +13,8 @@ require (
 	github.com/goreleaser/goreleaser v1.24.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/onsi/ginkgo/v2 v2.16.0
-	github.com/onsi/gomega v1.31.1
+	github.com/onsi/ginkgo/v2 v2.17.1
+	github.com/onsi/gomega v1.32.0
 	github.com/prometheus/client_golang v1.19.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.0
