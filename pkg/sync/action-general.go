@@ -63,7 +63,7 @@ var (
 		if err != nil {
 			return err
 		}
-		if ac.origin.statsConfig.Interval != sc.Interval {
+		if !sc.Equals(ac.origin.statsConfig) {
 			return ac.client.SetStatsConfig(ac.origin.statsConfig)
 		}
 		return nil
@@ -111,17 +111,6 @@ var (
 		return nil
 	}
 
-	actionBlockedServices = func(ac *actionContext) error {
-		rs, err := ac.client.BlockedServices()
-		if err != nil {
-			return err
-		}
-
-		if !model.EqualsStringSlice(ac.origin.blockedServices, rs, true) {
-			return ac.client.SetBlockedServices(ac.origin.blockedServices)
-		}
-		return nil
-	}
 	actionBlockedServicesSchedule = func(ac *actionContext) error {
 		rbss, err := ac.client.BlockedServicesSchedule()
 		if err != nil {

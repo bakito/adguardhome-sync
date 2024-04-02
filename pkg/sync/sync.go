@@ -201,12 +201,6 @@ func (w *worker) sync() {
 		return
 	}
 
-	o.blockedServices, err = oc.BlockedServices()
-	if err != nil {
-		sl.With("error", err).Error("Error getting origin blocked services")
-		return
-	}
-
 	o.blockedServicesSchedule, err = oc.BlockedServicesSchedule()
 	if err != nil {
 		sl.With("error", err).Error("Error getting origin blocked services schedule")
@@ -327,12 +321,11 @@ func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardIns
 type origin struct {
 	status                  *model.ServerStatus
 	rewrites                *model.RewriteEntries
-	blockedServices         *model.BlockedServicesArray
 	blockedServicesSchedule *model.BlockedServicesSchedule
 	filters                 *model.FilterStatus
 	clients                 *model.Clients
-	queryLogConfig          *model.QueryLogConfig
-	statsConfig             *model.StatsConfig
+	queryLogConfig          *model.QueryLogConfigWithIgnored
+	statsConfig             *model.GetStatsConfigResponse
 	accessList              *model.AccessList
 	dnsConfig               *model.DNSConfig
 	dhcpServerConfig        *model.DhcpStatus

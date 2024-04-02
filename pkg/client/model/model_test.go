@@ -115,12 +115,12 @@ var _ = Describe("Types", func() {
 	Context("QueryLogConfig", func() {
 		Context("Equal", func() {
 			var (
-				a *model.QueryLogConfig
-				b *model.QueryLogConfig
+				a *model.QueryLogConfigWithIgnored
+				b *model.QueryLogConfigWithIgnored
 			)
 			BeforeEach(func() {
-				a = &model.QueryLogConfig{}
-				b = &model.QueryLogConfig{}
+				a = &model.QueryLogConfigWithIgnored{}
+				b = &model.QueryLogConfigWithIgnored{}
 			})
 			It("should be equal", func() {
 				a.Enabled = utils.Ptr(true)

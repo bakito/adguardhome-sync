@@ -109,18 +109,16 @@ type Client interface {
 	SetSafeSearchConfig(settings *model.SafeSearchConfig) error
 	ProfileInfo() (*model.ProfileInfo, error)
 	SetProfileInfo(settings *model.ProfileInfo) error
-	BlockedServices() (*model.BlockedServicesArray, error)
 	BlockedServicesSchedule() (*model.BlockedServicesSchedule, error)
-	SetBlockedServices(services *model.BlockedServicesArray) error
 	SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error
 	Clients() (*model.Clients, error)
 	AddClient(client *model.Client) error
 	UpdateClient(client *model.Client) error
 	DeleteClient(client *model.Client) error
-	QueryLogConfig() (*model.QueryLogConfig, error)
-	SetQueryLogConfig(*model.QueryLogConfig) error
-	StatsConfig() (*model.StatsConfig, error)
-	SetStatsConfig(sc *model.StatsConfig) error
+	QueryLogConfig() (*model.QueryLogConfigWithIgnored, error)
+	SetQueryLogConfig(*model.QueryLogConfigWithIgnored) error
+	StatsConfig() (*model.GetStatsConfigResponse, error)
+	SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error
 	Setup() error
 	AccessList() (*model.AccessList, error)
 	SetAccessList(*model.AccessList) error
@@ -287,17 +285,6 @@ func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	}), "/filtering/config")
 }
 
-func (cl *client) BlockedServices() (*model.BlockedServicesArray, error) {
-	svcs := &model.BlockedServicesArray{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(svcs), "/blocked_services/list")
-	return svcs, err
-}
-
-func (cl *client) SetBlockedServices(services *model.BlockedServicesArray) error {
-	cl.log.With("services", model.ArrayString(services)).Info("Set blocked services")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(services), "/blocked_services/set")
-}
-
 func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, error) {
 	sched := &model.BlockedServicesSchedule{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(sched), "/blocked_services/get")
@@ -330,26 +317,26 @@ func (cl *client) DeleteClient(client *model.Client) error {
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/delete")
 }
 
-func (cl *client) QueryLogConfig() (*model.QueryLogConfig, error) {
-	qlc := &model.QueryLogConfig{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(qlc), "/querylog_info")
+func (cl *client) QueryLogConfig() (*model.QueryLogConfigWithIgnored, error) {
+	qlc := &model.QueryLogConfigWithIgnored{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(qlc), "/querylog/config")
 	return qlc, err
 }
 
-func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfig) error {
+func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfigWithIgnored) error {
 	cl.log.With("enabled", *qlc.Enabled, "interval", *qlc.Interval, "anonymizeClientIP", *qlc.AnonymizeClientIp).Info("Set query log config")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(qlc), "/querylog_config")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(qlc), "/querylog/config/update")
 }
 
-func (cl *client) StatsConfig() (*model.StatsConfig, error) {
-	stats := &model.StatsConfig{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats_info")
+func (cl *client) StatsConfig() (*model.GetStatsConfigResponse, error) {
+	stats := &model.GetStatsConfigResponse{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats/config")
 	return stats, err
 }
 
-func (cl *client) SetStatsConfig(sc *model.StatsConfig) error {
-	cl.log.With("interval", *sc.Interval).Info("Set stats config")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(sc), "/stats_config")
+func (cl *client) SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error {
+	cl.log.With("interval", sc.Interval).Info("Set stats config")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(sc), "/stats/config/update")
 }
 
 func (cl *client) Setup() error {

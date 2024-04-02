@@ -321,11 +321,16 @@ func (f *Filter) Equals(o *Filter) bool {
 	return f.Enabled == o.Enabled && f.Url == o.Url && f.Name == o.Name
 }
 
+type QueryLogConfigWithIgnored struct {
+	QueryLogConfig
+
+	// Ignored List of host names, which should not be written to log
+	Ignored []string `json:"ignored,omitempty"`
+}
+
 // Equals QueryLogConfig equal check
-func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
-	return ptrEquals(qlc.Enabled, o.Enabled) &&
-		ptrEquals(qlc.AnonymizeClientIp, o.AnonymizeClientIp) &&
-		qlc.Interval.Equals(o.Interval)
+func (qlc *QueryLogConfigWithIgnored) Equals(o *QueryLogConfigWithIgnored) bool {
+	return utils.JsonEquals(qlc, o)
 }
 
 // Equals QueryLogConfigInterval equal check
@@ -410,4 +415,9 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 		l.Warn("disabling replica 'Use private reverse DNS resolvers' as no 'Private reverse DNS servers' are configured on origin")
 		c.UsePrivatePtrResolvers = utils.Ptr(false)
 	}
+}
+
+// Equals GetStatsConfigResponse equal check
+func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
+	return utils.JsonEquals(sc, o)
 }

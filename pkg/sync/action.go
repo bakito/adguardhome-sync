@@ -39,7 +39,6 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 	}
 	if cfg.Features.Services {
 		actions = append(actions,
-			action("blocked services", actionBlockedServices),
 			action("blocked services schedule", actionBlockedServicesSchedule),
 		)
 	}

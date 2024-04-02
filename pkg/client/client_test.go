@@ -239,20 +239,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Context("BlockedServices", func() {
-		It("should read BlockedServices", func() {
-			ts, cl = ClientGet("blockedservices-list.json", "/blocked_services/list")
-			s, err := cl.BlockedServices()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(*s).Should(HaveLen(2))
-		})
-		It("should set BlockedServices", func() {
-			ts, cl = ClientPost("/blocked_services/set", `["bar","foo"]`)
-			err := cl.SetBlockedServices(&model.BlockedServicesArray{"foo", "bar"})
-			Ω(err).ShouldNot(HaveOccurred())
-		})
-	})
-
 	Context("BlockedServicesSchedule", func() {
 		It("should read BlockedServicesSchedule", func() {
 			ts, cl = ClientGet("blockedservicesschedule-get.json", "/blocked_services/get")
@@ -308,7 +294,7 @@ var _ = Describe("Client", func() {
 
 	Context("QueryLogConfig", func() {
 		It("should read QueryLogConfig", func() {
-			ts, cl = ClientGet("querylog_info.json", "/querylog_info")
+			ts, cl = ClientGet("querylog_config.json", "/querylog/config")
 			qlc, err := cl.QueryLogConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(qlc.Enabled).ShouldNot(BeNil())
@@ -317,26 +303,33 @@ var _ = Describe("Client", func() {
 			Ω(*qlc.Interval).Should(Equal(model.QueryLogConfigInterval(90)))
 		})
 		It("should set QueryLogConfig", func() {
-			ts, cl = ClientPost("/querylog_config", `{"anonymize_client_ip":true,"enabled":true,"interval":123}`)
+			ts, cl = ClientPut("/querylog/config/update", `{"anonymize_client_ip":true,"enabled":true,"interval":123,"ignored":["foo.bar"]}`)
 
 			var interval model.QueryLogConfigInterval = 123
-			err := cl.SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: utils.Ptr(true), Interval: &interval, Enabled: utils.Ptr(true)})
+			err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{
+				QueryLogConfig: model.QueryLogConfig{
+					AnonymizeClientIp: utils.Ptr(true),
+					Interval:          &interval,
+					Enabled:           utils.Ptr(true),
+				},
+				Ignored: []string{"foo.bar"},
+			})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
 	Context("StatsConfig", func() {
 		It("should read StatsConfig", func() {
-			ts, cl = ClientGet("stats_info.json", "/stats_info")
+			ts, cl = ClientGet("stats_info.json", "/stats/config")
 			sc, err := cl.StatsConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(sc.Interval).ShouldNot(BeNil())
-			Ω(*sc.Interval).Should(Equal(model.StatsConfigInterval(1)))
+			Ω(sc.Interval).Should(Equal(float32(1)))
 		})
 		It("should set StatsConfig", func() {
-			ts, cl = ClientPost("/stats_config", `{"interval":123}`)
+			ts, cl = ClientPost("/stats/config/update", `{"enabled":false,"ignored":null,"interval":123}`)
 
-			var interval model.StatsConfigInterval = 123
-			err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
+			var interval float32 = 123
+			err := cl.SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -361,8 +354,8 @@ var _ = Describe("Client", func() {
 
 		Context("doPost", func() {
 			It("should return an error on status code != 200", func() {
-				var interval model.StatsConfigInterval = 123
-				err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
+				var interval float32 = 123
+				err := cl.SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(Equal("401 Unauthorized"))
 			})

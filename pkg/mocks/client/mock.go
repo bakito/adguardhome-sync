@@ -114,21 +114,6 @@ func (mr *MockClientMockRecorder) AddRewriteEntries(arg0 ...any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRewriteEntries", reflect.TypeOf((*MockClient)(nil).AddRewriteEntries), arg0...)
 }
 
-// BlockedServices mocks base method.
-func (m *MockClient) BlockedServices() (*[]string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BlockedServices")
-	ret0, _ := ret[0].(*[]string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// BlockedServices indicates an expected call of BlockedServices.
-func (mr *MockClientMockRecorder) BlockedServices() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockedServices", reflect.TypeOf((*MockClient)(nil).BlockedServices))
-}
-
 // BlockedServicesSchedule mocks base method.
 func (m *MockClient) BlockedServicesSchedule() (*model.BlockedServicesSchedule, error) {
 	m.ctrl.T.Helper()
@@ -324,10 +309,10 @@ func (mr *MockClientMockRecorder) QueryLog(arg0 any) *gomock.Call {
 }
 
 // QueryLogConfig mocks base method.
-func (m *MockClient) QueryLogConfig() (*model.QueryLogConfig, error) {
+func (m *MockClient) QueryLogConfig() (*model.QueryLogConfigWithIgnored, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueryLogConfig")
-	ret0, _ := ret[0].(*model.QueryLogConfig)
+	ret0, _ := ret[0].(*model.QueryLogConfigWithIgnored)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -411,20 +396,6 @@ func (mr *MockClientMockRecorder) SetAccessList(arg0 any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessList", reflect.TypeOf((*MockClient)(nil).SetAccessList), arg0)
 }
 
-// SetBlockedServices mocks base method.
-func (m *MockClient) SetBlockedServices(arg0 *[]string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetBlockedServices", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetBlockedServices indicates an expected call of SetBlockedServices.
-func (mr *MockClientMockRecorder) SetBlockedServices(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetBlockedServices", reflect.TypeOf((*MockClient)(nil).SetBlockedServices), arg0)
-}
-
 // SetBlockedServicesSchedule mocks base method.
 func (m *MockClient) SetBlockedServicesSchedule(arg0 *model.BlockedServicesSchedule) error {
 	m.ctrl.T.Helper()
@@ -496,7 +467,7 @@ func (mr *MockClientMockRecorder) SetProfileInfo(arg0 any) *gomock.Call {
 }
 
 // SetQueryLogConfig mocks base method.
-func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfig) error {
+func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfigWithIgnored) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0)
 	ret0, _ := ret[0].(error)
@@ -524,7 +495,7 @@ func (mr *MockClientMockRecorder) SetSafeSearchConfig(arg0 any) *gomock.Call {
 }
 
 // SetStatsConfig mocks base method.
-func (m *MockClient) SetStatsConfig(arg0 *model.StatsConfig) error {
+func (m *MockClient) SetStatsConfig(arg0 *model.GetStatsConfigResponse) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatsConfig", arg0)
 	ret0, _ := ret[0].(error)
@@ -567,10 +538,10 @@ func (mr *MockClientMockRecorder) Stats() *gomock.Call {
 }
 
 // StatsConfig mocks base method.
-func (m *MockClient) StatsConfig() (*model.StatsConfig, error) {
+func (m *MockClient) StatsConfig() (*model.GetStatsConfigResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StatsConfig")
-	ret0, _ := ret[0].(*model.StatsConfig)
+	ret0, _ := ret[0].(*model.GetStatsConfigResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
