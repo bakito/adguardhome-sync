@@ -117,8 +117,8 @@ type Client interface {
 	DeleteClient(client *model.Client) error
 	QueryLogConfig() (*model.QueryLogConfigWithIgnored, error)
 	SetQueryLogConfig(*model.QueryLogConfigWithIgnored) error
-	StatsConfig() (*model.StatsConfig, error)
-	SetStatsConfig(sc *model.StatsConfig) error
+	StatsConfig() (*model.GetStatsConfigResponse, error)
+	SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error
 	Setup() error
 	AccessList() (*model.AccessList, error)
 	SetAccessList(*model.AccessList) error
@@ -328,14 +328,14 @@ func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfigWithIgnored) error 
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(qlc), "/querylog/config/update")
 }
 
-func (cl *client) StatsConfig() (*model.StatsConfig, error) {
-	stats := &model.StatsConfig{}
+func (cl *client) StatsConfig() (*model.GetStatsConfigResponse, error) {
+	stats := &model.GetStatsConfigResponse{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats/config")
 	return stats, err
 }
 
-func (cl *client) SetStatsConfig(sc *model.StatsConfig) error {
-	cl.log.With("interval", *sc.Interval).Info("Set stats config")
+func (cl *client) SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error {
+	cl.log.With("interval", sc.Interval).Info("Set stats config")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(sc), "/stats/config/update")
 }
 

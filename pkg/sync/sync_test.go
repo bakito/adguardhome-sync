@@ -68,7 +68,7 @@ var _ = Describe("Sync", func() {
 				status:         &model.ServerStatus{},
 				safeSearch:     &model.SafeSearchConfig{},
 				queryLogConfig: &model.QueryLogConfigWithIgnored{},
-				statsConfig:    &model.StatsConfig{},
+				statsConfig:    &model.PutStatsConfigUpdateRequest{},
 			},
 			replicaStatus: &model.ServerStatus{},
 			client:        cl,
@@ -308,9 +308,9 @@ var _ = Describe("Sync", func() {
 			})
 		})
 		Context("syncConfigs", func() {
-			var sc *model.StatsConfig
+			var sc *model.PutStatsConfigUpdateRequest
 			BeforeEach(func() {
-				sc = &model.StatsConfig{}
+				sc = &model.PutStatsConfigUpdateRequest{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().StatsConfig().Return(sc, nil)
@@ -318,10 +318,10 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have StatsConfig changes", func() {
-				var interval model.StatsConfigInterval = 123
-				ac.origin.statsConfig.Interval = &interval
+				var interval float32 = 123
+				ac.origin.statsConfig.Interval = interval
 				cl.EXPECT().StatsConfig().Return(sc, nil)
-				cl.EXPECT().SetStatsConfig(&model.StatsConfig{Interval: &interval})
+				cl.EXPECT().SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
 				err := actionStatsConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -583,7 +583,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
@@ -596,7 +596,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
@@ -623,7 +623,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 
@@ -635,7 +635,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
 				cl.EXPECT().DeleteRewriteEntries()
@@ -665,7 +665,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
+				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)

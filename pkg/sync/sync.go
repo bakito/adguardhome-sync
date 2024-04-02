@@ -325,7 +325,7 @@ type origin struct {
 	filters                 *model.FilterStatus
 	clients                 *model.Clients
 	queryLogConfig          *model.QueryLogConfigWithIgnored
-	statsConfig             *model.StatsConfig
+	statsConfig             *model.GetStatsConfigResponse
 	accessList              *model.AccessList
 	dnsConfig               *model.DNSConfig
 	dhcpServerConfig        *model.DhcpStatus

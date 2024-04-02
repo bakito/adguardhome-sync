@@ -323,13 +323,13 @@ var _ = Describe("Client", func() {
 			sc, err := cl.StatsConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(sc.Interval).ShouldNot(BeNil())
-			Ω(*sc.Interval).Should(Equal(model.StatsConfigInterval(1)))
+			Ω(sc.Interval).Should(Equal(float32(1)))
 		})
 		It("should set StatsConfig", func() {
-			ts, cl = ClientPost("/stats/config/update", `{"interval":123}`)
+			ts, cl = ClientPost("/stats/config/update", `{"enabled":false,"ignored":null,"interval":123}`)
 
-			var interval model.StatsConfigInterval = 123
-			err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
+			var interval float32 = 123
+			err := cl.SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -354,8 +354,8 @@ var _ = Describe("Client", func() {
 
 		Context("doPost", func() {
 			It("should return an error on status code != 200", func() {
-				var interval model.StatsConfigInterval = 123
-				err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
+				var interval float32 = 123
+				err := cl.SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(Equal("401 Unauthorized"))
 			})
