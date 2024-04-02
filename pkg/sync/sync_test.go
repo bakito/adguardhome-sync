@@ -67,7 +67,7 @@ var _ = Describe("Sync", func() {
 				},
 				status:         &model.ServerStatus{},
 				safeSearch:     &model.SafeSearchConfig{},
-				queryLogConfig: &model.QueryLogConfig{},
+				queryLogConfig: &model.QueryLogConfigWithIgnored{},
 				statsConfig:    &model.StatsConfig{},
 			},
 			replicaStatus: &model.ServerStatus{},
@@ -289,9 +289,9 @@ var _ = Describe("Sync", func() {
 			})
 		})
 		Context("actionQueryLogConfig", func() {
-			var qlc *model.QueryLogConfig
+			var qlc *model.QueryLogConfigWithIgnored
 			BeforeEach(func() {
-				qlc = &model.QueryLogConfig{}
+				qlc = &model.QueryLogConfigWithIgnored{}
 			})
 			It("should have no changes", func() {
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
@@ -302,7 +302,7 @@ var _ = Describe("Sync", func() {
 				var interval model.QueryLogConfigInterval = 123
 				ac.origin.queryLogConfig.Interval = &interval
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
-				cl.EXPECT().SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil})
+				cl.EXPECT().SetQueryLogConfig(&model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil}})
 				err := actionQueryLogConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -603,7 +603,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
@@ -616,7 +616,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
@@ -645,7 +645,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
@@ -657,7 +657,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Parental()
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
 				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
 				cl.EXPECT().AddRewriteEntries()
@@ -689,7 +689,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().BlockedServicesSchedule()
 				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfig{}, nil)
+				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				cl.EXPECT().StatsConfig().Return(&model.StatsConfig{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)

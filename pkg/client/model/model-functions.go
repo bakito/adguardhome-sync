@@ -8,6 +8,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 )
 
 // Clone the config
@@ -321,11 +322,19 @@ func (f *Filter) Equals(o *Filter) bool {
 	return f.Enabled == o.Enabled && f.Url == o.Url && f.Name == o.Name
 }
 
+type QueryLogConfigWithIgnored struct {
+	QueryLogConfig
+
+	// Ignored List of host names, which should not be written to log
+	Ignored []string `json:"ignored,omitempty"`
+}
+
 // Equals QueryLogConfig equal check
-func (qlc *QueryLogConfig) Equals(o *QueryLogConfig) bool {
+func (qlc *QueryLogConfigWithIgnored) Equals(o *QueryLogConfigWithIgnored) bool {
 	return ptrEquals(qlc.Enabled, o.Enabled) &&
 		ptrEquals(qlc.AnonymizeClientIp, o.AnonymizeClientIp) &&
-		qlc.Interval.Equals(o.Interval)
+		qlc.Interval.Equals(o.Interval) &&
+		slices.Equal(qlc.Ignored, o.Ignored)
 }
 
 // Equals QueryLogConfigInterval equal check

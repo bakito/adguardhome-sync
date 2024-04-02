@@ -308,7 +308,7 @@ var _ = Describe("Client", func() {
 
 	Context("QueryLogConfig", func() {
 		It("should read QueryLogConfig", func() {
-			ts, cl = ClientGet("querylog_info.json", "/querylog_info")
+			ts, cl = ClientGet("querylog_config.json", "/querylog/config")
 			qlc, err := cl.QueryLogConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(qlc.Enabled).ShouldNot(BeNil())
@@ -317,10 +317,17 @@ var _ = Describe("Client", func() {
 			Ω(*qlc.Interval).Should(Equal(model.QueryLogConfigInterval(90)))
 		})
 		It("should set QueryLogConfig", func() {
-			ts, cl = ClientPost("/querylog_config", `{"anonymize_client_ip":true,"enabled":true,"interval":123}`)
+			ts, cl = ClientPut("/querylog/config/update", `{"anonymize_client_ip":true,"enabled":true,"interval":123,"ignored":["foo.bar"]}`)
 
 			var interval model.QueryLogConfigInterval = 123
-			err := cl.SetQueryLogConfig(&model.QueryLogConfig{AnonymizeClientIp: utils.Ptr(true), Interval: &interval, Enabled: utils.Ptr(true)})
+			err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{
+				QueryLogConfig: model.QueryLogConfig{
+					AnonymizeClientIp: utils.Ptr(true),
+					Interval:          &interval,
+					Enabled:           utils.Ptr(true),
+				},
+				Ignored: []string{"foo.bar"},
+			})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
