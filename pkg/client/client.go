@@ -109,9 +109,7 @@ type Client interface {
 	SetSafeSearchConfig(settings *model.SafeSearchConfig) error
 	ProfileInfo() (*model.ProfileInfo, error)
 	SetProfileInfo(settings *model.ProfileInfo) error
-	BlockedServices() (*model.BlockedServicesArray, error)
 	BlockedServicesSchedule() (*model.BlockedServicesSchedule, error)
-	SetBlockedServices(services *model.BlockedServicesArray) error
 	SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error
 	Clients() (*model.Clients, error)
 	AddClient(client *model.Client) error
@@ -287,17 +285,6 @@ func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	}), "/filtering/config")
 }
 
-func (cl *client) BlockedServices() (*model.BlockedServicesArray, error) {
-	svcs := &model.BlockedServicesArray{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(svcs), "/blocked_services/list")
-	return svcs, err
-}
-
-func (cl *client) SetBlockedServices(services *model.BlockedServicesArray) error {
-	cl.log.With("services", model.ArrayString(services)).Info("Set blocked services")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(services), "/blocked_services/set")
-}
-
 func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, error) {
 	sched := &model.BlockedServicesSchedule{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(sched), "/blocked_services/get")
@@ -343,13 +330,13 @@ func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfigWithIgnored) error 
 
 func (cl *client) StatsConfig() (*model.StatsConfig, error) {
 	stats := &model.StatsConfig{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats_info")
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(stats), "/stats/config")
 	return stats, err
 }
 
 func (cl *client) SetStatsConfig(sc *model.StatsConfig) error {
 	cl.log.With("interval", *sc.Interval).Info("Set stats config")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(sc), "/stats_config")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(sc), "/stats/config/update")
 }
 
 func (cl *client) Setup() error {

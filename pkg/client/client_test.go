@@ -239,20 +239,6 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Context("BlockedServices", func() {
-		It("should read BlockedServices", func() {
-			ts, cl = ClientGet("blockedservices-list.json", "/blocked_services/list")
-			s, err := cl.BlockedServices()
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(*s).Should(HaveLen(2))
-		})
-		It("should set BlockedServices", func() {
-			ts, cl = ClientPost("/blocked_services/set", `["bar","foo"]`)
-			err := cl.SetBlockedServices(&model.BlockedServicesArray{"foo", "bar"})
-			Ω(err).ShouldNot(HaveOccurred())
-		})
-	})
-
 	Context("BlockedServicesSchedule", func() {
 		It("should read BlockedServicesSchedule", func() {
 			ts, cl = ClientGet("blockedservicesschedule-get.json", "/blocked_services/get")
@@ -333,14 +319,14 @@ var _ = Describe("Client", func() {
 	})
 	Context("StatsConfig", func() {
 		It("should read StatsConfig", func() {
-			ts, cl = ClientGet("stats_info.json", "/stats_info")
+			ts, cl = ClientGet("stats_info.json", "/stats/config")
 			sc, err := cl.StatsConfig()
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(sc.Interval).ShouldNot(BeNil())
 			Ω(*sc.Interval).Should(Equal(model.StatsConfigInterval(1)))
 		})
 		It("should set StatsConfig", func() {
-			ts, cl = ClientPost("/stats_config", `{"interval":123}`)
+			ts, cl = ClientPost("/stats/config/update", `{"interval":123}`)
 
 			var interval model.StatsConfigInterval = 123
 			err := cl.SetStatsConfig(&model.StatsConfig{Interval: &interval})
