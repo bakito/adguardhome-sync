@@ -63,7 +63,7 @@ var (
 		if err != nil {
 			return err
 		}
-		if ac.origin.statsConfig.Interval != sc.Interval {
+		if !sc.Equals(ac.origin.statsConfig) {
 			return ac.client.SetStatsConfig(ac.origin.statsConfig)
 		}
 		return nil

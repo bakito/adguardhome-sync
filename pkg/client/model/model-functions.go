@@ -8,7 +8,6 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
-	"golang.org/x/exp/slices"
 )
 
 // Clone the config
@@ -331,10 +330,7 @@ type QueryLogConfigWithIgnored struct {
 
 // Equals QueryLogConfig equal check
 func (qlc *QueryLogConfigWithIgnored) Equals(o *QueryLogConfigWithIgnored) bool {
-	return ptrEquals(qlc.Enabled, o.Enabled) &&
-		ptrEquals(qlc.AnonymizeClientIp, o.AnonymizeClientIp) &&
-		qlc.Interval.Equals(o.Interval) &&
-		slices.Equal(qlc.Ignored, o.Ignored)
+	return utils.JsonEquals(qlc, o)
 }
 
 // Equals QueryLogConfigInterval equal check
@@ -419,4 +415,9 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 		l.Warn("disabling replica 'Use private reverse DNS resolvers' as no 'Private reverse DNS servers' are configured on origin")
 		c.UsePrivatePtrResolvers = utils.Ptr(false)
 	}
+}
+
+// Equals GetStatsConfigResponse equal check
+func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
+	return utils.JsonEquals(sc, o)
 }
