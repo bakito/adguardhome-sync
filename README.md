@@ -173,6 +173,12 @@ services:
       # API_DARK_MODE: true
       # API_USERNAME: admin
       # API_PASSWORD: secret
+      # the directory of the provided tls certs
+      # API_TLS_CERT_DIR: /path/to/certs
+      # the name of the cert file (default: tls.crt)
+      # API_TLS_CERT_NAME: foo.crt
+      # the name of the key file (default: tls.key)
+      # API_TLS_KEY_NAME: bar.key
 
       # Configure sync features; by default all features are enabled.
       # FEATURES_GENERAL_SETTINGS: true
@@ -243,6 +249,15 @@ api:
     # enabled: true
     # scrapeInterval: 30s 
     # queryLogLimit: 10000
+
+  # enable tls for the api server
+  # tls:
+  #   # the directory of the provided tls certs
+  #   certDir: /path/to/certs
+  #   # the name of the cert file (default: tls.crt)
+  #   certName: foo.crt
+  #   # the name of the key file (default: tls.key)
+  #   keyName: bar.key
 
 # Configure sync features; by default all features are enabled.
 features:

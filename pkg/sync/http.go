@@ -85,7 +85,14 @@ func (w *worker) listenAndServe() {
 	}
 
 	go func() {
-		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		var err error
+		if w.cfg.API.TLS.CertDir != "" {
+			err = httpServer.ListenAndServeTLS(w.cfg.API.TLS.Certs())
+		} else {
+			err = httpServer.ListenAndServe()
+		}
+
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.With("error", err).Fatalf("HTTP server ListenAndServe")
 		}
 	}()
