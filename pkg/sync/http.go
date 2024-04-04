@@ -55,7 +55,12 @@ func (w *worker) handleStatus(c *gin.Context) {
 }
 
 func (w *worker) listenAndServe() {
-	l.With("port", w.cfg.API.Port).Info("Starting API server")
+	sl := l.With("port", w.cfg.API.Port)
+	if w.cfg.API.TLS.Enabled() {
+		c, k := w.cfg.API.TLS.Certs()
+		sl = sl.With("tls-cert", c).With("tls-key", c)
+	}
+	sl.Info("Starting API server")
 
 	ctx, cancel := context.WithCancel(context.Background())
 
