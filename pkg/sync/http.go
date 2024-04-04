@@ -86,7 +86,7 @@ func (w *worker) listenAndServe() {
 
 	go func() {
 		var err error
-		if w.cfg.API.TLS.CertDir != "" {
+		if w.cfg.API.TLS.Enabled() {
 			err = httpServer.ListenAndServeTLS(w.cfg.API.TLS.Certs())
 		} else {
 			err = httpServer.ListenAndServe()

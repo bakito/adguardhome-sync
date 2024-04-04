@@ -53,18 +53,21 @@ type TLS struct {
 	KeyName  string `json:"keyName,omitempty" yaml:"keyName,omitempty" env:"API_TLS_KEY_NAME"`
 }
 
+func (t TLS) Enabled() bool {
+	return strings.TrimSpace(t.CertDir) != ""
+}
+
 func (t TLS) Certs() (cert string, key string) {
-	c := "tls.crt"
-	if t.CertName != "" {
-		c = t.CertName
-	}
-	cert = filepath.Join(t.CertDir, c)
-	k := "tls.key"
-	if t.KeyName != "" {
-		k = t.KeyName
-	}
-	key = filepath.Join(t.CertDir, k)
+	cert = filepath.Join(t.CertDir, defaultIfEmpty(t.CertName, "tls.crt"))
+	key = filepath.Join(t.CertDir, defaultIfEmpty(t.KeyName, "tls.key"))
 	return
+}
+
+func defaultIfEmpty(val string, fallback string) string {
+	if strings.TrimSpace(val) == "" {
+		return fallback
+	}
+	return val
 }
 
 // Mask maks username and password
