@@ -15,7 +15,9 @@ jobs:
       matrix:
         build:
           - mode: env
+            protocol: https
           - mode: file
+            protocol: http
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +34,7 @@ jobs:
       - name: Install Helm Chart
         run: ./testdata/e2e/bin/install-chart.sh ${{ matrix.build.mode }}
       - name: Wait for sync to finish
-        run: ./testdata/e2e/bin/wait-for-sync.sh
+        run: ./testdata/e2e/bin/wait-for-sync.sh ${{ matrix.build.protocol }}
       - name: Show origin Logs
         run: ./testdata/e2e/bin/show-origin-logs.sh
       - name: Show Replica Logs
@@ -40,6 +42,6 @@ jobs:
       - name: Show Sync Logs
         run: ./testdata/e2e/bin/show-sync-logs.sh
       - name: Show Sync Metrics
-        run: ./testdata/e2e/bin/show-sync-metrics.sh
+        run: ./testdata/e2e/bin/show-sync-metrics.sh ${{ matrix.build.protocol }}
       - name: Read latest replica config
         run: ./testdata/e2e/bin/read-latest-replica-config.sh
