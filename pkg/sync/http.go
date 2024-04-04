@@ -58,7 +58,7 @@ func (w *worker) listenAndServe() {
 	sl := l.With("port", w.cfg.API.Port)
 	if w.cfg.API.TLS.Enabled() {
 		c, k := w.cfg.API.TLS.Certs()
-		sl = sl.With("tls-cert", c).With("tls-key", c)
+		sl = sl.With("tls-cert", c).With("tls-key", k)
 	}
 	sl.Info("Starting API server")
 
