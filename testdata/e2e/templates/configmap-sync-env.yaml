@@ -8,9 +8,9 @@ data:
   API_PORT: '9090'
   API_METRICS_ENABLED: 'true'
   API_METRICS_SCRAPE_INTERVAL: '30s'
-  API_TLS_CERT_DIR: /certs
-  API_TLS_CERT_NAME: my.crt
-  API_TLS_KEY_NAME: my.key
+  API_TLS_CERT_DIR: '/certs'
+  API_TLS_CERT_NAME: 'my.crt'
+  API_TLS_KEY_NAME: 'my.key'
   LOG_FORMAT: 'json'
   ORIGIN_URL: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
   ORIGIN_PASSWORD: 'password'

@@ -35,6 +35,7 @@ data:
     MzO/8HyfNoa2RUTnJHdyduAT7VytyJSSRmfeapw9ITngZHGmpPhisKhxb6IoZm0J
     j10kyQuFfNcZKlNa3D7XFvqzWQ==
     -----END CERTIFICATE-----
+
   my.key: |
     -----BEGIN PRIVATE KEY-----
     MIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCenHJ0SunHqdtB
@@ -82,10 +83,11 @@ data:
     CatUuiiZTkb2kizdWwet7stT2jaLS4Gyd/xPIS0jJ5JaLpHE3XMMsSR4U83X8z5M
     /HgpI5bEemEQKDAZJ/7/jh5oTDaGx8afGfSn8yyhn9oXqonPN2RPE2zXYEmcjOCA
     wb0CggEBAI9ztuEtsucOVKa52Itzvk8sZn2MF1kpUPHGF6/VW6a/s45wvvFFW3PE
-    BjqmgJX8s2ZLgOgWE/wEmEpHX+lxmebYJ3bmOsx5eGfA1eZBypWCBYBSfezf/1zD.
+    BjqmgJX8s2ZLgOgWE/wEmEpHX+lxmebYJ3bmOsx5eGfA1eZBypWCBYBSfezf/1zD
     3AD65+gwO4GhnSN4zsrlyVC6SsWEaeu+sxexHt15YJI9SkwCkvZTYoLqe9nMcAjY
     h41p/i6bhl9ODZPd1+hL631EFWguyMVSVTDgIG141OIYKz5hVQZ08ddrwHB2gPf6
     JSdU2DFOD6tNCfvTYAMvUfkoIt3g9RDJ5dTdR9J/3efm0ZIutcYcHiASIcubPU9x
     r8Ww1tZIoBx/s50i7X1JFyuXp0TWQsI=
     -----END PRIVATE KEY-----
+
 {{- end }}
