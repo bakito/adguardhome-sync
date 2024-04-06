@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -35,6 +36,7 @@ type API struct {
 	Password string  `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
 	DarkMode bool    `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
 	Metrics  Metrics `json:"metrics,omitempty" yaml:"metrics,omitempty" env:"API_METRICS"`
+	TLS      TLS     `json:"tls,omitempty" yaml:"tls,omitempty" env:"API_TLS"`
 }
 
 // Metrics configuration
@@ -42,6 +44,30 @@ type Metrics struct {
 	Enabled        bool          `json:"enabled,omitempty" yaml:"enabled,omitempty" env:"API_METRICS_ENABLED"`
 	ScrapeInterval time.Duration `json:"scrapeInterval,omitempty" yaml:"scrapeInterval,omitempty" env:"API_METRICS_SCRAPE_INTERVAL"`
 	QueryLogLimit  int           `json:"queryLogLimit,omitempty" yaml:"queryLogLimit,omitempty" env:"API_METRICS_QUERY_LOG_LIMIT"`
+}
+
+// TLS configuration
+type TLS struct {
+	CertDir  string `json:"certDir,omitempty" yaml:"certDir,omitempty" env:"API_TLS_CERT_DIR"`
+	CertName string `json:"certName,omitempty" yaml:"certName,omitempty" env:"API_TLS_CERT_NAME"`
+	KeyName  string `json:"keyName,omitempty" yaml:"keyName,omitempty" env:"API_TLS_KEY_NAME"`
+}
+
+func (t TLS) Enabled() bool {
+	return strings.TrimSpace(t.CertDir) != ""
+}
+
+func (t TLS) Certs() (cert string, key string) {
+	cert = filepath.Join(t.CertDir, defaultIfEmpty(t.CertName, "tls.crt"))
+	key = filepath.Join(t.CertDir, defaultIfEmpty(t.KeyName, "tls.key"))
+	return
+}
+
+func defaultIfEmpty(val string, fallback string) string {
+	if strings.TrimSpace(val) == "" {
+		return fallback
+	}
+	return val
 }
 
 // Mask maks username and password

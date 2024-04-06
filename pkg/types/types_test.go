@@ -96,4 +96,35 @@ var _ = Describe("Types", func() {
 			})
 		})
 	})
+	Context("TLS", func() {
+		var t TLS
+		BeforeEach(func() {
+			t = TLS{
+				CertDir: "/path/to/certs",
+			}
+		})
+		Context("Enabled", func() {
+			It("should use enabled", func() {
+				Ω(t.Enabled()).Should(BeTrue())
+			})
+			It("should use disabled", func() {
+				t.CertDir = " "
+				Ω(t.Enabled()).Should(BeFalse())
+			})
+		})
+		Context("Certs", func() {
+			It("should use default crt and key", func() {
+				crt, key := t.Certs()
+				Ω(crt).Should(Equal("/path/to/certs/tls.crt"))
+				Ω(key).Should(Equal("/path/to/certs/tls.key"))
+			})
+			It("should use custom crt and key", func() {
+				t.CertName = "foo.crt"
+				t.KeyName = "bar.key"
+				crt, key := t.Certs()
+				Ω(crt).Should(Equal("/path/to/certs/foo.crt"))
+				Ω(key).Should(Equal("/path/to/certs/bar.key"))
+			})
+		})
+	})
 })

@@ -55,7 +55,12 @@ func (w *worker) handleStatus(c *gin.Context) {
 }
 
 func (w *worker) listenAndServe() {
-	l.With("port", w.cfg.API.Port).Info("Starting API server")
+	sl := l.With("port", w.cfg.API.Port)
+	if w.cfg.API.TLS.Enabled() {
+		c, k := w.cfg.API.TLS.Certs()
+		sl = sl.With("tls-cert", c).With("tls-key", k)
+	}
+	sl.Info("Starting API server")
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -85,7 +90,14 @@ func (w *worker) listenAndServe() {
 	}
 
 	go func() {
-		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		var err error
+		if w.cfg.API.TLS.Enabled() {
+			err = httpServer.ListenAndServeTLS(w.cfg.API.TLS.Certs())
+		} else {
+			err = httpServer.ListenAndServe()
+		}
+
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.With("error", err).Fatalf("HTTP server ListenAndServe")
 		}
 	}()

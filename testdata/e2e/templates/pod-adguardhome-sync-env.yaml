@@ -26,5 +26,12 @@ spec:
       envFrom:
         - configMapRef:
             name: sync-conf
+      volumeMounts:
+        - name: certs
+          mountPath: /certs
   restartPolicy: Never
+  volumes:
+    - name: certs
+      configMap:
+        name: certs
   {{- end }}
