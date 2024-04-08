@@ -49,6 +49,9 @@ MOCKGEN ?= $(LOCALBIN)/mockgen
 OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 SEMVER ?= $(LOCALBIN)/semver
 
+## Tool Versions
+GORELEASER_VERSION ?= v1.25.1
+
 ## Tool Installer
 .PHONY: deepcopy-gen
 deepcopy-gen: $(DEEPCOPY_GEN) ## Download deepcopy-gen locally if necessary.
@@ -65,7 +68,7 @@ $(GOLANGCI_LINT): $(LOCALBIN)
 .PHONY: goreleaser
 goreleaser: $(GORELEASER) ## Download goreleaser locally if necessary.
 $(GORELEASER): $(LOCALBIN)
-	test -s $(LOCALBIN)/goreleaser || GOBIN=$(LOCALBIN) go install github.com/goreleaser/goreleaser
+	test -s $(LOCALBIN)/goreleaser || GOBIN=$(LOCALBIN) go install github.com/goreleaser/goreleaser@$(GORELEASER_VERSION)
 .PHONY: mockgen
 mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.
 $(MOCKGEN): $(LOCALBIN)
@@ -90,7 +93,8 @@ update-toolbox-tools:
 		$(LOCALBIN)/mockgen \
 		$(LOCALBIN)/oapi-codegen \
 		$(LOCALBIN)/semver
-	toolbox makefile -f $(LOCALDIR)/Makefile
+	toolbox makefile -f $(LOCALDIR)/Makefile \
+		github.com/goreleaser/goreleaser
 ## toolbox - end
 
 start-replica:
