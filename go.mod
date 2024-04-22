@@ -1,7 +1,6 @@
 module github.com/bakito/adguardhome-sync
 
-go 1.22
-toolchain go1.22.2
+go 1.22.0
 
 require (
 	github.com/bakito/semver v1.1.3
@@ -14,7 +13,7 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/onsi/ginkgo/v2 v2.17.1
-	github.com/onsi/gomega v1.32.0
+	github.com/onsi/gomega v1.33.0
 	github.com/prometheus/client_golang v1.19.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.0
