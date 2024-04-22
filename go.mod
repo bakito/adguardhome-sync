@@ -1,6 +1,6 @@
 module github.com/bakito/adguardhome-sync
 
-go 1.22.0
+go 1.22
 
 require (
 	github.com/bakito/semver v1.1.3
