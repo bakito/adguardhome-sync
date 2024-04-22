@@ -50,21 +50,27 @@ OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 SEMVER ?= $(LOCALBIN)/semver
 
 ## Tool Versions
+DEEPCOPY_GEN_VERSION ?= v0.30.0
+GINKGO_VERSION ?= v2.17.1
+GOLANGCI_LINT_VERSION ?= v1.57.2
 GORELEASER_VERSION ?= v1.25.1
+MOCKGEN_VERSION ?= v0.4.0
+OAPI_CODEGEN_VERSION ?= v2.1.0
+SEMVER_VERSION ?= v1.1.3
 
 ## Tool Installer
 .PHONY: deepcopy-gen
 deepcopy-gen: $(DEEPCOPY_GEN) ## Download deepcopy-gen locally if necessary.
 $(DEEPCOPY_GEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/deepcopy-gen || GOBIN=$(LOCALBIN) go install k8s.io/code-generator/cmd/deepcopy-gen
+	test -s $(LOCALBIN)/deepcopy-gen || GOBIN=$(LOCALBIN) go install k8s.io/code-generator/cmd/deepcopy-gen@$(DEEPCOPY_GEN_VERSION)
 .PHONY: ginkgo
 ginkgo: $(GINKGO) ## Download ginkgo locally if necessary.
 $(GINKGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo
+	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo@$(GINKGO_VERSION)
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
-	test -s $(LOCALBIN)/golangci-lint || GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	test -s $(LOCALBIN)/golangci-lint || GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 .PHONY: goreleaser
 goreleaser: $(GORELEASER) ## Download goreleaser locally if necessary.
 $(GORELEASER): $(LOCALBIN)
@@ -72,15 +78,15 @@ $(GORELEASER): $(LOCALBIN)
 .PHONY: mockgen
 mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.
 $(MOCKGEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install go.uber.org/mock/mockgen
+	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install go.uber.org/mock/mockgen@$(MOCKGEN_VERSION)
 .PHONY: oapi-codegen
 oapi-codegen: $(OAPI_CODEGEN) ## Download oapi-codegen locally if necessary.
 $(OAPI_CODEGEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/oapi-codegen || GOBIN=$(LOCALBIN) go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen
+	test -s $(LOCALBIN)/oapi-codegen || GOBIN=$(LOCALBIN) go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@$(OAPI_CODEGEN_VERSION)
 .PHONY: semver
 semver: $(SEMVER) ## Download semver locally if necessary.
 $(SEMVER): $(LOCALBIN)
-	test -s $(LOCALBIN)/semver || GOBIN=$(LOCALBIN) go install github.com/bakito/semver
+	test -s $(LOCALBIN)/semver || GOBIN=$(LOCALBIN) go install github.com/bakito/semver@$(SEMVER_VERSION)
 
 ## Update Tools
 .PHONY: update-toolbox-tools
@@ -94,7 +100,13 @@ update-toolbox-tools:
 		$(LOCALBIN)/oapi-codegen \
 		$(LOCALBIN)/semver
 	toolbox makefile -f $(LOCALDIR)/Makefile \
-		github.com/goreleaser/goreleaser
+		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator \
+		github.com/onsi/ginkgo/v2/ginkgo \
+		github.com/golangci/golangci-lint/cmd/golangci-lint \
+		github.com/goreleaser/goreleaser \
+		go.uber.org/mock/mockgen@github.com/uber-go/mock \
+		github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen \
+		github.com/bakito/semver
 ## toolbox - end
 
 start-replica:
