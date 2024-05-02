@@ -71,7 +71,7 @@ export REPLICA1_PASSWORD=password
 adguardhome-sync run
 
 # run as daemon
-adguardhome-sync run --cron "*/10 * * * *"
+adguardhome-sync run --cron "0 */2 * * *"
 ```
 
 ## Run Windows
@@ -103,7 +103,7 @@ set FEATURES_DHCP_STATICLEASES=false
 adguardhome-sync run
 
 # run as daemon
-adguardhome-sync run --cron "*/10 * * * *"
+adguardhome-sync run --cron "0 */2 * * *"
 ```
 
 ## docker cli
@@ -164,7 +164,7 @@ services:
       # REPLICA2_AUTO_SETUP: true # if true, AdGuardHome is automatically initialized.
       # REPLICA2_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
       # REPLICA2_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
-      CRON: "*/10 * * * *" # run every 10 minutes
+      CRON: "0 */2 * * *" # run every 10 minutes
       RUNONSTART: true
       # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
 
@@ -203,7 +203,7 @@ location: $HOME/.adguardhome-sync.yaml
 
 ```yaml
 # cron expression to run in daemon mode. (default; "" = runs only once)
-cron: "*/10 * * * *"
+cron: "0 */2 * * *"
 
 # runs the synchronisation on startup
 runOnStart: true
