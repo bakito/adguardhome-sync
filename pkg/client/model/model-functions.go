@@ -410,6 +410,7 @@ func ArrayString(a *[]string) string {
 
 func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 	// disable UsePrivatePtrResolvers if not configured
+	// https://github.com/AdguardTeam/AdGuardHome/issues/6820
 	if c.UsePrivatePtrResolvers != nil && *c.UsePrivatePtrResolvers &&
 		(c.LocalPtrUpstreams == nil || len(*c.LocalPtrUpstreams) == 0) {
 		l.Warn("disabling replica 'Use private reverse DNS resolvers' as no 'Private reverse DNS servers' are configured on origin")
