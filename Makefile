@@ -9,7 +9,7 @@ tidy:
 generate: deepcopy-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
-	$(DEEPCOPY_GEN) -h ./tmp/deepcopy-gen-boilerplate.go.txt -i ./pkg/types
+	$(DEEPCOPY_GEN) --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
 
 # Run tests
 test: generate lint test-ci
@@ -51,7 +51,7 @@ SEMVER ?= $(LOCALBIN)/semver
 
 ## Tool Versions
 DEEPCOPY_GEN_VERSION ?= v0.30.0
-GINKGO_VERSION ?= v2.17.1
+GINKGO_VERSION ?= v2.17.2
 GOLANGCI_LINT_VERSION ?= v1.57.2
 GORELEASER_VERSION ?= v1.25.1
 MOCKGEN_VERSION ?= v0.4.0
