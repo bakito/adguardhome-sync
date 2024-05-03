@@ -303,6 +303,23 @@ var _ = Describe("Types", func() {
 			})
 		})
 	})
+
+	Context("Client", func() {
+		Context("Equals", func() {
+			var (
+				cl1 *model.Client
+				cl2 *model.Client
+			)
+			BeforeEach(func() {
+				cl1 = &model.Client{Name: utils.Ptr("foo"), BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("UTC")}}
+				cl2 = &model.Client{Name: utils.Ptr("foo"), BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("Local")}}
+			})
+
+			It("should equal if only timezone differs on empty blocked service schedule", func() {
+				Ω(cl1.Equals(cl2)).Should(BeTrue())
+			})
+		})
+	})
 	Context("BlockedServices", func() {
 		Context("Equals", func() {
 			It("should be equal", func() {
