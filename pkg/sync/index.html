@@ -74,7 +74,7 @@
             </div>
         </div>
         <div class="col col-md-auto">
-            <div class="float-right">
+            <div class="btn-group float-right" role="group">
                 <a href="{{ .SyncStatus.Origin.URL }}" target="_blank" class="btn btn-{{ .SyncStatus.Origin.Status }}"
                    type="button" id="origin"
                    {{ if .SyncStatus.Origin.Error }} title="{{ .SyncStatus.Origin.Error }}" {{ end }}>Origin {{ .SyncStatus.Origin.Host }}</a>
