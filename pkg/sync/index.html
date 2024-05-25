@@ -1,7 +1,13 @@
 <html lang="en">
 <head>
     <title>AdGuardHome sync</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
     </script>
     {{- if .DarkMode }}
     <link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css"
@@ -30,6 +36,12 @@
                     }
                 );
             });
+            $("#clearLogs").click(function () {
+                $.post("api/v1/clear-logs", {}, function () {
+                        $('#logs').html("");
+                    }
+                );
+            });
             $("#sync").click(function () {
                 $.post("api/v1/sync", {}, function (data) {
                 });
@@ -51,12 +63,18 @@
     <div class="row">
         <div class="col">
             <div class="btn-group" role="group">
-                <input class="btn btn-success" type="button" id="sync" value="Synchronize"/>
-                <input class="btn btn-secondary" type="button" id="showLogs" value="Update Logs"/>
+                <button type="button" class="btn btn-success" id="sync">Synchronize</button>
+                <button type="button" class="btn btn-secondary" id="showLogs">Update Logs</button>
+                <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" id="clearLogs">Clear Logs</a>
+                </div>
+
             </div>
         </div>
         <div class="col col-md-auto">
-            <div class="float-right">
+            <div class="btn-group float-right" role="group">
                 <a href="{{ .SyncStatus.Origin.URL }}" target="_blank" class="btn btn-{{ .SyncStatus.Origin.Status }}"
                    type="button" id="origin"
                    {{ if .SyncStatus.Origin.Error }} title="{{ .SyncStatus.Origin.Error }}" {{ end }}>Origin {{ .SyncStatus.Origin.Host }}</a>

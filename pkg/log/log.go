@@ -106,6 +106,11 @@ func Logs() []string {
 	return logs
 }
 
+// Clear  the current logs
+func Clear() {
+	logs = nil
+}
+
 func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
 	for i := range fields {
 		fields[i].AddTo(enc)
