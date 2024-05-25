@@ -50,10 +50,10 @@ OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 SEMVER ?= $(LOCALBIN)/semver
 
 ## Tool Versions
-DEEPCOPY_GEN_VERSION ?= v0.30.0
-GINKGO_VERSION ?= v2.17.2
-GOLANGCI_LINT_VERSION ?= v1.57.2
-GORELEASER_VERSION ?= v1.25.1
+DEEPCOPY_GEN_VERSION ?= v0.30.1
+GINKGO_VERSION ?= v2.19.0
+GOLANGCI_LINT_VERSION ?= v1.58.2
+GORELEASER_VERSION ?= v1.26.2
 MOCKGEN_VERSION ?= v0.4.0
 OAPI_CODEGEN_VERSION ?= v2.1.0
 SEMVER_VERSION ?= v1.1.3
@@ -140,10 +140,10 @@ kind-test:
 
 model: oapi-codegen
 	@mkdir -p tmp
-	go run openapi/main.go v0.107.46
+	go run openapi/main.go v0.107.50
 	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
-	go run openapi/main.go v0.107.46
+	go run openapi/main.go v0.107.50
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
