@@ -52,7 +52,7 @@ func (w *worker) handleLogs(c *gin.Context) {
 
 func (w *worker) handleClearLogs(c *gin.Context) {
 	log.Clear()
-	c.Data(http.StatusOK, "text/plain", []byte{})
+	c.Status(http.StatusOK)
 }
 
 func (w *worker) handleStatus(c *gin.Context) {
