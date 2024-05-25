@@ -50,6 +50,11 @@ func (w *worker) handleLogs(c *gin.Context) {
 	c.Data(http.StatusOK, "text/plain", []byte(strings.Join(log.Logs(), "")))
 }
 
+func (w *worker) handleClearLogs(c *gin.Context) {
+	log.Clear()
+	c.Data(http.StatusOK, "text/plain", []byte{})
+}
+
 func (w *worker) handleStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, w.status())
 }
@@ -80,6 +85,7 @@ func (w *worker) listenAndServe() {
 	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(string(index))))
 	r.POST("/api/v1/sync", w.handleSync)
 	r.GET("/api/v1/logs", w.handleLogs)
+	r.POST("/api/v1/clear-logs", w.handleClearLogs)
 	r.GET("/api/v1/status", w.handleStatus)
 	r.GET("/favicon.ico", w.handleFavicon)
 	r.GET("/", w.handleRoot)
