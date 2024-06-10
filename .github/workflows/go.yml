@@ -58,7 +58,4 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          version: latest
-          args: --skip=publish --snapshot --clean
+        run: make test-release
