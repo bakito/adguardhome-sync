@@ -165,12 +165,12 @@ services:
       # REPLICA2_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
       # REPLICA2_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: "0 */2 * * *" # run every 10 minutes
-      RUNONSTART: true
+      RUNONSTART: "true"
       # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
 
       # Configure the sync API server, disabled if api port is 0
       API_PORT: 8080
-      # API_DARK_MODE: true
+      # API_DARK_MODE: "true"
       # API_USERNAME: admin
       # API_PASSWORD: secret
       # the directory of the provided tls certs
@@ -181,17 +181,17 @@ services:
       # API_TLS_KEY_NAME: bar.key
 
       # Configure sync features; by default all features are enabled.
-      # FEATURES_GENERAL_SETTINGS: true
-      # FEATURES_QUERY_LOG_CONFIG: true
-      # FEATURES_STATS_CONFIG: true
-      # FEATURES_CLIENT_SETTINGS: true
-      # FEATURES_SERVICES: true
-      # FEATURES_FILTERS: true
-      # FEATURES_DHCP_SERVER_CONFIG: true
-      # FEATURES_DHCP_STATIC_LEASES: true
-      # FEATURES_DNS_SERVER_CONFIG: true
-      # FEATURES_DNS_ACCESS_LISTS: true
-      # FEATURES_DNS_REWRITES: true
+      # FEATURES_GENERAL_SETTINGS: "true"
+      # FEATURES_QUERY_LOG_CONFIG: "true"
+      # FEATURES_STATS_CONFIG: "true"
+      # FEATURES_CLIENT_SETTINGS: "true"
+      # FEATURES_SERVICES: "true"
+      # FEATURES_FILTERS: "true"
+      # FEATURES_DHCP_SERVER_CONFIG: "true"
+      # FEATURES_DHCP_STATIC_LEASES: "true"
+      # FEATURES_DNS_SERVER_CONFIG: "true"
+      # FEATURES_DNS_ACCESS_LISTS: "true"
+      # FEATURES_DNS_REWRITES: "true"
     ports:
       - 8080:8080
     restart: unless-stopped
