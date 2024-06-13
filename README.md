@@ -165,7 +165,7 @@ services:
       # REPLICA2_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
       # REPLICA2_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
       CRON: "0 */2 * * *" # run every 10 minutes
-      RUNONSTART: "true"
+      RUN_ON_START: "true"
       # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
 
       # Configure the sync API server, disabled if api port is 0
