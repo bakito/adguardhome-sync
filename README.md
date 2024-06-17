@@ -115,7 +115,7 @@ sudo systemctl status adguardhome-sync.service
 
 ```
 
-If web UI has been enabled in configuration (default port is 8080), can also check the status via http://<server-IP>:8080
+If web UI has been enabled in configuration (default port is 8080), can also check the status via `http://<server-IP>:8080`
 
 ## Run Windows
 
