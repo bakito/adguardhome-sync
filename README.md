@@ -93,7 +93,7 @@ WantedBy = multi-user.target
 
 ```
 
-Create a configuration file `/opt/adguardhome-sync/adguardhome-sync.yaml`, please follow "Config file" section below for details.
+Create a configuration file `/opt/adguardhome-sync/adguardhome-sync.yaml`, please follow [Config file](#config-file-1) section below for details.
 
 Install and enable service:
 
