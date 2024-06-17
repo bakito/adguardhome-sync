@@ -74,6 +74,47 @@ adguardhome-sync run
 adguardhome-sync run --cron "0 */2 * * *"
 ```
 
+### Run as Linux Service via Systemd
+
+Assume you have downloaded the the `adguardhome-sync` binary to `/opt/adguardhome-sync`. 
+
+Create systemd service file `/opt/adguardhome-sync/adguardhome-sync.service`:
+
+```
+[Unit]
+Description = AdGuardHome Sync
+After = network.target
+
+[Service]
+ExecStart = /opt/adguardhome-sync/adguardhome-sync --config /opt/adguardhome-sync/adguardhome-sync.yaml run
+
+[Install]
+WantedBy = multi-user.target
+
+```
+
+Create a configuration file `/opt/adguardhome-sync/adguardhome-sync.yaml`, please follow "Config file" section below for details.
+
+Install and enable service:
+
+```bash
+sudo cp /opt/adguardhome-sync/adguardhome-sync.service /etc/systemd/system/
+
+sudo systemctl enable adguardhome-sync.service
+
+sudo systemctl start adguardhome-sync.service
+
+```
+
+Then you can check the status:
+
+```bash
+sudo systemctl status adguardhome-sync.service
+
+```
+
+If web UI has been enabled in configuration (default port is 8080), can also check the status via http://<server-IP>:8080
+
 ## Run Windows
 
 ```bash
