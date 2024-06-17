@@ -15,7 +15,7 @@ require (
 	github.com/onsi/gomega v1.33.1
 	github.com/prometheus/client_golang v1.19.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc
