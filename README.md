@@ -76,6 +76,8 @@ adguardhome-sync run --cron "0 */2 * * *"
 
 ### Run as Linux Service via Systemd
 
+> Verified on Ubuntu Linux 24.04
+
 Assume you have downloaded the the `adguardhome-sync` binary to `/opt/adguardhome-sync`. 
 
 Create systemd service file `/opt/adguardhome-sync/adguardhome-sync.service`:
