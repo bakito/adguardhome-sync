@@ -9,6 +9,7 @@ main
 .adguardhome-sync.yaml
 tmp
 bin
+!testdata/e2e/bin
 config*.yaml
 *.log
 wiki
