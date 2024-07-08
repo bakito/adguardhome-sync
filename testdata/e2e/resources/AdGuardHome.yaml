@@ -18,19 +18,18 @@ dns:
   port: 53
   anonymize_client_ip: false
   ratelimit: 20
-  ratelimit_whitelist: [ ]
+  ratelimit_whitelist: []
   refuse_any: true
   upstream_dns:
     - https://dns10.quad9.net/dns-query
   upstream_dns_file: ""
   bootstrap_dns:
     - 1.1.1.1:53
-  fallback_dns: [ ]
-  all_servers: false
-  fastest_addr: false
+  fallback_dns: []
+  upstream_mode: load_balance
   fastest_timeout: 1s
-  allowed_clients: [ ]
-  disallowed_clients: [ ]
+  allowed_clients: []
+  disallowed_clients: []
   blocked_hosts:
     - version.bind
     - id.server
@@ -42,7 +41,7 @@ dns:
   cache_ttl_min: 0
   cache_ttl_max: 0
   cache_optimistic: true
-  bogus_nxdomain: [ ]
+  bogus_nxdomain: []
   aaaa_disabled: false
   enable_dnssec: false
   edns_client_subnet:
@@ -51,17 +50,19 @@ dns:
     use_custom: false
   max_goroutines: 300
   handle_ddr: true
-  ipset: [ ]
+  ipset: []
   ipset_file: ""
   bootstrap_prefer_ipv6: false
   upstream_timeout: 10s
-  private_networks: [ ]
+  private_networks: []
   use_private_ptr_resolvers: true
-  local_ptr_upstreams: [ ]
+  local_ptr_upstreams: []
   use_dns64: false
-  dns64_prefixes: [ ]
+  dns64_prefixes: []
   serve_http3: false
   use_http3_upstreams: false
+  serve_plain_dns: true
+  hostsfile_enabled: true
 tls:
   enabled: false
   server_name: ""
@@ -78,13 +79,15 @@ tls:
   private_key_path: ""
   strict_sni_check: false
 querylog:
-  ignored: [ ]
+  dir_path: ""
+  ignored: []
   interval: 6h
   size_memory: 1000
   enabled: true
   file_enabled: true
 statistics:
-  ignored: [ ]
+  dir_path: ""
+  ignored: []
   interval: 24h
   enabled: true
 filters:
@@ -96,7 +99,7 @@ filters:
     url: https://adaway.org/hosts.txt
     name: AdAway Default Blocklist
     id: 2
-whitelist_filters: [ ]
+whitelist_filters: []
 user_rules:
   - '||metrics2.data.hicloud.com^$important'
   - '||www.curiouscorrespondence.com^$important'
@@ -113,7 +116,7 @@ dhcp:
     range_end: 1.2.3.56
     lease_duration: 86400
     icmp_timeout_msec: 1000
-    options: [ ]
+    options: []
   dhcpv6:
     range_start: ""
     lease_duration: 86400
@@ -150,7 +153,7 @@ filtering:
   blocking_mode: default
   parental_block_host: family-block.dns.adguard.com
   safebrowsing_block_host: standard-block.dns.adguard.com
-  rewrites: [ ]
+  rewrites: []
   safebrowsing_cache_size: 1048576
   safesearch_cache_size: 1048576
   parental_cache_size: 1048576
@@ -170,8 +173,6 @@ clients:
     hosts: true
   persistent:
     - name: Device 1
-      tags:
-        - device_1
       ids:
         - 2.2.2.2
       blocked_services:
@@ -183,7 +184,7 @@ clients:
           - qq
           - vk
           - ok
-      upstreams: [ ]
+      upstreams: []
       use_global_settings: true
       filtering_enabled: false
       parental_enabled: false
@@ -192,6 +193,7 @@ clients:
       ignore_querylog: false
       ignore_statistics: false
 log:
+  enabled: true
   file: ""
   max_backups: 0
   max_size: 100
@@ -203,4 +205,4 @@ os:
   group: ""
   user: ""
   rlimit_nofile: 0
-schema_version: 27
+schema_version: 28
