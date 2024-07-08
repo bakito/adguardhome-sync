@@ -1,7 +1,5 @@
 #!/bin/bash
 
-kubectl wait --for=jsonpath='{.status.phase}'=Running pod/adguardhome-sync --timeout=1m
-
 kubectl port-forward pod/adguardhome-sync 9090:9090 &
 
 for i in {1..6}; do
