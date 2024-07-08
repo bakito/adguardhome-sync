@@ -55,7 +55,7 @@ GINKGO_VERSION ?= v2.19.0
 GOLANGCI_LINT_VERSION ?= v1.59.1
 GORELEASER_VERSION ?= v2.0.1
 MOCKGEN_VERSION ?= v0.4.0
-OAPI_CODEGEN_VERSION ?= v2.3.0
+OAPI_CODEGEN_VERSION ?= v2.2.0
 SEMVER_VERSION ?= v1.1.3
 
 ## Tool Installer
@@ -140,10 +140,10 @@ kind-test:
 
 model: oapi-codegen
 	@mkdir -p tmp
-	go run openapi/main.go v0.107.50
+	go run openapi/main.go v0.107.52
 	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
-	go run openapi/main.go v0.107.50
+	go run openapi/main.go v0.107.52
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
