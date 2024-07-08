@@ -33,10 +33,14 @@ jobs:
 
       - name: Install Helm Chart
         run: ./testdata/e2e/bin/install-chart.sh ${{ matrix.build.mode }}
+      - name: Wait for pod to start
+        run: ./testdata/e2e/bin/wait-for-start.sh ${{ matrix.build.protocol }}
+      - name: Show origin pre Logs
+        run: ./testdata/e2e/bin/show-origin-logs.sh pre
       - name: Wait for sync to finish
         run: ./testdata/e2e/bin/wait-for-sync.sh ${{ matrix.build.protocol }}
-      - name: Show origin Logs
-        run: ./testdata/e2e/bin/show-origin-logs.sh
+      - name: Show origin post Logs
+        run: ./testdata/e2e/bin/show-origin-logs.sh post
       - name: Show Replica Logs
         run: ./testdata/e2e/bin/show-replica-logs.sh
       - name: Show Sync Logs
