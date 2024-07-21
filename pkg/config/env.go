@@ -8,7 +8,7 @@ import (
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
-	"github.com/caarlos0/env/v10"
+	"github.com/caarlos0/env/v11"
 )
 
 func handleDeprecatedEnvVars(cfg *types.Config) {
