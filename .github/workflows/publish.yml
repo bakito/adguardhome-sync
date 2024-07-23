@@ -1,4 +1,4 @@
-name: docker-image
+name: docker-images
 
 on:
   workflow_dispatch: # allows manual triggering
@@ -53,7 +53,7 @@ jobs:
           pull: true
           push: true
           tags: quay.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}latest,quay.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}${{ github.event.release.tag_name }},ghcr.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}latest,ghcr.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}${{ github.event.release.tag_name }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v8,linux/arm64/v8
           provenance: false
           build-args: |
             VERSION=${{ github.event.release.tag_name }}
@@ -70,9 +70,9 @@ jobs:
         with:
           context: .
           pull: true
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: quay.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}main,ghcr.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}main
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v8,linux/arm64/v8
           provenance: false
           build-args: |
             VERSION=main
