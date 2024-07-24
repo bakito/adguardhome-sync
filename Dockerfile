@@ -1,10 +1,8 @@
-FROM golang:1.22-bullseye AS builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /go/src/app
 
-RUN apt-get update && \
-    apt-get install -y upx ca-certificates tzdata && \
-    apt-get upgrade -y # upgrade to get latest ca-certs
+RUN apk update && apk add upx ca-certificates tzdata
 
 ARG VERSION=main
 ARG BUILD="N/A"
