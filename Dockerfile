@@ -1,10 +1,8 @@
-FROM golang:1.22-bullseye AS builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /go/src/app
 
-RUN apt-get update && \
-    apt-get install -y upx ca-certificates tzdata && \
-    apt-get upgrade -y # upgrade to get latest ca-certs
+RUN apk update && apk add upx ca-certificates tzdata
 
 ARG VERSION=main
 ARG BUILD="N/A"
@@ -15,8 +13,10 @@ ENV GO111MODULE=on \
 
 COPY . /go/src/app/
 
-RUN go build -a -installsuffix cgo -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" -o adguardhome-sync . \
-  && upx -q adguardhome-sync
+
+RUN go build -a -installsuffix cgo -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" -o adguardhome-sync .
+
+RUN go version && upx -q adguardhome-sync
 
 # application image
 FROM scratch
