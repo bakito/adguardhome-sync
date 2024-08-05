@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/caarlos0/env/v11 v11.1.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-resty/resty/v2 v2.13.1
+	github.com/go-resty/resty/v2 v2.14.0
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/oapi-codegen/runtime v1.1.1
