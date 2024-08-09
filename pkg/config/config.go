@@ -39,6 +39,10 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 	replicaDhcpServer := cfg.Replica.DHCPServerEnabled
 	cfg.Replica.DHCPServerEnabled = nil
 
+	// ignore replicas form env parsing as they are handled separately
+	replicas := cfg.Replicas
+	cfg.Replicas = nil
+
 	// overwrite from env vars
 	if err = env.Parse(cfg); err != nil {
 		return nil, err
@@ -46,6 +50,9 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 	if err = env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
 		return nil, err
 	}
+	// restore the replica
+	cfg.Replicas = replicas
+
 	// if not set from env, use previous value
 	if cfg.Replica.DHCPServerEnabled == nil {
 		cfg.Replica.DHCPServerEnabled = replicaDhcpServer
