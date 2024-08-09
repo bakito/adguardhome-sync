@@ -50,12 +50,11 @@ OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 SEMVER ?= $(LOCALBIN)/semver
 
 ## Tool Versions
-DEEPCOPY_GEN_VERSION ?= v0.30.2
-GINKGO_VERSION ?= v2.19.0
+DEEPCOPY_GEN_VERSION ?= v0.30.3
 GOLANGCI_LINT_VERSION ?= v1.59.1
-GORELEASER_VERSION ?= v2.0.1
+GORELEASER_VERSION ?= v2.1.0
 MOCKGEN_VERSION ?= v0.4.0
-OAPI_CODEGEN_VERSION ?= v2.2.0
+OAPI_CODEGEN_VERSION ?= v2.3.0
 SEMVER_VERSION ?= v1.1.3
 
 ## Tool Installer
@@ -66,7 +65,7 @@ $(DEEPCOPY_GEN): $(LOCALBIN)
 .PHONY: ginkgo
 ginkgo: $(GINKGO) ## Download ginkgo locally if necessary.
 $(GINKGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo@$(GINKGO_VERSION)
+	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
@@ -101,7 +100,6 @@ update-toolbox-tools:
 		$(LOCALBIN)/semver
 	toolbox makefile -f $(LOCALDIR)/Makefile \
 		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator \
-		github.com/onsi/ginkgo/v2/ginkgo \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
 		github.com/goreleaser/goreleaser/v2 \
 		go.uber.org/mock/mockgen@github.com/uber-go/mock \
