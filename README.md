@@ -78,7 +78,7 @@ adguardhome-sync run --cron "0 */2 * * *"
 
 > Verified on Ubuntu Linux 24.04
 
-Assume you have downloaded the the `adguardhome-sync` binary to `/opt/adguardhome-sync`. 
+Assume you have downloaded the the `adguardhome-sync` binary to `/opt/adguardhome-sync`.
 
 Create systemd service file `/opt/adguardhome-sync/adguardhome-sync.service`:
 
@@ -95,7 +95,8 @@ WantedBy = multi-user.target
 
 ```
 
-Create a configuration file `/opt/adguardhome-sync/adguardhome-sync.yaml`, please follow [Config file](#config-file-1) section below for details.
+Create a configuration file `/opt/adguardhome-sync/adguardhome-sync.yaml`, please follow [Config file](#config-file-1)
+section below for details.
 
 Install and enable service:
 
@@ -115,7 +116,8 @@ sudo systemctl status adguardhome-sync.service
 
 ```
 
-If web UI has been enabled in configuration (default port is 8080), can also check the status via `http://<server-IP>:8080`
+If web UI has been enabled in configuration (default port is 8080), can also check the status via
+`http://<server-IP>:8080`
 
 ## Run Windows
 
@@ -207,7 +209,7 @@ services:
       # REPLICA2_AUTO_SETUP: true # if true, AdGuardHome is automatically initialized.
       # REPLICA2_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
       # REPLICA2_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
-      CRON: "0 */2 * * *" # run every 10 minutes
+      CRON: "0 */2 * * *" # run every 2 hours
       RUN_ON_START: "true"
       # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
 
@@ -287,11 +289,11 @@ api:
   # enable api dark mode
   darkMode: true
 
-  # enable metrics on path '/metrics' (api port must be != 0)
-  # metrics:
+    # enable metrics on path '/metrics' (api port must be != 0)
+    # metrics:
     # enabled: true
-    # scrapeInterval: 30s 
-    # queryLogLimit: 10000
+  # scrapeInterval: 30s 
+  # queryLogLimit: 10000
 
   # enable tls for the api server
   # tls:
@@ -334,3 +336,8 @@ The following log levels are supported (default: info)
 
 Default log format is `console`.
 It can be changed to `json`by setting the environment variable: `LOG_FORMAT=json`
+
+## Video Tutorials
+
+- [Como replicar la configuración de tu servidor DNS Adguard automáticamente - Tu servidor Part #12](https://www.youtube.com/watch?v=1LPeu_JG064) (
+  Spanish) by [Jonatan Castro](https://github.com/jcastro)
