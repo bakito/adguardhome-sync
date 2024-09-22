@@ -48,6 +48,7 @@ var _ = Describe("Sync", func() {
 					GeneralSettings: true,
 					StatsConfig:     true,
 					QueryLogConfig:  true,
+					Theme:           true,
 				},
 				Replicas: []types.AdGuardInstance{
 					{},
@@ -57,8 +58,8 @@ var _ = Describe("Sync", func() {
 		te = errors.New(uuid.NewString())
 
 		ac = &actionContext{
-			continueOnError: false,
-			rl:              l,
+			cfg: w.cfg,
+			rl:  l,
 			origin: &origin{
 				profileInfo: &model.ProfileInfo{
 					Name:     "origin",
@@ -258,6 +259,18 @@ var _ = Describe("Sync", func() {
 				err := actionProfileInfo(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
+			It("should not change theme if feature is disabled", func() {
+				ac.origin.profileInfo.Language = "de"
+				ac.cfg.Features.Theme = false
+				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en"}, nil)
+				cl.EXPECT().SetProfileInfo(&model.ProfileInfo{
+					Language: "de",
+					Name:     "replica",
+					Theme:    "",
+				})
+				err := actionProfileInfo(ac)
+				Ω(err).ShouldNot(HaveOccurred())
+			})
 			It("should not sync profileInfo if language is not set", func() {
 				ac.origin.profileInfo.Language = ""
 				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
@@ -431,7 +444,7 @@ var _ = Describe("Sync", func() {
 			})
 
 			It("should abort after failed added filter", func() {
-				ac.continueOnError = false
+				ac.cfg.ContinueOnError = false
 				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).Return(errors.New("test failure"))
@@ -440,7 +453,7 @@ var _ = Describe("Sync", func() {
 			})
 
 			It("should continue after failed added filter", func() {
-				ac.continueOnError = true
+				ac.cfg.ContinueOnError = true
 				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).Return(errors.New("test failure"))

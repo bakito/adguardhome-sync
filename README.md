@@ -22,6 +22,7 @@ and [Deprecations](https://github.com/bakito/adguardhome-sync/wiki/Deprecations)
 - Clients
 - DNS Config
 - DHCP Config
+- Theme
 
 By default, all features are enabled. Single features can be disabled in the config.
 
@@ -237,6 +238,7 @@ services:
       # FEATURES_DNS_SERVER_CONFIG: "true"
       # FEATURES_DNS_ACCESS_LISTS: "true"
       # FEATURES_DNS_REWRITES: "true"
+      # FEATURES_THEME: "true" # if false the UI theme is not synced
     ports:
       - 8080:8080
     restart: unless-stopped

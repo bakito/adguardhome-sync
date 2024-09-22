@@ -21,6 +21,7 @@ func NewFeatures(enabled bool) Features {
 		ClientSettings:  enabled,
 		Services:        enabled,
 		Filters:         enabled,
+		Theme:           enabled,
 	}
 }
 
@@ -34,6 +35,7 @@ type Features struct {
 	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" env:"FEATURES_CLIENT_SETTINGS"`
 	Services        bool `json:"services" yaml:"services" env:"FEATURES_SERVICES"`
 	Filters         bool `json:"filters" yaml:"filters" env:"FEATURES_FILTERS"`
+	Theme           bool `json:"theme" yaml:"theme" env:"FEATURES_THEME"`
 }
 
 // DHCP features

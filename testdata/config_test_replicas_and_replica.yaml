@@ -45,3 +45,4 @@ features:
   clientSettings: true
   services: true
   filters: true
+  theme: true
