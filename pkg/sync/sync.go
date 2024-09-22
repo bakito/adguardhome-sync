@@ -284,12 +284,12 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	}
 
 	ac := &actionContext{
-		continueOnError: w.cfg.ContinueOnError,
-		rl:              rl,
-		origin:          o,
-		replicaStatus:   replicaStatus,
-		client:          rc,
-		replica:         replica,
+		cfg:           w.cfg,
+		rl:            rl,
+		origin:        o,
+		replicaStatus: replicaStatus,
+		client:        rc,
+		replica:       replica,
 	}
 	for _, action := range w.actions {
 		if err := action.sync(ac); err != nil {

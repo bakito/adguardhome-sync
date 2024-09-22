@@ -11,7 +11,7 @@ var (
 	actionProfileInfo = func(ac *actionContext) error {
 		if pro, err := ac.client.ProfileInfo(); err != nil {
 			return err
-		} else if merged := pro.ShouldSyncFor(ac.origin.profileInfo); merged != nil {
+		} else if merged := pro.ShouldSyncFor(ac.origin.profileInfo, ac.cfg.Features.Theme); merged != nil {
 			return ac.client.SetProfileInfo(merged)
 		}
 		return nil
@@ -94,10 +94,10 @@ var (
 			return err
 		}
 
-		if err = syncFilterType(ac.rl, ac.origin.filters.Filters, rf.Filters, false, ac.client, ac.continueOnError); err != nil {
+		if err = syncFilterType(ac.rl, ac.origin.filters.Filters, rf.Filters, false, ac.client, ac.cfg.ContinueOnError); err != nil {
 			return err
 		}
-		if err = syncFilterType(ac.rl, ac.origin.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client, ac.continueOnError); err != nil {
+		if err = syncFilterType(ac.rl, ac.origin.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client, ac.cfg.ContinueOnError); err != nil {
 			return err
 		}
 
@@ -105,7 +105,7 @@ var (
 			return ac.client.SetCustomRules(ac.origin.filters.UserRules)
 		}
 
-		if ac.origin.filters.Enabled != rf.Enabled || ac.origin.filters.Interval != rf.Interval {
+		if !utils.PtrEquals(ac.origin.filters.Enabled, rf.Enabled) || !utils.PtrEquals(ac.origin.filters.Interval, rf.Interval) {
 			return ac.client.ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
 		}
 		return nil
@@ -133,7 +133,7 @@ var (
 		for _, client := range r {
 			if err := ac.client.DeleteClient(client); err != nil {
 				ac.rl.With("client-name", client.Name, "error", err).Error("error deleting client setting")
-				if !ac.continueOnError {
+				if !ac.cfg.ContinueOnError {
 					return err
 				}
 			}
@@ -142,7 +142,7 @@ var (
 		for _, client := range a {
 			if err := ac.client.AddClient(client); err != nil {
 				ac.rl.With("client-name", client.Name, "error", err).Error("error adding client setting")
-				if !ac.continueOnError {
+				if !ac.cfg.ContinueOnError {
 					return err
 				}
 			}
@@ -151,7 +151,7 @@ var (
 		for _, client := range u {
 			if err := ac.client.UpdateClient(client); err != nil {
 				ac.rl.With("client-name", client.Name, "error", err).Error("error updating client setting")
-				if !ac.continueOnError {
+				if !ac.cfg.ContinueOnError {
 					return err
 				}
 			}
@@ -218,7 +218,7 @@ var (
 		for _, lease := range r {
 			if err := ac.client.DeleteDHCPStaticLease(lease); err != nil {
 				ac.rl.With("hostname", lease.Hostname, "error", err).Error("error deleting dhcp static lease")
-				if !ac.continueOnError {
+				if !ac.cfg.ContinueOnError {
 					return err
 				}
 			}
@@ -227,7 +227,7 @@ var (
 		for _, lease := range a {
 			if err := ac.client.AddDHCPStaticLease(lease); err != nil {
 				ac.rl.With("hostname", lease.Hostname, "error", err).Error("error adding dhcp static lease")
-				if !ac.continueOnError {
+				if !ac.cfg.ContinueOnError {
 					return err
 				}
 			}

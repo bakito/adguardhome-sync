@@ -77,12 +77,12 @@ type syncAction interface {
 }
 
 type actionContext struct {
-	rl              *zap.SugaredLogger
-	origin          *origin
-	client          client.Client
-	replicaStatus   *model.ServerStatus
-	continueOnError bool
-	replica         types.AdGuardInstance
+	rl            *zap.SugaredLogger
+	origin        *origin
+	client        client.Client
+	replicaStatus *model.ServerStatus
+	replica       types.AdGuardInstance
+	cfg           *types.Config
 }
 
 type defaultAction struct {

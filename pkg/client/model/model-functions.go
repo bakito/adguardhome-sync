@@ -398,23 +398,22 @@ func (ssc *SafeSearchConfig) Equals(o *SafeSearchConfig) bool {
 		ptrEquals(ssc.Youtube, o.Youtube)
 }
 
-func (pi *ProfileInfo) Equals(o *ProfileInfo) bool {
-	return pi.Language == o.Language &&
-		pi.Theme == o.Theme
+func (pi *ProfileInfo) Equals(o *ProfileInfo, withTheme bool) bool {
+	return pi.Language == o.Language && (!withTheme || pi.Theme == o.Theme)
 }
 
-func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo) *ProfileInfo {
-	if pi.Equals(o) {
+func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo, withTheme bool) *ProfileInfo {
+	if pi.Equals(o, withTheme) {
 		return nil
 	}
 	merged := &ProfileInfo{Name: pi.Name, Language: pi.Language, Theme: pi.Theme}
 	if o.Language != "" {
 		merged.Language = o.Language
 	}
-	if o.Theme != "" {
+	if withTheme && o.Theme != "" {
 		merged.Theme = o.Theme
 	}
-	if merged.Name == "" || merged.Language == "" || merged.Theme == "" || merged.Equals(pi) {
+	if merged.Name == "" || merged.Language == "" || merged.Equals(pi, false) {
 		return nil
 	}
 	return merged
