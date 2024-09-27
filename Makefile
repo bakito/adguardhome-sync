@@ -50,11 +50,17 @@ OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
 SEMVER ?= $(LOCALBIN)/semver
 
 ## Tool Versions
+# renovate: packageName=k8s.io/code-generator/cmd/deepcopy-gen
 DEEPCOPY_GEN_VERSION ?= v0.31.1
+# renovate: packageName=github.com/golangci/golangci-lint/cmd/golangci-lint
 GOLANGCI_LINT_VERSION ?= v1.61.0
+# renovate: packageName=github.com/goreleaser/goreleaser/v2
 GORELEASER_VERSION ?= v2.3.2
+# renovate: packageName=go.uber.org/mock/mockgen
 MOCKGEN_VERSION ?= v0.4.0
+# renovate: packageName=github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen
 OAPI_CODEGEN_VERSION ?= v2.4.0
+# renovate: packageName=github.com/bakito/semver
 SEMVER_VERSION ?= v1.1.3
 
 ## Tool Installer
