@@ -1,6 +1,6 @@
 module github.com/bakito/adguardhome-sync
 
-go 1.22.4
+go 1.23.1
 
 require (
 	github.com/caarlos0/env/v11 v11.2.2
