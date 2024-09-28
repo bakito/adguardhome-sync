@@ -9,7 +9,7 @@
         "^Makefile$"
       ],
       "matchStrings": [
-        "# renovate: packageName=(?\u003cpackageName\u003e.+?)\\s+.+?_VERSION \\?= (?\u003ccurrentValue\u003e.+?)\\s"
+        "# renovate: packageName=(?<packageName>.+?)\\s+.+?_VERSION \\?= (?<currentValue>.+?)\\s"
       ]
     },
     {
@@ -20,7 +20,7 @@
         "^Makefile$"
       ],
       "matchStrings": [
-        "# renovate: packageName=(?\u003cpackageName\u003e.+?)\\s+.+?_VERSION \\?= (?\u003ccurrentValue\u003e.+?)\\s"
+        "# renovate: packageName=(?<packageName>.+?)\\s+.+?_VERSION \\?= (?<currentValue>.+?)\\s"
       ]
     }
   ],
