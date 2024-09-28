@@ -104,7 +104,7 @@ update-toolbox-tools:
 		$(LOCALBIN)/mockgen \
 		$(LOCALBIN)/oapi-codegen \
 		$(LOCALBIN)/semver
-	toolbox makefile -f $(LOCALDIR)/Makefile \
+	toolbox makefile --renovate -f $(LOCALDIR)/Makefile \
 		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
 		github.com/goreleaser/goreleaser/v2 \

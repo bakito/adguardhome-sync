@@ -1,17 +1,28 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "dependencyDashboard": true,
   "customManagers": [
     {
       "customType": "regex",
+      "datasourceTemplate": "go",
       "description": "Update toolbox _VERSION variables in Makefile",
       "fileMatch": [
         "^Makefile$"
       ],
       "matchStrings": [
-        "# renovate: packageName=(?<packageName>.+?)\\s+.+?_VERSION \\?= (?<currentValue>.+?)\\s"
+        "# renovate: packageName=(?\u003cpackageName\u003e.+?)\\s+.+?_VERSION \\?= (?\u003ccurrentValue\u003e.+?)\\s"
+      ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "go",
+      "description": "Update toolbox tools in Makefile",
+      "fileMatch": [
+        "^Makefile$"
       ],
-      "datasourceTemplate": "go"
+      "matchStrings": [
+        "# renovate: packageName=(?\u003cpackageName\u003e.+?)\\s+.+?_VERSION \\?= (?\u003ccurrentValue\u003e.+?)\\s"
+      ]
     }
-  ]
+  ],
+  "dependencyDashboard": true
 }
