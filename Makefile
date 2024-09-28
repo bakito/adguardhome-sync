@@ -59,7 +59,7 @@ GORELEASER_VERSION ?= v2.3.2
 # renovate: packageName=go.uber.org/mock/mockgen
 MOCKGEN_VERSION ?= v0.4.0
 # renovate: packageName=github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen
-OAPI_CODEGEN_VERSION ?= v2.4.0
+OAPI_CODEGEN_VERSION ?= v2.4.1
 # renovate: packageName=github.com/bakito/semver
 SEMVER_VERSION ?= v1.1.3
 
