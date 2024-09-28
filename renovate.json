@@ -4,17 +4,6 @@
     {
       "customType": "regex",
       "datasourceTemplate": "go",
-      "description": "Update toolbox _VERSION variables in Makefile",
-      "fileMatch": [
-        "^Makefile$"
-      ],
-      "matchStrings": [
-        "# renovate: packageName=(?<packageName>.+?)\\s+.+?_VERSION \\?= (?<currentValue>.+?)\\s"
-      ]
-    },
-    {
-      "customType": "regex",
-      "datasourceTemplate": "go",
       "description": "Update toolbox tools in Makefile",
       "fileMatch": [
         "^Makefile$"
