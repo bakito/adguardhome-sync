@@ -1,117 +1,39 @@
+# Include toolbox tasks
+include ./.toolbox.mk
+
 # Run go lint against code
-lint: golangci-lint
-	$(GOLANGCI_LINT) run --fix
+lint: tb.golangci-lint
+	$(TB_GOLANGCI_LINT) run --fix
 
 # Run go mod tidy
 tidy:
 	go mod tidy
 
-generate: deepcopy-gen
+generate: tb.deepcopy-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
-	$(DEEPCOPY_GEN) --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
+	$(TB_DEEPCOPY_GEN) --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
 
 # Run tests
 test: generate lint test-ci
 
 # Run ci tests
-test-ci: mocks tidy ginkgo
-	$(GINKGO) --cover --coverprofile coverage.out.tmp ./...
+test-ci: mocks tidy tb.ginkgo
+	$(TB_GINKGO) --cover --coverprofile coverage.out.tmp ./...
 	cat coverage.out.tmp | grep -v "_generated.go" > coverage.out
 	go tool cover -func=coverage.out
 
-mocks: mockgen
-	$(MOCKGEN) -package client -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
-	$(MOCKGEN) -package client -destination pkg/mocks/flags/mock.go github.com/bakito/adguardhome-sync/pkg/config Flags
+mocks: tb.mockgen
+	$(TB_MOCKGEN) -package client -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
+	$(TB_MOCKGEN) -package client -destination pkg/mocks/flags/mock.go github.com/bakito/adguardhome-sync/pkg/config Flags
 
-release: semver goreleaser
-	@version=$$($(LOCALBIN)/semver); \
+release: tb.semver tb.goreleaser
+	@version=$$($(TB_SEMVER)); \
 	git tag -s $$version -m"Release $$version"
-	$(GORELEASER) --clean
+	$(TB_GORELEASER) --clean
 
-test-release: goreleaser
-	$(GORELEASER) --skip=publish --snapshot --clean
-
-## toolbox - start
-## Current working directory
-LOCALDIR ?= $(shell which cygpath > /dev/null 2>&1 && cygpath -m $$(pwd) || pwd)
-## Location to install dependencies to
-LOCALBIN ?= $(LOCALDIR)/bin
-$(LOCALBIN):
-	mkdir -p $(LOCALBIN)
-
-## Tool Binaries
-DEEPCOPY_GEN ?= $(LOCALBIN)/deepcopy-gen
-GINKGO ?= $(LOCALBIN)/ginkgo
-GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
-GORELEASER ?= $(LOCALBIN)/goreleaser
-MOCKGEN ?= $(LOCALBIN)/mockgen
-OAPI_CODEGEN ?= $(LOCALBIN)/oapi-codegen
-SEMVER ?= $(LOCALBIN)/semver
-
-## Tool Versions
-# renovate: packageName=k8s.io/code-generator/cmd/deepcopy-gen
-DEEPCOPY_GEN_VERSION ?= v0.31.1
-# renovate: packageName=github.com/golangci/golangci-lint/cmd/golangci-lint
-GOLANGCI_LINT_VERSION ?= v1.61.0
-# renovate: packageName=github.com/goreleaser/goreleaser/v2
-GORELEASER_VERSION ?= v2.3.2
-# renovate: packageName=go.uber.org/mock/mockgen
-MOCKGEN_VERSION ?= v0.4.0
-# renovate: packageName=github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen
-OAPI_CODEGEN_VERSION ?= v2.4.1
-# renovate: packageName=github.com/bakito/semver
-SEMVER_VERSION ?= v1.1.3
-
-## Tool Installer
-.PHONY: deepcopy-gen
-deepcopy-gen: $(DEEPCOPY_GEN) ## Download deepcopy-gen locally if necessary.
-$(DEEPCOPY_GEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/deepcopy-gen || GOBIN=$(LOCALBIN) go install k8s.io/code-generator/cmd/deepcopy-gen@$(DEEPCOPY_GEN_VERSION)
-.PHONY: ginkgo
-ginkgo: $(GINKGO) ## Download ginkgo locally if necessary.
-$(GINKGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo
-.PHONY: golangci-lint
-golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
-$(GOLANGCI_LINT): $(LOCALBIN)
-	test -s $(LOCALBIN)/golangci-lint || GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
-.PHONY: goreleaser
-goreleaser: $(GORELEASER) ## Download goreleaser locally if necessary.
-$(GORELEASER): $(LOCALBIN)
-	test -s $(LOCALBIN)/goreleaser || GOBIN=$(LOCALBIN) go install github.com/goreleaser/goreleaser/v2@$(GORELEASER_VERSION)
-.PHONY: mockgen
-mockgen: $(MOCKGEN) ## Download mockgen locally if necessary.
-$(MOCKGEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/mockgen || GOBIN=$(LOCALBIN) go install go.uber.org/mock/mockgen@$(MOCKGEN_VERSION)
-.PHONY: oapi-codegen
-oapi-codegen: $(OAPI_CODEGEN) ## Download oapi-codegen locally if necessary.
-$(OAPI_CODEGEN): $(LOCALBIN)
-	test -s $(LOCALBIN)/oapi-codegen || GOBIN=$(LOCALBIN) go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@$(OAPI_CODEGEN_VERSION)
-.PHONY: semver
-semver: $(SEMVER) ## Download semver locally if necessary.
-$(SEMVER): $(LOCALBIN)
-	test -s $(LOCALBIN)/semver || GOBIN=$(LOCALBIN) go install github.com/bakito/semver@$(SEMVER_VERSION)
-
-## Update Tools
-.PHONY: update-toolbox-tools
-update-toolbox-tools:
-	@rm -f \
-		$(LOCALBIN)/deepcopy-gen \
-		$(LOCALBIN)/ginkgo \
-		$(LOCALBIN)/golangci-lint \
-		$(LOCALBIN)/goreleaser \
-		$(LOCALBIN)/mockgen \
-		$(LOCALBIN)/oapi-codegen \
-		$(LOCALBIN)/semver
-	toolbox makefile --renovate -f $(LOCALDIR)/Makefile \
-		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator \
-		github.com/golangci/golangci-lint/cmd/golangci-lint \
-		github.com/goreleaser/goreleaser/v2 \
-		go.uber.org/mock/mockgen@github.com/uber-go/mock \
-		github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen \
-		github.com/bakito/semver
-## toolbox - end
+test-release: tb.goreleaser
+	$(TB_GORELEASER) --skip=publish --snapshot --clean
 
 start-replica:
 	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:latest
