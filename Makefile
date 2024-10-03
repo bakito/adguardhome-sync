@@ -67,10 +67,10 @@ kind-test:
 # renovate: packageName=AdguardTeam/AdGuardHome
 ADGUARD_HOME_VERSION ?= v0.107.53
 
-model: oapi-codegen
+model: tb.oapi-codegen
 	@mkdir -p tmp
 	go run openapi/main.go $(ADGUARD_HOME_VERSION)
-	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
+	$(TB_OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
 	go run openapi/main.go $(ADGUARD_HOME_VERSION)

@@ -36,6 +36,9 @@ jobs:
         with:
           go-version-file: "go.mod"
 
+      - name: Model
+        run: make model
+
       - name: Test
         run: make test-ci
 
