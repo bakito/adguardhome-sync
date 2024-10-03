@@ -26,7 +26,7 @@ TB_GOLANGCI_LINT_VERSION ?= v1.61.0
 TB_GORELEASER_VERSION ?= v2.3.2
 # renovate: packageName=go.uber.org/mock/mockgen
 TB_MOCKGEN_VERSION ?= v0.4.0
-# renovate: packageName=github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen
+# renovate: packageName=github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 TB_OAPI_CODEGEN_VERSION ?= v2.4.1
 # renovate: packageName=github.com/bakito/semver
 TB_SEMVER_VERSION ?= v1.1.3
@@ -55,7 +55,7 @@ $(TB_MOCKGEN): $(TB_LOCALBIN)
 .PHONY: tb.oapi-codegen
 tb.oapi-codegen: $(TB_OAPI_CODEGEN) ## Download oapi-codegen locally if necessary.
 $(TB_OAPI_CODEGEN): $(TB_LOCALBIN)
-	test -s $(TB_LOCALBIN)/oapi-codegen || GOBIN=$(TB_LOCALBIN) go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@$(TB_OAPI_CODEGEN_VERSION)
+	test -s $(TB_LOCALBIN)/oapi-codegen || GOBIN=$(TB_LOCALBIN) go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@$(TB_OAPI_CODEGEN_VERSION)
 .PHONY: tb.semver
 tb.semver: $(TB_SEMVER) ## Download semver locally if necessary.
 $(TB_SEMVER): $(TB_LOCALBIN)
@@ -81,6 +81,6 @@ tb.update: tb.reset
 		github.com/golangci/golangci-lint/cmd/golangci-lint \
 		github.com/goreleaser/goreleaser/v2 \
 		go.uber.org/mock/mockgen@github.com/uber-go/mock \
-		github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen \
+		github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen \
 		github.com/bakito/semver
 ## toolbox - end
