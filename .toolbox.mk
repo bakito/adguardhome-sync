@@ -1,4 +1,6 @@
 ## toolbox - start
+## Generated with https://github.com/bakito/toolbox
+
 ## Current working directory
 TB_LOCALDIR ?= $(shell which cygpath > /dev/null 2>&1 && cygpath -m $$(pwd) || pwd)
 ## Location to install dependencies to
@@ -59,9 +61,9 @@ tb.semver: $(TB_SEMVER) ## Download semver locally if necessary.
 $(TB_SEMVER): $(TB_LOCALBIN)
 	test -s $(TB_LOCALBIN)/semver || GOBIN=$(TB_LOCALBIN) go install github.com/bakito/semver@$(TB_SEMVER_VERSION)
 
-## Update Tools
-.PHONY: tb.update
-tb.update:
+## Reset Tools
+.PHONY: tb.reset
+tb.reset:
 	@rm -f \
 		$(TB_LOCALBIN)/deepcopy-gen \
 		$(TB_LOCALBIN)/ginkgo \
@@ -70,6 +72,10 @@ tb.update:
 		$(TB_LOCALBIN)/mockgen \
 		$(TB_LOCALBIN)/oapi-codegen \
 		$(TB_LOCALBIN)/semver
+
+## Update Tools
+.PHONY: tb.update
+tb.update: tb.reset
 	toolbox makefile --renovate -f $(TB_LOCALDIR)/Makefile \
 		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator \
 		github.com/golangci/golangci-lint/cmd/golangci-lint \

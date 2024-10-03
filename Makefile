@@ -64,12 +64,15 @@ kind-create:
 kind-test:
 	@./testdata/e2e/bin/install-chart.sh
 
+# renovate: packageName=AdguardTeam/AdGuardHome
+ADGUARD_HOME_VERSION ?= v0.107.52
+
 model: oapi-codegen
 	@mkdir -p tmp
-	go run openapi/main.go v0.107.52
+	go run openapi/main.go $(ADGUARD_HOME_VERSION)
 	$(OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
 
 model-diff:
-	go run openapi/main.go v0.107.52
+	go run openapi/main.go $(ADGUARD_HOME_VERSION)
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml

@@ -4,7 +4,18 @@
     {
       "customType": "regex",
       "datasourceTemplate": "go",
-      "description": "Update toolbox tools in Makefile",
+      "description": "Update toolbox tools in .toolbox.mk",
+      "fileMatch": [
+        "^\\.toolbox\\.mk$"
+      ],
+      "matchStrings": [
+        "# renovate: packageName=(?<packageName>.+?)\\s+.+?_VERSION \\?= (?<currentValue>.+?)\\s"
+      ]
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "github-releases",
+      "description": "Update github _VERSION Makefile",
       "fileMatch": [
         "^Makefile$"
       ],
