@@ -4,18 +4,18 @@ set -e
 for pod in $(kubectl get pods -l bakito.net/adguardhome-sync=replica -o name); do
   echo "## Pod ${pod} logs" >> $GITHUB_STEP_SUMMARY
   echo '```' >> $GITHUB_STEP_SUMMARY
-  LOGS=$(kubectl logs ${pod})
+  K8S_LOGS=$(kubectl logs ${pod})
   # ignore certain errors
-  LOGS=$(echo -e "${LOGS}" |
+  LOGS=$(echo -e "${K8S_LOGS}" |
     grep -v -e "error.* deleting filter .* no such file or directory" |
-    grep -v  "storage: recovered from panic: runtime error: invalid memory address or nil pointer dereference" # https://github.com/AdguardTeam/AdGuardHome/issues/7315
+    grep -v -e '\[error\] storage: recovered from panic: runtime' # https://github.com/AdguardTeam/AdGuardHome/issues/7315
   )
-  # https://github.com/AdguardTeam/AdGuardHome/issues/4944
-  LOGS=$(echo -e "${LOGS}" | grep -v -e "error.* creating dhcpv4 srv")
-  echo -e "${LOGS}" >> $GITHUB_STEP_SUMMARY
-  ERRORS=$(echo -e "${LOGS}"} | grep '\[error\]' | wc -l)
-  echo '```' >> $GITHUB_STEP_SUMMARY
-  echo "Found ${ERRORS} error(s) in ${pod} log" >> $GITHUB_STEP_SUMMARY
-  echo "----------------------------------------------" >> $GITHUB_STEP_SUMMARY
 
+  echo -e "${K8S_LOGS}" >> $GITHUB_STEP_SUMMARY
+  ERRORS=$(echo -e "${LOGS}"} | grep '\[error\]' | wc -l)
+  TOTAL_ERRORS=$(echo -e "${K8S_LOGS}"} | grep '\[error\]' | wc -l)
+  IGNORED_ERRORS=$(echo "${TOTAL_ERRORS} - ${ERRORS}" | bc)
+  echo '```' >> $GITHUB_STEP_SUMMARY
+  echo "Found ${ERRORS} error(s) (${IGNORED_ERRORS} ignored) in ${pod} log" >> $GITHUB_STEP_SUMMARY
+  echo "----------------------------------------------" >> $GITHUB_STEP_SUMMARY
 done
