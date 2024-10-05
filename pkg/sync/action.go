@@ -8,11 +8,6 @@ import (
 )
 
 func setupActions(cfg *types.Config) (actions []syncAction) {
-	if cfg.Features.DNS.ServerConfig {
-		actions = append(actions,
-			action("DNS server config", actionDNSServerConfig),
-		)
-	}
 	if cfg.Features.GeneralSettings {
 		actions = append(actions,
 			action("profile info", actionProfileInfo),
@@ -20,6 +15,11 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("parental", actionParental),
 			action("safe search config", actionSafeSearchConfig),
 			action("safe browsing", actionSafeBrowsing),
+		)
+	}
+	if cfg.Features.DNS.ServerConfig {
+		actions = append(actions,
+			action("DNS server config", actionDNSServerConfig),
 		)
 	}
 	if cfg.Features.QueryLogConfig {
