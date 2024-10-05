@@ -17,6 +17,11 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("safe browsing", actionSafeBrowsing),
 		)
 	}
+	if cfg.Features.DNS.ServerConfig {
+		actions = append(actions,
+			action("DNS server config", actionDNSServerConfig),
+		)
+	}
 	if cfg.Features.QueryLogConfig {
 		actions = append(actions,
 			action("query log config", actionQueryLogConfig),
@@ -50,12 +55,6 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 	if cfg.Features.DNS.AccessLists {
 		actions = append(actions,
 			action("DNS access lists", actionDNSAccessLists),
-		)
-	}
-
-	if cfg.Features.DNS.ServerConfig {
-		actions = append(actions,
-			action("DNS server config", actionDNSServerConfig),
 		)
 	}
 	if cfg.Features.DHCP.ServerConfig {
