@@ -92,9 +92,13 @@ statistics:
   enabled: true
 filters:
   - enabled: true
+    url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+    name: AdGuard DNS filter
+    id: 1
+  - enabled: true
     url: https://adaway.org/hosts.txt
     name: AdAway Default Blocklist
-    id: 1
+    id: 2
 whitelist_filters: []
 user_rules:
   - '||metrics2.data.hicloud.com^$important'
