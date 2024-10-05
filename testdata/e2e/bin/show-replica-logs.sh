@@ -11,7 +11,7 @@ for pod in $(kubectl get pods -l bakito.net/adguardhome-sync=replica -o name); d
     grep -v -e '\[error\] storage: recovered from panic: runtime' # https://github.com/AdguardTeam/AdGuardHome/issues/7315
   )
 
-  echo -e "${LOGS}" >> $GITHUB_STEP_SUMMARY
+  echo -e "${K8S_LOGS}" >> $GITHUB_STEP_SUMMARY
   ERRORS=$(echo -e "${LOGS}"} | grep '\[error\]' | wc -l)
   TOTAL_ERRORS=$(echo -e "${K8S_LOGS}"} | grep '\[error\]' | wc -l)
   IGNORED_ERRORS=$(echo "${TOTAL_ERRORS} - ${ERRORS}" | bc)
