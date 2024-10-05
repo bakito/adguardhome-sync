@@ -8,8 +8,7 @@ for pod in $(kubectl get pods -l bakito.net/adguardhome-sync=replica -o name); d
   # ignore certain errors
   LOGS=$(echo -e "${K8S_LOGS}" |
     grep -v -e "error.* deleting filter .* no such file or directory" |
-    grep -v -e '\[error\] storage: recovered from panic: runtime' | # https://github.com/AdguardTeam/AdGuardHome/issues/7315
-    grep -v -e "error.* creating dhcpv4 srv" # https://github.com/AdguardTeam/AdGuardHome/issues/4944
+    grep -v -e '\[error\] storage: recovered from panic: runtime' # https://github.com/AdguardTeam/AdGuardHome/issues/7315
   )
 
   echo -e "${LOGS}" >> $GITHUB_STEP_SUMMARY
