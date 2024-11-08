@@ -17,7 +17,7 @@ require (
 	go.uber.org/mock v0.5.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
-	golang.org/x/mod v0.21.0
+	golang.org/x/mod v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.31.2
 )
