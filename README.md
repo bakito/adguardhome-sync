@@ -291,20 +291,20 @@ api:
   # enable api dark mode
   darkMode: true
 
- # enable metrics on path '/metrics' (api port must be != 0)
-# metrics:
+  # enable metrics on path '/metrics' (api port must be != 0)
+  # metrics:
   # enabled: true
   # scrapeInterval: 30s 
   # queryLogLimit: 10000
 
-# enable tls for the api server
-# tls:
-#   # the directory of the provided tls certs
-#   certDir: /path/to/certs
-#   # the name of the cert file (default: tls.crt)
-#   certName: foo.crt
-#   # the name of the key file (default: tls.key)
-#   keyName: bar.key
+  # enable tls for the api server
+  # tls:
+  #   # the directory of the provided tls certs
+  #   certDir: /path/to/certs
+  #   # the name of the cert file (default: tls.crt)
+  #   certName: foo.crt
+  #   # the name of the key file (default: tls.key)
+  #   keyName: bar.key
 
 # Configure sync features; by default all features are enabled.
 features:
@@ -337,7 +337,7 @@ The following log levels are supported (default: info)
 ## Log Format
 
 Default log format is `console`.
-It can be changed to `json`by setting the environment variable: `LOG_FORMAT=json`
+It can be changed to `json` by setting the environment variable: `LOG_FORMAT=json`.
 
 ## Video Tutorials
 
