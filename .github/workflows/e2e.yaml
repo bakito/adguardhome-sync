@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup jq
-        uses: dcarbone/install-jq-action@v2
+        uses: dcarbone/install-jq-action@v3
 
       - name: Install kind with registry
         uses: bakito/kind-with-registry-action@main
