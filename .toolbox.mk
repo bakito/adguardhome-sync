@@ -19,7 +19,7 @@ TB_SEMVER ?= $(TB_LOCALBIN)/semver
 
 ## Tool Versions
 # renovate: packageName=k8s.io/code-generator/cmd/deepcopy-gen
-TB_DEEPCOPY_GEN_VERSION ?= v0.31.2
+TB_DEEPCOPY_GEN_VERSION ?= v0.31.3
 # renovate: packageName=github.com/golangci/golangci-lint/cmd/golangci-lint
 TB_GOLANGCI_LINT_VERSION ?= v1.62.0
 # renovate: packageName=github.com/goreleaser/goreleaser/v2
