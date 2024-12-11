@@ -19,7 +19,7 @@ require (
 	golang.org/x/exp v0.0.0-20241204233417-43b7b7cde48d
 	golang.org/x/mod v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/apimachinery v0.31.3
+	k8s.io/apimachinery v0.31.4
 )
 
 require (
