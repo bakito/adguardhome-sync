@@ -155,10 +155,13 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 }
 
 func Update(ims ...InstanceMetrics) {
+	s := OverallStats{}
 	for _, im := range ims {
 		update(im)
-		stats[im.HostName] = im.Stats
+		s[im.HostName] = im.Stats
 	}
+
+	stats = s
 
 	l.Debug("updated")
 }
@@ -238,13 +241,12 @@ type InstanceMetrics struct {
 
 type OverallStats map[string]*model.Stats
 
-func (s OverallStats) consolidate() map[string]*model.Stats {
-	consolidated := OverallStats{"total": model.NewStats()}
-	for host, stats := range s {
-		consolidated[host] = stats
-		consolidated["total"].Add(stats)
+func (s OverallStats) consolidate() *model.Stats {
+	total := model.NewStats()
+	for _, stats := range s {
+		total.Add(stats)
 	}
-	return consolidated
+	return total
 }
 
 func safeMetric[T Number](v *T) float64 {
@@ -258,6 +260,6 @@ type Number interface {
 	constraints.Float | constraints.Integer
 }
 
-func GetStats() map[string]*model.Stats {
+func GetStats() *model.Stats {
 	return stats.consolidate()
 }

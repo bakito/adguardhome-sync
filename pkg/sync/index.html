@@ -54,13 +54,13 @@
             text-align: left;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;  /* Ensure the content is spaced out, with canvas at the bottom */
+            justify-content: space-between;
             height: 100%;
         }
         {{- if .Metrics }}
         body {
-            background-color: rgb(30, 30, 30); /* Dark background */
-            color: rgb(255, 255, 255); /* White text */
+            background-color: rgb(30, 30, 30);
+            color: rgb(255, 255, 255);
             font-family: Arial, sans-serif;
         }
         .stat-card h3 {
@@ -70,23 +70,23 @@
         .stat-card p {
             margin: 5px 0;
             font-size: 0.9rem;
-            color: rgb(78, 141, 245); /* Blue text */
+            color: rgb(78, 141, 245);
         }
         .percentage {
             font-size: 0.9rem;
             text-align: right;
-            height: 20px;  /* Adjusted height to provide more space for canvas */
+            height: 20px;
         }
         canvas {
-            flex-grow: 1;  /* Take up the available space */
-            height: 100px !important;  /* Set a fixed height for the canvas */
+            flex-grow: 1;
+            height: 100px !important;
         }
         {{- end }}
         .button-row {
-            margin-top: 20px; /* Add spacing from previous sections */
+            margin-top: 20px;
         }
         .btn-group {
-            margin: 5px; /* Add spacing between button groups */
+            margin: 5px;
         }
     </style>
 </head>
@@ -120,7 +120,7 @@
 
         <div class="col-12 col-md-3 d-flex">
             <div class="stat-card flex-fill">
-                <div class="percentage"></div>
+                <div class="percentage" style="color: rgb(110, 224, 122);">{{.Stats.MalwarePercentage}}%</div>
                 <h3 style="color: rgb(110, 224, 122);">{{.Stats.TotalMalware}}</h3>
                 <p>Blocked malware/phishing</p>
                 <canvas id="malwareChart"></canvas>
@@ -129,7 +129,7 @@
 
         <div class="col-12 col-md-3 d-flex">
             <div class="stat-card flex-fill">
-                <div class="percentage"></div>
+                <div class="percentage" style="color: rgb(232, 198, 78);">{{.Stats.AdultPercentage}}%</div>
                 <h3 style="color: rgb(232, 198, 78);">{{.Stats.TotalAdult}}</h3>
                 <p>Blocked adult websites</p>
                 <canvas id="adultWebsitesChart"></canvas>
@@ -206,14 +206,14 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        enabled: true, // Enable tooltips
+                        enabled: true,
                         bodyFont: {
-                            size: 20 // Set the font size for the body text
+                            size: 20
                         },
                         titleFont: {
-                            size: 20 // Set font size for the title
+                            size: 20
                         },
-                        displayColors: false, // Optionally, hide color boxes
+                        displayColors: false,
                         callbacks: {
                             label: function(tooltipItem) {
                                 return tooltipItem.raw;
@@ -237,7 +237,6 @@
         });
     }
 
-    // Create charts with specific RGB colors
     createMinimalChart('dnsQueriesChart', {{.Stats.DNS}}, 78, 141, 245);   // RGB Blue
     createMinimalChart('blockedFiltersChart', {{.Stats.Blocked}}, 255, 94, 94); // RGB Red
     createMinimalChart('malwareChart', {{.Stats.Malware}}, 110, 224, 122);     // RGB Green
