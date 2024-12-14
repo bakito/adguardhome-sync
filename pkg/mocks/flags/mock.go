@@ -19,6 +19,7 @@ import (
 type MockFlags struct {
 	ctrl     *gomock.Controller
 	recorder *MockFlagsMockRecorder
+	isgomock struct{}
 }
 
 // MockFlagsMockRecorder is the mock recorder for MockFlags.
@@ -39,60 +40,60 @@ func (m *MockFlags) EXPECT() *MockFlagsMockRecorder {
 }
 
 // Changed mocks base method.
-func (m *MockFlags) Changed(arg0 string) bool {
+func (m *MockFlags) Changed(name string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Changed", arg0)
+	ret := m.ctrl.Call(m, "Changed", name)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // Changed indicates an expected call of Changed.
-func (mr *MockFlagsMockRecorder) Changed(arg0 any) *gomock.Call {
+func (mr *MockFlagsMockRecorder) Changed(name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Changed", reflect.TypeOf((*MockFlags)(nil).Changed), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Changed", reflect.TypeOf((*MockFlags)(nil).Changed), name)
 }
 
 // GetBool mocks base method.
-func (m *MockFlags) GetBool(arg0 string) (bool, error) {
+func (m *MockFlags) GetBool(name string) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBool", arg0)
+	ret := m.ctrl.Call(m, "GetBool", name)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetBool indicates an expected call of GetBool.
-func (mr *MockFlagsMockRecorder) GetBool(arg0 any) *gomock.Call {
+func (mr *MockFlagsMockRecorder) GetBool(name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBool", reflect.TypeOf((*MockFlags)(nil).GetBool), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBool", reflect.TypeOf((*MockFlags)(nil).GetBool), name)
 }
 
 // GetInt mocks base method.
-func (m *MockFlags) GetInt(arg0 string) (int, error) {
+func (m *MockFlags) GetInt(name string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetInt", arg0)
+	ret := m.ctrl.Call(m, "GetInt", name)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetInt indicates an expected call of GetInt.
-func (mr *MockFlagsMockRecorder) GetInt(arg0 any) *gomock.Call {
+func (mr *MockFlagsMockRecorder) GetInt(name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInt", reflect.TypeOf((*MockFlags)(nil).GetInt), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInt", reflect.TypeOf((*MockFlags)(nil).GetInt), name)
 }
 
 // GetString mocks base method.
-func (m *MockFlags) GetString(arg0 string) (string, error) {
+func (m *MockFlags) GetString(name string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetString", arg0)
+	ret := m.ctrl.Call(m, "GetString", name)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetString indicates an expected call of GetString.
-func (mr *MockFlagsMockRecorder) GetString(arg0 any) *gomock.Call {
+func (mr *MockFlagsMockRecorder) GetString(name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetString", reflect.TypeOf((*MockFlags)(nil).GetString), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetString", reflect.TypeOf((*MockFlags)(nil).GetString), name)
 }

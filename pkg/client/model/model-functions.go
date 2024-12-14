@@ -8,6 +8,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
+	"k8s.io/utils/ptr"
 )
 
 // Clone the config
@@ -449,4 +450,54 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 // Equals GetStatsConfigResponse equal check
 func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
 	return utils.JsonEquals(sc, o)
+}
+
+func NewStats() *Stats {
+	return &Stats{
+		NumBlockedFiltering:     ptr.To(0),
+		NumReplacedParental:     ptr.To(0),
+		NumReplacedSafesearch:   ptr.To(0),
+		NumReplacedSafebrowsing: ptr.To(0),
+		NumDnsQueries:           ptr.To(0),
+
+		BlockedFiltering:     ptr.To(make([]int, 24)),
+		DnsQueries:           ptr.To(make([]int, 24)),
+		ReplacedParental:     ptr.To(make([]int, 24)),
+		ReplacedSafebrowsing: ptr.To(make([]int, 24)),
+	}
+}
+
+func (s *Stats) Add(other *Stats) {
+	s.NumBlockedFiltering = addInt(s.NumBlockedFiltering, other.NumBlockedFiltering)
+	s.NumReplacedSafebrowsing = addInt(s.NumReplacedSafebrowsing, other.NumReplacedSafebrowsing)
+	s.NumDnsQueries = addInt(s.NumDnsQueries, other.NumDnsQueries)
+	s.NumReplacedSafesearch = addInt(s.NumReplacedSafesearch, other.NumReplacedSafesearch)
+	s.NumReplacedParental = addInt(s.NumReplacedParental, other.NumReplacedParental)
+
+	s.BlockedFiltering = sumUp(s.BlockedFiltering, other.BlockedFiltering)
+	s.DnsQueries = sumUp(s.DnsQueries, other.DnsQueries)
+	s.ReplacedParental = sumUp(s.ReplacedParental, other.ReplacedParental)
+	s.ReplacedSafebrowsing = sumUp(s.ReplacedSafebrowsing, other.ReplacedSafebrowsing)
+}
+
+func addInt(t *int, add *int) *int {
+	if add != nil {
+		return ptr.To(*t + *add)
+	}
+	return t
+}
+
+func sumUp(t *[]int, o *[]int) *[]int {
+	if o != nil {
+		tt := *t
+		oo := *o
+		var sum []int
+		for i := 0; i < len(tt); i++ {
+			if len(oo) >= i {
+				sum = append(sum, tt[i]+oo[i])
+			}
+		}
+		return &sum
+	}
+	return t
 }

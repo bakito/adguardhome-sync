@@ -35,9 +35,25 @@ func (w *worker) handleSync(c *gin.Context) {
 func (w *worker) handleRoot(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
 		"DarkMode":   w.cfg.API.DarkMode,
+		"Metrics":    w.cfg.API.Metrics.Enabled,
 		"Version":    version.Version,
 		"Build":      version.Build,
 		"SyncStatus": w.status(),
+		"Stats": map[string]interface{}{
+			"Labels":            getLast24Hours(),
+			"DNS":               metrics.GetStats().DnsQueries,
+			"Blocked":           metrics.GetStats().BlockedFiltering,
+			"BlockedPercentage": fmt.Sprintf("%.2f", (float64(*metrics.GetStats().NumBlockedFiltering)*100.0)/float64(*metrics.GetStats().NumDnsQueries)),
+			"Malware":           metrics.GetStats().ReplacedSafebrowsing,
+			"MalwarePercentage": fmt.Sprintf("%.2f", (float64(*metrics.GetStats().NumReplacedSafebrowsing)*100.0)/float64(*metrics.GetStats().NumDnsQueries)),
+			"Adult":             metrics.GetStats().ReplacedParental,
+			"AdultPercentage":   fmt.Sprintf("%.2f", (float64(*metrics.GetStats().NumReplacedParental)*100.0)/float64(*metrics.GetStats().NumDnsQueries)),
+
+			"TotalDNS":     metrics.GetStats().NumDnsQueries,
+			"TotalBlocked": metrics.GetStats().NumBlockedFiltering,
+			"TotalMalware": metrics.GetStats().NumReplacedSafebrowsing,
+			"TotalAdult":   metrics.GetStats().NumReplacedParental,
+		},
 	},
 	)
 }
@@ -158,4 +174,27 @@ type replicaStatus struct {
 	Status            string `json:"status"`
 	Error             string `json:"error,omitempty"`
 	ProtectionEnabled *bool  `json:"protection_enabled"`
+}
+
+func getLast24Hours() []string {
+	var result []string
+	currentTime := time.Now()
+
+	// Loop to get the last 24 hours
+	for i := 0; i < 24; i++ {
+		// Calculate the time for the current hour in the loop
+		timeInstance := currentTime.Add(time.Duration(-i) * time.Hour)
+		timeInstance = timeInstance.Truncate(time.Hour)
+
+		// Format the time as "14 Dec 17:00"
+		formattedTime := timeInstance.Format("02 Jan 15:04")
+		result = append(result, formattedTime)
+	}
+
+	// Reverse the slice to get the correct order (from oldest to latest)
+	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
+		result[i], result[j] = result[j], result[i]
+	}
+
+	return result
 }
