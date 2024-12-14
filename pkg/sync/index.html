@@ -207,18 +207,16 @@
                     legend: { display: false },
                     tooltip: {
                         enabled: true, // Enable tooltips
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Tooltip background color
                         bodyFont: {
-                            size: 30 // Set the font size for the body text
+                            size: 20 // Set the font size for the body text
                         },
                         titleFont: {
-                            size: 30 // Set font size for the title
+                            size: 20 // Set font size for the title
                         },
-                        padding: 20, // Add extra padding inside the tooltip
                         displayColors: false, // Optionally, hide color boxes
                         callbacks: {
                             label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw; // Custom tooltip content
+                                return tooltipItem.raw;
                             }
                         }
                     }
