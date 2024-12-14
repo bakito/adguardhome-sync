@@ -35,6 +35,7 @@ func (w *worker) handleSync(c *gin.Context) {
 func (w *worker) handleRoot(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
 		"DarkMode":   w.cfg.API.DarkMode,
+		"Metrics":    w.cfg.API.Metrics.Enabled,
 		"Version":    version.Version,
 		"Build":      version.Build,
 		"SyncStatus": w.status(),

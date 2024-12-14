@@ -3,12 +3,6 @@
     <title>AdGuardHome sync</title>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
-    </script>
     {{- if .DarkMode }}
     <link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css"
           crossorigin="anonymous">
@@ -52,17 +46,18 @@
     </script>
     <link rel="shortcut icon" href="favicon.ico">
     <style>
-        body {
-            background-color: rgb(30, 30, 30); /* Dark background */
-            color: rgb(255, 255, 255); /* White text */
-            font-family: Arial, sans-serif;
-        }
         .stat-card {
             background-color: rgb(43, 43, 43);
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
             padding: 15px;
             text-align: left;
+        }
+        {{- if .Metrics }}
+        body {
+            background-color: rgb(30, 30, 30); /* Dark background */
+            color: rgb(255, 255, 255); /* White text */
+            font-family: Arial, sans-serif;
         }
         .stat-card h3 {
             margin: 0;
@@ -81,6 +76,7 @@
         canvas {
             height: 50px !important;
         }
+        {{- end }}
         .button-row {
             margin-top: 20px; /* Add spacing from previous sections */
         }
@@ -97,18 +93,17 @@
         <p class="h6">{{ .Version }} ({{ .Build }})</p>
         </p>
     </div>
+    {{- if .Metrics }}
     <div class="row g-4">
-        <!-- DNS Queries Card -->
         <div class="col-12 col-md-3">
             <div class="stat-card">
-                <div class="percentage">27.42%</div>
-                <h3>620</h3>
+                <div class="percentage" style="color: rgb(78, 141, 245);">27.42%</div>
+                <h3 style="color: rgb(78, 141, 245);">620</h3>
                 <p>DNS Queries</p>
                 <canvas id="dnsQueriesChart"></canvas>
             </div>
         </div>
 
-        <!-- Blocked by Filters Card -->
         <div class="col-12 col-md-3">
             <div class="stat-card">
                 <div class="percentage" style="color: rgb(255, 94, 94);">27.42%</div>
@@ -118,7 +113,6 @@
             </div>
         </div>
 
-        <!-- Malware/Phishing Card -->
         <div class="col-12 col-md-3">
             <div class="stat-card">
                 <div class="percentage" style="color: rgb(110, 224, 122);">0%</div>
@@ -128,7 +122,6 @@
             </div>
         </div>
 
-        <!-- Adult Websites Card -->
         <div class="col-12 col-md-3">
             <div class="stat-card">
                 <div class="percentage" style="color: rgb(232, 198, 78);">0%</div>
@@ -138,6 +131,7 @@
             </div>
         </div>
     </div>
+    {{- end }}
     <div class="row button-row">
         <div class="col">
             <div class="btn-group" role="group">
@@ -172,5 +166,82 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+</script>
+{{- if .Metrics }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Mock data for minimal line charts
+    const lineData = [0, 10, 5, 25, 15, 50, 30];
+
+    // Function to create minimal line charts
+    function createMinimalChart(canvasId, r, g, b) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: lineData.length }, (_, i) => i + 1),
+                datasets: [{
+                    data: lineData,
+                    backgroundColor: `rgb(${r}, ${g}, ${b}, 0.2)`,
+                    borderColor: `rgb(${r}, ${g}, ${b}, 1)`,
+                    borderWidth: 2,
+                    fill: true,
+                    pointRadius: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true, // Enable tooltips
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Tooltip background color
+                        bodyFont: {
+                            size: 18 // Set the font size for the body text
+                        },
+                        titleFont: {
+                            size: 20 // Set font size for the title
+                        },
+                        padding: 20, // Add extra padding inside the tooltip
+                        displayColors: false, // Optionally, hide color boxes
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw; // Custom tooltip content
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { display: false,
+                        title: {
+                            display: true
+                        }
+                    },
+                    y: { display: false,
+                        title: {
+                            display: true
+                        } }
+                }
+            }
+        });
+    }
+
+    // Create charts with specific RGB colors
+    createMinimalChart('dnsQueriesChart', 78, 141, 245);   // RGB Blue
+    createMinimalChart('blockedFiltersChart', 255, 94, 94); // RGB Red
+    createMinimalChart('malwareChart', 110, 224, 122);     // RGB Green
+    createMinimalChart('adultWebsitesChart', 232, 198, 78); // RGB Yellow
+</script>
+{{- end }}
 </body>
 </html>
