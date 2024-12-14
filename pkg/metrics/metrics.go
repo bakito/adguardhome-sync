@@ -129,6 +129,8 @@ var (
 		},
 		[]string{"hostname"},
 	)
+
+	stats = OverallStats{}
 )
 
 // Init initializes all Prometheus metrics made available by AdGuard  exporter.
@@ -155,6 +157,7 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 func Update(ims ...InstanceMetrics) {
 	for _, im := range ims {
 		update(im)
+		stats[im.HostName] = im.Stats
 	}
 
 	l.Debug("updated")
@@ -231,6 +234,17 @@ type InstanceMetrics struct {
 	Status   *model.ServerStatus
 	Stats    *model.Stats
 	QueryLog *model.QueryLog
+}
+
+type OverallStats map[string]*model.Stats
+
+func (s OverallStats) consolidate() map[string]*model.Stats {
+	consolidated := OverallStats{"total": model.NewStats()}
+	for host, stats := range s {
+		consolidated[host] = stats
+		consolidated["total"].Add(stats)
+	}
+	return consolidated
 }
 
 func safeMetric[T Number](v *T) float64 {

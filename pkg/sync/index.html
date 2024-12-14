@@ -51,6 +51,43 @@
         });
     </script>
     <link rel="shortcut icon" href="favicon.ico">
+    <style>
+        body {
+            background-color: rgb(30, 30, 30); /* Dark background */
+            color: rgb(255, 255, 255); /* White text */
+            font-family: Arial, sans-serif;
+        }
+        .stat-card {
+            background-color: rgb(43, 43, 43);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            text-align: left;
+        }
+        .stat-card h3 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        .stat-card p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: rgb(78, 141, 245); /* Blue text */
+        }
+        .percentage {
+            font-size: 0.9rem;
+            color: rgb(255, 94, 94); /* Red percentage */
+            text-align: right;
+        }
+        canvas {
+            height: 50px !important;
+        }
+        .button-row {
+            margin-top: 20px; /* Add spacing from previous sections */
+        }
+        .btn-group {
+            margin: 5px; /* Add spacing between button groups */
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid px-4">
@@ -60,7 +97,48 @@
         <p class="h6">{{ .Version }} ({{ .Build }})</p>
         </p>
     </div>
-    <div class="row">
+    <div class="row g-4">
+        <!-- DNS Queries Card -->
+        <div class="col-12 col-md-3">
+            <div class="stat-card">
+                <div class="percentage">27.42%</div>
+                <h3>620</h3>
+                <p>DNS Queries</p>
+                <canvas id="dnsQueriesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Blocked by Filters Card -->
+        <div class="col-12 col-md-3">
+            <div class="stat-card">
+                <div class="percentage" style="color: rgb(255, 94, 94);">27.42%</div>
+                <h3 style="color: rgb(255, 94, 94);">170</h3>
+                <p>Blocked by Filters</p>
+                <canvas id="blockedFiltersChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Malware/Phishing Card -->
+        <div class="col-12 col-md-3">
+            <div class="stat-card">
+                <div class="percentage" style="color: rgb(110, 224, 122);">0%</div>
+                <h3 style="color: rgb(110, 224, 122);">0</h3>
+                <p>Blocked malware/phishing</p>
+                <canvas id="malwareChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Adult Websites Card -->
+        <div class="col-12 col-md-3">
+            <div class="stat-card">
+                <div class="percentage" style="color: rgb(232, 198, 78);">0%</div>
+                <h3 style="color: rgb(232, 198, 78);">0</h3>
+                <p>Blocked adult websites</p>
+                <canvas id="adultWebsitesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row button-row">
         <div class="col">
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-success" id="sync">Synchronize</button>
@@ -87,8 +165,10 @@
         </div>
     </div>
     <div class="row  mt-3">
-        <div class="col-12">
-            <pre class="p-3 border"><code id="logs"></code></pre>
+        <div class="col-12 col-md-12">
+            <div class="stat-card">
+                <pre class="p-3 border"><code id="logs"></code></pre>
+            </div>
         </div>
     </div>
 </div>
