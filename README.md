@@ -225,6 +225,7 @@ services:
       # API_TLS_CERT_NAME: foo.crt
       # the name of the key file (default: tls.key)
       # API_TLS_KEY_NAME: bar.key
+      # API_METRICS_ENABLED: "true"
 
       # Configure sync features; by default all features are enabled.
       # FEATURES_GENERAL_SETTINGS: "true"
