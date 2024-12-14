@@ -257,3 +257,7 @@ func safeMetric[T Number](v *T) float64 {
 type Number interface {
 	constraints.Float | constraints.Integer
 }
+
+func GetStats() map[string]*model.Stats {
+	return stats.consolidate()
+}

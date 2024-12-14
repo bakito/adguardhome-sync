@@ -39,6 +39,19 @@ func (w *worker) handleRoot(c *gin.Context) {
 		"Version":    version.Version,
 		"Build":      version.Build,
 		"SyncStatus": w.status(),
+		"Stats": map[string]interface{}{
+			"Labels":            getLast24Hours(),
+			"DNS":               metrics.GetStats()["total"].DnsQueries,
+			"Blocked":           metrics.GetStats()["total"].BlockedFiltering,
+			"BlockedPercentage": fmt.Sprintf("%.2f", (float64(*metrics.GetStats()["total"].NumBlockedFiltering)*100.0)/float64(*metrics.GetStats()["total"].NumDnsQueries)),
+			"Malware":           metrics.GetStats()["total"].ReplacedSafebrowsing,
+			"Adult":             metrics.GetStats()["total"].ReplacedParental,
+
+			"TotalDNS":     metrics.GetStats()["total"].NumDnsQueries,
+			"TotalBlocked": metrics.GetStats()["total"].NumBlockedFiltering,
+			"TotalMalware": metrics.GetStats()["total"].NumReplacedSafebrowsing,
+			"TotalAdult":   metrics.GetStats()["total"].NumReplacedParental,
+		},
 	},
 	)
 }
@@ -159,4 +172,27 @@ type replicaStatus struct {
 	Status            string `json:"status"`
 	Error             string `json:"error,omitempty"`
 	ProtectionEnabled *bool  `json:"protection_enabled"`
+}
+
+func getLast24Hours() []string {
+	var result []string
+	currentTime := time.Now()
+
+	// Loop to get the last 24 hours
+	for i := 0; i < 24; i++ {
+		// Calculate the time for the current hour in the loop
+		timeInstance := currentTime.Add(time.Duration(-i) * time.Hour)
+		timeInstance = timeInstance.Truncate(time.Hour)
+
+		// Format the time as "14 Dec 17:00"
+		formattedTime := timeInstance.Format("02 Jan 15:04")
+		result = append(result, formattedTime)
+	}
+
+	// Reverse the slice to get the correct order (from oldest to latest)
+	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
+		result[i], result[j] = result[j], result[i]
+	}
+
+	return result
 }

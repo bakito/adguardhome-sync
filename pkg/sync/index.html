@@ -52,6 +52,10 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
             padding: 15px;
             text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;  /* Ensure the content is spaced out, with canvas at the bottom */
+            height: 100%;
         }
         {{- if .Metrics }}
         body {
@@ -70,11 +74,12 @@
         }
         .percentage {
             font-size: 0.9rem;
-            color: rgb(255, 94, 94); /* Red percentage */
             text-align: right;
+            height: 20px;  /* Adjusted height to provide more space for canvas */
         }
         canvas {
-            height: 50px !important;
+            flex-grow: 1;  /* Take up the available space */
+            height: 100px !important;  /* Set a fixed height for the canvas */
         }
         {{- end }}
         .button-row {
@@ -94,38 +99,38 @@
         </p>
     </div>
     {{- if .Metrics }}
-    <div class="row g-4">
-        <div class="col-12 col-md-3">
-            <div class="stat-card">
-                <div class="percentage" style="color: rgb(78, 141, 245);">27.42%</div>
-                <h3 style="color: rgb(78, 141, 245);">620</h3>
+    <div class="row g-4 d-flex">
+        <div class="col-12 col-md-3 d-flex">
+            <div class="stat-card flex-fill">
+                <div class="percentage"></div>
+                <h3 style="color: rgb(78, 141, 245);">{{.Stats.TotalDNS}}</h3>
                 <p>DNS Queries</p>
                 <canvas id="dnsQueriesChart"></canvas>
             </div>
         </div>
 
-        <div class="col-12 col-md-3">
-            <div class="stat-card">
-                <div class="percentage" style="color: rgb(255, 94, 94);">27.42%</div>
-                <h3 style="color: rgb(255, 94, 94);">170</h3>
+        <div class="col-12 col-md-3 d-flex">
+            <div class="stat-card flex-fill">
+                <div class="percentage" style="color: rgb(255, 94, 94);">{{.Stats.BlockedPercentage}}%</div>
+                <h3 style="color: rgb(255, 94, 94);">{{.Stats.TotalBlocked}}</h3>
                 <p>Blocked by Filters</p>
                 <canvas id="blockedFiltersChart"></canvas>
             </div>
         </div>
 
-        <div class="col-12 col-md-3">
-            <div class="stat-card">
-                <div class="percentage" style="color: rgb(110, 224, 122);">0%</div>
-                <h3 style="color: rgb(110, 224, 122);">0</h3>
+        <div class="col-12 col-md-3 d-flex">
+            <div class="stat-card flex-fill">
+                <div class="percentage"></div>
+                <h3 style="color: rgb(110, 224, 122);">{{.Stats.TotalMalware}}</h3>
                 <p>Blocked malware/phishing</p>
                 <canvas id="malwareChart"></canvas>
             </div>
         </div>
 
-        <div class="col-12 col-md-3">
-            <div class="stat-card">
-                <div class="percentage" style="color: rgb(232, 198, 78);">0%</div>
-                <h3 style="color: rgb(232, 198, 78);">0</h3>
+        <div class="col-12 col-md-3 d-flex">
+            <div class="stat-card flex-fill">
+                <div class="percentage"></div>
+                <h3 style="color: rgb(232, 198, 78);">{{.Stats.TotalAdult}}</h3>
                 <p>Blocked adult websites</p>
                 <canvas id="adultWebsitesChart"></canvas>
             </div>
@@ -175,21 +180,18 @@
 {{- if .Metrics }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Mock data for minimal line charts
-    const lineData = [0, 10, 5, 25, 15, 50, 30];
-
     // Function to create minimal line charts
-    function createMinimalChart(canvasId, r, g, b) {
+    function createMinimalChart(canvasId, lineData, r, g, b) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({ length: lineData.length }, (_, i) => i + 1),
+                labels: {{.Stats.Labels}},
                 datasets: [{
                     data: lineData,
                     backgroundColor: `rgb(${r}, ${g}, ${b}, 0.2)`,
                     borderColor: `rgb(${r}, ${g}, ${b}, 1)`,
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: true,
                     pointRadius: 0,
                 }]
@@ -207,10 +209,10 @@
                         enabled: true, // Enable tooltips
                         backgroundColor: 'rgba(0, 0, 0, 0.8)', // Tooltip background color
                         bodyFont: {
-                            size: 18 // Set the font size for the body text
+                            size: 30 // Set the font size for the body text
                         },
                         titleFont: {
-                            size: 20 // Set font size for the title
+                            size: 30 // Set font size for the title
                         },
                         padding: 20, // Add extra padding inside the tooltip
                         displayColors: false, // Optionally, hide color boxes
@@ -228,6 +230,7 @@
                         }
                     },
                     y: { display: false,
+                        min: 0,
                         title: {
                             display: true
                         } }
@@ -237,10 +240,10 @@
     }
 
     // Create charts with specific RGB colors
-    createMinimalChart('dnsQueriesChart', 78, 141, 245);   // RGB Blue
-    createMinimalChart('blockedFiltersChart', 255, 94, 94); // RGB Red
-    createMinimalChart('malwareChart', 110, 224, 122);     // RGB Green
-    createMinimalChart('adultWebsitesChart', 232, 198, 78); // RGB Yellow
+    createMinimalChart('dnsQueriesChart', {{.Stats.DNS}}, 78, 141, 245);   // RGB Blue
+    createMinimalChart('blockedFiltersChart', {{.Stats.Blocked}}, 255, 94, 94); // RGB Red
+    createMinimalChart('malwareChart', {{.Stats.Malware}}, 110, 224, 122);     // RGB Green
+    createMinimalChart('adultWebsitesChart', {{.Stats.Adult}}, 232, 198, 78); // RGB Yellow
 </script>
 {{- end }}
 </body>
