@@ -181,20 +181,27 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Function to create minimal line charts
-    function createMinimalChart(canvasId, lineData, r, g, b) {
+    function createChart(canvasId, data) {
         const ctx = document.getElementById(canvasId).getContext('2d');
+
+        const datasets = Array(data.length);
+        for (let i = 0; i < data.length; i++) {
+            datasets[i] = {
+                data: data[i].lineData,
+                title:  data[i].label,
+                backgroundColor: `rgb(${ data[i].r}, ${ data[i].g}, ${ data[i].b}, 0.2)`,
+                borderColor: `rgb(${ data[i].r}, ${ data[i].g}, ${ data[i].b}, 1)`,
+                borderWidth: 3,
+                fill: true,
+                pointRadius: 0,
+        }
+        }
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: {{.Stats.Labels}},
-                datasets: [{
-                    data: lineData,
-                    backgroundColor: `rgb(${r}, ${g}, ${b}, 0.2)`,
-                    borderColor: `rgb(${r}, ${g}, ${b}, 1)`,
-                    borderWidth: 3,
-                    fill: true,
-                    pointRadius: 0,
-                }]
+                datasets: datasets
             },
             options: {
                 responsive: true,
@@ -216,6 +223,9 @@
                         displayColors: false,
                         callbacks: {
                             label: function(tooltipItem) {
+                                if (tooltipItem.dataset.title) {
+                                    return tooltipItem.raw + " - " + tooltipItem.dataset.title;
+                                }
                                 return tooltipItem.raw;
                             }
                         }
@@ -237,10 +247,10 @@
         });
     }
 
-    createMinimalChart('dnsQueriesChart', {{.Stats.DNS}}, 78, 141, 245);   // RGB Blue
-    createMinimalChart('blockedFiltersChart', {{.Stats.Blocked}}, 255, 94, 94); // RGB Red
-    createMinimalChart('malwareChart', {{.Stats.Malware}}, 110, 224, 122);     // RGB Green
-    createMinimalChart('adultWebsitesChart', {{.Stats.Adult}}, 232, 198, 78); // RGB Yellow
+    createChart('dnsQueriesChart', [{lineData:{{.Stats.DNS}}, r:78, g:141, b:245}]);
+    createChart('blockedFiltersChart', [{lineData:{{.Stats.Blocked}}, r:255, g:94, b:94}]);
+    createChart('malwareChart', [{lineData:{{.Stats.Malware}}, r:110, g:224, b:122}]);
+    createChart('adultWebsitesChart', [{lineData:{{.Stats.Adult}}, r:232, g:198, b:78}]);
 </script>
 {{- end }}
 </body>
