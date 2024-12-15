@@ -33,6 +33,8 @@ func (w *worker) handleSync(c *gin.Context) {
 }
 
 func (w *worker) handleRoot(c *gin.Context) {
+	total, dns, blocked, malware, adult := statsGraph()
+
 	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
 		"DarkMode":   w.cfg.API.DarkMode,
 		"Metrics":    w.cfg.API.Metrics.Enabled,
@@ -41,18 +43,18 @@ func (w *worker) handleRoot(c *gin.Context) {
 		"SyncStatus": w.status(),
 		"Stats": map[string]interface{}{
 			"Labels":            getLast24Hours(),
-			"DNS":               metrics.GetStats().DnsQueries,
-			"Blocked":           metrics.GetStats().BlockedFiltering,
-			"BlockedPercentage": fmt.Sprintf("%.2f", (float64(*metrics.GetStats().NumBlockedFiltering)*100.0)/float64(*metrics.GetStats().NumDnsQueries)),
-			"Malware":           metrics.GetStats().ReplacedSafebrowsing,
-			"MalwarePercentage": fmt.Sprintf("%.2f", (float64(*metrics.GetStats().NumReplacedSafebrowsing)*100.0)/float64(*metrics.GetStats().NumDnsQueries)),
-			"Adult":             metrics.GetStats().ReplacedParental,
-			"AdultPercentage":   fmt.Sprintf("%.2f", (float64(*metrics.GetStats().NumReplacedParental)*100.0)/float64(*metrics.GetStats().NumDnsQueries)),
+			"DNS":               dns,
+			"Blocked":           blocked,
+			"BlockedPercentage": fmt.Sprintf("%.2f", (float64(*total.NumBlockedFiltering)*100.0)/float64(*total.NumDnsQueries)),
+			"Malware":           malware,
+			"MalwarePercentage": fmt.Sprintf("%.2f", (float64(*total.NumReplacedSafebrowsing)*100.0)/float64(*total.NumDnsQueries)),
+			"Adult":             adult,
+			"AdultPercentage":   fmt.Sprintf("%.2f", (float64(*total.NumReplacedParental)*100.0)/float64(*total.NumDnsQueries)),
 
-			"TotalDNS":     metrics.GetStats().NumDnsQueries,
-			"TotalBlocked": metrics.GetStats().NumBlockedFiltering,
-			"TotalMalware": metrics.GetStats().NumReplacedSafebrowsing,
-			"TotalAdult":   metrics.GetStats().NumReplacedParental,
+			"TotalDNS":     total.NumDnsQueries,
+			"TotalBlocked": total.NumBlockedFiltering,
+			"TotalMalware": total.NumReplacedSafebrowsing,
+			"TotalAdult":   total.NumReplacedParental,
 		},
 	},
 	)

@@ -187,14 +187,14 @@
         const datasets = Array(data.length);
         for (let i = 0; i < data.length; i++) {
             datasets[i] = {
-                data: data[i].lineData,
-                title:  data[i].label,
-                backgroundColor: `rgb(${ data[i].r}, ${ data[i].g}, ${ data[i].b}, 0.2)`,
-                borderColor: `rgb(${ data[i].r}, ${ data[i].g}, ${ data[i].b}, 1)`,
+                data: data[i].data,
+                title:  data[i].title,
+                backgroundColor: `rgb(${data[i].r}, ${data[i].g}, ${data[i].b}, 0.2)`,
+                borderColor: `rgb(${data[i].r}, ${data[i].g}, ${data[i].b}, 1)`,
                 borderWidth: 3,
-                fill: true,
+                fill: data[i].fill,
                 pointRadius: 0,
-        }
+            }
         }
 
         new Chart(ctx, {
@@ -247,10 +247,10 @@
         });
     }
 
-    createChart('dnsQueriesChart', [{lineData:{{.Stats.DNS}}, r:78, g:141, b:245}]);
-    createChart('blockedFiltersChart', [{lineData:{{.Stats.Blocked}}, r:255, g:94, b:94}]);
-    createChart('malwareChart', [{lineData:{{.Stats.Malware}}, r:110, g:224, b:122}]);
-    createChart('adultWebsitesChart', [{lineData:{{.Stats.Adult}}, r:232, g:198, b:78}]);
+    createChart('dnsQueriesChart', {{.Stats.DNS}});
+    createChart('blockedFiltersChart', {{.Stats.Blocked}});
+    createChart('malwareChart', {{.Stats.Malware}});
+    createChart('adultWebsitesChart', {{.Stats.Adult}});
 </script>
 {{- end }}
 </body>
