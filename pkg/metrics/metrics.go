@@ -7,6 +7,8 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+const StatsTotal = "total"
+
 var (
 	l = log.GetLogger("metrics")
 
@@ -155,13 +157,10 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 }
 
 func Update(ims ...InstanceMetrics) {
-	s := OverallStats{}
 	for _, im := range ims {
 		update(im)
-		s[im.HostName] = im.Stats
+		stats[im.HostName] = im.Stats
 	}
-
-	stats = s
 
 	l.Debug("updated")
 }
@@ -241,12 +240,13 @@ type InstanceMetrics struct {
 
 type OverallStats map[string]*model.Stats
 
-func (s OverallStats) consolidate() *model.Stats {
-	total := model.NewStats()
-	for _, stats := range s {
-		total.Add(stats)
+func (os OverallStats) consolidate() OverallStats {
+	consolidated := OverallStats{StatsTotal: model.NewStats()}
+	for host, stats := range os {
+		consolidated[host] = stats
+		consolidated[StatsTotal].Add(stats)
 	}
-	return total
+	return consolidated
 }
 
 func safeMetric[T Number](v *T) float64 {
@@ -260,6 +260,10 @@ type Number interface {
 	constraints.Float | constraints.Integer
 }
 
-func GetStats() *model.Stats {
+func GetStats() OverallStats {
 	return stats.consolidate()
+}
+
+func (os OverallStats) Total() *model.Stats {
+	return os[StatsTotal]
 }
