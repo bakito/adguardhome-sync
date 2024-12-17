@@ -1,11 +1,11 @@
 package sync
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/metrics"
-	"golang.org/x/exp/slices"
 )
 
 var (

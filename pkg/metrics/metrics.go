@@ -4,7 +4,6 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/exp/constraints"
 )
 
 const StatsTotal = "total"
@@ -249,15 +248,11 @@ func (os OverallStats) consolidate() OverallStats {
 	return consolidated
 }
 
-func safeMetric[T Number](v *T) float64 {
+func safeMetric[T int | float64 | float32](v *T) float64 {
 	if v == nil {
 		return 0
 	}
 	return float64(*v)
-}
-
-type Number interface {
-	constraints.Float | constraints.Integer
 }
 
 func GetStats() OverallStats {
