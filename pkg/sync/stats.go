@@ -50,19 +50,26 @@ func statsGraph() (*model.Stats, []line, []line, []line, []line) {
 	s := metrics.GetStats()
 	t := s.Total()
 	dns := graphLines(t, s, blue, blueAlternatives, func(s *model.Stats) []int {
-		return *s.DnsQueries
+		return safeStats(s.DnsQueries)
 	})
 	blocked := graphLines(t, s, red, redAlternatives, func(s *model.Stats) []int {
-		return *s.BlockedFiltering
+		return safeStats(s.BlockedFiltering)
 	})
 	malware := graphLines(t, s, green, greenAlternatives, func(s *model.Stats) []int {
-		return *s.ReplacedSafebrowsing
+		return safeStats(s.ReplacedSafebrowsing)
 	})
 	adult := graphLines(t, s, yellow, yellowAlternatives, func(s *model.Stats) []int {
-		return *s.ReplacedParental
+		return safeStats(s.ReplacedParental)
 	})
 
 	return t, dns, blocked, malware, adult
+}
+
+func safeStats(stats *[]int) []int {
+	if stats == nil {
+		return make([]int, 0)
+	}
+	return *stats
 }
 
 func graphLines(t *model.Stats, s metrics.OverallStats, baseColor []int, altColors [][]int, dataCB func(s *model.Stats) []int) []line {
