@@ -66,16 +66,12 @@ func Sync(cfg *types.Config) error {
 		if cfg.API.Port != 0 {
 			w.cron.Start()
 		} else {
+			runOnStartAsync(cfg, w)
 			w.cron.Run()
 		}
 	}
 	if cfg.API.Port != 0 {
-		if cfg.RunOnStart {
-			go func() {
-				l.Info("Running sync on startup")
-				w.sync()
-			}()
-		}
+		runOnStartAsync(cfg, w)
 		w.listenAndServe()
 	} else if cfg.RunOnStart {
 		l.Info("Running sync on startup")
@@ -83,6 +79,15 @@ func Sync(cfg *types.Config) error {
 	}
 
 	return nil
+}
+
+func runOnStartAsync(cfg *types.Config, w *worker) {
+	if cfg.RunOnStart {
+		go func() {
+			l.Info("Running sync on startup")
+			w.sync()
+		}()
+	}
 }
 
 type worker struct {
