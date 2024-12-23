@@ -242,7 +242,10 @@ var _ = Describe("Types", func() {
 			})
 			It("should return 3 one replicas if urls are different", func() {
 				cfg.Replica = &types.AdGuardInstance{URL: url, APIPath: apiPath}
-				cfg.Replicas = []types.AdGuardInstance{{URL: url + "1", APIPath: apiPath}, {URL: url, APIPath: apiPath + "1"}}
+				cfg.Replicas = []types.AdGuardInstance{
+					{URL: url + "1", APIPath: apiPath},
+					{URL: url, APIPath: apiPath + "1"},
+				}
 				r := cfg.UniqueReplicas()
 				Ω(r).Should(HaveLen(3))
 			})
@@ -311,8 +314,14 @@ var _ = Describe("Types", func() {
 				cl2 *model.Client
 			)
 			BeforeEach(func() {
-				cl1 = &model.Client{Name: utils.Ptr("foo"), BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("UTC")}}
-				cl2 = &model.Client{Name: utils.Ptr("foo"), BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("Local")}}
+				cl1 = &model.Client{
+					Name:                    utils.Ptr("foo"),
+					BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("UTC")},
+				}
+				cl2 = &model.Client{
+					Name:                    utils.Ptr("foo"),
+					BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("Local")},
+				}
 			})
 
 			It("should equal if only timezone differs on empty blocked service schedule", func() {

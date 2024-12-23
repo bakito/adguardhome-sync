@@ -273,14 +273,18 @@ var _ = Describe("Sync", func() {
 			})
 			It("should not sync profileInfo if language is not set", func() {
 				ac.origin.profileInfo.Language = ""
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				cl.EXPECT().
+					ProfileInfo().
+					Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
 				cl.EXPECT().SetProfileInfo(ac.origin.profileInfo).Times(0)
 				err := actionProfileInfo(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should not sync profileInfo if theme is not set", func() {
 				ac.origin.profileInfo.Theme = ""
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				cl.EXPECT().
+					ProfileInfo().
+					Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
 				cl.EXPECT().SetProfileInfo(ac.origin.profileInfo).Times(0)
 				err := actionProfileInfo(ac)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -315,7 +319,8 @@ var _ = Describe("Sync", func() {
 				var interval model.QueryLogConfigInterval = 123
 				ac.origin.queryLogConfig.Interval = &interval
 				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
-				cl.EXPECT().SetQueryLogConfig(&model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil}})
+				cl.EXPECT().
+					SetQueryLogConfig(&model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil}})
 				err := actionQueryLogConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
@@ -434,7 +439,9 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should update a filter", func() {
-				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar", Enabled: true}})
+				ac.origin.filters.Filters = utils.Ptr(
+					[]model.Filter{{Name: "foo", Url: "https://foo.bar", Enabled: true}},
+				)
 				rf.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().UpdateFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar", Enabled: true})
@@ -447,16 +454,22 @@ var _ = Describe("Sync", func() {
 				ac.cfg.ContinueOnError = false
 				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).Return(errors.New("test failure"))
+				cl.EXPECT().
+					AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).
+					Return(errors.New("test failure"))
 				err := actionFilters(ac)
 				Ω(err).Should(HaveOccurred())
 			})
 
 			It("should continue after failed added filter", func() {
 				ac.cfg.ContinueOnError = true
-				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}})
+				ac.origin.filters.Filters = utils.Ptr(
+					[]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}},
+				)
 				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).Return(errors.New("test failure"))
+				cl.EXPECT().
+					AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).
+					Return(errors.New("test failure"))
 				cl.EXPECT().AddFilter(false, model.Filter{Name: "bar", Url: "https://bar.foo"})
 				cl.EXPECT().RefreshFilters(gm.Any())
 				err := actionFilters(ac)

@@ -18,39 +18,39 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Origin          AdGuardInstance   `json:"origin" yaml:"origin" env:"ORIGIN"`
-	Replica         *AdGuardInstance  `json:"replica,omitempty" yaml:"replica,omitempty" env:"REPLICA"`
-	Replicas        []AdGuardInstance `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	Cron            string            `json:"cron,omitempty" yaml:"cron,omitempty" env:"CRON"`
-	RunOnStart      bool              `json:"runOnStart,omitempty" yaml:"runOnStart,omitempty" env:"RUN_ON_START"`
+	Origin          AdGuardInstance   `json:"origin"                    yaml:"origin"                    env:"ORIGIN"`
+	Replica         *AdGuardInstance  `json:"replica,omitempty"         yaml:"replica,omitempty"         env:"REPLICA"`
+	Replicas        []AdGuardInstance `json:"replicas,omitempty"        yaml:"replicas,omitempty"`
+	Cron            string            `json:"cron,omitempty"            yaml:"cron,omitempty"            env:"CRON"`
+	RunOnStart      bool              `json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"      env:"RUN_ON_START"`
 	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" env:"PRINT_CONFIG_ONLY"`
 	ContinueOnError bool              `json:"continueOnError,omitempty" yaml:"continueOnError,omitempty" env:"CONTINUE_ON_ERROR"`
-	API             API               `json:"api,omitempty" yaml:"api,omitempty" env:"API"`
-	Features        Features          `json:"features,omitempty" yaml:"features,omitempty" env:"FEATURES_"`
+	API             API               `json:"api,omitempty"             yaml:"api,omitempty"             env:"API"`
+	Features        Features          `json:"features,omitempty"        yaml:"features,omitempty"        env:"FEATURES_"`
 }
 
 // API configuration
 type API struct {
-	Port     int     `json:"port,omitempty" yaml:"port,omitempty" env:"API_PORT"`
+	Port     int     `json:"port,omitempty"     yaml:"port,omitempty"     env:"API_PORT"`
 	Username string  `json:"username,omitempty" yaml:"username,omitempty" env:"API_USERNAME"`
 	Password string  `json:"password,omitempty" yaml:"password,omitempty" env:"API_PASSWORD"`
 	DarkMode bool    `json:"darkMode,omitempty" yaml:"darkMode,omitempty" env:"API_DARK_MODE"`
-	Metrics  Metrics `json:"metrics,omitempty" yaml:"metrics,omitempty" env:"API_METRICS"`
-	TLS      TLS     `json:"tls,omitempty" yaml:"tls,omitempty" env:"API_TLS"`
+	Metrics  Metrics `json:"metrics,omitempty"  yaml:"metrics,omitempty"  env:"API_METRICS"`
+	TLS      TLS     `json:"tls,omitempty"      yaml:"tls,omitempty"      env:"API_TLS"`
 }
 
 // Metrics configuration
 type Metrics struct {
-	Enabled        bool          `json:"enabled,omitempty" yaml:"enabled,omitempty" env:"API_METRICS_ENABLED"`
+	Enabled        bool          `json:"enabled,omitempty"        yaml:"enabled,omitempty"        env:"API_METRICS_ENABLED"`
 	ScrapeInterval time.Duration `json:"scrapeInterval,omitempty" yaml:"scrapeInterval,omitempty" env:"API_METRICS_SCRAPE_INTERVAL"`
-	QueryLogLimit  int           `json:"queryLogLimit,omitempty" yaml:"queryLogLimit,omitempty" env:"API_METRICS_QUERY_LOG_LIMIT"`
+	QueryLogLimit  int           `json:"queryLogLimit,omitempty"  yaml:"queryLogLimit,omitempty"  env:"API_METRICS_QUERY_LOG_LIMIT"`
 }
 
 // TLS configuration
 type TLS struct {
-	CertDir  string `json:"certDir,omitempty" yaml:"certDir,omitempty" env:"API_TLS_CERT_DIR"`
+	CertDir  string `json:"certDir,omitempty"  yaml:"certDir,omitempty"  env:"API_TLS_CERT_DIR"`
 	CertName string `json:"certName,omitempty" yaml:"certName,omitempty" env:"API_TLS_CERT_NAME"`
-	KeyName  string `json:"keyName,omitempty" yaml:"keyName,omitempty" env:"API_TLS_KEY_NAME"`
+	KeyName  string `json:"keyName,omitempty"  yaml:"keyName,omitempty"  env:"API_TLS_KEY_NAME"`
 }
 
 func (t TLS) Enabled() bool {
@@ -140,15 +140,15 @@ func (cfg *Config) Init() error {
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
-	URL                string `json:"url" yaml:"url" env:"URL"`
-	WebURL             string `json:"webURL" yaml:"webURL" env:"WEB_URL"`
-	APIPath            string `json:"apiPath,omitempty" yaml:"apiPath,omitempty" env:"API_PATH"`
-	Username           string `json:"username,omitempty" yaml:"username,omitempty" env:"USERNAME"`
-	Password           string `json:"password,omitempty" yaml:"password,omitempty" env:"PASSWORD"`
-	Cookie             string `json:"cookie,omitempty" yaml:"cookie,omitempty" env:"COOKIE"`
-	InsecureSkipVerify bool   `json:"insecureSkipVerify" yaml:"insecureSkipVerify" env:"INSECURE_SKIP_VERIFY"`
-	AutoSetup          bool   `json:"autoSetup" yaml:"autoSetup" env:"AUTO_SETUP"`
-	InterfaceName      string `json:"interfaceName,omitempty" yaml:"interfaceName,omitempty" env:"INTERFACE_NAME"`
+	URL                string `json:"url"                         yaml:"url"                         env:"URL"`
+	WebURL             string `json:"webURL"                      yaml:"webURL"                      env:"WEB_URL"`
+	APIPath            string `json:"apiPath,omitempty"           yaml:"apiPath,omitempty"           env:"API_PATH"`
+	Username           string `json:"username,omitempty"          yaml:"username,omitempty"          env:"USERNAME"`
+	Password           string `json:"password,omitempty"          yaml:"password,omitempty"          env:"PASSWORD"`
+	Cookie             string `json:"cookie,omitempty"            yaml:"cookie,omitempty"            env:"COOKIE"`
+	InsecureSkipVerify bool   `json:"insecureSkipVerify"          yaml:"insecureSkipVerify"          env:"INSECURE_SKIP_VERIFY"`
+	AutoSetup          bool   `json:"autoSetup"                   yaml:"autoSetup"                   env:"AUTO_SETUP"`
+	InterfaceName      string `json:"interfaceName,omitempty"     yaml:"interfaceName,omitempty"     env:"INTERFACE_NAME"`
 	DHCPServerEnabled  *bool  `json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty" env:"DHCP_SERVER_ENABLED"`
 
 	Host    string `json:"-" yaml:"-"`

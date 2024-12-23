@@ -172,7 +172,8 @@ func (w *worker) sync() {
 	}
 
 	if versions.IsNewerThan(versions.MinAgh, o.status.Version) {
-		sl.With("error", err, "version", o.status.Version).Errorf("Origin AdGuard Home version must be >= %s", versions.MinAgh)
+		sl.With("error", err, "version", o.status.Version).
+			Errorf("Origin AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}
 
@@ -280,12 +281,14 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl.With("version", replicaStatus.Version).Info("Connected to replica")
 
 	if versions.IsNewerThan(versions.MinAgh, replicaStatus.Version) {
-		rl.With("error", err, "version", replicaStatus.Version).Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
+		rl.With("error", err, "version", replicaStatus.Version).
+			Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
 		return
 	}
 
 	if o.status.Version != replicaStatus.Version {
-		rl.With("originVersion", o.status.Version, "replicaVersion", replicaStatus.Version).Warn("Versions do not match")
+		rl.With("originVersion", o.status.Version, "replicaVersion", replicaStatus.Version).
+			Warn("Versions do not match")
 	}
 
 	ac := &actionContext{
@@ -308,7 +311,11 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl.Info("Sync done")
 }
 
-func (w *worker) statusWithSetup(rl *zap.SugaredLogger, replica types.AdGuardInstance, rc client.Client) (*model.ServerStatus, error) {
+func (w *worker) statusWithSetup(
+	rl *zap.SugaredLogger,
+	replica types.AdGuardInstance,
+	rc client.Client,
+) (*model.ServerStatus, error) {
 	rs, err := rc.Status()
 	if err != nil {
 		if replica.AutoSetup && errors.Is(err, client.ErrSetupNeeded) {

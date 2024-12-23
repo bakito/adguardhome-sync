@@ -27,15 +27,15 @@ func NewFeatures(enabled bool) Features {
 
 // Features feature flags
 type Features struct {
-	DNS             DNS  `json:"dns" yaml:"dns"`
-	DHCP            DHCP `json:"dhcp" yaml:"dhcp"`
+	DNS             DNS  `json:"dns"             yaml:"dns"`
+	DHCP            DHCP `json:"dhcp"            yaml:"dhcp"`
 	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" env:"FEATURES_GENERAL_SETTINGS"`
-	QueryLogConfig  bool `json:"queryLogConfig" yaml:"queryLogConfig" env:"FEATURES_QUERY_LOG_CONFIG"`
-	StatsConfig     bool `json:"statsConfig" yaml:"statsConfig" env:"FEATURES_STATS_CONFIG"`
-	ClientSettings  bool `json:"clientSettings" yaml:"clientSettings" env:"FEATURES_CLIENT_SETTINGS"`
-	Services        bool `json:"services" yaml:"services" env:"FEATURES_SERVICES"`
-	Filters         bool `json:"filters" yaml:"filters" env:"FEATURES_FILTERS"`
-	Theme           bool `json:"theme" yaml:"theme" env:"FEATURES_THEME"`
+	QueryLogConfig  bool `json:"queryLogConfig"  yaml:"queryLogConfig"  env:"FEATURES_QUERY_LOG_CONFIG"`
+	StatsConfig     bool `json:"statsConfig"     yaml:"statsConfig"     env:"FEATURES_STATS_CONFIG"`
+	ClientSettings  bool `json:"clientSettings"  yaml:"clientSettings"  env:"FEATURES_CLIENT_SETTINGS"`
+	Services        bool `json:"services"        yaml:"services"        env:"FEATURES_SERVICES"`
+	Filters         bool `json:"filters"         yaml:"filters"         env:"FEATURES_FILTERS"`
+	Theme           bool `json:"theme"           yaml:"theme"           env:"FEATURES_THEME"`
 }
 
 // DHCP features
@@ -46,9 +46,9 @@ type DHCP struct {
 
 // DNS features
 type DNS struct {
-	AccessLists  bool `json:"accessLists" yaml:"accessLists" env:"FEATURES_DNS_ACCESS_LISTS"`
+	AccessLists  bool `json:"accessLists"  yaml:"accessLists"  env:"FEATURES_DNS_ACCESS_LISTS"`
 	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" env:"FEATURES_DNS_SERVER_CONFIG"`
-	Rewrites     bool `json:"rewrites" yaml:"rewrites" env:"FEATURES_DNS_REWRITES"`
+	Rewrites     bool `json:"rewrites"     yaml:"rewrites"     env:"FEATURES_DNS_REWRITES"`
 }
 
 // LogDisabled log all disabled features
