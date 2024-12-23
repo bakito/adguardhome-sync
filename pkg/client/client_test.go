@@ -137,7 +137,14 @@ var _ = Describe("Client", func() {
 
 	Context("Setup", func() {
 		It("should add setup the instance", func() {
-			ts, cl = ClientPost("/install/configure", fmt.Sprintf(`{"web":{"ip":"0.0.0.0","port":3000,"status":"","can_autofix":false},"dns":{"ip":"0.0.0.0","port":53,"status":"","can_autofix":false},"username":"%s","password":"%s"}`, username, password))
+			ts, cl = ClientPost(
+				"/install/configure",
+				fmt.Sprintf(
+					`{"web":{"ip":"0.0.0.0","port":3000,"status":"","can_autofix":false},"dns":{"ip":"0.0.0.0","port":53,"status":"","can_autofix":false},"username":"%s","password":"%s"}`,
+					username,
+					password,
+				),
+			)
 			err := cl.Setup()
 			Ω(err).ShouldNot(HaveOccurred())
 		})
@@ -303,7 +310,10 @@ var _ = Describe("Client", func() {
 			Ω(*qlc.Interval).Should(Equal(model.QueryLogConfigInterval(90)))
 		})
 		It("should set QueryLogConfig", func() {
-			ts, cl = ClientPut("/querylog/config/update", `{"anonymize_client_ip":true,"enabled":true,"interval":123,"ignored":["foo.bar"]}`)
+			ts, cl = ClientPut(
+				"/querylog/config/update",
+				`{"anonymize_client_ip":true,"enabled":true,"interval":123,"ignored":["foo.bar"]}`,
+			)
 
 			var interval model.QueryLogConfigInterval = 123
 			err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{

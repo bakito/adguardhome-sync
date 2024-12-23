@@ -72,7 +72,13 @@ func safeStats(stats *[]int) []int {
 	return *stats
 }
 
-func graphLines(t *model.Stats, s metrics.OverallStats, baseColor []int, altColors [][]int, dataCB func(s *model.Stats) []int) []line {
+func graphLines(
+	t *model.Stats,
+	s metrics.OverallStats,
+	baseColor []int,
+	altColors [][]int,
+	dataCB func(s *model.Stats) []int,
+) []line {
 	g := &graph{
 		total: line{
 			Fill:  true,

@@ -20,7 +20,9 @@ func main() {
 	}
 	log.Printf("Patching schema version %s\n", version)
 
-	resp, err := http.Get(fmt.Sprintf("https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/%s/openapi/openapi.yaml", version))
+	resp, err := http.Get(
+		fmt.Sprintf("https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/%s/openapi/openapi.yaml", version),
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}

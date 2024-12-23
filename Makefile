@@ -14,6 +14,9 @@ generate: tb.deepcopy-gen
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
 	$(TB_DEEPCOPY_GEN) --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
 
+fmt: tb.golines tb.gofumpt
+	$(TB_GOLINES) --base-formatter="$(TB_GOFUMPT)" --max-len=120 --write-output .
+
 # Run tests
 test: generate lint test-ci
 

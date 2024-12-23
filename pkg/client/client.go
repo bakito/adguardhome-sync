@@ -166,7 +166,10 @@ func (cl *client) Stats() (*model.Stats, error) {
 
 func (cl *client) QueryLog(limit int) (*model.QueryLog, error) {
 	ql := &model.QueryLog{}
-	err := cl.doGet(cl.client.R().EnableTrace().SetResult(ql), fmt.Sprintf(`querylog?limit=%d&response_status="all"`, limit))
+	err := cl.doGet(
+		cl.client.R().EnableTrace().SetResult(ql),
+		fmt.Sprintf(`querylog?limit=%d&response_status="all"`, limit),
+	)
 	return ql, err
 }
 
@@ -260,7 +263,10 @@ func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
 
 func (cl *client) RefreshFilters(whitelist bool) error {
 	cl.log.With("whitelist", whitelist).Info("Refresh filter")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: utils.Ptr(whitelist)}), "/filtering/refresh")
+	return cl.doPost(
+		cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: utils.Ptr(whitelist)}),
+		"/filtering/refresh",
+	)
 }
 
 func (cl *client) ToggleProtection(enable bool) error {
@@ -309,7 +315,10 @@ func (cl *client) AddClient(client *model.Client) error {
 
 func (cl *client) UpdateClient(client *model.Client) error {
 	cl.log.With("name", *client.Name).Info("Update client settings")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.ClientUpdate{Name: client.Name, Data: client}), "/clients/update")
+	return cl.doPost(
+		cl.client.R().EnableTrace().SetBody(&model.ClientUpdate{Name: client.Name, Data: client}),
+		"/clients/update",
+	)
 }
 
 func (cl *client) DeleteClient(client *model.Client) error {
@@ -324,7 +333,8 @@ func (cl *client) QueryLogConfig() (*model.QueryLogConfigWithIgnored, error) {
 }
 
 func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfigWithIgnored) error {
-	cl.log.With("enabled", *qlc.Enabled, "interval", *qlc.Interval, "anonymizeClientIP", *qlc.AnonymizeClientIp).Info("Set query log config")
+	cl.log.With("enabled", *qlc.Enabled, "interval", *qlc.Interval, "anonymizeClientIP", *qlc.AnonymizeClientIp).
+		Info("Set query log config")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(qlc), "/querylog/config/update")
 }
 

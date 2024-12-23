@@ -105,7 +105,8 @@ var (
 			return ac.client.SetCustomRules(ac.origin.filters.UserRules)
 		}
 
-		if !utils.PtrEquals(ac.origin.filters.Enabled, rf.Enabled) || !utils.PtrEquals(ac.origin.filters.Interval, rf.Interval) {
+		if !utils.PtrEquals(ac.origin.filters.Enabled, rf.Enabled) ||
+			!utils.PtrEquals(ac.origin.filters.Interval, rf.Interval) {
 			return ac.client.ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
 		}
 		return nil
@@ -236,7 +237,14 @@ var (
 	}
 )
 
-func syncFilterType(rl *zap.SugaredLogger, of *[]model.Filter, rFilters *[]model.Filter, whitelist bool, replica client.Client, continueOnError bool) error {
+func syncFilterType(
+	rl *zap.SugaredLogger,
+	of *[]model.Filter,
+	rFilters *[]model.Filter,
+	whitelist bool,
+	replica client.Client,
+	continueOnError bool,
+) error {
 	fa, fu, fd := model.MergeFilters(rFilters, of)
 
 	for _, f := range fd {
