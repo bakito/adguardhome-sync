@@ -42,5 +42,6 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^chore'
 release:
   prerelease: auto
