@@ -397,6 +397,17 @@ type ClientsFindEntry map[string]ClientFindSubEntry
 // ClientsFindResponse Client search results.
 type ClientsFindResponse = []ClientsFindEntry
 
+// ClientsSearchRequest Client search request
+type ClientsSearchRequest struct {
+	Clients *[]ClientsSearchRequestItem `json:"clients,omitempty"`
+}
+
+// ClientsSearchRequestItem defines model for ClientsSearchRequestItem.
+type ClientsSearchRequestItem struct {
+	// Id Client IP address, CIDR, MAC address, or ClientID
+	Id *string `json:"id,omitempty"`
+}
+
 // DNSConfig DNS server configuration
 type DNSConfig struct {
 	// BlockedResponseTtl TTL for blocked responses.
@@ -725,11 +736,18 @@ type Login struct {
 // NetInterface Network interface info
 type NetInterface struct {
 	// Flags Flags could be any combination of the following values, divided by the "|" character: "up", "broadcast", "loopback", "pointtopoint" and "multicast".
-	Flags           string    `json:"flags"`
-	HardwareAddress string    `json:"hardware_address"`
-	IpAddresses     *[]string `json:"ip_addresses,omitempty"`
-	Mtu             int       `json:"mtu"`
-	Name            string    `json:"name"`
+	Flags string `json:"flags"`
+
+	// GatewayIp The IP address of the gateway.
+	GatewayIp       string `json:"gateway_ip"`
+	HardwareAddress string `json:"hardware_address"`
+
+	// Ipv4Addresses The addresses of the interface of v4 family.
+	Ipv4Addresses []string `json:"ipv4_addresses"`
+
+	// Ipv6Addresses The addresses of the interface of v6 family.
+	Ipv6Addresses []string `json:"ipv6_addresses"`
+	Name          string   `json:"name"`
 }
 
 // NetInterfaces Network interfaces dictionary, keys are interface names.
@@ -1205,6 +1223,9 @@ type ClientsAddJSONRequestBody = Client
 // ClientsDeleteJSONRequestBody defines body for ClientsDelete for application/json ContentType.
 type ClientsDeleteJSONRequestBody = ClientDelete
 
+// ClientsSearchJSONRequestBody defines body for ClientsSearch for application/json ContentType.
+type ClientsSearchJSONRequestBody = ClientsSearchRequest
+
 // ClientsUpdateJSONRequestBody defines body for ClientsUpdate for application/json ContentType.
 type ClientsUpdateJSONRequestBody = ClientUpdate
 
@@ -1493,6 +1514,11 @@ type ClientInterface interface {
 
 	// ClientsFind request
 	ClientsFind(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClientsSearchWithBody request with any body
+	ClientsSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ClientsSearch(ctx context.Context, body ClientsSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ClientsUpdateWithBody request with any body
 	ClientsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1976,6 +2002,30 @@ func (c *AdguardHomeClient) ClientsDelete(ctx context.Context, body ClientsDelet
 
 func (c *AdguardHomeClient) ClientsFind(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewClientsFindRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsSearchWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsSearchRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) ClientsSearch(ctx context.Context, body ClientsSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClientsSearchRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3670,6 +3720,46 @@ func NewClientsFindRequest(server string, params *ClientsFindParams) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewClientsSearchRequest calls the generic ClientsSearch builder with application/json body
+func NewClientsSearchRequest(server string, body ClientsSearchJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewClientsSearchRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewClientsSearchRequestWithBody generates requests for ClientsSearch with any type of body
+func NewClientsSearchRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clients/search")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -5984,6 +6074,11 @@ type ClientWithResponsesInterface interface {
 	// ClientsFindWithResponse request
 	ClientsFindWithResponse(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*ClientsFindResp, error)
 
+	// ClientsSearchWithBodyWithResponse request with any body
+	ClientsSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsSearchResp, error)
+
+	ClientsSearchWithResponse(ctx context.Context, body ClientsSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsSearchResp, error)
+
 	// ClientsUpdateWithBodyWithResponse request with any body
 	ClientsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsUpdateResp, error)
 
@@ -6554,6 +6649,28 @@ func (r ClientsFindResp) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ClientsFindResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClientsSearchResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ClientsFindResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r ClientsSearchResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClientsSearchResp) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -8099,6 +8216,23 @@ func (c *ClientWithResponses) ClientsFindWithResponse(ctx context.Context, param
 	return ParseClientsFindResp(rsp)
 }
 
+// ClientsSearchWithBodyWithResponse request with arbitrary body returning *ClientsSearchResp
+func (c *ClientWithResponses) ClientsSearchWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsSearchResp, error) {
+	rsp, err := c.ClientsSearchWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsSearchResp(rsp)
+}
+
+func (c *ClientWithResponses) ClientsSearchWithResponse(ctx context.Context, body ClientsSearchJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsSearchResp, error) {
+	rsp, err := c.ClientsSearch(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClientsSearchResp(rsp)
+}
+
 // ClientsUpdateWithBodyWithResponse request with arbitrary body returning *ClientsUpdateResp
 func (c *ClientWithResponses) ClientsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ClientsUpdateResp, error) {
 	rsp, err := c.ClientsUpdateWithBody(ctx, contentType, body, reqEditors...)
@@ -9227,6 +9361,32 @@ func ParseClientsFindResp(rsp *http.Response) (*ClientsFindResp, error) {
 	}
 
 	response := &ClientsFindResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ClientsFindResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseClientsSearchResp parses an HTTP response from a ClientsSearchWithResponse call
+func ParseClientsSearchResp(rsp *http.Response) (*ClientsSearchResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClientsSearchResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
