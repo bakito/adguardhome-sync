@@ -3,10 +3,13 @@ package config
 import (
 	_ "embed"
 	"os"
+	"strings"
 
-	"github.com/santhosh-tekuri/jsonschema/v5"
+	"github.com/santhosh-tekuri/jsonschema/v6"
 	"gopkg.in/yaml.v3"
 )
+
+const schemaURL = "config-schema.json"
 
 //go:embed config-schema.json
 var schemaData string
@@ -34,8 +37,16 @@ func validateYAML(yamlContent []byte) error {
 	}
 
 	// Load JSON schema
-	schema := jsonschema.MustCompileString("adguardhome-sync/config", schemaData)
+	sch, err := jsonschema.UnmarshalJSON(strings.NewReader(schemaData))
+	if err != nil {
+		return err
+	}
 
+	c := jsonschema.NewCompiler()
+	if err := c.AddResource(schemaURL, sch); err != nil {
+		return err
+	}
+	schema := c.MustCompile(schemaURL)
 	// validateSchema
 	return schema.Validate(yamlData)
 }
