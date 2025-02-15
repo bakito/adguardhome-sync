@@ -1,64 +1,74 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "adguardhome-sync Configuration",
-  "description": "validates only for valid schema. No required fields, as the can be defined via env ars afterwards.",
-  "type": "object",
   "additionalProperties": false,
-  "properties": {
-    "cron": {
-      "type": "string"
-    },
-    "runOnStart": {
-      "type": "boolean"
-    },
-    "continueOnError": {
-      "type": "boolean"
-    },
-    "printConfigOnly": {
-      "type": "boolean"
-    },
-    "origin": {
-      "$ref": "#/definitions/Instance"
-    },
-    "replicas": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Instance"
-      }
-    },
-    "replica": {
-      "$ref": "#/definitions/Instance"
-    },
-    "api": {
-      "type": "object",
+  "definitions": {
+    "Instance": {
       "additionalProperties": false,
       "properties": {
-        "port": {
-          "type": "number"
+        "apiPath": {
+          "type": "string"
         },
-        "username": {
+        "autoSetup": {
+          "type": "boolean"
+        },
+        "cookie": {
+          "type": "string"
+        },
+        "dhcpServerEnabled": {
+          "type": "boolean"
+        },
+        "insecureSkipVerify": {
+          "type": "boolean"
+        },
+        "interfaceName": {
           "type": "string"
         },
         "password": {
           "type": "string"
         },
+        "url": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "webURL": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "description": "validates only for valid schema. No required fields, as the can be defined via env ars afterwards.",
+  "properties": {
+    "api": {
+      "additionalProperties": false,
+      "properties": {
         "darkMode": {
           "type": "boolean"
         },
         "metrics": {
-          "type": "object",
           "additionalProperties": false,
           "properties": {
             "enabled": {
               "type": "boolean"
             },
+            "queryLogLimit": {
+              "type": "integer"
+            },
             "scrapeInterval": {
               "type": "string"
             }
-          }
+          },
+          "type": "object"
+        },
+        "password": {
+          "type": "string"
+        },
+        "port": {
+          "type": "number"
         },
         "tls": {
-          "type": "object",
           "additionalProperties": false,
           "properties": {
             "certDir": {
@@ -70,37 +80,28 @@
             "keyName": {
               "type": "string"
             }
-          }
+          },
+          "type": "object"
+        },
+        "username": {
+          "type": "string"
         }
-      }
+      },
+      "type": "object"
+    },
+    "continueOnError": {
+      "type": "boolean"
+    },
+    "cron": {
+      "type": "string"
     },
     "features": {
-      "type": "object",
       "additionalProperties": false,
       "properties": {
-        "generalSettings": {
-          "type": "boolean"
-        },
-        "queryLogConfig": {
-          "type": "boolean"
-        },
-        "statsConfig": {
-          "type": "boolean"
-        },
         "clientSettings": {
           "type": "boolean"
         },
-        "services": {
-          "type": "boolean"
-        },
-        "filters": {
-          "type": "boolean"
-        },
-        "theme": {
-          "type": "boolean"
-        },
         "dhcp": {
-          "type": "object",
           "additionalProperties": false,
           "properties": {
             "serverConfig": {
@@ -109,61 +110,64 @@
             "staticLeases": {
               "type": "boolean"
             }
-          }
+          },
+          "type": "object"
         },
         "dns": {
-          "type": "object",
           "additionalProperties": false,
           "properties": {
-            "serverConfig": {
-              "type": "boolean"
-            },
             "accessLists": {
               "type": "boolean"
             },
             "rewrites": {
               "type": "boolean"
+            },
+            "serverConfig": {
+              "type": "boolean"
             }
-          }
+          },
+          "type": "object"
+        },
+        "filters": {
+          "type": "boolean"
+        },
+        "generalSettings": {
+          "type": "boolean"
+        },
+        "queryLogConfig": {
+          "type": "boolean"
+        },
+        "services": {
+          "type": "boolean"
+        },
+        "statsConfig": {
+          "type": "boolean"
+        },
+        "theme": {
+          "type": "boolean"
         }
-      }
+      },
+      "type": "object"
+    },
+    "origin": {
+      "$ref": "#/definitions/Instance"
+    },
+    "printConfigOnly": {
+      "type": "boolean"
+    },
+    "replica": {
+      "$ref": "#/definitions/Instance"
+    },
+    "replicas": {
+      "items": {
+        "$ref": "#/definitions/Instance"
+      },
+      "type": "array"
+    },
+    "runOnStart": {
+      "type": "boolean"
     }
   },
-  "definitions": {
-    "Instance": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "url": {
-          "type": "string",
-          "format": "uri"
-        },
-        "webURL": {
-          "type": "string",
-          "format": "uri"
-        },
-        "autoSetup": {
-          "type": "boolean"
-        },
-        "insecureSkipVerify": {
-          "type": "boolean"
-        },
-        "username": {
-          "type": "string"
-        },
-        "apiPath": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "dhcpServerEnabled": {
-          "type": "boolean"
-        },
-        "interfaceName": {
-          "type": "string"
-        }
-      }
-    }
-  }
+  "title": "adguardhome-sync Configuration",
+  "type": "object"
 }

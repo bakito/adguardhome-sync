@@ -22,9 +22,13 @@ func validateSchema(cfgFile string) error {
 		return err
 	}
 
+	return validateYAML(yamlContent)
+}
+
+func validateYAML(yamlContent []byte) error {
 	// Convert YAML to JSON
 	var yamlData interface{}
-	err = yaml.Unmarshal(yamlContent, &yamlData)
+	err := yaml.Unmarshal(yamlContent, &yamlData)
 	if err != nil {
 		return err
 	}

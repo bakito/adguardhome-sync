@@ -1,8 +1,11 @@
 package config
 
 import (
+	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/go-faker/faker/v4"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v3"
 )
 
 var _ = Describe("Config", func() {
@@ -20,5 +23,17 @@ var _ = Describe("Config", func() {
 			Entry(`Should be valid if file doesn't exist`, "../../testdata/config/foo.bar", false),
 			Entry(`Should fail if file is not yaml`, "../../go.mod", true),
 		)
+		It("validate config with all fields randomly populated", func() {
+			cfg := &types.Config{}
+
+			err := faker.FakeData(cfg)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			data, err := yaml.Marshal(&cfg)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			err = validateYAML(data)
+			Ω(err).ShouldNot(HaveOccurred())
+		})
 	})
 })
