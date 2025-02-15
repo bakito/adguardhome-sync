@@ -4,6 +4,9 @@ on:
   workflow_dispatch: # allows manual triggering
   schedule:
     - cron: '0 0 * * *'
+  #pull_request:
+  #  branches:
+  #    - main
   release:
     types:
       - published
@@ -48,7 +51,7 @@ jobs:
         run: |
           sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
 
-      - name: Build and push ${{github.event.release.tag_name }}
+      - name: Build images ${{github.event.release.tag_name }}
         id: docker_build_release
         uses: docker/build-push-action@v6
         if: ${{ github.event.release.tag_name != '' }}
@@ -67,7 +70,7 @@ jobs:
         run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
         if: ${{ github.event.release.tag_name == '' }}
 
-      - name: Build and push main
+      - name: Build images
         id: docker_build_main
         uses: docker/build-push-action@v6
         if: ${{ github.event.release.tag_name == '' && env.NEW_COMMIT_COUNT > 0  }}

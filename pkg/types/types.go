@@ -140,8 +140,8 @@ func (cfg *Config) Init() error {
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
-	URL                string `json:"url"                         yaml:"url"                         env:"URL"`
-	WebURL             string `json:"webURL"                      yaml:"webURL"                      env:"WEB_URL"`
+	URL                string `json:"url"                         yaml:"url"                         env:"URL"                  faker:"url"`
+	WebURL             string `json:"webURL"                      yaml:"webURL"                      env:"WEB_URL"              faker:"url"`
 	APIPath            string `json:"apiPath,omitempty"           yaml:"apiPath,omitempty"           env:"API_PATH"`
 	Username           string `json:"username,omitempty"          yaml:"username,omitempty"          env:"USERNAME"`
 	Password           string `json:"password,omitempty"          yaml:"password,omitempty"          env:"PASSWORD"`
