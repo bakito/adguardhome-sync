@@ -36,6 +36,12 @@
         "port": {
           "type": "number"
         },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
         "darkMode": {
           "type": "boolean"
         },
@@ -47,6 +53,21 @@
               "type": "boolean"
             },
             "scrapeInterval": {
+              "type": "string"
+            }
+          }
+        },
+        "tls": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "certDir": {
+              "type": "string"
+            },
+            "certName": {
+              "type": "string"
+            },
+            "keyName": {
               "type": "string"
             }
           }
