@@ -20,7 +20,7 @@ const (
 type Config struct {
 	Origin          AdGuardInstance   `json:"origin"                    yaml:"origin"                    env:"ORIGIN"`
 	Replica         *AdGuardInstance  `json:"replica,omitempty"         yaml:"replica,omitempty"         env:"REPLICA"`
-	Replicas        []AdGuardInstance `json:"replicas,omitempty"        yaml:"replicas,omitempty"`
+	Replicas        []AdGuardInstance `json:"replicas,omitempty"        yaml:"replicas,omitempty"                                 faker:"slice_len=2"`
 	Cron            string            `json:"cron,omitempty"            yaml:"cron,omitempty"            env:"CRON"`
 	RunOnStart      bool              `json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"      env:"RUN_ON_START"`
 	PrintConfigOnly bool              `json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty" env:"PRINT_CONFIG_ONLY"`
