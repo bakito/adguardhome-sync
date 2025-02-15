@@ -1,37 +1,37 @@
 package config
 
 import (
-    "github.com/santhosh-tekuri/jsonschema/v5"
-    "gopkg.in/yaml.v3"
-    "io/ioutil"
-    "log"
+	_ "embed"
+	"os"
+
+	"github.com/santhosh-tekuri/jsonschema/v5"
+	"gopkg.in/yaml.v3"
 )
 
-func main() {
-    // Load YAML file
-    yamlContent, err := ioutil.ReadFile("example.yaml")
-    if err != nil {
-        log.Fatalf("Error reading YAML file: %v", err)
-    }
+//go:embed config-schema.json
+var schemaData string
 
-    // Convert YAML to JSON
-    var yamlData interface{}
-    err = yaml.Unmarshal(yamlContent, &yamlData)
-    if err != nil {
-        log.Fatalf("Error unmarshalling YAML: %v", err)
-    }
+func validateSchema(cfgFile string) error {
+	// ignore if file not exists
+	if _, err := os.Stat(cfgFile); err != nil {
+		return nil
+	}
+	// Load YAML file
+	yamlContent, err := os.ReadFile(cfgFile)
+	if err != nil {
+		return err
+	}
 
-    // Load JSON schema
-    compiler := jsonschema.NewCompiler()
-    schema, err := compiler.Compile("schema.json")
-    if err != nil {
-        log.Fatalf("Error compiling schema: %v", err)
-    }
+	// Convert YAML to JSON
+	var yamlData interface{}
+	err = yaml.Unmarshal(yamlContent, &yamlData)
+	if err != nil {
+		return err
+	}
 
-    // Validate
-    if err := schema.Validate(yamlData); err != nil {
-        log.Fatalf("Validation failed: %v", err)
-    }
+	// Load JSON schema
+	schema := jsonschema.MustCompileString("adguardhome-sync/config", schemaData)
 
-    fmt.Println("Validation succeeded!")
+	// validateSchema
+	return schema.Validate(yamlData)
 }

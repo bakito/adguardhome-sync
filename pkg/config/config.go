@@ -20,6 +20,10 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 		return nil, err
 	}
 
+	if err = validateSchema(path); err != nil {
+		return nil, err
+	}
+
 	cfg := initialConfig()
 
 	// read yaml config
