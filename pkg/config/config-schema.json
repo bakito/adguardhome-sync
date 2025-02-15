@@ -27,12 +27,14 @@
           "type": "string"
         },
         "url": {
+          "format": "uri",
           "type": "string"
         },
         "username": {
           "type": "string"
         },
         "webURL": {
+          "format": "uri",
           "type": "string"
         }
       },
