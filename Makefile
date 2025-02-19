@@ -18,7 +18,7 @@ fmt: tb.golines tb.gofumpt
 	$(TB_GOLINES) --base-formatter="$(TB_GOFUMPT)" --max-len=120 --write-output .
 
 # Run tests
-test: generate lint test-ci
+test: generate fmt lint test-ci
 
 # Run ci tests
 test-ci: mocks tidy tb.ginkgo
