@@ -454,8 +454,11 @@ type DNSConfig struct {
 	UpstreamDnsFile *string   `json:"upstream_dns_file,omitempty"`
 
 	// UpstreamMode Upstream modes enumeration.
-	UpstreamMode           *DNSConfigUpstreamMode `json:"upstream_mode,omitempty"`
-	UsePrivatePtrResolvers *bool                  `json:"use_private_ptr_resolvers,omitempty"`
+	UpstreamMode *DNSConfigUpstreamMode `json:"upstream_mode,omitempty"`
+
+	// UpstreamTimeout The number of seconds to wait for a response from the upstream server
+	UpstreamTimeout        *int  `json:"upstream_timeout,omitempty"`
+	UsePrivatePtrResolvers *bool `json:"use_private_ptr_resolvers,omitempty"`
 }
 
 // DNSConfigBlockingMode defines model for DNSConfig.BlockingMode.
