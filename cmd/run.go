@@ -14,7 +14,7 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg, usedCfgFile, cfgContent, err := config.Get(cfgFile, cmd.Flags())
+		cfg, err := config.Get(cfgFile, cmd.Flags())
 		if err != nil {
 			logger.Error(err)
 			return err
@@ -25,8 +25,8 @@ var doCmd = &cobra.Command{
 			return err
 		}
 
-		if cfg.PrintConfigOnly {
-			if err := printConfig(cfg, usedCfgFile, cfgContent); err != nil {
+		if cfg.PrintConfigOnly() {
+			if err := cfg.Print(); err != nil {
 				logger.Error(err)
 				return err
 			}
@@ -34,7 +34,7 @@ var doCmd = &cobra.Command{
 			return nil
 		}
 
-		return sync.Sync(cfg)
+		return sync.Sync(cfg.Get())
 	},
 }
 

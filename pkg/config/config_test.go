@@ -38,7 +38,7 @@ var _ = Describe("Config", func() {
 				It("should have the origin URL from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					_, _, _, err := config.Get("../../testdata/config_test_replicas_and_replica.yaml", flags)
+					_, err := config.Get("../../testdata/config_test_replicas_and_replica.yaml", flags)
 					Ω(err).Should(HaveOccurred())
 					Ω(err.Error()).Should(ContainSubstring("mixed replica config in use"))
 				})
@@ -47,20 +47,18 @@ var _ = Describe("Config", func() {
 				It("should have the origin URL from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, path, content, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Origin.URL).Should(Equal("https://origin-file:443"))
-					Ω(path).Should(Equal("../../testdata/config_test_replicas.yaml"))
-					Ω(content).ShouldNot(BeEmpty())
+					Ω(cfg.Get().Origin.URL).Should(Equal("https://origin-file:443"))
 				})
 				It("should have the origin URL from the config flags", func() {
 					flags.EXPECT().Changed(config.FlagOriginURL).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Origin.URL).Should(Equal("https://origin-flag:443"))
+					Ω(cfg.Get().Origin.URL).Should(Equal("https://origin-flag:443"))
 				})
 				It("should have the origin URL from the config env var", func() {
 					setEnv("ORIGIN_URL", "https://origin-env:443")
@@ -68,27 +66,27 @@ var _ = Describe("Config", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Origin.URL).Should(Equal("https://origin-env:443"))
+					Ω(cfg.Get().Origin.URL).Should(Equal("https://origin-env:443"))
 				})
 			})
 			Context("Replica insecure skip verify", func() {
 				It("should have the insecure skip verify from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replica.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeFalse())
+					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeFalse())
 				})
 				It("should have the insecure skip verify from the config flags", func() {
 					flags.EXPECT().Changed(config.FlagReplicaISV).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replica.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeTrue())
+					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeTrue())
 				})
 				It("should have the insecure skip verify from the config env var", func() {
 					setEnv("REPLICA_INSECURE_SKIP_VERIFY", "false")
@@ -96,9 +94,9 @@ var _ = Describe("Config", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replica.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeFalse())
+					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeFalse())
 				})
 			})
 
@@ -106,34 +104,34 @@ var _ = Describe("Config", func() {
 				It("should have the insecure skip verify from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeFalse())
+					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeFalse())
 				})
 				It("should have the insecure skip verify from the config env var", func() {
 					setEnv("REPLICA1_INSECURE_SKIP_VERIFY", "true")
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].InsecureSkipVerify).Should(BeTrue())
+					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeTrue())
 				})
 			})
 			Context("API Port", func() {
 				It("should have the api port from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.API.Port).Should(Equal(9090))
+					Ω(cfg.Get().API.Port).Should(Equal(9090))
 				})
 				It("should have the api port from the config flags", func() {
 					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.API.Port).Should(Equal(9990))
+					Ω(cfg.Get().API.Port).Should(Equal(9990))
 				})
 				It("should have the api port from the config env var", func() {
 					setEnv("API_PORT", "9999")
@@ -141,9 +139,9 @@ var _ = Describe("Config", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.API.Port).Should(Equal(9999))
+					Ω(cfg.Get().API.Port).Should(Equal(9999))
 				})
 			})
 
@@ -151,10 +149,10 @@ var _ = Describe("Config", func() {
 				It("should have the dhcp server enabled from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replica.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+					Ω(cfg.Get().Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Get().Replicas[0].DHCPServerEnabled).Should(BeFalse())
 				})
 			})
 
@@ -162,27 +160,27 @@ var _ = Describe("Config", func() {
 				It("should have the dhcp server enabled from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+					Ω(cfg.Get().Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Get().Replicas[0].DHCPServerEnabled).Should(BeFalse())
 				})
 			})
 			Context("API Port", func() {
 				It("should have the api port from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.API.Port).Should(Equal(9090))
+					Ω(cfg.Get().API.Port).Should(Equal(9090))
 				})
 				It("should have the api port from the config flags", func() {
 					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.API.Port).Should(Equal(9990))
+					Ω(cfg.Get().API.Port).Should(Equal(9990))
 				})
 				It("should have the api port from the config env var", func() {
 					setEnv("API_PORT", "9999")
@@ -190,27 +188,27 @@ var _ = Describe("Config", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.API.Port).Should(Equal(9999))
+					Ω(cfg.Get().API.Port).Should(Equal(9999))
 				})
 			})
 
 			Context("Feature DNS Server Config", func() {
 				It("should have the feature dns server config from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Features.DNS.ServerConfig).Should(BeFalse())
+					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
 				})
 				It("should have the feature dns server config from the config flags", func() {
 					flags.EXPECT().Changed(config.FlagFeatureDnsServerConfig).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Features.DNS.ServerConfig).Should(BeTrue())
+					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeTrue())
 				})
 				It("should have the feature dns server config from the config env var", func() {
 					setEnv("FEATURES_DNS_SERVER_CONFIG", "false")
@@ -218,9 +216,9 @@ var _ = Describe("Config", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Features.DNS.ServerConfig).Should(BeFalse())
+					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
 				})
 				It("should have the feature dns server config from the config DEPRECATED env var", func() {
 					setEnv("FEATURES_DNS_SERVERCONFIG", "false")
@@ -228,9 +226,9 @@ var _ = Describe("Config", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
 
-					cfg, _, _, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Features.DNS.ServerConfig).Should(BeFalse())
+					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
 				})
 			})
 		})
