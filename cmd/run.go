@@ -1,15 +1,10 @@
 package cmd
 
 import (
-	"os"
-	"sort"
-	"strings"
-
 	"github.com/bakito/adguardhome-sync/pkg/config"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/sync"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 // runCmd represents the run command
@@ -31,28 +26,11 @@ var doCmd = &cobra.Command{
 		}
 
 		if cfg.PrintConfigOnly {
-			config, err := yaml.Marshal(cfg)
-			if err != nil {
+			if err := printConfig(cfg, usedCfgFile, cfgContent); err != nil {
+
 				logger.Error(err)
 				return err
 			}
-			logger.Infof(
-				"Printing adguardhome-sync aggregated config (THE APPLICATION WILL NOT START IN THIS MODE):\n"+
-					"# adguardhome-sync aggregated config\n%s",
-				string(config),
-			)
-
-			if cfgContent != "" {
-				logger.Infof(
-					"Printing adguardhome-sync config file:\n# adguardhome-sync config file: %s\n%s",
-					usedCfgFile,
-					cfgContent,
-				)
-			}
-
-			env := os.Environ()
-			sort.Strings(env)
-			logger.Infof("Printing adguardhome-sync environment variables: \n%s", strings.Join(env, "\n"))
 
 			return nil
 		}
