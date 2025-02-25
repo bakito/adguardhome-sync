@@ -1,4 +1,4 @@
-<!-- PLEASE COPY THE FOLLOWING OUTPUT AS IS INTO THE GITHUB ISSUE (Don't forget to mask your usernames, passwords and IPs when using this in an issue ) -->
+<!-- PLEASE COPY THE FOLLOWING OUTPUT AS IS INTO THE GITHUB ISSUE (Don't forget to mask your usernames, passwords, IPs and other sensitive information when using this in an issue ) -->
 
 ### AdGuardHome sync aggregated config
 

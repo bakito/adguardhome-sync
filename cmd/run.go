@@ -27,7 +27,6 @@ var doCmd = &cobra.Command{
 
 		if cfg.PrintConfigOnly {
 			if err := printConfig(cfg, usedCfgFile, cfgContent); err != nil {
-
 				logger.Error(err)
 				return err
 			}
