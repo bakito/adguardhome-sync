@@ -14,26 +14,27 @@ var (
 	logger                = log.GetLogger("config")
 )
 
-func Get(configFile string, flags Flags) (*types.Config, error) {
+func Get(configFile string, flags Flags) (*types.Config, string, string, error) {
 	path, err := configFilePath(configFile)
 	if err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 
 	if err = validateSchema(path); err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 
 	cfg := initialConfig()
 
 	// read yaml config
-	if err := readFile(cfg, path); err != nil {
-		return nil, err
+	var content string
+	if content, err = readFile(cfg, path); err != nil {
+		return nil, "", "", err
 	}
 
 	// overwrite from command flags
 	if err := readFlags(cfg, flags); err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 
 	// *bool field creates issues when already not nil
@@ -49,10 +50,10 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 
 	// overwrite from env vars
 	if err = env.Parse(cfg); err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 	if err = env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 	// restore the replica
 	cfg.Replicas = replicas
@@ -63,7 +64,7 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 	}
 
 	if err = env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 
 	if cfg.Replica != nil &&
@@ -73,7 +74,7 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 	}
 
 	if len(cfg.Replicas) > 0 && cfg.Replica != nil {
-		return nil, errors.New("mixed replica config in use. " +
+		return nil, "", "", errors.New("mixed replica config in use. " +
 			"Do not use single replica and numbered (list) replica config combined")
 	}
 
@@ -86,7 +87,7 @@ func Get(configFile string, flags Flags) (*types.Config, error) {
 
 	cfg.Replicas, err = enrichReplicasFromEnv(cfg.Replicas)
 
-	return cfg, err
+	return cfg, path, content, err
 }
 
 func initialConfig() *types.Config {

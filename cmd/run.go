@@ -19,7 +19,7 @@ var doCmd = &cobra.Command{
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
-		cfg, err := config.Get(cfgFile, cmd.Flags())
+		cfg, usedCfgFile, cfgContent, err := config.Get(cfgFile, cmd.Flags())
 		if err != nil {
 			logger.Error(err)
 			return err
@@ -36,8 +36,19 @@ var doCmd = &cobra.Command{
 				logger.Error(err)
 				return err
 			}
-			logger.Infof("Printing adguardhome-sync config (THE APPLICATION WILL NOT START IN THIS MODE): \n%s",
-				string(config))
+			logger.Infof(
+				"Printing adguardhome-sync aggregated config (THE APPLICATION WILL NOT START IN THIS MODE):\n"+
+					"# adguardhome-sync aggregated config\n%s",
+				string(config),
+			)
+
+			if cfgContent != "" {
+				logger.Infof(
+					"Printing adguardhome-sync config file:\n# adguardhome-sync config file: %s\n%s",
+					usedCfgFile,
+					cfgContent,
+				)
+			}
 
 			env := os.Environ()
 			sort.Strings(env)

@@ -8,17 +8,19 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func readFile(cfg *types.Config, path string) error {
+func readFile(cfg *types.Config, path string) (string, error) {
+	var content string
 	if _, err := os.Stat(path); err == nil {
 		b, err := os.ReadFile(path)
 		if err != nil {
-			return err
+			return "", err
 		}
+		content = string(b)
 		if err := yaml.Unmarshal(b, cfg); err != nil {
-			return err
+			return "", err
 		}
 	}
-	return nil
+	return content, nil
 }
 
 func configFilePath(configFile string) (string, error) {
