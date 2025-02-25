@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"os"
+	"sort"
+	"strings"
+
 	"github.com/bakito/adguardhome-sync/pkg/config"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/sync"
@@ -34,6 +38,11 @@ var doCmd = &cobra.Command{
 			}
 			logger.Infof("Printing adguardhome-sync config (THE APPLICATION WILL NOT START IN THIS MODE): \n%s",
 				string(config))
+
+			env := os.Environ()
+			sort.Strings(env)
+			logger.Infof("Printing adguardhome-sync environment variables: \n%s", strings.Join(env, "\n"))
+
 			return nil
 		}
 
