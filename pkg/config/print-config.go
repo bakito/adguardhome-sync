@@ -31,7 +31,6 @@ func (ac *AppConfig) Print() error {
 func (ac *AppConfig) print(env []string) (string, error) {
 	config, err := yaml.Marshal(ac.Get())
 	if err != nil {
-		logger.Error(err)
 		return "", err
 	}
 
