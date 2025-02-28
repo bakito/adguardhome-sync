@@ -1,18 +1,16 @@
-name: released
+name: Scan GitHub Release with VirusTotal
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 jobs:
-  virustotal:
+  scan_release:
     runs-on: ubuntu-latest
+
     steps:
-      - name: VirusTotal Scan
-        uses: crazy-max/ghaction-virustotal@v4
+      - name: Analyze Build Assets
+        uses: bakito/virustotal-action@main
         with:
-          update_release_body: true
-          vt_api_key: ${{ secrets.VT_API_KEY }}
-          files: |
-            windows_amd64.tar.gz$
-            windows_386.tar.gz$
+          release_name: ${{github.event.release.tag_name}}
+          vt_api_key: ${{secrets.VT_API_KEY}}
