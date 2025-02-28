@@ -246,9 +246,9 @@ services:
 ```
 
 ### Unraid
-Note when running the Docker container in Unraid please remove unneded env variables if don't needed.
-If replica2 isn't used this can cause sync errors.
 
+Note when running the Docker container in Unraid please remove unneeded env variables if don't needed.
+If replica2 isn't used this can cause sync errors.
 
 ### Config file
 

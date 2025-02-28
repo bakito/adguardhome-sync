@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/bakito/adguardhome-sync/pkg/config"
-	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -57,7 +56,7 @@ var _ = Describe("Config", func() {
 		})
 		Context("Get", func() {
 			It("features should be false", func() {
-				cfg, _, _, err := config.Get("", nil)
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, false)
 			})
@@ -76,12 +75,12 @@ var _ = Describe("Config", func() {
 		})
 		Context("Get", func() {
 			It("features should be true by default", func() {
-				cfg, _, _, err := config.Get("", nil)
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, true)
 			})
 			It("features should be true by default", func() {
-				cfg, _, _, err := config.Get("", nil)
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, true)
 			})
@@ -89,7 +88,7 @@ var _ = Describe("Config", func() {
 				for _, envVar := range envVars {
 					Ω(os.Setenv(envVar, "false")).ShouldNot(HaveOccurred())
 				}
-				cfg, _, _, err := config.Get("", nil)
+				cfg, err := config.Get("", nil)
 				Ω(err).ShouldNot(HaveOccurred())
 				verifyFeatures(cfg, false)
 			})
@@ -97,43 +96,43 @@ var _ = Describe("Config", func() {
 				It("should set interface name of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_INTERFACE_NAME", "1"), "eth0")).ShouldNot(HaveOccurred())
-					cfg, _, _, err := config.Get("", nil)
+					cfg, err := config.Get("", nil)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].InterfaceName).Should(Equal("eth0"))
+					Ω(cfg.Get().Replicas[0].InterfaceName).Should(Equal("eth0"))
 				})
 			})
 			Context("dhcp server", func() {
 				It("should enable the dhcp server of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_DHCPSERVERENABLED", "1"), "true")).ShouldNot(HaveOccurred())
-					cfg, _, _, err := config.Get("", nil)
+					cfg, err := config.Get("", nil)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeTrue())
+					Ω(cfg.Get().Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Get().Replicas[0].DHCPServerEnabled).Should(BeTrue())
 				})
 				It("should disable the dhcp server of replica 1", func() {
 					Ω(os.Setenv("REPLICA1_URL", "https://foo.bar")).ShouldNot(HaveOccurred())
 					Ω(os.Setenv(fmt.Sprintf("REPLICA%s_DHCPSERVERENABLED", "1"), "false")).ShouldNot(HaveOccurred())
-					cfg, _, _, err := config.Get("", nil)
+					cfg, err := config.Get("", nil)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-					Ω(*cfg.Replicas[0].DHCPServerEnabled).Should(BeFalse())
+					Ω(cfg.Get().Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
+					Ω(*cfg.Get().Replicas[0].DHCPServerEnabled).Should(BeFalse())
 				})
 			})
 		})
 	})
 })
 
-func verifyFeatures(cfg *types.Config, value bool) {
-	Ω(cfg.Features.GeneralSettings).Should(Equal(value))
-	Ω(cfg.Features.QueryLogConfig).Should(Equal(value))
-	Ω(cfg.Features.StatsConfig).Should(Equal(value))
-	Ω(cfg.Features.ClientSettings).Should(Equal(value))
-	Ω(cfg.Features.Services).Should(Equal(value))
-	Ω(cfg.Features.Filters).Should(Equal(value))
-	Ω(cfg.Features.DHCP.ServerConfig).Should(Equal(value))
-	Ω(cfg.Features.DHCP.StaticLeases).Should(Equal(value))
-	Ω(cfg.Features.DNS.ServerConfig).Should(Equal(value))
-	Ω(cfg.Features.DNS.AccessLists).Should(Equal(value))
-	Ω(cfg.Features.DNS.Rewrites).Should(Equal(value))
+func verifyFeatures(cfg *config.AppConfig, value bool) {
+	Ω(cfg.Get().Features.GeneralSettings).Should(Equal(value))
+	Ω(cfg.Get().Features.QueryLogConfig).Should(Equal(value))
+	Ω(cfg.Get().Features.StatsConfig).Should(Equal(value))
+	Ω(cfg.Get().Features.ClientSettings).Should(Equal(value))
+	Ω(cfg.Get().Features.Services).Should(Equal(value))
+	Ω(cfg.Get().Features.Filters).Should(Equal(value))
+	Ω(cfg.Get().Features.DHCP.ServerConfig).Should(Equal(value))
+	Ω(cfg.Get().Features.DHCP.StaticLeases).Should(Equal(value))
+	Ω(cfg.Get().Features.DNS.ServerConfig).Should(Equal(value))
+	Ω(cfg.Get().Features.DNS.AccessLists).Should(Equal(value))
+	Ω(cfg.Get().Features.DNS.Rewrites).Should(Equal(value))
 }
