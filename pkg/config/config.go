@@ -14,14 +14,32 @@ var (
 	logger                = log.GetLogger("config")
 )
 
-func Get(configFile string, flags Flags) (*types.Config, string, string, error) {
+type AppConfig struct {
+	cfg      *types.Config
+	filePath string
+	content  string
+}
+
+func (ac *AppConfig) PrintConfigOnly() bool {
+	return ac.cfg.PrintConfigOnly
+}
+
+func (ac *AppConfig) Get() *types.Config {
+	return ac.cfg
+}
+
+func (ac *AppConfig) Init() error {
+	return ac.cfg.Init()
+}
+
+func Get(configFile string, flags Flags) (*AppConfig, error) {
 	path, err := configFilePath(configFile)
 	if err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
 	if err = validateSchema(path); err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
 	cfg := initialConfig()
@@ -29,12 +47,12 @@ func Get(configFile string, flags Flags) (*types.Config, string, string, error) 
 	// read yaml config
 	var content string
 	if content, err = readFile(cfg, path); err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
 	// overwrite from command flags
 	if err := readFlags(cfg, flags); err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
 	// *bool field creates issues when already not nil
@@ -50,10 +68,10 @@ func Get(configFile string, flags Flags) (*types.Config, string, string, error) 
 
 	// overwrite from env vars
 	if err = env.Parse(cfg); err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 	if err = env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 	// restore the replica
 	cfg.Replicas = replicas
@@ -64,7 +82,7 @@ func Get(configFile string, flags Flags) (*types.Config, string, string, error) 
 	}
 
 	if err = env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
 	if cfg.Replica != nil &&
@@ -74,7 +92,7 @@ func Get(configFile string, flags Flags) (*types.Config, string, string, error) 
 	}
 
 	if len(cfg.Replicas) > 0 && cfg.Replica != nil {
-		return nil, "", "", errors.New("mixed replica config in use. " +
+		return nil, errors.New("mixed replica config in use. " +
 			"Do not use single replica and numbered (list) replica config combined")
 	}
 
@@ -87,7 +105,7 @@ func Get(configFile string, flags Flags) (*types.Config, string, string, error) 
 
 	cfg.Replicas, err = enrichReplicasFromEnv(cfg.Replicas)
 
-	return cfg, path, content, err
+	return &AppConfig{cfg: cfg, filePath: path, content: content}, err
 }
 
 func initialConfig() *types.Config {
