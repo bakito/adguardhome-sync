@@ -43,8 +43,11 @@ func (w *worker) getMetrics(inst types.AdGuardInstance) (im metrics.InstanceMetr
 	}
 
 	im.HostName = inst.Host
-	im.Status, _ = client.Status()
-	im.Stats, _ = client.Stats()
-	im.QueryLog, _ = client.QueryLog(w.cfg.API.Metrics.QueryLogLimit)
+	status, _ := client.Status()
+	im.Status = *status
+	stats, _ := client.Stats()
+	im.Stats = *stats
+	queryLog, _ := client.QueryLog(w.cfg.API.Metrics.QueryLogLimit)
+	im.QueryLog = *queryLog
 	return
 }
