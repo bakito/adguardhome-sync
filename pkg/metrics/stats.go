@@ -7,6 +7,8 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 )
 
+const labelTotal = "Total"
+
 var (
 	blue             = []int{78, 141, 245}
 	blueAlternatives = [][]int{
@@ -81,7 +83,7 @@ func graphLines(
 	g := &graph{
 		total: line{
 			Fill:  true,
-			Title: "Total",
+			Title: labelTotal,
 			Data:  dataCB(t),
 			R:     baseColor[0],
 			G:     baseColor[1],

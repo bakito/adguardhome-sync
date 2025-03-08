@@ -70,6 +70,7 @@ func main() {
 }
 
 func correctEntries(schema map[string]interface{}) {
+	// https://github.com/AdguardTeam/AdGuardHome/pull/7678
 	if err := unstructured.SetNestedField(schema, "string", "components", "schemas", "QueryLogItem", "properties", "client_proto", "type"); err != nil {
 		log.Fatalln(err)
 	}

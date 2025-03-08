@@ -9,6 +9,9 @@ import (
 )
 
 var _ = Describe("Metrics", func() {
+	BeforeEach(func() {
+		stats = make(OverallStats)
+	})
 	Context("Update / getStats", func() {
 		It("generate correct stats", func() {
 			Update(InstanceMetricsList{[]InstanceMetrics{
@@ -59,12 +62,27 @@ var _ = Describe("Metrics", func() {
 		It("should provide correct results with faked values", func() {
 			Update(metrics)
 
-			total, dns, blocked, malware, adult := StatsGraph()
-			Ω(total).ShouldNot(BeNil())
-			Ω(dns).ShouldNot(BeNil())
-			Ω(blocked).ShouldNot(BeNil())
-			Ω(malware).ShouldNot(BeNil())
-			Ω(adult).ShouldNot(BeNil())
+			_, dns, blocked, malware, adult := StatsGraph()
+
+			verifyStats(dns)
+			verifyStats(blocked)
+			verifyStats(malware)
+			verifyStats(adult)
 		})
 	})
 })
+
+func verifyStats(lines []line) {
+	var total line
+	sum := make([]int, len(lines[0].Data))
+	for _, l := range lines {
+		if l.Title == labelTotal {
+			total = l
+		} else {
+			for i, d := range l.Data {
+				sum[i] = sum[i] + d
+			}
+		}
+	}
+	Ω(sum).Should(Equal(total.Data))
+}
