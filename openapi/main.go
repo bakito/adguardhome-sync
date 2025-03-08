@@ -53,6 +53,11 @@ func main() {
 			}
 		}
 	}
+
+	correctEntries(schema)
+
+	addFakeTags(schema)
+
 	b, err := yaml.Marshal(&schema)
 	if err != nil {
 		log.Fatalln(err)
@@ -60,6 +65,28 @@ func main() {
 	log.Printf("Writing schema file tmp/%s", fileName)
 	err = os.WriteFile("tmp/"+fileName, b, 0o600)
 	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func correctEntries(schema map[string]interface{}) {
+	if err := unstructured.SetNestedField(schema, "string", "components", "schemas", "QueryLogItem", "properties", "client_proto", "type"); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func addFakeTags(schema map[string]interface{}) {
+	fake := map[string]interface{}{"faker": `slice_len=24`}
+	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "blocked_filtering", "x-oapi-codegen-extra-tags"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "dns_queries", "x-oapi-codegen-extra-tags"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "replaced_parental", "x-oapi-codegen-extra-tags"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "replaced_safebrowsing", "x-oapi-codegen-extra-tags"); err != nil {
 		log.Fatalln(err)
 	}
 }
