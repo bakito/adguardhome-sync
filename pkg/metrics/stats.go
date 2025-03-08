@@ -1,11 +1,10 @@
-package sync
+package metrics
 
 import (
 	"slices"
 	"strings"
 
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
-	"github.com/bakito/adguardhome-sync/pkg/metrics"
 )
 
 var (
@@ -46,19 +45,19 @@ var (
 	}
 )
 
-func statsGraph() (model.Stats, []line, []line, []line, []line) {
-	s := metrics.GetStats()
+func StatsGraph() (*model.Stats, []line, []line, []line, []line) {
+	s := getStats()
 	t := s.Total()
-	dns := graphLines(t, s, blue, blueAlternatives, func(s model.Stats) []int {
+	dns := graphLines(t, s, blue, blueAlternatives, func(s *model.Stats) []int {
 		return safeStats(s.DnsQueries)
 	})
-	blocked := graphLines(t, s, red, redAlternatives, func(s model.Stats) []int {
+	blocked := graphLines(t, s, red, redAlternatives, func(s *model.Stats) []int {
 		return safeStats(s.BlockedFiltering)
 	})
-	malware := graphLines(t, s, green, greenAlternatives, func(s model.Stats) []int {
+	malware := graphLines(t, s, green, greenAlternatives, func(s *model.Stats) []int {
 		return safeStats(s.ReplacedSafebrowsing)
 	})
-	adult := graphLines(t, s, yellow, yellowAlternatives, func(s model.Stats) []int {
+	adult := graphLines(t, s, yellow, yellowAlternatives, func(s *model.Stats) []int {
 		return safeStats(s.ReplacedParental)
 	})
 
@@ -73,11 +72,11 @@ func safeStats(stats *[]int) []int {
 }
 
 func graphLines(
-	t model.Stats,
-	s metrics.OverallStats,
+	t *model.Stats,
+	s OverallStats,
 	baseColor []int,
 	altColors [][]int,
-	dataCB func(s model.Stats) []int,
+	dataCB func(s *model.Stats) []int,
 ) []line {
 	g := &graph{
 		total: line{
@@ -92,7 +91,7 @@ func graphLines(
 
 	var i int
 	for name, data := range s {
-		if name != metrics.StatsTotal {
+		if name != StatsTotal {
 			g.replicas = append(g.replicas, line{
 				Fill:  false,
 				Title: name,

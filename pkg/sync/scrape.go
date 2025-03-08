@@ -26,13 +26,13 @@ func (w *worker) startScraping() {
 }
 
 func (w *worker) scrape() {
-	var ims []metrics.InstanceMetrics
+	var iml metrics.InstanceMetricsList
 
-	ims = append(ims, w.getMetrics(w.cfg.Origin))
+	iml.Metrics = append(iml.Metrics, w.getMetrics(w.cfg.Origin))
 	for _, replica := range w.cfg.Replicas {
-		ims = append(ims, w.getMetrics(replica))
+		iml.Metrics = append(iml.Metrics, w.getMetrics(replica))
 	}
-	metrics.Update(ims...)
+	metrics.Update(iml)
 }
 
 func (w *worker) getMetrics(inst types.AdGuardInstance) (im metrics.InstanceMetrics) {
@@ -43,11 +43,8 @@ func (w *worker) getMetrics(inst types.AdGuardInstance) (im metrics.InstanceMetr
 	}
 
 	im.HostName = inst.Host
-	status, _ := client.Status()
-	im.Status = *status
-	stats, _ := client.Stats()
-	im.Stats = *stats
-	queryLog, _ := client.QueryLog(w.cfg.API.Metrics.QueryLogLimit)
-	im.QueryLog = *queryLog
+	im.Status, _ = client.Status()
+	im.Stats, _ = client.Stats()
+	im.QueryLog, _ = client.QueryLog(w.cfg.API.Metrics.QueryLogLimit)
 	return
 }

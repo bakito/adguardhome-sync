@@ -155,8 +155,8 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 	l.With("name", name).Info("New Prometheus metric registered")
 }
 
-func Update(ims ...InstanceMetrics) {
-	for _, im := range ims {
+func Update(iml InstanceMetricsList) {
+	for _, im := range iml.Metrics {
 		update(im)
 		stats[im.HostName] = im.Stats
 	}
@@ -210,7 +210,7 @@ func update(im InstanceMetrics) {
 
 	// LogQuery
 	m := make(map[string]int)
-	if im.QueryLog.Data != nil {
+	if im.QueryLog != nil && im.QueryLog.Data != nil {
 		logdata := *im.QueryLog.Data
 		for _, ld := range logdata {
 			if ld.Answer != nil {
@@ -230,22 +230,24 @@ func update(im InstanceMetrics) {
 	}
 }
 
-type InstanceMetrics struct {
-	HostName string
-	Status   model.ServerStatus
-	Stats    model.Stats
-	QueryLog model.QueryLog
+type InstanceMetricsList struct {
+	Metrics []InstanceMetrics `faker:"slice_len=5"`
 }
 
-type OverallStats map[string]model.Stats
+type InstanceMetrics struct {
+	HostName string
+	Status   *model.ServerStatus
+	Stats    *model.Stats
+	QueryLog *model.QueryLog
+}
+
+type OverallStats map[string]*model.Stats
 
 func (os OverallStats) consolidate() OverallStats {
 	consolidated := OverallStats{StatsTotal: model.NewStats()}
 	for host, stats := range os {
 		consolidated[host] = stats
-		total := consolidated[StatsTotal]
-		total.Add(stats)
-		consolidated[StatsTotal] = total
+		consolidated[StatsTotal].Add(stats)
 	}
 	return consolidated
 }
@@ -257,10 +259,10 @@ func safeMetric[T int | float64 | float32](v *T) float64 {
 	return float64(*v)
 }
 
-func GetStats() OverallStats {
+func getStats() OverallStats {
 	return stats.consolidate()
 }
 
-func (os OverallStats) Total() model.Stats {
+func (os OverallStats) Total() *model.Stats {
 	return os[StatsTotal]
 }

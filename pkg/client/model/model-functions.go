@@ -454,8 +454,8 @@ func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
 	return utils.JsonEquals(sc, o)
 }
 
-func NewStats() Stats {
-	return Stats{
+func NewStats() *Stats {
+	return &Stats{
 		NumBlockedFiltering:     ptr.To(0),
 		NumReplacedParental:     ptr.To(0),
 		NumReplacedSafesearch:   ptr.To(0),
@@ -469,7 +469,7 @@ func NewStats() Stats {
 	}
 }
 
-func (s *Stats) Add(other Stats) {
+func (s *Stats) Add(other *Stats) {
 	s.NumBlockedFiltering = addInt(s.NumBlockedFiltering, other.NumBlockedFiltering)
 	s.NumReplacedSafebrowsing = addInt(s.NumReplacedSafebrowsing, other.NumReplacedSafebrowsing)
 	s.NumDnsQueries = addInt(s.NumDnsQueries, other.NumDnsQueries)
