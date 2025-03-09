@@ -4,10 +4,12 @@ import (
 	"bytes"
 	_ "embed"
 	"os"
+	"runtime"
 	"sort"
 	"strings"
 	"text/template"
 
+	"github.com/bakito/adguardhome-sync/version"
 	"gopkg.in/yaml.v3"
 )
 
@@ -44,6 +46,10 @@ func (ac *AppConfig) print(env []string) (string, error) {
 	var buf bytes.Buffer
 
 	if err = t.Execute(&buf, map[string]interface{}{
+		"Version":              version.Version,
+		"Build":                version.Build,
+		"OperatingSystem":      runtime.GOOS,
+		"Architecture":         runtime.GOARCH,
 		"AggregatedConfig":     string(config),
 		"ConfigFilePath":       ac.filePath,
 		"ConfigFileContent":    ac.content,
