@@ -1,5 +1,17 @@
 <!-- PLEASE COPY THE FOLLOWING OUTPUT AS IS INTO THE GITHUB ISSUE (Don't forget to mask your usernames, passwords, IPs and other sensitive information when using this in an issue ) -->
 
+### Runtime
+
+AdguardHome-Sync Version: {{ .Version }}
+Build: {{ .Build }}
+OperatingSystem: {{ .OperatingSystem }}
+Architecture: {{ .Architecture }}
+OriginVersion: {{ .OriginVersion }}
+ReplicaVersions:
+{{- range $i,$rep := .ReplicaVersions }}
+- Replica {{ inc $i }}: {{ $rep }}
+{{- end }}
+
 ### AdGuardHome sync aggregated config
 
 ```yaml
