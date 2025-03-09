@@ -1,7 +1,10 @@
 package config
 
 import (
+	_ "embed"
 	"fmt"
+	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/bakito/adguardhome-sync/pkg/types"
@@ -33,18 +36,23 @@ origin:
 		It("should print config without file", func() {
 			out, err := ac.print(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(out).Should(Equal(fmt.Sprintf(expected1, version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(
+				out,
+			).Should(Equal(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 		It("should print config with file", func() {
 			ac.filePath = "config.yaml"
 			out, err := ac.print(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(out).Should(Equal(fmt.Sprintf(expected2, version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(
+				out,
+			).Should(Equal(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 	})
 })
 
-const (
-	expected1 = "<!-- PLEASE COPY THE FOLLOWING OUTPUT AS IS INTO THE GITHUB ISSUE (Don't forget to mask your usernames, passwords, IPs and other sensitive information when using this in an issue ) -->\n\n### Runtime\n\nAdguardHome-Sync Version: %s\nBuild: %s\nOperatingSystem: %s\nArchitecture: %s\nOriginVersion: v0.0.1\nReplicaVersions:\n- Replica 1: v0.0.2\n\n### AdGuardHome sync aggregated config\n\n```yaml\norigin:\n    url: https://ha.xxxx.net:3000\n    webURL: \"\"\n    insecureSkipVerify: false\n    autoSetup: false\n\n```\n\n### Environment Variables\n\n```ini\nBAR=bar\nFOO=foo\n```\n\n<!-- END OF GITHUB ISSUE CONTENT -->"
-	expected2 = "<!-- PLEASE COPY THE FOLLOWING OUTPUT AS IS INTO THE GITHUB ISSUE (Don't forget to mask your usernames, passwords, IPs and other sensitive information when using this in an issue ) -->\n\n### Runtime\n\nAdguardHome-Sync Version: %s\nBuild: %s\nOperatingSystem: %s\nArchitecture: %s\nOriginVersion: v0.0.1\nReplicaVersions:\n- Replica 1: v0.0.2\n\n### AdGuardHome sync aggregated config\n\n```yaml\norigin:\n    url: https://ha.xxxx.net:3000\n    webURL: \"\"\n    insecureSkipVerify: false\n    autoSetup: false\n\n```\n### AdGuardHome sync unmodified config file\n\nConfig file path: config.yaml\n\n```yaml\n\norigin:\n  url: https://ha.xxxx.net:3000\n\n```\n\n### Environment Variables\n\n```ini\nBAR=bar\nFOO=foo\n```\n\n<!-- END OF GITHUB ISSUE CONTENT -->"
-)
+func expected(id int) string {
+	b, err := os.ReadFile(filepath.Join("../../testdata/config", fmt.Sprintf("print-config_test_expected%d.md", id)))
+	Ω(err).ShouldNot(HaveOccurred())
+	return string(b)
+}
