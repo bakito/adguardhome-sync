@@ -33,7 +33,7 @@ func (w *worker) handleSync(c *gin.Context) {
 }
 
 func (w *worker) handleRoot(c *gin.Context) {
-	total, dns, blocked, malware, adult := statsGraph()
+	total, dns, blocked, malware, adult := metrics.StatsGraph()
 
 	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
 		"DarkMode":   w.cfg.API.DarkMode,

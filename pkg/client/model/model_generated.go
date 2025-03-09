@@ -91,6 +91,15 @@ const (
 	QueryLogConfigIntervalN90  QueryLogConfigInterval = 90
 )
 
+// Defines values for QueryLogItemClientProto.
+const (
+	Dnscrypt QueryLogItemClientProto = "dnscrypt"
+	Doh      QueryLogItemClientProto = "doh"
+	Doq      QueryLogItemClientProto = "doq"
+	Dot      QueryLogItemClientProto = "dot"
+	Empty    QueryLogItemClientProto = ""
+)
+
 // Defines values for QueryLogItemReason.
 const (
 	QueryLogItemReasonFilteredBlackList      QueryLogItemReason = "FilteredBlackList"
@@ -812,8 +821,8 @@ type QueryLogItem struct {
 	ClientId *string `json:"client_id,omitempty"`
 
 	// ClientInfo Client information for a query log item.
-	ClientInfo  *QueryLogItemClient `json:"client_info,omitempty"`
-	ClientProto *interface{}        `json:"client_proto,omitempty"`
+	ClientInfo  *QueryLogItemClient      `json:"client_info,omitempty"`
+	ClientProto *QueryLogItemClientProto `json:"client_proto,omitempty"`
 
 	// Ecs The IP network defined by an EDNS Client-Subnet option in the request message if any.
 	Ecs       *string `json:"ecs,omitempty"`
@@ -853,6 +862,9 @@ type QueryLogItem struct {
 	// Upstream Upstream URL starting with tcp://, tls://, https://, or with an IP address.
 	Upstream *string `json:"upstream,omitempty"`
 }
+
+// QueryLogItemClientProto defines model for QueryLogItem.ClientProto.
+type QueryLogItemClientProto string
 
 // QueryLogItemReason Request filtering status.
 type QueryLogItemReason string
@@ -989,8 +1001,8 @@ type SetRulesRequest struct {
 type Stats struct {
 	// AvgProcessingTime Average time in seconds on processing a DNS request
 	AvgProcessingTime *float32 `json:"avg_processing_time,omitempty"`
-	BlockedFiltering  *[]int   `json:"blocked_filtering,omitempty"`
-	DnsQueries        *[]int   `json:"dns_queries,omitempty"`
+	BlockedFiltering  *[]int   `faker:"slice_len=24" json:"blocked_filtering,omitempty"`
+	DnsQueries        *[]int   `faker:"slice_len=24" json:"dns_queries,omitempty"`
 
 	// NumBlockedFiltering Number of requests blocked by filtering rules
 	NumBlockedFiltering *int `json:"num_blocked_filtering,omitempty"`
@@ -1006,8 +1018,8 @@ type Stats struct {
 
 	// NumReplacedSafesearch Number of requests blocked by safesearch module
 	NumReplacedSafesearch *int   `json:"num_replaced_safesearch,omitempty"`
-	ReplacedParental      *[]int `json:"replaced_parental,omitempty"`
-	ReplacedSafebrowsing  *[]int `json:"replaced_safebrowsing,omitempty"`
+	ReplacedParental      *[]int `faker:"slice_len=24" json:"replaced_parental,omitempty"`
+	ReplacedSafebrowsing  *[]int `faker:"slice_len=24" json:"replaced_safebrowsing,omitempty"`
 
 	// TimeUnits Time units
 	TimeUnits         *StatsTimeUnits  `json:"time_units,omitempty"`

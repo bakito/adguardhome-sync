@@ -155,8 +155,8 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 	l.With("name", name).Info("New Prometheus metric registered")
 }
 
-func Update(ims ...InstanceMetrics) {
-	for _, im := range ims {
+func Update(iml InstanceMetricsList) {
+	for _, im := range iml.Metrics {
 		update(im)
 		stats[im.HostName] = im.Stats
 	}
@@ -230,6 +230,10 @@ func update(im InstanceMetrics) {
 	}
 }
 
+type InstanceMetricsList struct {
+	Metrics []InstanceMetrics `faker:"slice_len=5"`
+}
+
 type InstanceMetrics struct {
 	HostName string
 	Status   *model.ServerStatus
@@ -255,7 +259,7 @@ func safeMetric[T int | float64 | float32](v *T) float64 {
 	return float64(*v)
 }
 
-func GetStats() OverallStats {
+func getStats() OverallStats {
 	return stats.consolidate()
 }
 
