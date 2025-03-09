@@ -27,30 +27,43 @@ var _ = Describe("Metrics", func() {
 						[]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					),
 				}},
+				{HostName: "aaa", Status: &model.ServerStatus{}, Stats: &model.Stats{
+					NumDnsQueries: ptr.To(300),
+					DnsQueries: ptr.To(
+						[]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					),
+				}},
 			}})
 			Ω(stats).Should(HaveKey("foo"))
 			Ω(stats["foo"].NumDnsQueries).Should(Equal(ptr.To(100)))
 			Ω(stats).Should(HaveKey("bar"))
 			Ω(stats["bar"].NumDnsQueries).Should(Equal(ptr.To(200)))
+			Ω(stats).Should(HaveKey("aaa"))
+			Ω(stats["aaa"].NumDnsQueries).Should(Equal(ptr.To(300)))
 
 			os := getStats()
 			tot := os.Total()
-			Ω(*tot.NumDnsQueries).Should(Equal(300))
+			Ω(*tot.NumDnsQueries).Should(Equal(600))
 			Ω(
 				*tot.DnsQueries,
-			).Should(Equal([]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
+			).Should(Equal([]int{60, 120, 180, 240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
 
 			foo := os["foo"]
 			bar := os["bar"]
+			aaa := os["aaa"]
 
 			Ω(*foo.NumDnsQueries).Should(Equal(100))
 			Ω(*bar.NumDnsQueries).Should(Equal(200))
+			Ω(*aaa.NumDnsQueries).Should(Equal(300))
 			Ω(
 				*foo.DnsQueries,
 			).Should(Equal([]int{10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
 			Ω(
 				*bar.DnsQueries,
 			).Should(Equal([]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
+			Ω(
+				*aaa.DnsQueries,
+			).Should(Equal([]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
 		})
 	})
 	Context("StatsGraph", func() {
