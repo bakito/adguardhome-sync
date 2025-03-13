@@ -187,8 +187,8 @@ func (i *AdGuardInstance) Init() error {
 }
 
 func mask(s string) string {
-	if s == "" {
-		return "***"
+	if len(s) < 3 {
+		return strings.Repeat("*", len(s))
 	}
 	mask := strings.Repeat("*", len(s)-2)
 	return fmt.Sprintf("%v%s%v", string(s[0]), mask, string(s[len(s)-1]))

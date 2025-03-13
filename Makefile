@@ -20,6 +20,9 @@ fmt: tb.golines tb.gofumpt
 # Run tests
 test: generate fmt lint test-ci
 
+fuzz:
+	 go test -fuzz=FuzzMask -v ./pkg/types/ -fuzztime=60s
+
 # Run ci tests
 test-ci: mocks tidy tb.ginkgo
 	$(TB_GINKGO) --cover --coverprofile coverage.out.tmp ./...

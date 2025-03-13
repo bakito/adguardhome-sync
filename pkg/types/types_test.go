@@ -83,6 +83,15 @@ var _ = Describe("Types", func() {
 				Ω(masked.API.Password).Should(Equal("p**s"))
 			})
 		})
+		DescribeTable("mask should work correctly",
+			func(value, expected string) {
+				Ω(mask(value)).Should(Equal(expected))
+			},
+			Entry(`Empty password`, "", ""),
+			Entry(`1 char password`, "a", "*"),
+			Entry(`2 char password`, "ab", "**"),
+			Entry(`3 char password`, "abc", "a*c"),
+		)
 	})
 	Context("Feature", func() {
 		Context("LogDisabled", func() {
