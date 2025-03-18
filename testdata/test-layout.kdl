@@ -1,0 +1,16 @@
+layout {
+    pane split_direction="vertical" {
+        pane name="main"
+        pane {
+                pane {
+                     command "make"
+                     args "start-replica"
+                 }
+                pane {
+                     command "make"
+                     args "start-replica2"
+                 }
+            }
+    }
+
+}

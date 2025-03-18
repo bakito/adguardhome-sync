@@ -42,6 +42,7 @@ test-release: tb.goreleaser
 	$(TB_GORELEASER) --skip=publish --snapshot --clean
 
 start-replica:
+	docker rm -f adguardhome-replica
 	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:latest
 #	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
@@ -49,6 +50,7 @@ copy-replica-config:
 	docker cp adguardhome-replica:/opt/adguardhome/conf/AdGuardHome.yaml tmp/AdGuardHome.yaml
 
 start-replica2:
+	docker rm -f adguardhome-replica2
 	docker run --pull always --name adguardhome-replica2 -p 9093:3000 --rm adguard/adguardhome:latest
 #	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
 
@@ -82,3 +84,6 @@ model-diff:
 	go run openapi/main.go $(ADGUARD_HOME_VERSION)
 	go run openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
+
+zellij:
+	zellij -l ./testdata/test-layout.kdl
