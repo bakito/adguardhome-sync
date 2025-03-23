@@ -302,9 +302,9 @@ api:
 
   # enable metrics on path '/metrics' (api port must be != 0)
   # metrics:
-  # enabled: true
-  # scrapeInterval: 30s 
-  # queryLogLimit: 10000
+  #   enabled: true
+  #   scrapeInterval: 30s 
+  #   queryLogLimit: 10000
 
   # enable tls for the api server
   # tls:
