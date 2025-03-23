@@ -247,6 +247,9 @@ services:
 
 ### Unraid
 
+⚠️ Disclaimer: Tere exists an unraid tepmlate for this application. This template is not managed by this project. 
+Also, as unraid is not known to me, I can not give any support on unraind templates.
+
 Note when running the Docker container in Unraid please remove unneeded env variables if don't needed.
 If replica2 isn't used this can cause sync errors.
 
