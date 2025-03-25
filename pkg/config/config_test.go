@@ -3,11 +3,12 @@ package config_test
 import (
 	"os"
 
-	"github.com/bakito/adguardhome-sync/pkg/config"
-	flagsmock "github.com/bakito/adguardhome-sync/pkg/mocks/flags"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	gm "go.uber.org/mock/gomock"
+
+	"github.com/bakito/adguardhome-sync/pkg/config"
+	flagsmock "github.com/bakito/adguardhome-sync/pkg/mocks/flags"
 )
 
 var _ = Describe("Config", func() {
@@ -16,7 +17,7 @@ var _ = Describe("Config", func() {
 			flags          *flagsmock.MockFlags
 			mockCtrl       *gm.Controller
 			changedEnvVars []string
-			setEnv         = func(name string, value string) {
+			setEnv         = func(name, value string) {
 				_ = os.Setenv(name, value)
 				changedEnvVars = append(changedEnvVars, name)
 			}

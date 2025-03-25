@@ -4,8 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bakito/adguardhome-sync/pkg/types"
 	"gopkg.in/yaml.v3"
+
+	"github.com/bakito/adguardhome-sync/pkg/types"
 )
 
 func readFile(cfg *types.Config, path string) (string, error) {

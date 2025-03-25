@@ -18,7 +18,7 @@ func readFlags(cfg *types.Config, flags Flags) error {
 		return err
 	}
 
-	if err := fr.readApiFlags(); err != nil {
+	if err := fr.readAPIFlags(); err != nil {
 		return err
 	}
 
@@ -192,7 +192,7 @@ func (fr *flagReader) readFeatureFlags() error {
 	return nil
 }
 
-func (fr *flagReader) readApiFlags() (err error) {
+func (fr *flagReader) readAPIFlags() (err error) {
 	if err = fr.setIntFlag(FlagApiPort, func(cgf *types.Config, value int) {
 		fr.cfg.API.Port = value
 	}); err != nil {

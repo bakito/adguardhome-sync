@@ -1,16 +1,17 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/bakito/adguardhome-sync/pkg/config"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/sync"
-	"github.com/spf13/cobra"
 )
 
-// runCmd represents the run command
+// runCmd represents the run command.
 var doCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Start a synchronisation from origin to replica",
+	Short: "Start a synchronization from origin to replica",
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger = log.GetLogger("run")
@@ -44,7 +45,7 @@ func init() {
 	doCmd.PersistentFlags().Bool(config.FlagRunOnStart, true, "Run the sync job on start.")
 	doCmd.PersistentFlags().Bool(config.FlagPrintConfigOnly, false, "Prints the configuration only and exists. "+
 		"Can be used to debug the config E.g: when having authentication issues.")
-	doCmd.PersistentFlags().Bool(config.FlagContinueOnError, false, "If enabled, the synchronisation task "+
+	doCmd.PersistentFlags().Bool(config.FlagContinueOnError, false, "If enabled, the synchronization task "+
 		"will not fail on single errors, but will log the errors and continue.")
 
 	doCmd.PersistentFlags().

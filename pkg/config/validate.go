@@ -30,7 +30,7 @@ func validateSchema(cfgFile string) error {
 
 func validateYAML(yamlContent []byte) error {
 	// Convert YAML to JSON
-	var yamlData interface{}
+	var yamlData any
 	err := yaml.Unmarshal(yamlContent, &yamlData)
 	if err != nil {
 		return err

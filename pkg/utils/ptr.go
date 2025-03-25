@@ -2,18 +2,18 @@ package utils
 
 import "fmt"
 
-func Ptr[I interface{}](i I) *I {
+func Ptr[I any](i I) *I {
 	return &i
 }
 
-func PtrToString[I interface{}](i *I) string {
+func PtrToString[I any](i *I) string {
 	if i == nil {
 		return ""
 	}
 	return fmt.Sprintf("%v", i)
 }
 
-func PtrEquals[I comparable](a *I, b *I) bool {
+func PtrEquals[I comparable](a, b *I) bool {
 	if a == nil && b == nil {
 		return true
 	}

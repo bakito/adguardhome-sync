@@ -3,11 +3,12 @@ package config
 import (
 	"strings"
 
-	flagsmock "github.com/bakito/adguardhome-sync/pkg/mocks/flags"
-	"github.com/bakito/adguardhome-sync/pkg/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	gm "go.uber.org/mock/gomock"
+
+	flagsmock "github.com/bakito/adguardhome-sync/pkg/mocks/flags"
+	"github.com/bakito/adguardhome-sync/pkg/types"
 )
 
 var _ = Describe("Config", func() {
@@ -88,7 +89,7 @@ var _ = Describe("Config", func() {
 			}))
 		})
 	})
-	Context("readApiFlags", func() {
+	Context("readAPIFlags", func() {
 		It("should change all values", func() {
 			cfg.API = types.API{
 				Port:     1111,

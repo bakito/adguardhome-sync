@@ -3,8 +3,9 @@ package client
 import (
 	"net/http"
 
-	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/go-resty/resty/v2"
+
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 )
 
 var _ model.HttpRequestDoer = &adapter{}

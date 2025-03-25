@@ -1,11 +1,12 @@
 package metrics
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/go-faker/faker/v4"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"k8s.io/utils/ptr"
+
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 )
 
 var _ = Describe("Metrics", func() {

@@ -14,10 +14,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/metrics"
 	"github.com/bakito/adguardhome-sync/version"
-	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -35,13 +36,13 @@ func (w *worker) handleSync(c *gin.Context) {
 func (w *worker) handleRoot(c *gin.Context) {
 	total, dns, blocked, malware, adult := metrics.StatsGraph()
 
-	c.HTML(http.StatusOK, "index.html", map[string]interface{}{
+	c.HTML(http.StatusOK, "index.html", map[string]any{
 		"DarkMode":   w.cfg.API.DarkMode,
 		"Metrics":    w.cfg.API.Metrics.Enabled,
 		"Version":    version.Version,
 		"Build":      version.Build,
 		"SyncStatus": w.status(),
-		"Stats": map[string]interface{}{
+		"Stats": map[string]any{
 			"Labels":  getLast24Hours(),
 			"DNS":     dns,
 			"Blocked": blocked,
@@ -192,7 +193,7 @@ func getLast24Hours() []string {
 	currentTime := time.Now()
 
 	// Loop to get the last 24 hours
-	for i := 0; i < 24; i++ {
+	for i := range 24 {
 		// Calculate the time for the current hour in the loop
 		timeInstance := currentTime.Add(time.Duration(-i) * time.Hour)
 		timeInstance = timeInstance.Truncate(time.Hour)

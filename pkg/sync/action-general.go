@@ -1,10 +1,11 @@
 package sync
 
 import (
+	"go.uber.org/zap"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
-	"go.uber.org/zap"
 )
 
 var (

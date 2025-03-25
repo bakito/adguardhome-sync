@@ -9,10 +9,11 @@ import (
 	"strings"
 	"text/template"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/version"
-	"gopkg.in/yaml.v3"
 )
 
 //go:embed print-config.md
@@ -72,7 +73,7 @@ func (ac *AppConfig) print(env []string, originVersion string, replicaVersions [
 
 	var buf bytes.Buffer
 
-	if err = t.Execute(&buf, map[string]interface{}{
+	if err = t.Execute(&buf, map[string]any{
 		"Version":              version.Version,
 		"Build":                version.Build,
 		"OperatingSystem":      runtime.GOOS,

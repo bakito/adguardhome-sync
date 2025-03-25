@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/bakito/adguardhome-sync/pkg/types"
-	"github.com/bakito/adguardhome-sync/version"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/version"
 )
 
 var _ = Describe("AppConfig", func() {

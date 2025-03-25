@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bakito/adguardhome-sync/pkg/config"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/bakito/adguardhome-sync/pkg/config"
 )
 
 var envVars = []string{

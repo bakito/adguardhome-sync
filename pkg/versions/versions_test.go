@@ -1,9 +1,10 @@
 package versions_test
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/versions"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/bakito/adguardhome-sync/pkg/versions"
 )
 
 var _ = Describe("Versions", func() {

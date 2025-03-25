@@ -1,9 +1,10 @@
 package metrics
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 const StatsTotal = "total"
@@ -11,7 +12,7 @@ const StatsTotal = "total"
 var (
 	l = log.GetLogger("metrics")
 
-	// avgProcessingTime - Average processing time for a DNS query
+	// avgProcessingTime - Average processing time for a DNS query.
 	avgProcessingTime = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "avg_processing_time",
@@ -21,7 +22,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// dnsQueries - Number of DNS queries
+	// dnsQueries - Number of DNS queries.
 	dnsQueries = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "num_dns_queries",
@@ -31,7 +32,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// blockedFiltering - Number of DNS queries blocked
+	// blockedFiltering - Number of DNS queries blocked.
 	blockedFiltering = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "num_blocked_filtering",
@@ -41,7 +42,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// parentalFiltering - Number of DNS queries replaced by parental control
+	// parentalFiltering - Number of DNS queries replaced by parental control.
 	parentalFiltering = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "num_replaced_parental",
@@ -51,7 +52,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// safeBrowsingFiltering - Number of DNS queries replaced by safe browsing
+	// safeBrowsingFiltering - Number of DNS queries replaced by safe browsing.
 	safeBrowsingFiltering = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "num_replaced_safebrowsing",
@@ -61,7 +62,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// safeSearchFiltering - Number of DNS queries replaced by safe search
+	// safeSearchFiltering - Number of DNS queries replaced by safe search.
 	safeSearchFiltering = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "num_replaced_safesearch",
@@ -71,7 +72,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// topQueries - The number of top queries
+	// topQueries - The number of top queries.
 	topQueries = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "top_queried_domains",
@@ -81,7 +82,7 @@ var (
 		[]string{"hostname", "domain"},
 	)
 
-	// topBlocked - The number of top domains blocked
+	// topBlocked - The number of top domains blocked.
 	topBlocked = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "top_blocked_domains",
@@ -91,7 +92,7 @@ var (
 		[]string{"hostname", "domain"},
 	)
 
-	// topClients - The number of top clients
+	// topClients - The number of top clients.
 	topClients = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "top_clients",
@@ -111,7 +112,7 @@ var (
 		[]string{"hostname", "type"},
 	)
 
-	// running - If Adguard is running
+	// running - If Adguard is running.
 	running = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "running",
@@ -121,7 +122,7 @@ var (
 		[]string{"hostname"},
 	)
 
-	// protectionEnabled - If Adguard protection is enabled
+	// protectionEnabled - If Adguard protection is enabled.
 	protectionEnabled = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name:      "protection_enabled",
@@ -166,13 +167,13 @@ func Update(iml InstanceMetricsList) {
 
 func update(im InstanceMetrics) {
 	// Status
-	var isRunning int = 0
+	isRunning := 0
 	if im.Status.Running {
 		isRunning = 1
 	}
 	running.WithLabelValues(im.HostName).Set(float64(isRunning))
 
-	var isProtected int = 0
+	isProtected := 0
 	if im.Status.ProtectionEnabled {
 		isProtected = 1
 	}
