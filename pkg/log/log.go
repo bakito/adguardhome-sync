@@ -18,7 +18,7 @@ var (
 	logs       []string
 )
 
-// GetLogger returns a named logger
+// GetLogger returns a named logger.
 func GetLogger(name string) *zap.SugaredLogger {
 	return rootLogger.Named(name).Sugar()
 }
@@ -101,12 +101,12 @@ func (l *logList) Sync() error {
 	return nil
 }
 
-// Logs get the current logs
+// Logs get the current logs.
 func Logs() []string {
 	return logs
 }
 
-// Clear  the current logs
+// Clear  the current logs.
 func Clear() {
 	logs = nil
 }

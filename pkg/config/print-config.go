@@ -9,10 +9,11 @@ import (
 	"strings"
 	"text/template"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/version"
-	"gopkg.in/yaml.v3"
 )
 
 //go:embed print-config.md
@@ -25,7 +26,7 @@ func (ac *AppConfig) Print() error {
 		replicaVersions = append(replicaVersions, aghVersion(replica))
 	}
 
-	out, err := ac.print(os.Environ(), originVersion, replicaVersions)
+	out, err := ac.printInternal(os.Environ(), originVersion, replicaVersions)
 	if err != nil {
 		return err
 	}
@@ -50,7 +51,7 @@ func aghVersion(i types.AdGuardInstance) string {
 	return stats.Version
 }
 
-func (ac *AppConfig) print(env []string, originVersion string, replicaVersions []string) (string, error) {
+func (ac *AppConfig) printInternal(env []string, originVersion string, replicaVersions []string) (string, error) {
 	config, err := yaml.Marshal(ac.Get())
 	if err != nil {
 		return "", err
@@ -72,7 +73,7 @@ func (ac *AppConfig) print(env []string, originVersion string, replicaVersions [
 
 	var buf bytes.Buffer
 
-	if err = t.Execute(&buf, map[string]interface{}{
+	err = t.Execute(&buf, map[string]any{
 		"Version":              version.Version,
 		"Build":                version.Build,
 		"OperatingSystem":      runtime.GOOS,
@@ -83,8 +84,6 @@ func (ac *AppConfig) print(env []string, originVersion string, replicaVersions [
 		"EnvironmentVariables": strings.Join(env, "\n"),
 		"OriginVersion":        originVersion,
 		"ReplicaVersions":      replicaVersions,
-	}); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
+	})
+	return buf.String(), err
 }

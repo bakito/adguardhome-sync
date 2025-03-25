@@ -25,7 +25,7 @@ func NewFeatures(enabled bool) Features {
 	}
 }
 
-// Features feature flags
+// Features feature flags.
 type Features struct {
 	DNS             DNS  `json:"dns"             yaml:"dns"`
 	DHCP            DHCP `json:"dhcp"            yaml:"dhcp"`
@@ -38,20 +38,20 @@ type Features struct {
 	Theme           bool `json:"theme"           yaml:"theme"           env:"FEATURES_THEME"`
 }
 
-// DHCP features
+// DHCP features.
 type DHCP struct {
-	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" env:"FEATURES_DHCP_SERVER_CONFIG"`
-	StaticLeases bool `json:"staticLeases" yaml:"staticLeases" env:"FEATURES_DHCP_STATIC_LEASES"`
+	ServerConfig bool `env:"FEATURES_DHCP_SERVER_CONFIG" json:"serverConfig" yaml:"serverConfig"`
+	StaticLeases bool `env:"FEATURES_DHCP_STATIC_LEASES" json:"staticLeases" yaml:"staticLeases"`
 }
 
-// DNS features
+// DNS features.
 type DNS struct {
-	AccessLists  bool `json:"accessLists"  yaml:"accessLists"  env:"FEATURES_DNS_ACCESS_LISTS"`
-	ServerConfig bool `json:"serverConfig" yaml:"serverConfig" env:"FEATURES_DNS_SERVER_CONFIG"`
-	Rewrites     bool `json:"rewrites"     yaml:"rewrites"     env:"FEATURES_DNS_REWRITES"`
+	AccessLists  bool `env:"FEATURES_DNS_ACCESS_LISTS"  json:"accessLists"  yaml:"accessLists"`
+	ServerConfig bool `env:"FEATURES_DNS_SERVER_CONFIG" json:"serverConfig" yaml:"serverConfig"`
+	Rewrites     bool `env:"FEATURES_DNS_REWRITES"      json:"rewrites"     yaml:"rewrites"`
 }
 
-// LogDisabled log all disabled features
+// LogDisabled log all disabled features.
 func (f *Features) LogDisabled(l *zap.SugaredLogger) {
 	features := f.collectDisabled()
 

@@ -2,10 +2,12 @@ package sync
 
 import (
 	"errors"
-	"fmt"
 	"runtime"
 	"sort"
 	"time"
+
+	"github.com/robfig/cron/v3"
+	"go.uber.org/zap"
 
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
@@ -14,20 +16,18 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
 	"github.com/bakito/adguardhome-sync/version"
-	"github.com/robfig/cron/v3"
-	"go.uber.org/zap"
 )
 
 var l = log.GetLogger("sync")
 
-// Sync config from origin to replica
+// Sync config from origin to replica.
 func Sync(cfg *types.Config) error {
 	if cfg.Origin.URL == "" {
-		return fmt.Errorf("origin URL is required")
+		return errors.New("origin URL is required")
 	}
 
 	if len(cfg.UniqueReplicas()) == 0 {
-		return fmt.Errorf("no replicas configured")
+		return errors.New("no replicas configured")
 	}
 
 	l.With(
@@ -41,10 +41,8 @@ func Sync(cfg *types.Config) error {
 	cfg.Origin.AutoSetup = false
 
 	w := &worker{
-		cfg: cfg,
-		createClient: func(ai types.AdGuardInstance) (client.Client, error) {
-			return client.New(ai)
-		},
+		cfg:          cfg,
+		createClient: client.New,
 	}
 	if cfg.Cron != "" {
 		w.cron = cron.New()
@@ -120,15 +118,15 @@ func (w *worker) status() *syncStatus {
 	return syncStatus
 }
 
-func (w *worker) getStatus(inst types.AdGuardInstance) (st replicaStatus) {
-	st = replicaStatus{Host: inst.WebHost, URL: inst.WebURL}
+func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
+	st := replicaStatus{Host: inst.WebHost, URL: inst.WebURL}
 
 	oc, err := w.createClient(inst)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		st.Status = "danger"
 		st.Error = err.Error()
-		return
+		return st
 	}
 	sl := l.With("from", inst.WebHost)
 	status, err := oc.Status()
@@ -136,16 +134,16 @@ func (w *worker) getStatus(inst types.AdGuardInstance) (st replicaStatus) {
 		if errors.Is(err, client.ErrSetupNeeded) {
 			st.Status = "warning"
 			st.Error = err.Error()
-			return
+			return st
 		}
 		sl.With("error", err).Error("Error getting origin status")
 		st.Status = "danger"
 		st.Error = err.Error()
-		return
+		return st
 	}
 	st.Status = "success"
 	st.ProtectionEnabled = utils.Ptr(status.ProtectionEnabled)
-	return
+	return st
 }
 
 func (w *worker) sync() {

@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/caarlos0/env/v11"
+
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
-	"github.com/caarlos0/env/v11"
 )
 
 func handleDeprecatedEnvVars(cfg *types.Config) {
@@ -61,20 +62,20 @@ func handleDeprecatedEnvVars(cfg *types.Config) {
 	}
 }
 
-func checkDeprecatedEnvVar(oldName string, newName string) (string, bool) {
+func checkDeprecatedEnvVar(oldName, newName string) (string, bool) {
 	old, oldOK := os.LookupEnv(oldName)
 	if oldOK {
 		logger.With("deprecated", oldName, "replacement", newName).
 			Warn("Deprecated env variable is used, please use the correct one")
 	}
-	new, newOK := os.LookupEnv(newName)
+	newVal, newOK := os.LookupEnv(newName)
 	if newOK {
-		return new, true
+		return newVal, true
 	}
 	return old, oldOK
 }
 
-func checkDeprecatedReplicaEnvVar(oldPattern string, newPattern string, replicaID int) (string, bool) {
+func checkDeprecatedReplicaEnvVar(oldPattern, newPattern string, replicaID int) (string, bool) {
 	return checkDeprecatedEnvVar(fmt.Sprintf(oldPattern, replicaID), fmt.Sprintf(newPattern, replicaID))
 }
 

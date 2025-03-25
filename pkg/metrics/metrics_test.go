@@ -1,11 +1,12 @@
 package metrics
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/go-faker/faker/v4"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"k8s.io/utils/ptr"
+
+	"github.com/bakito/adguardhome-sync/pkg/client/model"
 )
 
 var _ = Describe("Metrics", func() {
@@ -85,15 +86,15 @@ var _ = Describe("Metrics", func() {
 	})
 })
 
-func verifyStats(lines []line) {
-	var total line
+func verifyStats(lines []Line) {
+	var total Line
 	sum := make([]int, len(lines[0].Data))
 	for _, l := range lines {
 		if l.Title == labelTotal {
 			total = l
 		} else {
 			for i, d := range l.Data {
-				sum[i] = sum[i] + d
+				sum[i] += d
 			}
 		}
 	}

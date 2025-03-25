@@ -4,9 +4,10 @@ import (
 	"errors"
 	"regexp"
 
+	"github.com/caarlos0/env/v11"
+
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
-	"github.com/caarlos0/env/v11"
 )
 
 var (
@@ -38,7 +39,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 		return nil, err
 	}
 
-	if err = validateSchema(path); err != nil {
+	if err := validateSchema(path); err != nil {
 		return nil, err
 	}
 
@@ -67,10 +68,10 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	cfg.Replicas = nil
 
 	// overwrite from env vars
-	if err = env.Parse(cfg); err != nil {
+	if err := env.Parse(cfg); err != nil {
 		return nil, err
 	}
-	if err = env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
+	if err := env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
 		return nil, err
 	}
 	// restore the replica
@@ -81,7 +82,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 		cfg.Replica.DHCPServerEnabled = replicaDhcpServer
 	}
 
-	if err = env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
+	if err := env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
 		return nil, err
 	}
 

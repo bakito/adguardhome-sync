@@ -1,11 +1,12 @@
 package model
 
 import (
-	"github.com/bakito/adguardhome-sync/pkg/log"
-	"github.com/bakito/adguardhome-sync/pkg/utils"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	"go.uber.org/zap"
+
+	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 )
 
 var _ = Describe("Types", func() {

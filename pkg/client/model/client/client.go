@@ -11,19 +11,20 @@ import (
 	"net/url"
 	"path"
 
+	"go.uber.org/zap"
+
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
-	"go.uber.org/zap"
 )
 
 var l = log.GetLogger("client")
 
-// New create a new api client
+// New create a new api client.
 func New(config types.AdGuardInstance) (Client, error) {
 	var apiURL string
 	if config.APIPath == "" {
-		apiURL = fmt.Sprintf("%s/control", config.URL)
+		apiURL = config.URL + "/control"
 	} else {
 		apiURL = fmt.Sprintf("%s/%s", config.URL, config.APIPath)
 	}
@@ -96,7 +97,7 @@ func (a apiClient) SetFilteringConfig(ctx context.Context, config model.FilterCo
 	return write(ctx, config, a.client.FilteringConfig)
 }
 
-func write[B interface{}](
+func write[B any](
 	ctx context.Context,
 	body B,
 	req func(ctx context.Context, body B, reqEditors ...model.RequestEditorFn) (*http.Response, error),
@@ -112,7 +113,7 @@ func write[B interface{}](
 	return nil
 }
 
-func read[I interface{}](
+func read[I any](
 	ctx context.Context,
 	req func(ctx context.Context, reqEditors ...model.RequestEditorFn) (*http.Response, error),
 	parse func(rsp *http.Response) (*I, error),

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/version"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 	logger  = log.GetLogger("root")
 )
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:     "adguardhome-sync",
 	Short:   "Synchronize config from one AdGuardHome instance to another",
@@ -25,7 +26,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		_, _ = fmt.Println(err)
 		os.Exit(1)
 	}
 }

@@ -1,10 +1,11 @@
 package sync
 
 import (
+	"go.uber.org/zap"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/types"
-	"go.uber.org/zap"
 )
 
 func setupActions(cfg *types.Config) (actions []syncAction) {

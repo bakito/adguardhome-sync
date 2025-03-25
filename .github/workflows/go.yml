@@ -22,10 +22,8 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          skip-cache: true
+      - name: Lint
+        run: make lint
 
   test:
     name: test

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -20,21 +21,33 @@ func main() {
 	}
 	log.Printf("Patching schema version %s\n", version)
 
-	resp, err := http.Get(
+	ctx := context.Background() // Or use context.WithTimeout
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
 		fmt.Sprintf("https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/%s/openapi/openapi.yaml", version),
+		http.NoBody,
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
-	schema := make(map[string]interface{})
+	schema := make(map[string]any)
 	err = yaml.Unmarshal(data, &schema)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	if requestBodies, ok, _ := unstructured.NestedMap(schema, "components", "requestBodies"); ok {
@@ -47,9 +60,11 @@ func main() {
 		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); ok {
 		if allOf, ok, _ := unstructured.NestedSlice(dnsInfo, "allOf"); ok && len(allOf) == 2 {
 			delete(dnsInfo, "allOf")
-			if err := unstructured.SetNestedMap(schema, allOf[0].(map[string]interface{}),
+			//nolint:forcetypeassert
+			if err := unstructured.SetNestedMap(schema, allOf[0].(map[string]any),
 				"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); err != nil {
-				log.Fatalln(err)
+				log.Println(err)
+				return
 			}
 		}
 	}
@@ -60,24 +75,26 @@ func main() {
 
 	b, err := yaml.Marshal(&schema)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	log.Printf("Writing schema file tmp/%s", fileName)
 	err = os.WriteFile("tmp/"+fileName, b, 0o600)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 }
 
-func correctEntries(schema map[string]interface{}) {
+func correctEntries(schema map[string]any) {
 	// https://github.com/AdguardTeam/AdGuardHome/pull/7678
 	if err := unstructured.SetNestedField(schema, "string", "components", "schemas", "QueryLogItem", "properties", "client_proto", "type"); err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func addFakeTags(schema map[string]interface{}) {
-	fake := map[string]interface{}{"faker": `slice_len=24`}
+func addFakeTags(schema map[string]any) {
+	fake := map[string]any{"faker": `slice_len=24`}
 	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "blocked_filtering", "x-oapi-codegen-extra-tags"); err != nil {
 		log.Fatalln(err)
 	}

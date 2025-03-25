@@ -17,6 +17,7 @@ var schemaData string
 func validateSchema(cfgFile string) error {
 	// ignore if file not exists
 	if _, err := os.Stat(cfgFile); err != nil {
+		//nolint:nilerr
 		return nil
 	}
 	// Load YAML file
@@ -30,7 +31,7 @@ func validateSchema(cfgFile string) error {
 
 func validateYAML(yamlContent []byte) error {
 	// Convert YAML to JSON
-	var yamlData interface{}
+	var yamlData any
 	err := yaml.Unmarshal(yamlContent, &yamlData)
 	if err != nil {
 		return err

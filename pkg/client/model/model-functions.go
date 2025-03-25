@@ -5,13 +5,14 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
 	"k8s.io/utils/ptr"
+
+	"github.com/bakito/adguardhome-sync/pkg/utils"
 )
 
-// Clone the config
+// Clone the config.
 func (c *DhcpStatus) Clone() *DhcpStatus {
 	clone := &DhcpStatus{}
 	_ = copier.Copy(clone, c)
@@ -27,16 +28,16 @@ func (c *DhcpStatus) cleanV4V6() {
 	}
 }
 
-// CleanAndEquals dhcp server config equal check where V4 and V6 are cleaned in advance
+// CleanAndEquals dhcp server config equal check where V4 and V6 are cleaned in advance.
 func (c *DhcpStatus) CleanAndEquals(o *DhcpStatus) bool {
 	c.cleanV4V6()
 	o.cleanV4V6()
 	return c.Equals(o)
 }
 
-// Equals dhcp server config equal check
+// Equals dhcp server config equal check.
 func (c *DhcpStatus) Equals(o *DhcpStatus) bool {
-	return utils.JsonEquals(c, o)
+	return utils.JSONEquals(c, o)
 }
 
 func (c *DhcpStatus) HasConfig() bool {
@@ -56,8 +57,8 @@ func (j DhcpConfigV6) isValid() bool {
 
 type DhcpStaticLeases []DhcpStaticLease
 
-// MergeDhcpStaticLeases the leases
-func MergeDhcpStaticLeases(l *[]DhcpStaticLease, other *[]DhcpStaticLease) (DhcpStaticLeases, DhcpStaticLeases) {
+// MergeDhcpStaticLeases the leases.
+func MergeDhcpStaticLeases(l, other *[]DhcpStaticLease) (adds, removes DhcpStaticLeases) {
 	var thisLeases []DhcpStaticLease
 	var otherLeases []DhcpStaticLease
 
@@ -69,8 +70,6 @@ func MergeDhcpStaticLeases(l *[]DhcpStaticLease, other *[]DhcpStaticLease) (Dhcp
 	}
 	current := make(map[string]DhcpStaticLease)
 
-	var adds DhcpStaticLeases
-	var removes DhcpStaticLeases
 	for _, le := range thisLeases {
 		current[le.Mac] = le
 	}
@@ -90,21 +89,21 @@ func MergeDhcpStaticLeases(l *[]DhcpStaticLease, other *[]DhcpStaticLease) (Dhcp
 	return adds, removes
 }
 
-// Equals dns config equal check
+// Equals dns config equal check.
 func (c *DNSConfig) Equals(o *DNSConfig) bool {
 	cc := c.Clone()
 	oo := o.Clone()
 	cc.Sort()
 	oo.Sort()
 
-	return utils.JsonEquals(cc, oo)
+	return utils.JSONEquals(cc, oo)
 }
 
 func (c *DNSConfig) Clone() *DNSConfig {
 	return utils.Clone(c, &DNSConfig{})
 }
 
-// Sort sort dns config
+// Sort dns config.
 func (c *DNSConfig) Sort() {
 	if c.UpstreamDns != nil {
 		sort.Strings(*c.UpstreamDns)
@@ -119,14 +118,14 @@ func (c *DNSConfig) Sort() {
 	}
 }
 
-// Equals access list equal check
+// Equals access list equal check.
 func (al *AccessList) Equals(o *AccessList) bool {
 	return EqualsStringSlice(al.AllowedClients, o.AllowedClients, true) &&
 		EqualsStringSlice(al.DisallowedClients, o.DisallowedClients, true) &&
 		EqualsStringSlice(al.BlockedHosts, o.BlockedHosts, true)
 }
 
-func EqualsStringSlice(a *[]string, b *[]string, sortIt bool) bool {
+func EqualsStringSlice(a, b *[]string, sortIt bool) bool {
 	if a == nil && b == nil {
 		return true
 	}
@@ -152,7 +151,7 @@ func EqualsStringSlice(a *[]string, b *[]string, sortIt bool) bool {
 	return true
 }
 
-// Sort clients
+// Sort clients.
 func (cl *Client) Sort() {
 	if cl.Ids != nil {
 		sort.Strings(*cl.Ids)
@@ -168,28 +167,26 @@ func (cl *Client) Sort() {
 	}
 }
 
-// PrepareDiff timezone BlockedServicesSchedule might differ if all other fields are empty,
-// so we skip it in diff
+// PrepareDiff so we skip it in diff.
 func (cl *Client) PrepareDiff() *string {
 	var tz *string
 	bss := cl.BlockedServicesSchedule
 	if bss != nil && bss.Mon == nil && bss.Tue == nil && bss.Wed == nil &&
 		bss.Thu == nil && bss.Fri == nil && bss.Sat == nil && bss.Sun == nil {
-
 		tz = cl.BlockedServicesSchedule.TimeZone
 		cl.BlockedServicesSchedule.TimeZone = nil
 	}
 	return tz
 }
 
-// AfterDiff reset after diff
+// AfterDiff reset after diff.
 func (cl *Client) AfterDiff(tz *string) {
 	if cl.BlockedServicesSchedule != nil {
 		cl.BlockedServicesSchedule.TimeZone = tz
 	}
 }
 
-// Equals Clients equal check
+// Equals Clients equal check.
 func (cl *Client) Equals(o *Client) bool {
 	cl.Sort()
 	o.Sort()
@@ -202,10 +199,10 @@ func (cl *Client) Equals(o *Client) bool {
 		o.AfterDiff(bssO)
 	}()
 
-	return utils.JsonEquals(cl, o)
+	return utils.JSONEquals(cl, o)
 }
 
-// Add ac client
+// Add ac client.
 func (clients *Clients) Add(cl Client) {
 	if clients.Clients == nil {
 		clients.Clients = &ClientsArray{cl}
@@ -215,8 +212,8 @@ func (clients *Clients) Add(cl Client) {
 	}
 }
 
-// Merge merge Clients
-func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) {
+// Merge merge Clients.
+func (clients *Clients) Merge(other *Clients) (adds, removes, updates []*Client) {
 	current := make(map[string]*Client)
 	if clients.Clients != nil {
 		cc := *clients.Clients
@@ -232,10 +229,6 @@ func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) 
 			expected[*client.Name] = &client
 		}
 	}
-
-	var adds []*Client
-	var removes []*Client
-	var updates []*Client
 
 	for _, cl := range expected {
 		if oc, ok := current[*cl.Name]; ok {
@@ -255,7 +248,7 @@ func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) 
 	return adds, updates, removes
 }
 
-// Key RewriteEntry key
+// Key RewriteEntry key.
 func (re *RewriteEntry) Key() string {
 	var d string
 	var a string
@@ -268,16 +261,13 @@ func (re *RewriteEntry) Key() string {
 	return fmt.Sprintf("%s#%s", d, a)
 }
 
-// RewriteEntries list of RewriteEntry
+// RewriteEntries list of RewriteEntry.
 type RewriteEntries []RewriteEntry
 
-// Merge RewriteEntries
-func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries, RewriteEntries) {
+// Merge RewriteEntries.
+func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicates RewriteEntries) {
 	current := make(map[string]RewriteEntry)
 
-	var adds RewriteEntries
-	var removes RewriteEntries
-	var duplicates RewriteEntries
 	processed := make(map[string]bool)
 	for _, rr := range *rwe {
 		if _, ok := processed[rr.Key()]; !ok {
@@ -310,16 +300,13 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, Rewrite
 	return adds, removes, duplicates
 }
 
-func MergeFilters(this *[]Filter, other *[]Filter) ([]Filter, []Filter, []Filter) {
+func MergeFilters(this, other *[]Filter) (adds, updates, removes []Filter) {
 	if this == nil && other == nil {
 		return nil, nil, nil
 	}
 
 	current := make(map[string]*Filter)
 
-	var adds []Filter
-	var updates []Filter
-	var removes []Filter
 	if this != nil {
 		for _, fi := range *this {
 			current[fi.Url] = &fi
@@ -346,7 +333,7 @@ func MergeFilters(this *[]Filter, other *[]Filter) ([]Filter, []Filter, []Filter
 	return adds, updates, removes
 }
 
-// Equals Filter equal check
+// Equals Filter equal check.
 func (f *Filter) Equals(o *Filter) bool {
 	return f.Enabled == o.Enabled && f.Url == o.Url && f.Name == o.Name
 }
@@ -358,17 +345,17 @@ type QueryLogConfigWithIgnored struct {
 	Ignored []string `json:"ignored,omitempty"`
 }
 
-// Equals QueryLogConfig equal check
+// Equals QueryLogConfig equal check.
 func (qlc *QueryLogConfigWithIgnored) Equals(o *QueryLogConfigWithIgnored) bool {
-	return utils.JsonEquals(qlc, o)
+	return utils.JSONEquals(qlc, o)
 }
 
-// Equals QueryLogConfigInterval equal check
+// Equals QueryLogConfigInterval equal check.
 func (qlc *QueryLogConfigInterval) Equals(o *QueryLogConfigInterval) bool {
 	return ptrEquals(qlc, o)
 }
 
-func ptrEquals[T comparable](a *T, b *T) bool {
+func ptrEquals[T comparable](a, b *T) bool {
 	if a == nil && b == nil {
 		return true
 	}
@@ -384,7 +371,7 @@ func ptrEquals[T comparable](a *T, b *T) bool {
 	return aa == bb
 }
 
-// EnableConfig API struct
+// EnableConfig API struct.
 type EnableConfig struct {
 	Enabled bool `json:"enabled"`
 }
@@ -421,7 +408,7 @@ func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo, withTheme bool) *ProfileInf
 }
 
 func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
-	return utils.JsonEquals(bss, o)
+	return utils.JSONEquals(bss, o)
 }
 
 func (bss *BlockedServicesSchedule) ServicesString() string {
@@ -449,9 +436,9 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 	}
 }
 
-// Equals GetStatsConfigResponse equal check
+// Equals GetStatsConfigResponse equal check.
 func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
-	return utils.JsonEquals(sc, o)
+	return utils.JSONEquals(sc, o)
 }
 
 func NewStats() *Stats {
@@ -482,19 +469,19 @@ func (s *Stats) Add(other *Stats) {
 	s.ReplacedSafebrowsing = sumUp(s.ReplacedSafebrowsing, other.ReplacedSafebrowsing)
 }
 
-func addInt(t *int, add *int) *int {
+func addInt(t, add *int) *int {
 	if add != nil {
 		return ptr.To(*t + *add)
 	}
 	return t
 }
 
-func sumUp(t *[]int, o *[]int) *[]int {
+func sumUp(t, o *[]int) *[]int {
 	if o != nil {
 		tt := *t
 		oo := *o
 		var sum []int
-		for i := 0; i < len(tt); i++ {
+		for i := range tt {
 			if len(oo) >= i {
 				sum = append(sum, tt[i]+oo[i])
 			}

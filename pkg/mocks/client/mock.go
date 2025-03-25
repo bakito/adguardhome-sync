@@ -384,17 +384,17 @@ func (mr *MockClientMockRecorder) SafeSearchConfig() *gomock.Call {
 }
 
 // SetAccessList mocks base method.
-func (m *MockClient) SetAccessList(arg0 *model.AccessList) error {
+func (m *MockClient) SetAccessList(accessList *model.AccessList) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetAccessList", arg0)
+	ret := m.ctrl.Call(m, "SetAccessList", accessList)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetAccessList indicates an expected call of SetAccessList.
-func (mr *MockClientMockRecorder) SetAccessList(arg0 any) *gomock.Call {
+func (mr *MockClientMockRecorder) SetAccessList(accessList any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessList", reflect.TypeOf((*MockClient)(nil).SetAccessList), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccessList", reflect.TypeOf((*MockClient)(nil).SetAccessList), accessList)
 }
 
 // SetBlockedServicesSchedule mocks base method.
@@ -426,31 +426,31 @@ func (mr *MockClientMockRecorder) SetCustomRules(rules any) *gomock.Call {
 }
 
 // SetDNSConfig mocks base method.
-func (m *MockClient) SetDNSConfig(arg0 *model.DNSConfig) error {
+func (m *MockClient) SetDNSConfig(config *model.DNSConfig) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetDNSConfig", arg0)
+	ret := m.ctrl.Call(m, "SetDNSConfig", config)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetDNSConfig indicates an expected call of SetDNSConfig.
-func (mr *MockClientMockRecorder) SetDNSConfig(arg0 any) *gomock.Call {
+func (mr *MockClientMockRecorder) SetDNSConfig(config any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDNSConfig", reflect.TypeOf((*MockClient)(nil).SetDNSConfig), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDNSConfig", reflect.TypeOf((*MockClient)(nil).SetDNSConfig), config)
 }
 
 // SetDhcpConfig mocks base method.
-func (m *MockClient) SetDhcpConfig(arg0 *model.DhcpStatus) error {
+func (m *MockClient) SetDhcpConfig(status *model.DhcpStatus) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetDhcpConfig", arg0)
+	ret := m.ctrl.Call(m, "SetDhcpConfig", status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetDhcpConfig indicates an expected call of SetDhcpConfig.
-func (mr *MockClientMockRecorder) SetDhcpConfig(arg0 any) *gomock.Call {
+func (mr *MockClientMockRecorder) SetDhcpConfig(status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDhcpConfig", reflect.TypeOf((*MockClient)(nil).SetDhcpConfig), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDhcpConfig", reflect.TypeOf((*MockClient)(nil).SetDhcpConfig), status)
 }
 
 // SetProfileInfo mocks base method.
@@ -468,17 +468,17 @@ func (mr *MockClientMockRecorder) SetProfileInfo(settings any) *gomock.Call {
 }
 
 // SetQueryLogConfig mocks base method.
-func (m *MockClient) SetQueryLogConfig(arg0 *model.QueryLogConfigWithIgnored) error {
+func (m *MockClient) SetQueryLogConfig(ql *model.QueryLogConfigWithIgnored) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetQueryLogConfig", arg0)
+	ret := m.ctrl.Call(m, "SetQueryLogConfig", ql)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetQueryLogConfig indicates an expected call of SetQueryLogConfig.
-func (mr *MockClientMockRecorder) SetQueryLogConfig(arg0 any) *gomock.Call {
+func (mr *MockClientMockRecorder) SetQueryLogConfig(ql any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), ql)
 }
 
 // SetSafeSearchConfig mocks base method.

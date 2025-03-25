@@ -11,19 +11,20 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
+
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
-	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 )
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
 
 var (
 	l = log.GetLogger("client")
-	// ErrSetupNeeded custom error
+	// ErrSetupNeeded custom error.
 	ErrSetupNeeded = errors.New("setup needed")
 )
 
@@ -33,16 +34,16 @@ func detailedError(resp *resty.Response, err error) error {
 		e += fmt.Sprintf("(%s)", string(resp.Body()))
 	}
 	if err != nil {
-		e += fmt.Sprintf(": %s", err.Error())
+		e += ": " + err.Error()
 	}
 	return errors.New(e)
 }
 
-// New create a new client
+// New create a new client.
 func New(config types.AdGuardInstance) (Client, error) {
 	var apiURL string
 	if config.APIPath == "" {
-		apiURL = fmt.Sprintf("%s/control", config.URL)
+		apiURL = config.URL + "/control"
 	} else {
 		apiURL = fmt.Sprintf("%s/%s", config.URL, config.APIPath)
 	}
@@ -84,7 +85,9 @@ func New(config types.AdGuardInstance) (Client, error) {
 	}, nil
 }
 
-// Client AdguardHome API client interface
+// Client AdguardHome API client interface.
+//
+//nolint:interfacebloat
 type Client interface {
 	Host() string
 	Status() (*model.ServerStatus, error)
@@ -116,16 +119,16 @@ type Client interface {
 	UpdateClient(client *model.Client) error
 	DeleteClient(client *model.Client) error
 	QueryLogConfig() (*model.QueryLogConfigWithIgnored, error)
-	SetQueryLogConfig(*model.QueryLogConfigWithIgnored) error
+	SetQueryLogConfig(ql *model.QueryLogConfigWithIgnored) error
 	StatsConfig() (*model.GetStatsConfigResponse, error)
 	SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error
 	Setup() error
 	AccessList() (*model.AccessList, error)
-	SetAccessList(*model.AccessList) error
+	SetAccessList(accessList *model.AccessList) error
 	DNSConfig() (*model.DNSConfig, error)
-	SetDNSConfig(*model.DNSConfig) error
+	SetDNSConfig(config *model.DNSConfig) error
 	DhcpConfig() (*model.DhcpStatus, error)
-	SetDhcpConfig(*model.DhcpStatus) error
+	SetDhcpConfig(status *model.DhcpStatus) error
 	AddDHCPStaticLease(lease model.DhcpStaticLease) error
 	DeleteDHCPStaticLease(lease model.DhcpStaticLease) error
 }
@@ -224,7 +227,7 @@ func (cl *client) toggleStatus(mode string) (bool, error) {
 }
 
 func (cl *client) toggleBool(mode string, enable bool) error {
-	cl.log.With("enable", enable).Info(fmt.Sprintf("Toggle %s", mode))
+	cl.log.With("enable", enable).Info("Toggle " + mode)
 	var target string
 	if enable {
 		target = "enable"

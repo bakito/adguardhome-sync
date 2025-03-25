@@ -8,13 +8,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
-	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 var (
@@ -140,7 +141,7 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost(
 				"/install/configure",
 				fmt.Sprintf(
-					`{"web":{"ip":"0.0.0.0","port":3000,"status":"","can_autofix":false},"dns":{"ip":"0.0.0.0","port":53,"status":"","can_autofix":false},"username":"%s","password":"%s"}`,
+					`{"web":{"ip":"0.0.0.0","port":3000,"status":"","can_autofix":false},"dns":{"ip":"0.0.0.0","port":53,"status":"","can_autofix":false},"username":%q,"password":%q}`,
 					username,
 					password,
 				),
@@ -373,10 +374,10 @@ var _ = Describe("Client", func() {
 	})
 })
 
-func ClientGet(file string, path string) (*httptest.Server, client.Client) {
+func ClientGet(file, path string) (*httptest.Server, client.Client) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
-		b, err := os.ReadFile(filepath.Join("../../testdata", file))
+		b, err := os.ReadFile(filepath.Join("..", "..", "testdata", file))
 		Ω(err).ShouldNot(HaveOccurred())
 		w.Header().Set("Content-Type", "application/json")
 		_, err = w.Write(b)
