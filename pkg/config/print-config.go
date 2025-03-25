@@ -26,7 +26,7 @@ func (ac *AppConfig) Print() error {
 		replicaVersions = append(replicaVersions, aghVersion(replica))
 	}
 
-	out, err := ac.print(os.Environ(), originVersion, replicaVersions)
+	out, err := ac.printInternal(os.Environ(), originVersion, replicaVersions)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func aghVersion(i types.AdGuardInstance) string {
 	return stats.Version
 }
 
-func (ac *AppConfig) print(env []string, originVersion string, replicaVersions []string) (string, error) {
+func (ac *AppConfig) printInternal(env []string, originVersion string, replicaVersions []string) (string, error) {
 	config, err := yaml.Marshal(ac.Get())
 	if err != nil {
 		return "", err

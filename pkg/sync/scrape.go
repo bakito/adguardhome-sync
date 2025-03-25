@@ -35,16 +35,17 @@ func (w *worker) scrape() {
 	metrics.Update(iml)
 }
 
-func (w *worker) getMetrics(inst types.AdGuardInstance) (im metrics.InstanceMetrics) {
+func (w *worker) getMetrics(inst types.AdGuardInstance) metrics.InstanceMetrics {
+	var im metrics.InstanceMetrics
 	client, err := w.createClient(inst)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
-		return
+		return im
 	}
 
 	im.HostName = inst.Host
 	im.Status, _ = client.Status()
 	im.Stats, _ = client.Stats()
 	im.QueryLog, _ = client.QueryLog(w.cfg.API.Metrics.QueryLogLimit)
-	return
+	return im
 }

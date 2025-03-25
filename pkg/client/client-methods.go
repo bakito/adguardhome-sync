@@ -17,14 +17,18 @@ func (cl *client) doGet(req *resty.Request, url string) error {
 	rl.Debug("do get")
 	resp, err := req.Get(url)
 	if err != nil {
-		if resp != nil && resp.StatusCode() == http.StatusFound {
-			loc := resp.Header().Get("Location")
-			if loc == "/install.html" || loc == "/control/install.html" {
-				return ErrSetupNeeded
+		l := rl
+		if resp != nil {
+			if resp.StatusCode() == http.StatusFound {
+				loc := resp.Header().Get("Location")
+				if loc == "/install.html" || loc == "/control/install.html" {
+					return ErrSetupNeeded
+				}
 			}
+			l = l.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err)
 		}
 
-		rl.With("status", resp.StatusCode(), "body", string(resp.Body()), "error", err).Debug("error in do get")
+		l.Debug("error in do get")
 		return detailedError(resp, err)
 	}
 

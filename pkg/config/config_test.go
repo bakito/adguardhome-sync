@@ -126,9 +126,9 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Get().API.Port).Should(Equal(9090))
 				})
 				It("should have the api port from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
+					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
@@ -136,9 +136,9 @@ var _ = Describe("Config", func() {
 				})
 				It("should have the api port from the config env var", func() {
 					setEnv("API_PORT", "9999")
-					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
+					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
@@ -175,9 +175,9 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Get().API.Port).Should(Equal(9090))
 				})
 				It("should have the api port from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
+					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
@@ -185,9 +185,9 @@ var _ = Describe("Config", func() {
 				})
 				It("should have the api port from the config env var", func() {
 					setEnv("API_PORT", "9999")
-					flags.EXPECT().Changed(config.FlagApiPort).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagApiPort).Return(9990, nil).AnyTimes()
+					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
@@ -203,9 +203,9 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
 				})
 				It("should have the feature dns server config from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagFeatureDnsServerConfig).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
+					flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
@@ -213,9 +213,9 @@ var _ = Describe("Config", func() {
 				})
 				It("should have the feature dns server config from the config env var", func() {
 					setEnv("FEATURES_DNS_SERVER_CONFIG", "false")
-					flags.EXPECT().Changed(config.FlagFeatureDnsServerConfig).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
+					flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
@@ -223,9 +223,9 @@ var _ = Describe("Config", func() {
 				})
 				It("should have the feature dns server config from the config DEPRECATED env var", func() {
 					setEnv("FEATURES_DNS_SERVERCONFIG", "false")
-					flags.EXPECT().Changed(config.FlagFeatureDnsServerConfig).Return(true).AnyTimes()
+					flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagFeatureDnsServerConfig).Return(true, nil).AnyTimes()
+					flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
 
 					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())

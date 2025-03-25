@@ -117,16 +117,16 @@ type Client interface {
 	UpdateClient(client *model.Client) error
 	DeleteClient(client *model.Client) error
 	QueryLogConfig() (*model.QueryLogConfigWithIgnored, error)
-	SetQueryLogConfig(*model.QueryLogConfigWithIgnored) error
+	SetQueryLogConfig(ql *model.QueryLogConfigWithIgnored) error
 	StatsConfig() (*model.GetStatsConfigResponse, error)
 	SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error
 	Setup() error
 	AccessList() (*model.AccessList, error)
-	SetAccessList(*model.AccessList) error
+	SetAccessList(accessList *model.AccessList) error
 	DNSConfig() (*model.DNSConfig, error)
-	SetDNSConfig(*model.DNSConfig) error
+	SetDNSConfig(config *model.DNSConfig) error
 	DhcpConfig() (*model.DhcpStatus, error)
-	SetDhcpConfig(*model.DhcpStatus) error
+	SetDhcpConfig(status *model.DhcpStatus) error
 	AddDHCPStaticLease(lease model.DhcpStaticLease) error
 	DeleteDHCPStaticLease(lease model.DhcpStaticLease) error
 }

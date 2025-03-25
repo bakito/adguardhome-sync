@@ -86,8 +86,8 @@ var _ = Describe("Metrics", func() {
 	})
 })
 
-func verifyStats(lines []line) {
-	var total line
+func verifyStats(lines []Line) {
+	var total Line
 	sum := make([]int, len(lines[0].Data))
 	for _, l := range lines {
 		if l.Title == labelTotal {

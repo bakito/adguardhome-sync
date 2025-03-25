@@ -158,14 +158,14 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 
 func Update(iml InstanceMetricsList) {
 	for _, im := range iml.Metrics {
-		update(im)
+		updateMetrics(im)
 		stats[im.HostName] = im.Stats
 	}
 
 	l.Debug("updated")
 }
 
-func update(im InstanceMetrics) {
+func updateMetrics(im InstanceMetrics) {
 	// Status
 	isRunning := 0
 	if im.Status.Running {
@@ -219,7 +219,7 @@ func update(im InstanceMetrics) {
 				if len(dnsanswer) > 0 {
 					for _, dnsa := range dnsanswer {
 						dnsType := *dnsa.Type
-						m[dnsType] += 1
+						m[dnsType]++
 					}
 				}
 			}

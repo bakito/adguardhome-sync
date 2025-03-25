@@ -100,10 +100,10 @@ var _ = Describe("Config", func() {
 			flags.EXPECT().Changed(gm.Any()).DoAndReturn(func(name string) bool {
 				return strings.HasPrefix(name, "api")
 			}).AnyTimes()
-			flags.EXPECT().GetInt(FlagApiPort).Return(9999, nil)
-			flags.EXPECT().GetString(FlagApiUsername).Return("aaaa", nil)
-			flags.EXPECT().GetString(FlagApiPassword).Return("bbbb", nil)
-			flags.EXPECT().GetBool(FlagApiDarkMode).Return(true, nil)
+			flags.EXPECT().GetInt(FlagAPIPort).Return(9999, nil)
+			flags.EXPECT().GetString(FlagAPIUsername).Return("aaaa", nil)
+			flags.EXPECT().GetString(FlagAPIPassword).Return("bbbb", nil)
+			flags.EXPECT().GetBool(FlagAPIDarkMode).Return(true, nil)
 			err := readFlags(cfg, flags)
 
 			Ω(err).ShouldNot(HaveOccurred())
@@ -155,7 +155,7 @@ var _ = Describe("Config", func() {
 
 			flags.EXPECT().Changed(FlagOriginURL).Return(true)
 			flags.EXPECT().Changed(FlagOriginWebURL).Return(true)
-			flags.EXPECT().Changed(FlagOriginApiPath).Return(true)
+			flags.EXPECT().Changed(FlagOriginAPIPath).Return(true)
 			flags.EXPECT().Changed(FlagOriginUsername).Return(true)
 			flags.EXPECT().Changed(FlagOriginPassword).Return(true)
 			flags.EXPECT().Changed(FlagOriginCookie).Return(true)
@@ -164,7 +164,7 @@ var _ = Describe("Config", func() {
 
 			flags.EXPECT().GetString(FlagOriginURL).Return("a", nil)
 			flags.EXPECT().GetString(FlagOriginWebURL).Return("b", nil)
-			flags.EXPECT().GetString(FlagOriginApiPath).Return("c", nil)
+			flags.EXPECT().GetString(FlagOriginAPIPath).Return("c", nil)
 			flags.EXPECT().GetString(FlagOriginUsername).Return("d", nil)
 			flags.EXPECT().GetString(FlagOriginPassword).Return("e", nil)
 			flags.EXPECT().GetString(FlagOriginCookie).Return("f", nil)
@@ -199,7 +199,7 @@ var _ = Describe("Config", func() {
 
 			flags.EXPECT().Changed(FlagReplicaURL).Return(true)
 			flags.EXPECT().Changed(FlagReplicaWebURL).Return(true)
-			flags.EXPECT().Changed(FlagReplicaApiPath).Return(true)
+			flags.EXPECT().Changed(FlagReplicaAPIPath).Return(true)
 			flags.EXPECT().Changed(FlagReplicaUsername).Return(true)
 			flags.EXPECT().Changed(FlagReplicaPassword).Return(true)
 			flags.EXPECT().Changed(FlagReplicaCookie).Return(true)
@@ -210,7 +210,7 @@ var _ = Describe("Config", func() {
 
 			flags.EXPECT().GetString(FlagReplicaURL).Return("a", nil)
 			flags.EXPECT().GetString(FlagReplicaWebURL).Return("b", nil)
-			flags.EXPECT().GetString(FlagReplicaApiPath).Return("c", nil)
+			flags.EXPECT().GetString(FlagReplicaAPIPath).Return("c", nil)
 			flags.EXPECT().GetString(FlagReplicaUsername).Return("d", nil)
 			flags.EXPECT().GetString(FlagReplicaPassword).Return("e", nil)
 			flags.EXPECT().GetString(FlagReplicaCookie).Return("f", nil)

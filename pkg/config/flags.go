@@ -30,11 +30,7 @@ func readFlags(cfg *types.Config, flags Flags) error {
 		return err
 	}
 
-	if err := fr.readReplicaFlags(); err != nil {
-		return err
-	}
-
-	return nil
+	return fr.readReplicaFlags()
 }
 
 type flagReader struct {
@@ -53,7 +49,7 @@ func (fr *flagReader) readReplicaFlags() error {
 	}); err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaApiPath, func(cgf *types.Config, value string) {
+	if err := fr.setStringFlag(FlagReplicaAPIPath, func(cgf *types.Config, value string) {
 		fr.cfg.Replica.APIPath = value
 	}); err != nil {
 		return err
@@ -83,12 +79,9 @@ func (fr *flagReader) readReplicaFlags() error {
 	}); err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaInterfaceName, func(cgf *types.Config, value string) {
+	return fr.setStringFlag(FlagReplicaInterfaceName, func(cgf *types.Config, value string) {
 		fr.cfg.Replica.InterfaceName = value
-	}); err != nil {
-		return err
-	}
-	return nil
+	})
 }
 
 func (fr *flagReader) readOriginFlags() error {
@@ -102,7 +95,7 @@ func (fr *flagReader) readOriginFlags() error {
 	}); err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginApiPath, func(cgf *types.Config, value string) {
+	if err := fr.setStringFlag(FlagOriginAPIPath, func(cgf *types.Config, value string) {
 		fr.cfg.Origin.APIPath = value
 	}); err != nil {
 		return err
@@ -122,12 +115,9 @@ func (fr *flagReader) readOriginFlags() error {
 	}); err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagOriginISV, func(cgf *types.Config, value bool) {
+	return fr.setBoolFlag(FlagOriginISV, func(cgf *types.Config, value bool) {
 		fr.cfg.Origin.InsecureSkipVerify = value
-	}); err != nil {
-		return err
-	}
-	return nil
+	})
 }
 
 func (fr *flagReader) readFeatureFlags() error {
@@ -142,17 +132,17 @@ func (fr *flagReader) readFeatureFlags() error {
 		return err
 	}
 
-	if err := fr.setBoolFlag(FlagFeatureDnsServerConfig, func(cgf *types.Config, value bool) {
+	if err := fr.setBoolFlag(FlagFeatureDNSServerConfig, func(cgf *types.Config, value bool) {
 		fr.cfg.Features.DNS.ServerConfig = value
 	}); err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagFeatureDnsAccessLists, func(cgf *types.Config, value bool) {
+	if err := fr.setBoolFlag(FlagFeatureDNSAccessLists, func(cgf *types.Config, value bool) {
 		fr.cfg.Features.DNS.AccessLists = value
 	}); err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagFeatureDnsRewrites, func(cgf *types.Config, value bool) {
+	if err := fr.setBoolFlag(FlagFeatureDNSRewrites, func(cgf *types.Config, value bool) {
 		fr.cfg.Features.DNS.Rewrites = value
 	}); err != nil {
 		return err
@@ -183,61 +173,51 @@ func (fr *flagReader) readFeatureFlags() error {
 	}); err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagFeatureFilters, func(cgf *types.Config, value bool) {
+	return fr.setBoolFlag(FlagFeatureFilters, func(cgf *types.Config, value bool) {
 		fr.cfg.Features.Filters = value
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (fr *flagReader) readAPIFlags() (err error) {
-	if err = fr.setIntFlag(FlagApiPort, func(cgf *types.Config, value int) {
+	if err = fr.setIntFlag(FlagAPIPort, func(cgf *types.Config, value int) {
 		fr.cfg.API.Port = value
 	}); err != nil {
-		return
+		return err
 	}
-	if err = fr.setStringFlag(FlagApiUsername, func(cgf *types.Config, value string) {
+	if err = fr.setStringFlag(FlagAPIUsername, func(cgf *types.Config, value string) {
 		fr.cfg.API.Username = value
 	}); err != nil {
-		return
+		return err
 	}
-	if err = fr.setStringFlag(FlagApiPassword, func(cgf *types.Config, value string) {
+	if err = fr.setStringFlag(FlagAPIPassword, func(cgf *types.Config, value string) {
 		fr.cfg.API.Password = value
 	}); err != nil {
-		return
+		return err
 	}
-	if err = fr.setBoolFlag(FlagApiDarkMode, func(cgf *types.Config, value bool) {
+	return fr.setBoolFlag(FlagAPIDarkMode, func(cgf *types.Config, value bool) {
 		fr.cfg.API.DarkMode = value
-	}); err != nil {
-		return
-	}
-	return
+	})
 }
 
 func (fr *flagReader) readRootFlags() (err error) {
 	if err = fr.setStringFlag(FlagCron, func(cgf *types.Config, value string) {
 		fr.cfg.Cron = value
 	}); err != nil {
-		return
+		return err
 	}
 	if err = fr.setBoolFlag(FlagRunOnStart, func(cgf *types.Config, value bool) {
 		fr.cfg.RunOnStart = value
 	}); err != nil {
-		return
+		return err
 	}
 	if err = fr.setBoolFlag(FlagPrintConfigOnly, func(cgf *types.Config, value bool) {
 		fr.cfg.PrintConfigOnly = value
 	}); err != nil {
-		return
+		return err
 	}
-	if err = fr.setBoolFlag(FlagContinueOnError, func(cgf *types.Config, value bool) {
+	return fr.setBoolFlag(FlagContinueOnError, func(cgf *types.Config, value bool) {
 		fr.cfg.ContinueOnError = value
-	}); err != nil {
-		return
-	}
-	return
+	})
 }
 
 type Flags interface {
@@ -249,33 +229,33 @@ type Flags interface {
 
 func (fr *flagReader) setStringFlag(name string, cb callback[string]) (err error) {
 	if fr.flags.Changed(name) {
-		if value, err := fr.flags.GetString(name); err != nil {
+		var value string
+		if value, err = fr.flags.GetString(name); err != nil {
 			return err
-		} else {
-			cb(fr.cfg, value)
 		}
+		cb(fr.cfg, value)
 	}
 	return nil
 }
 
 func (fr *flagReader) setBoolFlag(name string, cb callback[bool]) (err error) {
 	if fr.flags.Changed(name) {
-		if value, err := fr.flags.GetBool(name); err != nil {
+		var value bool
+		if value, err = fr.flags.GetBool(name); err != nil {
 			return err
-		} else {
-			cb(fr.cfg, value)
 		}
+		cb(fr.cfg, value)
 	}
 	return nil
 }
 
 func (fr *flagReader) setIntFlag(name string, cb callback[int]) (err error) {
 	if fr.flags.Changed(name) {
-		if value, err := fr.flags.GetInt(name); err != nil {
+		var value int
+		if value, err = fr.flags.GetInt(name); err != nil {
 			return err
-		} else {
-			cb(fr.cfg, value)
 		}
+		cb(fr.cfg, value)
 	}
 	return nil
 }

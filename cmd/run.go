@@ -49,17 +49,17 @@ func init() {
 		"will not fail on single errors, but will log the errors and continue.")
 
 	doCmd.PersistentFlags().
-		Int(config.FlagApiPort, 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
-	doCmd.PersistentFlags().String(config.FlagApiUsername, "", "Sync API username")
-	doCmd.PersistentFlags().String(config.FlagApiPassword, "", "Sync API password")
-	doCmd.PersistentFlags().String(config.FlagApiDarkMode, "", "API UI in dark mode")
+		Int(config.FlagAPIPort, 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")
+	doCmd.PersistentFlags().String(config.FlagAPIUsername, "", "Sync API username")
+	doCmd.PersistentFlags().String(config.FlagAPIPassword, "", "Sync API password")
+	doCmd.PersistentFlags().String(config.FlagAPIDarkMode, "", "API UI in dark mode")
 
 	doCmd.PersistentFlags().Bool(config.FlagFeatureDhcpServerConfig, true, "Enable DHCP server config feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureDhcpStaticLeases, true, "Enable DHCP server static leases feature")
 
-	doCmd.PersistentFlags().Bool(config.FlagFeatureDnsServerConfig, true, "Enable DNS server config feature")
-	doCmd.PersistentFlags().Bool(config.FlagFeatureDnsAccessLists, true, "Enable DNS server access lists feature")
-	doCmd.PersistentFlags().Bool(config.FlagFeatureDnsRewrites, true, "Enable DNS rewrites feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDNSServerConfig, true, "Enable DNS server config feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDNSAccessLists, true, "Enable DNS server access lists feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureDNSRewrites, true, "Enable DNS rewrites feature")
 
 	doCmd.PersistentFlags().Bool(config.FlagFeatureGeneral, true, "Enable general settings feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureQueryLog, true, "Enable query log config feature")
@@ -71,7 +71,7 @@ func init() {
 	doCmd.PersistentFlags().String(config.FlagOriginURL, "", "Origin instance url")
 	doCmd.PersistentFlags().
 		String(config.FlagOriginWebURL, "", "Origin instance web url used in the web interface (default: <origin-url>)")
-	doCmd.PersistentFlags().String(config.FlagOriginApiPath, "/control", "Origin instance API path")
+	doCmd.PersistentFlags().String(config.FlagOriginAPIPath, "/control", "Origin instance API path")
 	doCmd.PersistentFlags().String(config.FlagOriginUsername, "", "Origin instance username")
 	doCmd.PersistentFlags().String(config.FlagOriginPassword, "", "Origin instance password")
 	doCmd.PersistentFlags().String(config.FlagOriginCookie, "", "If Set, uses a cookie for authentication")
@@ -80,7 +80,7 @@ func init() {
 	doCmd.PersistentFlags().String(config.FlagReplicaURL, "", "Replica instance url")
 	doCmd.PersistentFlags().
 		String(config.FlagReplicaWebURL, "", "Replica instance web url used in the web interface (default: <replica-url>)")
-	doCmd.PersistentFlags().String(config.FlagReplicaApiPath, "/control", "Replica instance API path")
+	doCmd.PersistentFlags().String(config.FlagReplicaAPIPath, "/control", "Replica instance API path")
 	doCmd.PersistentFlags().String(config.FlagReplicaUsername, "", "Replica instance username")
 	doCmd.PersistentFlags().String(config.FlagReplicaPassword, "", "Replica instance password")
 	doCmd.PersistentFlags().String(config.FlagReplicaCookie, "", "If Set, uses a cookie for authentication")

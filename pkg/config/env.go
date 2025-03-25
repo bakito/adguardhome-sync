@@ -68,9 +68,9 @@ func checkDeprecatedEnvVar(oldName, newName string) (string, bool) {
 		logger.With("deprecated", oldName, "replacement", newName).
 			Warn("Deprecated env variable is used, please use the correct one")
 	}
-	new, newOK := os.LookupEnv(newName)
+	newVal, newOK := os.LookupEnv(newName)
 	if newOK {
-		return new, true
+		return newVal, true
 	}
 	return old, oldOK
 }

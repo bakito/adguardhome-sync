@@ -37,7 +37,7 @@ func (c *DhcpStatus) CleanAndEquals(o *DhcpStatus) bool {
 
 // Equals dhcp server config equal check.
 func (c *DhcpStatus) Equals(o *DhcpStatus) bool {
-	return utils.JsonEquals(c, o)
+	return utils.JSONEquals(c, o)
 }
 
 func (c *DhcpStatus) HasConfig() bool {
@@ -98,7 +98,7 @@ func (c *DNSConfig) Equals(o *DNSConfig) bool {
 	cc.Sort()
 	oo.Sort()
 
-	return utils.JsonEquals(cc, oo)
+	return utils.JSONEquals(cc, oo)
 }
 
 func (c *DNSConfig) Clone() *DNSConfig {
@@ -201,7 +201,7 @@ func (cl *Client) Equals(o *Client) bool {
 		o.AfterDiff(bssO)
 	}()
 
-	return utils.JsonEquals(cl, o)
+	return utils.JSONEquals(cl, o)
 }
 
 // Add ac client.
@@ -359,7 +359,7 @@ type QueryLogConfigWithIgnored struct {
 
 // Equals QueryLogConfig equal check.
 func (qlc *QueryLogConfigWithIgnored) Equals(o *QueryLogConfigWithIgnored) bool {
-	return utils.JsonEquals(qlc, o)
+	return utils.JSONEquals(qlc, o)
 }
 
 // Equals QueryLogConfigInterval equal check.
@@ -420,7 +420,7 @@ func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo, withTheme bool) *ProfileInf
 }
 
 func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
-	return utils.JsonEquals(bss, o)
+	return utils.JSONEquals(bss, o)
 }
 
 func (bss *BlockedServicesSchedule) ServicesString() string {
@@ -450,7 +450,7 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 
 // Equals GetStatsConfigResponse equal check.
 func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
-	return utils.JsonEquals(sc, o)
+	return utils.JSONEquals(sc, o)
 }
 
 func NewStats() *Stats {

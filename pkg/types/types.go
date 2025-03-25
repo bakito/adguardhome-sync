@@ -60,7 +60,7 @@ func (t TLS) Enabled() bool {
 func (t TLS) Certs() (cert, key string) {
 	cert = filepath.Join(t.CertDir, defaultIfEmpty(t.CertName, "tls.crt"))
 	key = filepath.Join(t.CertDir, defaultIfEmpty(t.KeyName, "tls.key"))
-	return
+	return cert, key
 }
 
 func defaultIfEmpty(val, fallback string) string {

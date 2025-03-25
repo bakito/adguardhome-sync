@@ -11,7 +11,7 @@ func Clone[I any](in, out I) I {
 	return out
 }
 
-func JsonEquals(a, b any) bool {
+func JSONEquals(a, b any) bool {
 	ja, _ := json.Marshal(a)
 	jb, _ := json.Marshal(b)
 	return bytes.Equal(ja, jb)
