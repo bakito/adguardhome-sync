@@ -94,7 +94,7 @@ func verifyStats(lines []Line) {
 			total = l
 		} else {
 			for i, d := range l.Data {
-				sum[i] = sum[i] + d
+				sum[i] += d
 			}
 		}
 	}

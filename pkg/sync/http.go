@@ -170,8 +170,6 @@ func (w *worker) listenAndServe() {
 
 	// manually cancel context if not using httpServer.RegisterOnShutdown(cancel)
 	cancel()
-
-	defer os.Exit(0)
 }
 
 type syncStatus struct {

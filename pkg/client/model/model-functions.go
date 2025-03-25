@@ -58,7 +58,7 @@ func (j DhcpConfigV6) isValid() bool {
 type DhcpStaticLeases []DhcpStaticLease
 
 // MergeDhcpStaticLeases the leases.
-func MergeDhcpStaticLeases(l, other *[]DhcpStaticLease) (DhcpStaticLeases, DhcpStaticLeases) {
+func MergeDhcpStaticLeases(l, other *[]DhcpStaticLease) (adds, removes DhcpStaticLeases) {
 	var thisLeases []DhcpStaticLease
 	var otherLeases []DhcpStaticLease
 
@@ -70,8 +70,6 @@ func MergeDhcpStaticLeases(l, other *[]DhcpStaticLease) (DhcpStaticLeases, DhcpS
 	}
 	current := make(map[string]DhcpStaticLease)
 
-	var adds DhcpStaticLeases
-	var removes DhcpStaticLeases
 	for _, le := range thisLeases {
 		current[le.Mac] = le
 	}
@@ -105,7 +103,7 @@ func (c *DNSConfig) Clone() *DNSConfig {
 	return utils.Clone(c, &DNSConfig{})
 }
 
-// Sort sort dns config.
+// Sort dns config.
 func (c *DNSConfig) Sort() {
 	if c.UpstreamDns != nil {
 		sort.Strings(*c.UpstreamDns)
@@ -215,7 +213,7 @@ func (clients *Clients) Add(cl Client) {
 }
 
 // Merge merge Clients.
-func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) {
+func (clients *Clients) Merge(other *Clients) (adds, removes, updates []*Client) {
 	current := make(map[string]*Client)
 	if clients.Clients != nil {
 		cc := *clients.Clients
@@ -231,10 +229,6 @@ func (clients *Clients) Merge(other *Clients) ([]*Client, []*Client, []*Client) 
 			expected[*client.Name] = &client
 		}
 	}
-
-	var adds []*Client
-	var removes []*Client
-	var updates []*Client
 
 	for _, cl := range expected {
 		if oc, ok := current[*cl.Name]; ok {
@@ -271,12 +265,9 @@ func (re *RewriteEntry) Key() string {
 type RewriteEntries []RewriteEntry
 
 // Merge RewriteEntries.
-func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, RewriteEntries, RewriteEntries) {
+func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicates RewriteEntries) {
 	current := make(map[string]RewriteEntry)
 
-	var adds RewriteEntries
-	var removes RewriteEntries
-	var duplicates RewriteEntries
 	processed := make(map[string]bool)
 	for _, rr := range *rwe {
 		if _, ok := processed[rr.Key()]; !ok {
@@ -309,16 +300,13 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (RewriteEntries, Rewrite
 	return adds, removes, duplicates
 }
 
-func MergeFilters(this, other *[]Filter) ([]Filter, []Filter, []Filter) {
+func MergeFilters(this, other *[]Filter) (adds, updates, removes []Filter) {
 	if this == nil && other == nil {
 		return nil, nil, nil
 	}
 
 	current := make(map[string]*Filter)
 
-	var adds []Filter
-	var updates []Filter
-	var removes []Filter
 	if this != nil {
 		for _, fi := range *this {
 			current[fi.Url] = &fi

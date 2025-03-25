@@ -41,10 +41,8 @@ func Sync(cfg *types.Config) error {
 	cfg.Origin.AutoSetup = false
 
 	w := &worker{
-		cfg: cfg,
-		createClient: func(ai types.AdGuardInstance) (client.Client, error) {
-			return client.New(ai)
-		},
+		cfg:          cfg,
+		createClient: client.New,
 	}
 	if cfg.Cron != "" {
 		w.cron = cron.New()

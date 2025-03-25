@@ -12,7 +12,6 @@ linters:
     - dupword
     - durationcheck
     - err113
-    - errchkjson
     - errname
     - errorlint
     - exptostd
@@ -68,6 +67,7 @@ linters:
     - cyclop
     - depguard
     - dupl
+    - errchkjson
     - exhaustive
     - exhaustruct
     - forbidigo

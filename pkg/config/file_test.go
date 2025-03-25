@@ -10,9 +10,6 @@ import (
 )
 
 var _ = Describe("Config", func() {
-	var ()
-	BeforeEach(func() {
-	})
 	Context("configFilePath", func() {
 		It("should return the same value", func() {
 			path := uuid.NewString()
@@ -26,7 +23,7 @@ var _ = Describe("Config", func() {
 			result, err := configFilePath("")
 
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(result).Should(Equal(filepath.Join(home, "/.adguardhome-sync.yaml")))
+			Ω(result).Should(Equal(filepath.Join(home, ".adguardhome-sync.yaml")))
 		})
 	})
 })

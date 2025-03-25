@@ -54,7 +54,7 @@ origin:
 
 func expected(id int) string {
 	b, err := os.ReadFile(
-		filepath.Join("../../testdata/config", fmt.Sprintf("printInternal-config_test_expected%d.md", id)),
+		filepath.Join("..", "..", "testdata", "config", fmt.Sprintf("print-config_test_expected%d.md", id)),
 	)
 	Ω(err).ShouldNot(HaveOccurred())
 	return string(b)

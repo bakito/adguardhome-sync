@@ -17,6 +17,7 @@ var schemaData string
 func validateSchema(cfgFile string) error {
 	// ignore if file not exists
 	if _, err := os.Stat(cfgFile); err != nil {
+		//nolint:nilerr
 		return nil
 	}
 	// Load YAML file

@@ -86,6 +86,8 @@ func New(config types.AdGuardInstance) (Client, error) {
 }
 
 // Client AdguardHome API client interface.
+//
+//nolint:interfacebloat
 type Client interface {
 	Host() string
 	Status() (*model.ServerStatus, error)

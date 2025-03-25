@@ -73,7 +73,7 @@ func (ac *AppConfig) printInternal(env []string, originVersion string, replicaVe
 
 	var buf bytes.Buffer
 
-	if err = t.Execute(&buf, map[string]any{
+	err = t.Execute(&buf, map[string]any{
 		"Version":              version.Version,
 		"Build":                version.Build,
 		"OperatingSystem":      runtime.GOOS,
@@ -84,8 +84,6 @@ func (ac *AppConfig) printInternal(env []string, originVersion string, replicaVe
 		"EnvironmentVariables": strings.Join(env, "\n"),
 		"OriginVersion":        originVersion,
 		"ReplicaVersions":      replicaVersions,
-	}); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
+	})
+	return buf.String(), err
 }
