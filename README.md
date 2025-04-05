@@ -141,9 +141,8 @@ set REPLICA1_USERNAME=username
 set REPLICA1_PASSWORD=password
 # set REPLICA1_COOKIE=Replica-Cookie-Name=CCCOOOKKKIIIEEE
 
-set FEATURES_DHCP=false
-set FEATURES_DHCP_SERVERCONFIG=false
-set FEATURES_DHCP_STATICLEASES=false
+set FEATURES_DHCP_SERVER_CONFIG=false
+set FEATURES_DHCP_STATIC_LEASES=false
 
 # run once
 adguardhome-sync run
@@ -182,72 +181,62 @@ services:
     restart: unless-stopped
 ```
 
-### env
+## Config via environment variables
 
-```yaml
----
-version: "2.1"
-services:
-  adguardhome-sync:
-    image: ghcr.io/bakito/adguardhome-sync
-    container_name: adguardhome-sync
-    command: run
-    environment:
-      LOG_LEVEL: "info"
-      ORIGIN_URL: "https://192.168.1.2:3000"
-      # ORIGIN_WEB_URL: "https://some-other.url" # used in the web interface (default: <origin-url>
+For Replicas replace `#` with the index number for the replica. E.g: `REPLICA#_URL` -> `REPLICA1_URL`
 
-      ORIGIN_USERNAME: "username"
-      ORIGIN_PASSWORD: "password"
-      REPLICA1_URL: "http://192.168.1.3"
-      REPLICA1_USERNAME: "username"
-      REPLICA1_PASSWORD: "password"
-      REPLICA2_URL: "http://192.168.1.4"
-      REPLICA2_USERNAME: "username"
-      REPLICA2_PASSWORD: "password"
-      REPLICA2_API_PATH: "/some/path/control"
-      # REPLICA2_WEB_URL: "https://some-other.url" # used in the web interface (default: <replica-url>
-      # REPLICA2_AUTO_SETUP: true # if true, AdGuardHome is automatically initialized.
-      # REPLICA2_INTERFACE_NAME: 'ens18' # use custom dhcp interface name
-      # REPLICA2_DHCP_SERVER_ENABLED: true/false (optional) enables/disables the dhcp server on the replica
-      CRON: "0 */2 * * *" # run every 2 hours
-      RUN_ON_START: "true"
-      # CONTINUE_ON_ERROR: false # If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
-
-      # Configure the sync API server, disabled if api port is 0
-      API_PORT: 8080
-      # API_DARK_MODE: "true"
-      # API_USERNAME: admin
-      # API_PASSWORD: secret
-      # the directory of the provided tls certs
-      # API_TLS_CERT_DIR: /path/to/certs
-      # the name of the cert file (default: tls.crt)
-      # API_TLS_CERT_NAME: foo.crt
-      # the name of the key file (default: tls.key)
-      # API_TLS_KEY_NAME: bar.key
-      # API_METRICS_ENABLED: "true"
-
-      # Configure sync features; by default all features are enabled.
-      # FEATURES_GENERAL_SETTINGS: "true"
-      # FEATURES_QUERY_LOG_CONFIG: "true"
-      # FEATURES_STATS_CONFIG: "true"
-      # FEATURES_CLIENT_SETTINGS: "true"
-      # FEATURES_SERVICES: "true"
-      # FEATURES_FILTERS: "true"
-      # FEATURES_DHCP_SERVER_CONFIG: "true"
-      # FEATURES_DHCP_STATIC_LEASES: "true"
-      # FEATURES_DNS_SERVER_CONFIG: "true"
-      # FEATURES_DNS_ACCESS_LISTS: "true"
-      # FEATURES_DNS_REWRITES: "true"
-      # FEATURES_THEME: "true" # if false the UI theme is not synced
-    ports:
-      - 8080:8080
-    restart: unless-stopped
-```
+| Name                                 | Type   | Description                                               |
+|:-------------------------------------|--------|:----------------------------------------------------------|
+| ORIGIN_URL (string)                  | string | URL of adguardhome instance                               |
+| ORIGIN_WEB_URL (string)              | string | Web URL of adguardhome instance                           |
+| ORIGIN_API_PATH (string)             | string | API Path                                                  |
+| ORIGIN_USERNAME (string)             | string | Adguardhome username                                      |
+| ORIGIN_PASSWORD (string)             | string | Adguardhome password                                      |
+| ORIGIN_COOKIE (string)               | string | Adguardhome cookie                                        |
+| ORIGIN_INSECURE_SKIP_VERIFY (bool)   | bool   | Skip TLS verification                                     |
+| ORIGIN_AUTO_SETUP (bool)             | bool   | Automatically setup the instance if it is not initialized |
+| ORIGIN_INTERFACE_NAME (string)       | string | Network interface name                                    |
+| ORIGIN_DHCP_SERVER_ENABLED (bool)    | bool   | Enable DHCP server                                        |
+| REPLICA#_URL (string)                | string | URL of adguardhome instance                               |
+| REPLICA#_WEB_URL (string)            | string | Web URL of adguardhome instance                           |
+| REPLICA#_API_PATH (string)           | string | API Path                                                  |
+| REPLICA#_USERNAME (string)           | string | Adguardhome username                                      |
+| REPLICA#_PASSWORD (string)           | string | Adguardhome password                                      |
+| REPLICA#_COOKIE (string)             | string | Adguardhome cookie                                        |
+| REPLICA#_INSECURE_SKIP_VERIFY (bool) | bool   | Skip TLS verification                                     |
+| REPLICA#_AUTO_SETUP (bool)           | bool   | Automatically setup the instance if it is not initialized |
+| REPLICA#_INTERFACE_NAME (string)     | string | Network interface name                                    |
+| REPLICA#_DHCP_SERVER_ENABLED (bool)  | bool   | Enable DHCP server                                        |
+| CRON (string)                        | string | Cron expression for the sync interval                     |
+| RUN_ON_START (bool)                  | bool   | Run the sung on startup                                   |
+| PRINT_CONFIG_ONLY (bool)             | bool   | Print current config only and stop the application        |
+| CONTINUE_ON_ERROR (bool)             | bool   | Continue sync on errors                                   |
+| API_PORT (int)                       | int    | API port                                                  |
+| API_USERNAME (string)                | string | API username                                              |
+| API_PASSWORD (string)                | string | API password                                              |
+| API_DARK_MODE (bool)                 | bool   | API dark mode                                             |
+| API_METRICS_ENABLED (bool)           | bool   | Enable metrics                                            |
+| API_METRICS_SCRAPE_INTERVAL (int64)  | int64  | Interval for metrics scraping                             |
+| API_METRICS_QUERY_LOG_LIMIT (int)    | int    | Metrics log query limit                                   |
+| API_TLS_CERT_DIR (string)            | string | API TLS certificate directory                             |
+| API_TLS_CERT_NAME (string)           | string | API TLS certificate file name                             |
+| API_TLS_KEY_NAME (string)            | string | API TLS key file name                                     |
+| FEATURES_DNS_ACCESS_LISTS (bool)     | bool   | Sync DNS access lists                                     |
+| FEATURES_DNS_SERVER_CONFIG (bool)    | bool   | Sync DNS server config                                    |
+| FEATURES_DNS_REWRITES (bool)         | bool   | Sync DNS rewrites                                         |
+| FEATURES_DHCP_SERVER_CONFIG (bool)   | bool   | Sync DHCP server config                                   |
+| FEATURES_DHCP_STATIC_LEASES (bool)   | bool   | Sync DHCP static leases                                   |
+| FEATURES_GENERAL_SETTINGS (bool)     | bool   | Sync general settings                                     |
+| FEATURES_QUERY_LOG_CONFIG (bool)     | bool   | Sync query log config                                     |
+| FEATURES_STATS_CONFIG (bool)         | bool   | Sync stats config                                         |
+| FEATURES_CLIENT_SETTINGS (bool)      | bool   | Sync client settings                                      |
+| FEATURES_SERVICES (bool)             | bool   | Sync services                                             |
+| FEATURES_FILTERS (bool)              | bool   | Sync filters                                              |
+| FEATURES_THEME (bool)                | bool   | Sync the weg UI theme                                     |
 
 ### Unraid
 
-⚠️ Disclaimer: Tere exists an unraid tepmlate for this application. This template is not managed by this project. 
+⚠️ Disclaimer: Tere exists an unraid tepmlate for this application. This template is not managed by this project.
 Also, as unraid is not known to me, I can not give any support on unraind templates.
 
 Note when running the Docker container in Unraid please remove unneeded env variables if don't needed.
