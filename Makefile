@@ -73,7 +73,7 @@ kind-test:
 	@./testdata/e2e/bin/install-chart.sh
 
 # renovate: packageName=AdguardTeam/AdGuardHome
-ADGUARD_HOME_VERSION ?= v0.107.59
+ADGUARD_HOME_VERSION ?= v0.107.60
 
 model: tb.oapi-codegen
 	@mkdir -p tmp
