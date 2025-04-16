@@ -32,7 +32,7 @@ func (w *worker) scrape() {
 	for _, replica := range w.cfg.Replicas {
 		iml.Metrics = append(iml.Metrics, w.getMetrics(replica))
 	}
-	metrics.Update(iml)
+	metrics.UpdateInstances(iml)
 }
 
 func (w *worker) getMetrics(inst types.AdGuardInstance) metrics.InstanceMetrics {
