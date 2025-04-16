@@ -36,5 +36,10 @@ var _ = Describe("Config", func() {
 			err = validateYAML(data)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
+		It("validate config with empty file", func() {
+			var data []byte
+			err := validateYAML(data)
+			Ω(err).ShouldNot(HaveOccurred())
+		})
 	})
 })
