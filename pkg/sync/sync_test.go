@@ -599,7 +599,7 @@ var _ = Describe("Sync", func() {
 			})
 			It("should have no changes", func() {
 				// origin
-				cl.EXPECT().Host()
+				cl.EXPECT().Host().Times(2)
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
@@ -639,7 +639,7 @@ var _ = Describe("Sync", func() {
 				w.cfg.Features.DHCP.ServerConfig = false
 				w.cfg.Features.DHCP.StaticLeases = false
 				// origin
-				cl.EXPECT().Host()
+				cl.EXPECT().Host().Times(2)
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
 				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
 				cl.EXPECT().Parental()
@@ -698,7 +698,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
 
 				// replica
-				cl.EXPECT().Host()
+				cl.EXPECT().Host().Times(2)
 				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
 				w.sync()
 			})

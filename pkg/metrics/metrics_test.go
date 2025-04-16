@@ -13,9 +13,9 @@ var _ = Describe("Metrics", func() {
 	BeforeEach(func() {
 		stats = make(OverallStats)
 	})
-	Context("Update / getStats", func() {
+	Context("UpdateInstances / getStats", func() {
 		It("generate correct stats", func() {
-			Update(InstanceMetricsList{[]InstanceMetrics{
+			UpdateInstances(InstanceMetricsList{[]InstanceMetrics{
 				{HostName: "foo", Status: &model.ServerStatus{}, Stats: &model.Stats{
 					NumDnsQueries: ptr.To(100),
 					DnsQueries: ptr.To(
@@ -74,7 +74,7 @@ var _ = Describe("Metrics", func() {
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should provide correct results with faked values", func() {
-			Update(metrics)
+			UpdateInstances(metrics)
 
 			_, dns, blocked, malware, adult := StatsGraph()
 
