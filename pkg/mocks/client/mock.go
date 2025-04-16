@@ -496,7 +496,7 @@ func (mr *MockClientMockRecorder) SetSafeSearchConfig(settings any) *gomock.Call
 }
 
 // SetStatsConfig mocks base method.
-func (m *MockClient) SetStatsConfig(sc *model.GetStatsConfigResponse) error {
+func (m *MockClient) SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatsConfig", sc)
 	ret0, _ := ret[0].(error)
@@ -539,10 +539,10 @@ func (mr *MockClientMockRecorder) Stats() *gomock.Call {
 }
 
 // StatsConfig mocks base method.
-func (m *MockClient) StatsConfig() (*model.GetStatsConfigResponse, error) {
+func (m *MockClient) StatsConfig() (*model.PutStatsConfigUpdateRequest, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StatsConfig")
-	ret0, _ := ret[0].(*model.GetStatsConfigResponse)
+	ret0, _ := ret[0].(*model.PutStatsConfigUpdateRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
