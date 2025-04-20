@@ -320,6 +320,23 @@ features:
     accessLists: true
     rewrites: true
 ```
+## Home Assistant AdGuard Home Add-on users
+
+To enable syncing with a Home Assistant instance using the [AdGuard Home Add-on](https://github.com/hassio-addons/addon-adguard-home), you will need to enable the disabled ports, under the Network heading
+
+![show-disabled-ports](https://github.com/user-attachments/assets/1df5f352-37a2-4508-82ec-7f270087d0b4)
+
+And then set the port of your choice for the Web interface
+
+![web-interface-port](https://github.com/user-attachments/assets/286ed030-4831-4f49-8b29-53e8802129c3)
+
+Don't forget to save and restart the add-on.
+
+Depending on your setup, you may also need to disable SSL for the add-on.
+
+The username:password required for the Home Assistant replica is the one you use to login to your instance, however it's recommended to setup a new local only user with minimal permissions.
+
+All credit for this method goes to [Brunty](https://github.com/brunty) who has a far more [detailed write up](https://brunty.me/post/replicate-adguard-home-settings-into-home-assistant-adguard-home-addon/) about this on his blog.
 
 ## Log Level
 
