@@ -131,7 +131,24 @@ var (
 		},
 		[]string{"hostname"},
 	)
-
+	// aghsSyncDuration - the sync curation in seconds.
+	aghsSyncDuration = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name:      "sync_duration_seconds",
+			Namespace: "adguard_home_sync",
+			Help:      "This represents the duration of the last sync in seconds",
+		},
+		[]string{"hostname"},
+	)
+	// aghsSyncSuccessful - the sync result.
+	aghsSyncSuccessful = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name:      "sync_successful",
+			Namespace: "adguard_home_sync",
+			Help:      "This represents the whether the last sync was successful",
+		},
+		[]string{"hostname"},
+	)
 	stats = OverallStats{}
 )
 
@@ -149,6 +166,8 @@ func Init() {
 	initMetric("query_types", queryTypes)
 	initMetric("running", running)
 	initMetric("protection_enabled", protectionEnabled)
+	initMetric("sync_duration_seconds", aghsSyncDuration)
+	initMetric("sync_successful", aghsSyncSuccessful)
 }
 
 func initMetric(name string, metric *prometheus.GaugeVec) {
@@ -156,13 +175,22 @@ func initMetric(name string, metric *prometheus.GaugeVec) {
 	l.With("name", name).Info("New Prometheus metric registered")
 }
 
-func Update(iml InstanceMetricsList) {
+func UpdateInstances(iml InstanceMetricsList) {
 	for _, im := range iml.Metrics {
 		updateMetrics(im)
 		stats[im.HostName] = im.Stats
 	}
 
 	l.Debug("updated")
+}
+
+func UpdateResult(host string, ok bool, duration float64) {
+	if ok {
+		aghsSyncSuccessful.WithLabelValues(host).Set(1)
+	} else {
+		aghsSyncSuccessful.WithLabelValues(host).Set(0)
+	}
+	aghsSyncDuration.WithLabelValues(host).Set(duration)
 }
 
 func updateMetrics(im InstanceMetrics) {

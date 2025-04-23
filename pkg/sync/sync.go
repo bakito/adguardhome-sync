@@ -2,6 +2,7 @@ package sync
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"sort"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/bakito/adguardhome-sync/pkg/client"
 	"github.com/bakito/adguardhome-sync/pkg/client/model"
 	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/pkg/metrics"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/pkg/versions"
@@ -152,7 +154,9 @@ func (w *worker) sync() {
 		return
 	}
 	w.running = true
-	defer func() { w.running = false }()
+	defer func() {
+		w.running = false
+	}()
 
 	oc, err := w.createClient(w.cfg.Origin)
 	if err != nil {
@@ -269,10 +273,23 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 	rl := l.With("to", rc.Host())
 	rl.Info("Start sync")
+	start := time.Now()
+	withError := false
+	delta := time.Since(start).Seconds()
+	defer func() {
+		metrics.UpdateResult(rc.Host(), !withError, delta)
+		doneLog := rl.With("duration", fmt.Sprintf("%vs", delta))
+		if withError {
+			doneLog.Error("Sync done")
+		} else {
+			doneLog.Info("Sync done")
+		}
+	}()
 
 	replicaStatus, err := w.statusWithSetup(rl, replica, rc)
 	if err != nil {
 		rl.With("error", err).Error("Error getting replica status")
+		withError = true
 		return
 	}
 
@@ -281,6 +298,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	if versions.IsNewerThan(versions.MinAgh, replicaStatus.Version) {
 		rl.With("error", err, "version", replicaStatus.Version).
 			Errorf("Replica AdGuard Home version must be >= %s", versions.MinAgh)
+		withError = true
 		return
 	}
 
@@ -297,16 +315,16 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		client:        rc,
 		replica:       replica,
 	}
+
 	for _, action := range w.actions {
 		if err := action.sync(ac); err != nil {
 			rl.With("error", err).Errorf("Error syncing %s", action.name())
+			withError = true
 			if !w.cfg.ContinueOnError {
 				return
 			}
 		}
 	}
-
-	rl.Info("Sync done")
 }
 
 func (w *worker) statusWithSetup(
