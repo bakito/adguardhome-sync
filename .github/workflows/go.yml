@@ -47,7 +47,7 @@ jobs:
 
       - name: Test
         run: make test-ci
-        
+
       - name: Send coverage
         if: runner.os == 'Linux'
         uses: shogo82148/actions-goveralls@v1
