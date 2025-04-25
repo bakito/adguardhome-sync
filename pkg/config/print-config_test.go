@@ -57,7 +57,7 @@ func expected(id int) string {
 		filepath.Join("..", "..", "testdata", "config", fmt.Sprintf("print-config_test_expected%d.md", id)),
 	)
 	Ω(err).ShouldNot(HaveOccurred())
-	return normalizeLineEndings((string(b))
+	return normalizeLineEndings(string(b))
 }
 
 func normalizeLineEndings(s string) string {
