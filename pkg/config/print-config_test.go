@@ -38,7 +38,7 @@ origin:
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(
-				out,
+				normalizeLineEndings(out),
 			).Should(Equal(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 		It("should printInternal config with file", func() {
@@ -46,7 +46,7 @@ origin:
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(
-				out,
+				normalizeLineEndings(out),
 			).Should(Equal(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 	})
@@ -57,5 +57,9 @@ func expected(id int) string {
 		filepath.Join("..", "..", "testdata", "config", fmt.Sprintf("print-config_test_expected%d.md", id)),
 	)
 	Ω(err).ShouldNot(HaveOccurred())
-	return string(b)
+	return normalizeLineEndings((string(b))
+}
+
+func normalizeLineEndings(s string) string {
+    return strings.ReplaceAll(s, "\r\n", "\n")
 }
