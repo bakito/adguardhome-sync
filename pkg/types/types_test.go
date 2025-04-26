@@ -129,8 +129,8 @@ var _ = Describe("Types", func() {
 		Context("Certs", func() {
 			It("should use default crt and key", func() {
 				crt, key := t.Certs()
-				crt = strings.ReplaceAll(crt, "\\", "/")
-				key = strings.ReplaceAll(key, "\\", "/")
+				crt = normalizePath(crt)
+				key = normalizePath(key)
 				Ω(crt).Should(Equal("/path/to/certs/tls.crt"))
 				Ω(key).Should(Equal("/path/to/certs/tls.key"))
 			})
@@ -138,9 +138,15 @@ var _ = Describe("Types", func() {
 				t.CertName = "foo.crt"
 				t.KeyName = "bar.key"
 				crt, key := t.Certs()
+				crt = normalizePath(crt)
+				key = normalizePath(key)
 				Ω(crt).Should(Equal("/path/to/certs/foo.crt"))
 				Ω(key).Should(Equal("/path/to/certs/bar.key"))
 			})
 		})
 	})
 })
+
+func normalizePath(path string) string {
+	return strings.ReplaceAll(path, "\\", "/")
+}
