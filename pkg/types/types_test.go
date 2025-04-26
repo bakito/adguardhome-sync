@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -127,6 +129,8 @@ var _ = Describe("Types", func() {
 		Context("Certs", func() {
 			It("should use default crt and key", func() {
 				crt, key := t.Certs()
+				crt = strings.ReplaceAll(crt, "\\", "//")
+				key = strings.ReplaceAll(key, "\\", "//")
 				Ω(crt).Should(Equal("/path/to/certs/tls.crt"))
 				Ω(key).Should(Equal("/path/to/certs/tls.key"))
 			})
