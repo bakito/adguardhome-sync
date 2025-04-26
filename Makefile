@@ -12,7 +12,7 @@ tidy:
 generate: tb.deepcopy-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
-	$(TB_DEEPCOPY_GEN) --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
+	$(TB_DEEPCOPY_GEN) -v 9 --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
 
 fmt: tb.golines tb.gofumpt
 	$(TB_GOLINES) --base-formatter="$(TB_GOFUMPT)" --max-len=120 --write-output .

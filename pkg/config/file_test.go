@@ -19,7 +19,8 @@ var _ = Describe("Config", func() {
 			Ω(result).Should(Equal(path))
 		})
 		It("should the file in HOME dir", func() {
-			home := os.Getenv("HOME")
+			home, err := os.UserHomeDir()
+			Ω(err).ShouldNot(HaveOccurred())
 			result, err := configFilePath("")
 
 			Ω(err).ShouldNot(HaveOccurred())
