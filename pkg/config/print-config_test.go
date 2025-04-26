@@ -3,14 +3,15 @@ package config
 import (
 	_ "embed"
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/bakito/adguardhome-sync/pkg/test/matchers"
 	"github.com/bakito/adguardhome-sync/pkg/types"
-	"github.com/bakito/adguardhome-sync/pkg/utils"
 	"github.com/bakito/adguardhome-sync/version"
 )
 
@@ -37,23 +38,23 @@ origin:
 		It("should printInternal config without file", func() {
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			out = utils.NormalizeLineEndings(out)
-			Ω(out).Should(Equal(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(out).
+				Should(matchers.EqualIgnoringLineEndings(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 		It("should printInternal config with file", func() {
 			ac.filePath = "config.yaml"
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			out = utils.NormalizeLineEndings(out)
-			Ω(out).Should(Equal(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(out).
+				Should(matchers.EqualIgnoringLineEndings(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 	})
 })
 
 func expected(id int) string {
-	s, err := utils.ReadFile(
+	b, err := os.ReadFile(
 		filepath.Join("..", "..", "testdata", "config", fmt.Sprintf("print-config_test_expected%d.md", id)),
 	)
 	Ω(err).ShouldNot(HaveOccurred())
-	return s
+	return string(b)
 }
