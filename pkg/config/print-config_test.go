@@ -38,17 +38,13 @@ origin:
 		It("should printInternal config without file", func() {
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(
-				normalizeLineEndings(out),
-			).Should(Equal(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(out).Should(Equal(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 		It("should printInternal config with file", func() {
 			ac.filePath = "config.yaml"
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(
-				normalizeLineEndings(out),
-			).Should(Equal(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(out).Should(Equal(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 	})
 })
@@ -62,5 +58,5 @@ func expected(id int) string {
 }
 
 func normalizeLineEndings(s string) string {
-    return strings.ReplaceAll(s, "\r\n", "\n")
+	return strings.ReplaceAll(s, "\r\n", "\n")
 }
