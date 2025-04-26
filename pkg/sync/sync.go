@@ -100,7 +100,7 @@ type worker struct {
 
 func (w *worker) status() *syncStatus {
 	syncStatus := &syncStatus{
-		Origin: w.getStatus(w.cfg.Origin),
+		Origin: w.getStatus(*w.cfg.Origin),
 	}
 
 	for _, replica := range w.cfg.Replicas {
@@ -158,7 +158,7 @@ func (w *worker) sync() {
 		w.running = false
 	}()
 
-	oc, err := w.createClient(w.cfg.Origin)
+	oc, err := w.createClient(*w.cfg.Origin)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		return

@@ -19,6 +19,7 @@ var _ = Describe("Config", func() {
 	)
 	BeforeEach(func() {
 		cfg = &types.Config{
+			Origin:  &types.AdGuardInstance{},
 			Replica: &types.AdGuardInstance{},
 			Features: types.Features{
 				DNS: types.DNS{
@@ -143,7 +144,7 @@ var _ = Describe("Config", func() {
 	})
 	Context("readOriginFlags", func() {
 		It("should change all values", func() {
-			cfg.Origin = types.AdGuardInstance{
+			cfg.Origin = &types.AdGuardInstance{
 				URL:                "1",
 				WebURL:             "2",
 				APIPath:            "3",
@@ -172,7 +173,7 @@ var _ = Describe("Config", func() {
 			err := readFlags(cfg, flags)
 
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg.Origin).Should(Equal(types.AdGuardInstance{
+			Ω(cfg.Origin).Should(Equal(&types.AdGuardInstance{
 				URL:                "a",
 				WebURL:             "b",
 				APIPath:            "c",

@@ -66,24 +66,29 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	// ignore replicas form env parsing as they are handled separately
 	replicas := cfg.Replicas
 	cfg.Replicas = nil
+	replica := cfg.Replica
+	cfg.Replica = nil
+	origin := cfg.Origin
+	cfg.Origin = nil
 
 	// overwrite from env vars
 	if err := env.Parse(cfg); err != nil {
 		return nil, err
 	}
-	if err := env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
+	if err := env.ParseWithOptions(origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
+		return nil, err
+	}
+	if err := env.ParseWithOptions(replica, env.Options{Prefix: "REPLICA_"}); err != nil {
 		return nil, err
 	}
 	// restore the replica
+	cfg.Origin = origin
+	cfg.Replica = replica
 	cfg.Replicas = replicas
 
 	// if not set from env, use previous value
 	if cfg.Replica.DHCPServerEnabled == nil {
 		cfg.Replica.DHCPServerEnabled = replicaDhcpServer
-	}
-
-	if err := env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
-		return nil, err
 	}
 
 	if cfg.Replica != nil &&
@@ -94,7 +99,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 
 	if len(cfg.Replicas) > 0 && cfg.Replica != nil {
 		return nil, errors.New("mixed replica config in use. " +
-			"Do not use single replica and numbered (list) replica config combined " + cfg.Replica.Username)
+			"Do not use single replica and numbered (list) replica config combined")
 	}
 
 	handleDeprecatedEnvVars(cfg)
@@ -112,7 +117,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 func initialConfig() *types.Config {
 	return &types.Config{
 		RunOnStart: true,
-		Origin: types.AdGuardInstance{
+		Origin: &types.AdGuardInstance{
 			APIPath: "/control",
 		},
 		Replica: &types.AdGuardInstance{

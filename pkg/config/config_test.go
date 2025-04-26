@@ -44,6 +44,18 @@ var _ = Describe("Config", func() {
 					Ω(err.Error()).Should(ContainSubstring("mixed replica config in use"))
 				})
 			})
+			Context("Env Var Clash", func() {
+				It("should not use USERNAME env variable if it is defined (#570)", func() {
+					incorrect := "ThisIsNotTheCorrectPassword"
+					setEnv("PASSWORD", incorrect)
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+					c, err := config.Get("../../testdata/config_test_replica.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(c.Get().Origin.Password).ShouldNot(Equal(incorrect))
+					Ω(c.Get().Replicas[0].Password).ShouldNot(Equal(incorrect))
+				})
+			})
 			Context("Origin Url", func() {
 				It("should have the origin URL from the config file", func() {
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()

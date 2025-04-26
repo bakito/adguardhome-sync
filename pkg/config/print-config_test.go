@@ -23,7 +23,7 @@ var _ = Describe("AppConfig", func() {
 	BeforeEach(func() {
 		ac = &AppConfig{
 			cfg: &types.Config{
-				Origin: types.AdGuardInstance{
+				Origin: &types.AdGuardInstance{
 					URL: "https://ha.xxxx.net:3000",
 				},
 			},

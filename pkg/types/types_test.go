@@ -39,6 +39,7 @@ var _ = Describe("Types", func() {
 	Context("Config", func() {
 		Context("init", func() {
 			cfg := Config{
+				Origin: &AdGuardInstance{},
 				Replicas: []AdGuardInstance{
 					{URL: "https://localhost:3000"},
 				},
@@ -53,6 +54,7 @@ var _ = Describe("Types", func() {
 		Context("UniqueReplicas", func() {
 			It("should return unique replicas in the array", func() {
 				cfg := Config{
+					Origin: &AdGuardInstance{},
 					Replicas: []AdGuardInstance{
 						{URL: "a"},
 						{URL: "a", APIPath: DefaultAPIPath},
@@ -68,6 +70,7 @@ var _ = Describe("Types", func() {
 		Context("mask", func() {
 			It("should mask all names and passwords", func() {
 				cfg := Config{
+					Origin: &AdGuardInstance{},
 					Replicas: []AdGuardInstance{
 						{URL: "a", Username: "user", Password: "pass"},
 					},
