@@ -46,14 +46,14 @@ var _ = Describe("Config", func() {
 			})
 			Context("Env Var Clash", func() {
 				It("should not use USERNAME env variable if it is defined (#570)", func() {
-					incorrect := "ThisIsNotTheCorrectPassword"
-					setEnv("PASSWORD", incorrect)
+					incorrect := "ThisIsNotTheCorrectUsername"
+					setEnv("USERNAME", incorrect)
 					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
 					c, err := config.Get("../../testdata/config_test_replica.yaml", flags)
 					Ω(err).ShouldNot(HaveOccurred())
-					Ω(c.Get().Origin.Password).ShouldNot(Equal(incorrect))
-					Ω(c.Get().Replicas[0].Password).ShouldNot(Equal(incorrect))
+					Ω(c.Get().Origin.Username).ShouldNot(Equal(incorrect))
+					Ω(c.Get().Replicas[0].Username).ShouldNot(Equal(incorrect))
 				})
 			})
 			Context("Origin Url", func() {
