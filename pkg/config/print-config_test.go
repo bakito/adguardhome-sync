@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/bakito/adguardhome-sync/pkg/test/matchers"
 	"github.com/bakito/adguardhome-sync/pkg/types"
 	"github.com/bakito/adguardhome-sync/version"
 )
@@ -22,7 +23,7 @@ var _ = Describe("AppConfig", func() {
 	BeforeEach(func() {
 		ac = &AppConfig{
 			cfg: &types.Config{
-				Origin: types.AdGuardInstance{
+				Origin: &types.AdGuardInstance{
 					URL: "https://ha.xxxx.net:3000",
 				},
 			},
@@ -37,17 +38,15 @@ origin:
 		It("should printInternal config without file", func() {
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(
-				out,
-			).Should(Equal(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(out).
+				Should(matchers.EqualIgnoringLineEndings(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 		It("should printInternal config with file", func() {
 			ac.filePath = "config.yaml"
 			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(
-				out,
-			).Should(Equal(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
+			Ω(out).
+				Should(matchers.EqualIgnoringLineEndings(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
 		})
 	})
 })

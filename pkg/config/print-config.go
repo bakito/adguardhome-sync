@@ -20,7 +20,7 @@ import (
 var printConfigTemplate string
 
 func (ac *AppConfig) Print() error {
-	originVersion := aghVersion(ac.cfg.Origin)
+	originVersion := aghVersion(*ac.cfg.Origin)
 	var replicaVersions []string
 	for _, replica := range ac.cfg.Replicas {
 		replicaVersions = append(replicaVersions, aghVersion(replica))

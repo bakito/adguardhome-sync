@@ -63,27 +63,32 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	replicaDhcpServer := cfg.Replica.DHCPServerEnabled
 	cfg.Replica.DHCPServerEnabled = nil
 
-	// ignore replicas form env parsing as they are handled separately
+	// ignore origin and replicas form env parsing as they are handled separately
 	replicas := cfg.Replicas
 	cfg.Replicas = nil
+	replica := cfg.Replica
+	cfg.Replica = nil
+	origin := cfg.Origin
+	cfg.Origin = nil
 
 	// overwrite from env vars
 	if err := env.Parse(cfg); err != nil {
 		return nil, err
 	}
-	if err := env.ParseWithOptions(cfg.Replica, env.Options{Prefix: "REPLICA_"}); err != nil {
+	if err := env.ParseWithOptions(origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
 		return nil, err
 	}
-	// restore the replica
+	if err := env.ParseWithOptions(replica, env.Options{Prefix: "REPLICA_"}); err != nil {
+		return nil, err
+	}
+	// restore origin and replica
+	cfg.Origin = origin
+	cfg.Replica = replica
 	cfg.Replicas = replicas
 
 	// if not set from env, use previous value
 	if cfg.Replica.DHCPServerEnabled == nil {
 		cfg.Replica.DHCPServerEnabled = replicaDhcpServer
-	}
-
-	if err := env.ParseWithOptions(&cfg.Origin, env.Options{Prefix: "ORIGIN_"}); err != nil {
-		return nil, err
 	}
 
 	if cfg.Replica != nil &&
@@ -112,7 +117,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 func initialConfig() *types.Config {
 	return &types.Config{
 		RunOnStart: true,
-		Origin: types.AdGuardInstance{
+		Origin: &types.AdGuardInstance{
 			APIPath: "/control",
 		},
 		Replica: &types.AdGuardInstance{

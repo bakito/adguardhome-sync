@@ -576,7 +576,7 @@ var _ = Describe("Sync", func() {
 		Context("sync", func() {
 			BeforeEach(func() {
 				w.cfg = &types.Config{
-					Origin:  types.AdGuardInstance{},
+					Origin:  &types.AdGuardInstance{},
 					Replica: &types.AdGuardInstance{URL: "foo"},
 					Features: types.Features{
 						DHCP: types.DHCP{

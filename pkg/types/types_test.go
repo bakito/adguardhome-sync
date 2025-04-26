@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -39,6 +41,7 @@ var _ = Describe("Types", func() {
 	Context("Config", func() {
 		Context("init", func() {
 			cfg := Config{
+				Origin: &AdGuardInstance{},
 				Replicas: []AdGuardInstance{
 					{URL: "https://localhost:3000"},
 				},
@@ -53,6 +56,7 @@ var _ = Describe("Types", func() {
 		Context("UniqueReplicas", func() {
 			It("should return unique replicas in the array", func() {
 				cfg := Config{
+					Origin: &AdGuardInstance{},
 					Replicas: []AdGuardInstance{
 						{URL: "a"},
 						{URL: "a", APIPath: DefaultAPIPath},
@@ -68,6 +72,7 @@ var _ = Describe("Types", func() {
 		Context("mask", func() {
 			It("should mask all names and passwords", func() {
 				cfg := Config{
+					Origin: &AdGuardInstance{},
 					Replicas: []AdGuardInstance{
 						{URL: "a", Username: "user", Password: "pass"},
 					},
@@ -124,6 +129,8 @@ var _ = Describe("Types", func() {
 		Context("Certs", func() {
 			It("should use default crt and key", func() {
 				crt, key := t.Certs()
+				crt = normalizePath(crt)
+				key = normalizePath(key)
 				Ω(crt).Should(Equal("/path/to/certs/tls.crt"))
 				Ω(key).Should(Equal("/path/to/certs/tls.key"))
 			})
@@ -131,9 +138,15 @@ var _ = Describe("Types", func() {
 				t.CertName = "foo.crt"
 				t.KeyName = "bar.key"
 				crt, key := t.Certs()
+				crt = normalizePath(crt)
+				key = normalizePath(key)
 				Ω(crt).Should(Equal("/path/to/certs/foo.crt"))
 				Ω(key).Should(Equal("/path/to/certs/bar.key"))
 			})
 		})
 	})
 })
+
+func normalizePath(path string) string {
+	return strings.ReplaceAll(path, "\\", "/")
+}

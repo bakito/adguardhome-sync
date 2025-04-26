@@ -28,7 +28,7 @@ func (w *worker) startScraping() {
 func (w *worker) scrape() {
 	var iml metrics.InstanceMetricsList
 
-	iml.Metrics = append(iml.Metrics, w.getMetrics(w.cfg.Origin))
+	iml.Metrics = append(iml.Metrics, w.getMetrics(*w.cfg.Origin))
 	for _, replica := range w.cfg.Replicas {
 		iml.Metrics = append(iml.Metrics, w.getMetrics(replica))
 	}
