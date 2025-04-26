@@ -3,6 +3,7 @@ package matchers
 import (
 	"strings"
 
+	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
 )
 
@@ -23,11 +24,16 @@ func (matcher *equalIgnoringLineEndingsMatcher) Match(actual any) (success bool,
 }
 
 func (matcher *equalIgnoringLineEndingsMatcher) FailureMessage(actual any) (message string) {
-	return "Expected strings to be equal (ignoring line endings)"
+	actualString, actualOK := actual.(string)
+	if actualOK {
+		return format.MessageWithDiff(actualString, "to equal", matcher.expected)
+	}
+
+	return format.Message(actual, "to equal", matcher.expected)
 }
 
 func (matcher *equalIgnoringLineEndingsMatcher) NegatedFailureMessage(actual any) (message string) {
-	return "Expected strings not to be equal (ignoring line endings)"
+	return format.Message(actual, "not to equal", matcher.expected)
 }
 
 // EqualIgnoringLineEndings returns a new matcher.
