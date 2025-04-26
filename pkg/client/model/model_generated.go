@@ -1199,7 +1199,13 @@ type ClientsFindParams struct {
 // FilteringCheckHostParams defines parameters for FilteringCheckHost.
 type FilteringCheckHostParams struct {
 	// Name Filter by host name
-	Name *string `form:"name,omitempty" json:"name,omitempty"`
+	Name string `form:"name" json:"name"`
+
+	// Client Optional ClientID or client IP address
+	Client *string `form:"client,omitempty" json:"client,omitempty"`
+
+	// Qtype Optional DNS type
+	Qtype *string `form:"qtype,omitempty" json:"qtype,omitempty"`
 }
 
 // QueryLogParams defines parameters for QueryLog.
@@ -4256,9 +4262,37 @@ func NewFilteringCheckHostRequest(server string, params *FilteringCheckHostParam
 	if params != nil {
 		queryValues := queryURL.Query()
 
-		if params.Name != nil {
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name", runtime.ParamLocationQuery, params.Name); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name", runtime.ParamLocationQuery, *params.Name); err != nil {
+		if params.Client != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client", runtime.ParamLocationQuery, *params.Client); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Qtype != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "qtype", runtime.ParamLocationQuery, *params.Qtype); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err

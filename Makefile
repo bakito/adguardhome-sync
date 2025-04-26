@@ -9,7 +9,8 @@ lint: tb.golangci-lint
 tidy:
 	go mod tidy
 
-generate: tb.controller-gen
+generate: model mocks deepcopy-gen
+deepcopy-gen: tb.controller-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
 	$(TB_CONTROLLER_GEN) paths=./pkg/types object
