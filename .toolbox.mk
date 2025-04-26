@@ -9,7 +9,7 @@ $(TB_LOCALBIN):
 	mkdir -p $(TB_LOCALBIN)
 
 ## Tool Binaries
-TB_DEEPCOPY_GEN ?= $(TB_LOCALBIN)/deepcopy-gen
+TB_CONTROLLER_GEN ?= $(TB_LOCALBIN)/controller-gen
 TB_GINKGO ?= $(TB_LOCALBIN)/ginkgo
 TB_GOFUMPT ?= $(TB_LOCALBIN)/gofumpt
 TB_GOLANGCI_LINT ?= $(TB_LOCALBIN)/golangci-lint
@@ -20,8 +20,8 @@ TB_OAPI_CODEGEN ?= $(TB_LOCALBIN)/oapi-codegen
 TB_SEMVER ?= $(TB_LOCALBIN)/semver
 
 ## Tool Versions
-# renovate: packageName=k8s.io/code-generator/cmd/deepcopy-gen
-TB_DEEPCOPY_GEN_VERSION ?= v0.33.0
+# renovate: packageName=sigs.k8s.io/controller-tools/cmd/controller-gen
+TB_CONTROLLER_GEN_VERSION ?= v0.17.3
 # renovate: packageName=mvdan.cc/gofumpt
 TB_GOFUMPT_VERSION ?= v0.8.0
 # renovate: packageName=github.com/golangci/golangci-lint/v2/cmd/golangci-lint
@@ -38,10 +38,10 @@ TB_OAPI_CODEGEN_VERSION ?= v2.4.1
 TB_SEMVER_VERSION ?= v1.1.3
 
 ## Tool Installer
-.PHONY: tb.deepcopy-gen
-tb.deepcopy-gen: $(TB_DEEPCOPY_GEN) ## Download deepcopy-gen locally if necessary.
-$(TB_DEEPCOPY_GEN): $(TB_LOCALBIN)
-	test -s $(TB_LOCALBIN)/deepcopy-gen || GOBIN=$(TB_LOCALBIN) go install k8s.io/code-generator/cmd/deepcopy-gen@$(TB_DEEPCOPY_GEN_VERSION)
+.PHONY: tb.controller-gen
+tb.controller-gen: $(TB_CONTROLLER_GEN) ## Download controller-gen locally if necessary.
+$(TB_CONTROLLER_GEN): $(TB_LOCALBIN)
+	test -s $(TB_LOCALBIN)/controller-gen || GOBIN=$(TB_LOCALBIN) go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(TB_CONTROLLER_GEN_VERSION)
 .PHONY: tb.ginkgo
 tb.ginkgo: $(TB_GINKGO) ## Download ginkgo locally if necessary.
 $(TB_GINKGO): $(TB_LOCALBIN)
@@ -79,7 +79,7 @@ $(TB_SEMVER): $(TB_LOCALBIN)
 .PHONY: tb.reset
 tb.reset:
 	@rm -f \
-		$(TB_LOCALBIN)/deepcopy-gen \
+		$(TB_LOCALBIN)/controller-gen \
 		$(TB_LOCALBIN)/ginkgo \
 		$(TB_LOCALBIN)/gofumpt \
 		$(TB_LOCALBIN)/golangci-lint \
@@ -93,7 +93,7 @@ tb.reset:
 .PHONY: tb.update
 tb.update: tb.reset
 	toolbox makefile --renovate -f $(TB_LOCALDIR)/Makefile \
-		k8s.io/code-generator/cmd/deepcopy-gen@github.com/kubernetes/code-generator \
+		sigs.k8s.io/controller-tools/cmd/controller-gen@github.com/kubernetes-sigs/controller-tools \
 		mvdan.cc/gofumpt@github.com/mvdan/gofumpt \
 		github.com/golangci/golangci-lint/v2/cmd/golangci-lint \
 		github.com/segmentio/golines \

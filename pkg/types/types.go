@@ -1,3 +1,5 @@
+// Package types
+// +kubebuilder:object:generate=true
 package types
 
 import (

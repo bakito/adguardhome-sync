@@ -9,10 +9,10 @@ lint: tb.golangci-lint
 tidy:
 	go mod tidy
 
-generate: tb.deepcopy-gen
+generate: tb.controller-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
-	$(TB_DEEPCOPY_GEN) -v 9 --go-header-file ./tmp/deepcopy-gen-boilerplate.go.txt --bounding-dirs ./pkg/types
+	$(TB_CONTROLLER_GEN) paths=./pkg/types object
 
 fmt: tb.golines tb.gofumpt
 	$(TB_GOLINES) --base-formatter="$(TB_GOFUMPT)" --max-len=120 --write-output .
