@@ -94,7 +94,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 
 	if len(cfg.Replicas) > 0 && cfg.Replica != nil {
 		return nil, errors.New("mixed replica config in use. " +
-			"Do not use single replica and numbered (list) replica config combined")
+			"Do not use single replica and numbered (list) replica config combined " + cfg.Replica.Username)
 	}
 
 	handleDeprecatedEnvVars(cfg)
