@@ -539,10 +539,10 @@ func (mr *MockClientMockRecorder) Stats() *gomock.Call {
 }
 
 // StatsConfig mocks base method.
-func (m *MockClient) StatsConfig() (*model.PutStatsConfigUpdateRequest, error) {
+func (m *MockClient) StatsConfig() (*model.GetStatsConfigResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StatsConfig")
-	ret0, _ := ret[0].(*model.PutStatsConfigUpdateRequest)
+	ret0, _ := ret[0].(*model.GetStatsConfigResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
