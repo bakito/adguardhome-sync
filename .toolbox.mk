@@ -21,7 +21,7 @@ TB_SEMVER ?= $(TB_LOCALBIN)/semver
 
 ## Tool Versions
 # renovate: packageName=sigs.k8s.io/controller-tools/cmd/controller-gen
-TB_CONTROLLER_GEN_VERSION ?= v0.17.3
+TB_CONTROLLER_GEN_VERSION ?= v0.18.0
 # renovate: packageName=mvdan.cc/gofumpt
 TB_GOFUMPT_VERSION ?= v0.8.0
 # renovate: packageName=github.com/golangci/golangci-lint/v2/cmd/golangci-lint
