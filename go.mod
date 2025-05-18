@@ -20,7 +20,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/mod v0.24.0
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/apimachinery v0.33.0
+	k8s.io/apimachinery v0.33.1
 	k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
 )
 
