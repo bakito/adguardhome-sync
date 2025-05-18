@@ -145,16 +145,17 @@ func (cfg *Config) Init() error {
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
-	URL                string `documentation:"URL of adguardhome instance"                               env:"URL"                  faker:"url" json:"url"                         yaml:"url"`
-	WebURL             string `documentation:"Web URL of adguardhome instance"                           env:"WEB_URL"              faker:"url" json:"webURL"                      yaml:"webURL"`
-	APIPath            string `documentation:"API Path"                                                  env:"API_PATH"                         json:"apiPath,omitempty"           yaml:"apiPath,omitempty"`
-	Username           string `documentation:"Adguardhome username"                                      env:"USERNAME"                         json:"username,omitempty"          yaml:"username,omitempty"`
-	Password           string `documentation:"Adguardhome password"                                      env:"PASSWORD"                         json:"password,omitempty"          yaml:"password,omitempty"`
-	Cookie             string `documentation:"Adguardhome cookie"                                        env:"COOKIE"                           json:"cookie,omitempty"            yaml:"cookie,omitempty"`
-	InsecureSkipVerify bool   `documentation:"Skip TLS verification"                                     env:"INSECURE_SKIP_VERIFY"             json:"insecureSkipVerify"          yaml:"insecureSkipVerify"`
-	AutoSetup          bool   `documentation:"Automatically setup the instance if it is not initialized" env:"AUTO_SETUP"                       json:"autoSetup"                   yaml:"autoSetup"`
-	InterfaceName      string `documentation:"Network interface name"                                    env:"INTERFACE_NAME"                   json:"interfaceName,omitempty"     yaml:"interfaceName,omitempty"`
-	DHCPServerEnabled  *bool  `documentation:"Enable DHCP server"                                        env:"DHCP_SERVER_ENABLED"              json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
+	URL                string            `documentation:"URL of adguardhome instance"                               env:"URL"                  faker:"url" json:"url"                         yaml:"url"`
+	WebURL             string            `documentation:"Web URL of adguardhome instance"                           env:"WEB_URL"              faker:"url" json:"webURL"                      yaml:"webURL"`
+	APIPath            string            `documentation:"API Path"                                                  env:"API_PATH"                         json:"apiPath,omitempty"           yaml:"apiPath,omitempty"`
+	Username           string            `documentation:"Adguardhome username"                                      env:"USERNAME"                         json:"username,omitempty"          yaml:"username,omitempty"`
+	Password           string            `documentation:"Adguardhome password"                                      env:"PASSWORD"                         json:"password,omitempty"          yaml:"password,omitempty"`
+	Cookie             string            `documentation:"Adguardhome cookie"                                        env:"COOKIE"                           json:"cookie,omitempty"            yaml:"cookie,omitempty"`
+	RequestHeaders     map[string]string `documentation:"Request Headers 'key1:value1,key2:value2'"                 env:"REQUEST_HEADERS"                  json:"requestHeaders,omitempty"    yaml:"requestHeaders,omitempty"`
+	InsecureSkipVerify bool              `documentation:"Skip TLS verification"                                     env:"INSECURE_SKIP_VERIFY"             json:"insecureSkipVerify"          yaml:"insecureSkipVerify"`
+	AutoSetup          bool              `documentation:"Automatically setup the instance if it is not initialized" env:"AUTO_SETUP"                       json:"autoSetup"                   yaml:"autoSetup"`
+	InterfaceName      string            `documentation:"Network interface name"                                    env:"INTERFACE_NAME"                   json:"interfaceName,omitempty"     yaml:"interfaceName,omitempty"`
+	DHCPServerEnabled  *bool             `documentation:"Enable DHCP server"                                        env:"DHCP_SERVER_ENABLED"              json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
 
 	Host    string `json:"-" yaml:"-"`
 	WebHost string `json:"-" yaml:"-"`

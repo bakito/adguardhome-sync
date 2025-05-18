@@ -244,6 +244,27 @@ var _ = Describe("Config", func() {
 					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
 				})
 			})
+
+			Context("Headers", func() {
+				It("have headers from the config file", func() {
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Get().Replicas[0].RequestHeaders).Should(HaveLen(2))
+					Ω(cfg.Get().Replicas[0].RequestHeaders["FOO"]).Should(Equal("bar"))
+					Ω(cfg.Get().Replicas[0].RequestHeaders["Client-ID"]).Should(Equal("xxxx"))
+				})
+				It("have headers from the config file will be replaced when defined as ENV", func() {
+					setEnv("REPLICA1_REQUEST_HEADERS", "AAA:bbb")
+					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
+					Ω(err).ShouldNot(HaveOccurred())
+					Ω(cfg.Get().Replicas[0].RequestHeaders).Should(HaveLen(1))
+					Ω(cfg.Get().Replicas[0].RequestHeaders["AAA"]).Should(Equal("bbb"))
+				})
+			})
 		})
 	})
 })

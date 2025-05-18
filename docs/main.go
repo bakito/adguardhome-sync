@@ -30,8 +30,13 @@ func printEnvTags(t reflect.Type, prefix string) {
 		}
 
 		envTag := field.Tag.Get("env")
-		if envTag == "REPLICA" {
-			envTag = "REPLICA#"
+		if envTag == "" {
+			switch field.Name {
+			case "Origin":
+				envTag = "ORIGIN"
+			case "Replica":
+				envTag = "REPLICA#"
+			}
 		}
 		combinedTag := envTag
 		if prefix != "" && envTag != "" {

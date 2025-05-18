@@ -36,6 +36,9 @@
         "webURL": {
           "format": "uri",
           "type": "string"
+        },
+        "requestHeaders": {
+          "type": "object"
         }
       },
       "type": "object"

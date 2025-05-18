@@ -16,6 +16,9 @@ replicas:
     autoSetup: false
     interfaceName: eth3
     dhcpServerEnabled: false
+    requestHeaders:
+      FOO: bar
+      Client-ID: xxxx
 cron: '*/15 * * * *'
 runOnStart: true
 printConfigOnly: true

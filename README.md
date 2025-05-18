@@ -193,6 +193,7 @@ For Replicas replace `#` with the index number for the replica. E.g: `REPLICA#_U
 | ORIGIN_USERNAME (string)             | string | Adguardhome username                                      |
 | ORIGIN_PASSWORD (string)             | string | Adguardhome password                                      |
 | ORIGIN_COOKIE (string)               | string | Adguardhome cookie                                        |
+| ORIGIN_REQUEST_HEADERS (map)         | map    | Request Headers 'key1:value1,key2:value2'                 |
 | ORIGIN_INSECURE_SKIP_VERIFY (bool)   | bool   | Skip TLS verification                                     |
 | ORIGIN_AUTO_SETUP (bool)             | bool   | Automatically setup the instance if it is not initialized |
 | ORIGIN_INTERFACE_NAME (string)       | string | Network interface name                                    |
@@ -203,6 +204,7 @@ For Replicas replace `#` with the index number for the replica. E.g: `REPLICA#_U
 | REPLICA#_USERNAME (string)           | string | Adguardhome username                                      |
 | REPLICA#_PASSWORD (string)           | string | Adguardhome password                                      |
 | REPLICA#_COOKIE (string)             | string | Adguardhome cookie                                        |
+| REPLICA#_REQUEST_HEADERS (map)       | map    | Request Headers 'key1:value1,key2:value2'                 |
 | REPLICA#_INSECURE_SKIP_VERIFY (bool) | bool   | Skip TLS verification                                     |
 | REPLICA#_AUTO_SETUP (bool)           | bool   | Automatically setup the instance if it is not initialized |
 | REPLICA#_INTERFACE_NAME (string)     | string | Network interface name                                    |
@@ -264,6 +266,8 @@ origin:
   username: username
   password: password
   # cookie: Origin-Cookie-Name=CCCOOOKKKIIIEEE
+  # requestHeaders: # Additional request headers
+  #   AAA: bbb
 
 # replicas instances
 replicas:
@@ -278,6 +282,8 @@ replicas:
     # cookie: Replica2-Cookie-Name=CCCOOOKKKIIIEEE
     # autoSetup: true # if true, AdGuardHome is automatically initialized.
     # webURL: "https://some-other.url" # used in the web interface (default: <replica-url>
+    # requestHeaders: # Additional request headers
+    #   AAA: bbb
 
 # Configure the sync API server, disabled if api port is 0
 api:
@@ -320,9 +326,12 @@ features:
     accessLists: true
     rewrites: true
 ```
+
 ## Home Assistant AdGuard Home Add-on users
 
-To enable syncing with a Home Assistant instance using the [AdGuard Home Add-on](https://github.com/hassio-addons/addon-adguard-home), you will need to enable the disabled ports, under the Network heading
+To enable syncing with a Home Assistant instance using
+the [AdGuard Home Add-on](https://github.com/hassio-addons/addon-adguard-home), you will need to enable the disabled
+ports, under the Network heading
 
 ![show-disabled-ports](https://github.com/user-attachments/assets/1df5f352-37a2-4508-82ec-7f270087d0b4)
 
@@ -334,9 +343,12 @@ Don't forget to save and restart the add-on.
 
 Depending on your setup, you may also need to disable SSL for the add-on.
 
-The username:password required for the Home Assistant replica is the one you use to login to your instance, however it's recommended to setup a new local only user with minimal permissions.
+The username:password required for the Home Assistant replica is the one you use to login to your instance, however it's
+recommended to setup a new local only user with minimal permissions.
 
-All credit for this method goes to [Brunty](https://github.com/brunty) who has a far more [detailed write up](https://brunty.me/post/replicate-adguard-home-settings-into-home-assistant-adguard-home-addon/) about this on his blog.
+All credit for this method goes to [Brunty](https://github.com/brunty) who has a far
+more [detailed write up](https://brunty.me/post/replicate-adguard-home-settings-into-home-assistant-adguard-home-addon/)
+about this on his blog.
 
 ## Log Level
 
