@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/caarlos0/env/v11 v11.3.1
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/go-faker/faker/v4 v4.6.1
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/google/uuid v1.6.0
