@@ -21,7 +21,7 @@ require (
 	golang.org/x/mod v0.25.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.33.1
-	k8s.io/utils v0.0.0-20250502105355-0f33e8f1c979
+	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 )
 
 require (
