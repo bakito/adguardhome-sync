@@ -43,7 +43,7 @@ go install github.com/bakito/adguardhome-sync@latest
 
 ## Prerequisites
 
-Both the origin instance and replica(s) must be initially setup with AdguardHome via the AdguardHome installation wizard.
+Both the origin instance and replica(s) must be initially set up with AdguardHome via the AdguardHome installation wizard.
 
 ## Username / Password vs. Cookie
 
