@@ -3,7 +3,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/bakito/adguardhome-sync)](https://goreportcard.com/report/github.com/bakito/adguardhome-sync)
 [![Coverage Status](https://coveralls.io/repos/github/bakito/adguardhome-sync/badge.svg?branch=main&service=github)](https://coveralls.io/github/bakito/adguardhome-sync?branch=main)
 
-# AdGuardHome sync
+
+
+# <img src="./media/adguardhome-sync.svg" alt="AdGuardHome sync" width="50"/> AdGuardHome sync
 
 Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to replica instances.
 
