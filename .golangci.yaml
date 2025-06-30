@@ -162,6 +162,8 @@ linters:
           disabled: true
         - name: unused-receiver
           disabled: true
+        - name: var-naming
+          disabled: true
     staticcheck:
       checks:
        - 'all'
