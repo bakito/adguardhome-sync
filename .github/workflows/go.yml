@@ -51,6 +51,7 @@ jobs:
       - name: Send coverage
         if: runner.os == 'Linux'
         uses: shogo82148/actions-goveralls@v1
+        continue-on-error: true
         with:
           path-to-profile: coverage.out
 

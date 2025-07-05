@@ -2,6 +2,7 @@ replica:
   versions:
     - v0.107.40
     - v0.107.43
+    - v0.107.63
     - latest
 
 mode: env
