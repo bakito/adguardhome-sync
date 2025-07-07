@@ -120,6 +120,22 @@ func (w *worker) status() *syncStatus {
 	return syncStatus
 }
 
+func (w *worker) healthz() int {
+	status := w.status()
+
+	if status.Origin.Status != "success" {
+		return 503
+	}
+
+	for _, replica := range status.Replicas {
+		if replica.Status != "success" {
+			return 503
+		}
+	}
+
+	return 200
+}
+
 func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 	st := replicaStatus{Host: inst.WebHost, URL: inst.WebURL}
 
