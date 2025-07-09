@@ -23,7 +23,7 @@ import (
 
 var (
 	l = log.GetLogger("sync")
-	fixVersionCompareRegExp = regexp.MustCompile(`[^0-9\.]`)
+	fixVersionCompareRegExp = regexp.MustCompile(`[^0-9.]`)
 )
 
 // Sync config from origin to replica.
