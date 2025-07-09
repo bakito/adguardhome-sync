@@ -105,6 +105,7 @@ func (w *worker) listenAndServe() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
+	r.HEAD("/healthz", w.handleHealthz)
 	r.GET("/healthz", w.handleHealthz)
 
 	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
