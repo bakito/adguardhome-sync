@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sort"
 	"time"
+	"regexp"
 
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
@@ -20,7 +21,10 @@ import (
 	"github.com/bakito/adguardhome-sync/version"
 )
 
-var l = log.GetLogger("sync")
+var (
+	l = log.GetLogger("sync")
+	fixVersionCompareRegExp = regexp.MustCompile(`[^0-9.]`)
+)
 
 // Sync config from origin to replica.
 func Sync(cfg *types.Config) error {
@@ -118,6 +122,22 @@ func (w *worker) status() *syncStatus {
 	syncStatus.SyncRunning = w.running
 
 	return syncStatus
+}
+
+func (w *worker) healthz() int {
+	status := w.status()
+
+	if status.Origin.Status != "success" {
+		return 503
+	}
+
+	for _, replica := range status.Replicas {
+		if replica.Status != "success" {
+			return 503
+		}
+	}
+
+	return 200
 }
 
 func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
@@ -292,6 +312,9 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		withError = true
 		return
 	}
+
+	replicaStatus.Version = fixVersionCompareRegExp.ReplaceAllString(replicaStatus.Version, "")
+	o.status.Version = fixVersionCompareRegExp.ReplaceAllString(o.status.Version, "")
 
 	rl.With("version", replicaStatus.Version).Info("Connected to replica")
 

@@ -87,6 +87,10 @@ func (w *worker) handleStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, w.status())
 }
 
+func (w *worker) handleHealthz(c *gin.Context) {
+	c.Status(w.healthz())
+}
+
 func (w *worker) listenAndServe() {
 	sl := l.With("port", w.cfg.API.Port)
 	if w.cfg.API.TLS.Enabled() {
@@ -100,9 +104,38 @@ func (w *worker) listenAndServe() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
+
+	r.HEAD("/healthz", w.handleHealthz)
+	r.GET("/healthz", w.handleHealthz)
+
 	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
-		r.Use(gin.BasicAuth(map[string]string{w.cfg.API.Username: w.cfg.API.Password}))
+		authorized := r.Group("/", gin.BasicAuth(map[string]string{w.cfg.API.Username: w.cfg.API.Password}))
+		authorized.POST("/api/v1/sync", w.handleSync)
+		authorized.GET("/api/v1/logs", w.handleLogs)
+		authorized.POST("/api/v1/clear-logs", w.handleClearLogs)
+		authorized.GET("/favicon.ico", w.handleFavicon)
+		authorized.GET("/", w.handleRoot)
+		authorized.GET("/api/v1/status", w.handleStatus)
+
+		if w.cfg.API.Metrics.Enabled {
+			authorized.GET("/metrics", metrics.Handler())
+	
+			go w.startScraping()
+		}
+	}else{
+		r.POST("/api/v1/sync", w.handleSync)
+		r.GET("/api/v1/logs", w.handleLogs)
+		r.POST("/api/v1/clear-logs", w.handleClearLogs)
+		r.GET("/api/v1/status", w.handleStatus)
+		r.GET("/favicon.ico", w.handleFavicon)
+		r.GET("/", w.handleRoot)
+		if w.cfg.API.Metrics.Enabled {
+			r.GET("/metrics", metrics.Handler())
+	
+			go w.startScraping()
+		}
 	}
+
 	httpServer := &http.Server{
 		Addr:              fmt.Sprintf(":%d", w.cfg.API.Port),
 		Handler:           r,
@@ -111,17 +144,6 @@ func (w *worker) listenAndServe() {
 	}
 
 	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(string(index))))
-	r.POST("/api/v1/sync", w.handleSync)
-	r.GET("/api/v1/logs", w.handleLogs)
-	r.POST("/api/v1/clear-logs", w.handleClearLogs)
-	r.GET("/api/v1/status", w.handleStatus)
-	r.GET("/favicon.ico", w.handleFavicon)
-	r.GET("/", w.handleRoot)
-	if w.cfg.API.Metrics.Enabled {
-		r.GET("/metrics", metrics.Handler())
-
-		go w.startScraping()
-	}
 
 	go func() {
 		var err error
