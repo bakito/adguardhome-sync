@@ -26,6 +26,8 @@ var (
 	index []byte
 	//go:embed favicon.ico
 	favicon []byte
+	//go:embed logo.svg
+	logo []byte
 )
 
 func (w *worker) handleSync(c *gin.Context) {
@@ -74,6 +76,10 @@ func (w *worker) handleFavicon(c *gin.Context) {
 	c.Data(http.StatusOK, "image/x-icon", favicon)
 }
 
+func (w *worker) handleLogo(c *gin.Context) {
+	c.Data(http.StatusOK, "image/svg+xml", logo)
+}
+
 func (w *worker) handleLogs(c *gin.Context) {
 	c.Data(http.StatusOK, "text/plain", []byte(strings.Join(log.Logs(), "")))
 }
@@ -108,32 +114,22 @@ func (w *worker) listenAndServe() {
 	r.HEAD("/healthz", w.handleHealthz)
 	r.GET("/healthz", w.handleHealthz)
 
+	var group gin.IRouter = r
 	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
-		authorized := r.Group("/", gin.BasicAuth(map[string]string{w.cfg.API.Username: w.cfg.API.Password}))
-		authorized.POST("/api/v1/sync", w.handleSync)
-		authorized.GET("/api/v1/logs", w.handleLogs)
-		authorized.POST("/api/v1/clear-logs", w.handleClearLogs)
-		authorized.GET("/favicon.ico", w.handleFavicon)
-		authorized.GET("/", w.handleRoot)
-		authorized.GET("/api/v1/status", w.handleStatus)
+		group = r.Group("/", gin.BasicAuth(map[string]string{w.cfg.API.Username: w.cfg.API.Password}))
+	}
 
-		if w.cfg.API.Metrics.Enabled {
-			authorized.GET("/metrics", metrics.Handler())
-	
-			go w.startScraping()
-		}
-	}else{
-		r.POST("/api/v1/sync", w.handleSync)
-		r.GET("/api/v1/logs", w.handleLogs)
-		r.POST("/api/v1/clear-logs", w.handleClearLogs)
-		r.GET("/api/v1/status", w.handleStatus)
-		r.GET("/favicon.ico", w.handleFavicon)
-		r.GET("/", w.handleRoot)
-		if w.cfg.API.Metrics.Enabled {
-			r.GET("/metrics", metrics.Handler())
-	
-			go w.startScraping()
-		}
+	group.POST("/api/v1/sync", w.handleSync)
+	group.GET("/api/v1/logs", w.handleLogs)
+	group.POST("/api/v1/clear-logs", w.handleClearLogs)
+	group.GET("/api/v1/status", w.handleStatus)
+	group.GET("/favicon.ico", w.handleFavicon)
+	group.GET("/logo.svg", w.handleLogo)
+	group.GET("/", w.handleRoot)
+	if w.cfg.API.Metrics.Enabled {
+		group.GET("/metrics", metrics.Handler())
+
+		go w.startScraping()
 	}
 
 	httpServer := &http.Server{

@@ -1,6 +1,6 @@
 <html lang="en">
 <head>
-    <title>AdGuardHome sync</title>
+    <title>AdGuard Home sync</title>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js">
     </script>
     {{- if .DarkMode }}
@@ -86,10 +86,13 @@
 <body>
 <div class="container-fluid px-4">
     <div class="row">
-        <p class="h1">
-            AdGuardHome sync
-        <p class="h6">{{ .Version }} ({{ .Build }})</p>
-        </p>
+        <div class="d-flex align-items-center mb-3">
+            <img src="logo.svg" alt="Logo" class="me-3" style="height: 4em;">
+            <div>
+                <h1 class="mb-0">AdGuard Home sync</h1>
+                <p class="h6 text-muted mb-0">{{ .Version }} ({{ .Build }})</p>
+            </div>
+        </div>
     </div>
     {{- if .Metrics }}
     <div class="row g-4 d-flex">
