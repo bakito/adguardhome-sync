@@ -37,10 +37,10 @@ mocks: tb.mockgen
 release: tb.semver tb.goreleaser
 	@version=$$($(TB_SEMVER)); \
 	git tag -s $$version -m"Release $$version"
-	$(TB_GORELEASER) --clean
+	$(TB_GORELEASER) --clean --parallelism 2
 
 test-release: tb.goreleaser
-	$(TB_GORELEASER) --skip=publish --snapshot --clean
+	$(TB_GORELEASER) --skip=publish --snapshot --clean --parallelism 2
 
 start-replica:
 	docker rm -f adguardhome-replica
