@@ -3,10 +3,10 @@ package sync
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"runtime"
 	"sort"
 	"time"
-	"regexp"
 
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	l = log.GetLogger("sync")
+	l                       = log.GetLogger("sync")
 	fixVersionCompareRegExp = regexp.MustCompile(`[^0-9.]`)
 )
 
