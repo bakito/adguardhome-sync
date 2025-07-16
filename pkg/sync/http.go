@@ -94,7 +94,21 @@ func (w *worker) handleStatus(c *gin.Context) {
 }
 
 func (w *worker) handleHealthz(c *gin.Context) {
-	c.Status(w.healthz())
+	status := w.status()
+
+	if status.Origin.Status != "success" {
+		c.Status(http.StatusServiceUnavailable)
+		return
+	}
+
+	for _, replica := range status.Replicas {
+		if replica.Status != "success" {
+			c.Status(http.StatusServiceUnavailable)
+			return
+		}
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (w *worker) listenAndServe() {
