@@ -20,9 +20,9 @@ TB_OAPI_CODEGEN ?= $(TB_LOCALBIN)/oapi-codegen
 TB_SEMVER ?= $(TB_LOCALBIN)/semver
 
 ## Tool Versions
-# renovate: packageName=sigs.k8s.io/controller-tools/cmd/controller-gen
+# renovate: packageName=github.com/kubernetes-sigs/controller-tools
 TB_CONTROLLER_GEN_VERSION ?= v0.18.0
-# renovate: packageName=mvdan.cc/gofumpt
+# renovate: packageName=github.com/mvdan/gofumpt
 TB_GOFUMPT_VERSION ?= v0.8.0
 # renovate: packageName=github.com/golangci/golangci-lint/v2
 TB_GOLANGCI_LINT_VERSION ?= v2.2.2
@@ -30,7 +30,7 @@ TB_GOLANGCI_LINT_VERSION ?= v2.2.2
 TB_GOLINES_VERSION ?= v0.12.2
 # renovate: packageName=github.com/goreleaser/goreleaser/v2
 TB_GORELEASER_VERSION ?= v2.11.0
-# renovate: packageName=go.uber.org/mock/mockgen
+# renovate: packageName=github.com/uber-go/mock
 TB_MOCKGEN_VERSION ?= v0.5.2
 # renovate: packageName=github.com/oapi-codegen/oapi-codegen/v2
 TB_OAPI_CODEGEN_VERSION ?= v2.4.1
