@@ -33,7 +33,7 @@ TB_GORELEASER_VERSION ?= v2.11.0
 # renovate: packageName=github.com/uber-go/mock
 TB_MOCKGEN_VERSION ?= v0.5.2
 # renovate: packageName=github.com/oapi-codegen/oapi-codegen/v2
-TB_OAPI_CODEGEN_VERSION ?= v2.4.1
+TB_OAPI_CODEGEN_VERSION ?= v2.5.0
 # renovate: packageName=github.com/bakito/semver
 TB_SEMVER_VERSION ?= v1.1.3
 
