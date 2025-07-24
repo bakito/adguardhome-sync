@@ -36,6 +36,8 @@ func printEnvTags(t reflect.Type, prefix string) {
 				envTag = "ORIGIN"
 			case "Replica":
 				envTag = "REPLICA#"
+			default:
+				continue
 			}
 		}
 		combinedTag := envTag
