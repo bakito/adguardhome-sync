@@ -35,7 +35,7 @@ TB_MOCKGEN_VERSION ?= v0.5.2
 # renovate: packageName=github.com/oapi-codegen/oapi-codegen/v2
 TB_OAPI_CODEGEN_VERSION ?= v2.5.0
 # renovate: packageName=github.com/bakito/semver
-TB_SEMVER_VERSION ?= v1.1.3
+TB_SEMVER_VERSION ?= v1.1.5
 
 ## Tool Installer
 .PHONY: tb.controller-gen
