@@ -19,11 +19,8 @@ deepcopy-gen: tb.controller-gen
 docs:
 	go run docs/main.go
 
-fmt: tb.golines tb.gofumpt
-	$(TB_GOLINES) --base-formatter="$(TB_GOFUMPT)" --max-len=120 --write-output .
-
 # Run tests
-test: generate fmt lint test-ci
+test: generate lint test-ci
 
 fuzz:
 	 go test -fuzz=FuzzMask -v ./pkg/types/ -fuzztime=60s
