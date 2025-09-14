@@ -68,6 +68,11 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("DHCP static leases", actionDHCPStaticLeases),
 		)
 	}
+	if cfg.Features.TLSConfig {
+		actions = append(actions,
+			action("TLS config", tlsConfig),
+		)
+	}
 	return actions
 }
 

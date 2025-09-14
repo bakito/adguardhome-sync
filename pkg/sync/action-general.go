@@ -236,6 +236,20 @@ var (
 		}
 		return nil
 	}
+	tlsConfig = func(ac *actionContext) error {
+		tls, err := ac.client.TLSConfig()
+		if err != nil {
+			return err
+		}
+
+		if err := ac.client.SetTLSConfig(tls); err != nil {
+			ac.rl.With("enabled", tls.Enabled, "error", err).Error("error setting tls config")
+			if !ac.cfg.ContinueOnError {
+				return err
+			}
+		}
+		return nil
+	}
 )
 
 func syncFilterType(

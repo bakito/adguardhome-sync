@@ -35,7 +35,8 @@ type Features struct {
 	ClientSettings  bool `json:"clientSettings"  yaml:"clientSettings"  documentation:"Sync client settings"  env:"FEATURES_CLIENT_SETTINGS"`
 	Services        bool `json:"services"        yaml:"services"        documentation:"Sync services"         env:"FEATURES_SERVICES"`
 	Filters         bool `json:"filters"         yaml:"filters"         documentation:"Sync filters"          env:"FEATURES_FILTERS"`
-	Theme           bool `json:"theme"           yaml:"theme"           documentation:"Sync the weg UI theme" env:"FEATURES_THEME"`
+	Theme           bool `json:"theme"           yaml:"theme"           documentation:"Sync the web UI theme" env:"FEATURES_THEME"`
+	TLSConfig       bool `json:"tlsConfig"       yaml:"tlsConfig"       documentation:"Sync the TLS config"   env:"FEATURES_TLS_CONFIG"`
 }
 
 // DHCP features.
@@ -94,6 +95,9 @@ func (f *Features) collectDisabled() []string {
 	}
 	if !f.Filters {
 		features = append(features, "Filters")
+	}
+	if !f.TLSConfig {
+		features = append(features, "TLSConfig")
 	}
 	return features
 }

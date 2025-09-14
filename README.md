@@ -185,58 +185,60 @@ services:
 
 ## Config via environment variables
 
-For Replicas replace `#` with the index number for the replica. E.g: `REPLICA#_URL` -> `REPLICA1_URL`
-
-| Name                                 | Type   | Description                                               |
-|:-------------------------------------|--------|:----------------------------------------------------------|
-| ORIGIN_URL (string)                  | string | URL of adguardhome instance                               |
-| ORIGIN_WEB_URL (string)              | string | Web URL of adguardhome instance                           |
-| ORIGIN_API_PATH (string)             | string | API Path                                                  |
-| ORIGIN_USERNAME (string)             | string | Adguardhome username                                      |
-| ORIGIN_PASSWORD (string)             | string | Adguardhome password                                      |
-| ORIGIN_COOKIE (string)               | string | Adguardhome cookie                                        |
-| ORIGIN_REQUEST_HEADERS (map)         | map    | Request Headers 'key1:value1,key2:value2'                 |
-| ORIGIN_INSECURE_SKIP_VERIFY (bool)   | bool   | Skip TLS verification                                     |
-| ORIGIN_AUTO_SETUP (bool)             | bool   | Automatically setup the instance if it is not initialized |
-| ORIGIN_INTERFACE_NAME (string)       | string | Network interface name                                    |
-| ORIGIN_DHCP_SERVER_ENABLED (bool)    | bool   | Enable DHCP server                                        |
-| REPLICA#_URL (string)                | string | URL of adguardhome instance                               |
-| REPLICA#_WEB_URL (string)            | string | Web URL of adguardhome instance                           |
-| REPLICA#_API_PATH (string)           | string | API Path                                                  |
-| REPLICA#_USERNAME (string)           | string | Adguardhome username                                      |
-| REPLICA#_PASSWORD (string)           | string | Adguardhome password                                      |
-| REPLICA#_COOKIE (string)             | string | Adguardhome cookie                                        |
-| REPLICA#_REQUEST_HEADERS (map)       | map    | Request Headers 'key1:value1,key2:value2'                 |
-| REPLICA#_INSECURE_SKIP_VERIFY (bool) | bool   | Skip TLS verification                                     |
-| REPLICA#_AUTO_SETUP (bool)           | bool   | Automatically setup the instance if it is not initialized |
-| REPLICA#_INTERFACE_NAME (string)     | string | Network interface name                                    |
-| REPLICA#_DHCP_SERVER_ENABLED (bool)  | bool   | Enable DHCP server                                        |
-| CRON (string)                        | string | Cron expression for the sync interval                     |
-| RUN_ON_START (bool)                  | bool   | Run the sung on startup                                   |
-| PRINT_CONFIG_ONLY (bool)             | bool   | Print current config only and stop the application        |
-| CONTINUE_ON_ERROR (bool)             | bool   | Continue sync on errors                                   |
-| API_PORT (int)                       | int    | API port                                                  |
-| API_USERNAME (string)                | string | API username                                              |
-| API_PASSWORD (string)                | string | API password                                              |
-| API_DARK_MODE (bool)                 | bool   | API dark mode                                             |
-| API_METRICS_ENABLED (bool)           | bool   | Enable metrics                                            |
-| API_METRICS_SCRAPE_INTERVAL (int64)  | int64  | Interval for metrics scraping                             |
-| API_METRICS_QUERY_LOG_LIMIT (int)    | int    | Metrics log query limit                                   |
-| API_TLS_CERT_DIR (string)            | string | API TLS certificate directory                             |
-| API_TLS_CERT_NAME (string)           | string | API TLS certificate file name                             |
-| API_TLS_KEY_NAME (string)            | string | API TLS key file name                                     |
-| FEATURES_DNS_ACCESS_LISTS (bool)     | bool   | Sync DNS access lists                                     |
-| FEATURES_DNS_SERVER_CONFIG (bool)    | bool   | Sync DNS server config                                    |
-| FEATURES_DNS_REWRITES (bool)         | bool   | Sync DNS rewrites                                         |
-| FEATURES_DHCP_SERVER_CONFIG (bool)   | bool   | Sync DHCP server config                                   |
-| FEATURES_DHCP_STATIC_LEASES (bool)   | bool   | Sync DHCP static leases                                   |
-| FEATURES_GENERAL_SETTINGS (bool)     | bool   | Sync general settings                                     |
-| FEATURES_QUERY_LOG_CONFIG (bool)     | bool   | Sync query log config                                     |
-| FEATURES_STATS_CONFIG (bool)         | bool   | Sync stats config                                         |
-| FEATURES_CLIENT_SETTINGS (bool)      | bool   | Sync client settings                                      |
-| FEATURES_SERVICES (bool)             | bool   | Sync services                                             |
-| FEATURES_FILTERS (bool)              | bool   | Sync filters                                              |
-| FEATURES_THEME (bool)                | bool   | Sync the weg UI theme                                     |
+For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_URL` -> `REPLICA1_URL`
+<!-- env-doc-start -->
+| Name | Type | Description |
+| :--- | ---- |:----------- |
+| ORIGIN_URL (string) | string | URL of adguardhome instance |
+| ORIGIN_WEB_URL (string) | string | Web URL of adguardhome instance |
+| ORIGIN_API_PATH (string) | string | API Path |
+| ORIGIN_USERNAME (string) | string | Adguardhome username |
+| ORIGIN_PASSWORD (string) | string | Adguardhome password |
+| ORIGIN_COOKIE (string) | string | Adguardhome cookie |
+| ORIGIN_REQUEST_HEADERS (map) | map | Request Headers 'key1:value1,key2:value2' |
+| ORIGIN_INSECURE_SKIP_VERIFY (bool) | bool | Skip TLS verification |
+| ORIGIN_AUTO_SETUP (bool) | bool | Automatically setup the instance if it is not initialized |
+| ORIGIN_INTERFACE_NAME (string) | string | Network interface name |
+| ORIGIN_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
+| REPLICA#_URL (string) | string | URL of adguardhome instance |
+| REPLICA#_WEB_URL (string) | string | Web URL of adguardhome instance |
+| REPLICA#_API_PATH (string) | string | API Path |
+| REPLICA#_USERNAME (string) | string | Adguardhome username |
+| REPLICA#_PASSWORD (string) | string | Adguardhome password |
+| REPLICA#_COOKIE (string) | string | Adguardhome cookie |
+| REPLICA#_REQUEST_HEADERS (map) | map | Request Headers 'key1:value1,key2:value2' |
+| REPLICA#_INSECURE_SKIP_VERIFY (bool) | bool | Skip TLS verification |
+| REPLICA#_AUTO_SETUP (bool) | bool | Automatically setup the instance if it is not initialized |
+| REPLICA#_INTERFACE_NAME (string) | string | Network interface name |
+| REPLICA#_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
+| CRON (string) | string | Cron expression for the sync interval |
+| RUN_ON_START (bool) | bool | Run the sung on startup |
+| PRINT_CONFIG_ONLY (bool) | bool | Print current config only and stop the application |
+| CONTINUE_ON_ERROR (bool) | bool | Continue sync on errors |
+| API_PORT (int) | int | API port |
+| API_USERNAME (string) | string | API username |
+| API_PASSWORD (string) | string | API password |
+| API_DARK_MODE (bool) | bool | API dark mode |
+| API_METRICS_ENABLED (bool) | bool | Enable metrics |
+| API_METRICS_SCRAPE_INTERVAL (int64) | int64 | Interval for metrics scraping |
+| API_METRICS_QUERY_LOG_LIMIT (int) | int | Metrics log query limit |
+| API_TLS_CERT_DIR (string) | string | API TLS certificate directory |
+| API_TLS_CERT_NAME (string) | string | API TLS certificate file name |
+| API_TLS_KEY_NAME (string) | string | API TLS key file name |
+| FEATURES_DNS_ACCESS_LISTS (bool) | bool | Sync DNS access lists |
+| FEATURES_DNS_SERVER_CONFIG (bool) | bool | Sync DNS server config |
+| FEATURES_DNS_REWRITES (bool) | bool | Sync DNS rewrites |
+| FEATURES_DHCP_SERVER_CONFIG (bool) | bool | Sync DHCP server config |
+| FEATURES_DHCP_STATIC_LEASES (bool) | bool | Sync DHCP static leases |
+| FEATURES_GENERAL_SETTINGS (bool) | bool | Sync general settings |
+| FEATURES_QUERY_LOG_CONFIG (bool) | bool | Sync query log config |
+| FEATURES_STATS_CONFIG (bool) | bool | Sync stats config |
+| FEATURES_CLIENT_SETTINGS (bool) | bool | Sync client settings |
+| FEATURES_SERVICES (bool) | bool | Sync services |
+| FEATURES_FILTERS (bool) | bool | Sync filters |
+| FEATURES_THEME (bool) | bool | Sync the web UI theme |
+| FEATURES_TLS_CONFIG (bool) | bool | Sync the TLS config |
+<!-- env-doc-end -->
 
 ### Unraid
 

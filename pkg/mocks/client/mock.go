@@ -509,6 +509,20 @@ func (mr *MockClientMockRecorder) SetStatsConfig(sc any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatsConfig", reflect.TypeOf((*MockClient)(nil).SetStatsConfig), sc)
 }
 
+// SetTLSConfig mocks base method.
+func (m *MockClient) SetTLSConfig(tls *model.TlsConfig) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetTLSConfig", tls)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetTLSConfig indicates an expected call of SetTLSConfig.
+func (mr *MockClientMockRecorder) SetTLSConfig(tls any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTLSConfig", reflect.TypeOf((*MockClient)(nil).SetTLSConfig), tls)
+}
+
 // Setup mocks base method.
 func (m *MockClient) Setup() error {
 	m.ctrl.T.Helper()
@@ -566,6 +580,21 @@ func (m *MockClient) Status() (*model.ServerStatus, error) {
 func (mr *MockClientMockRecorder) Status() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockClient)(nil).Status))
+}
+
+// TLSConfig mocks base method.
+func (m *MockClient) TLSConfig() (*model.TlsConfig, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TLSConfig")
+	ret0, _ := ret[0].(*model.TlsConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TLSConfig indicates an expected call of TLSConfig.
+func (mr *MockClientMockRecorder) TLSConfig() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TLSConfig", reflect.TypeOf((*MockClient)(nil).TLSConfig))
 }
 
 // ToggleFiltering mocks base method.

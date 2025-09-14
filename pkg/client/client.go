@@ -22,6 +22,19 @@ import (
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
 
+type Error struct {
+	message   string
+	errorCode int
+}
+
+func (e *Error) Error() string {
+	return fmt.Sprintf("error code %d: %s", e.errorCode, e.message)
+}
+
+func (e *Error) Code() int {
+	return e.errorCode
+}
+
 var (
 	l = log.GetLogger("client")
 	// ErrSetupNeeded custom error.
@@ -36,7 +49,10 @@ func detailedError(resp *resty.Response, err error) error {
 	if err != nil {
 		e += ": " + err.Error()
 	}
-	return errors.New(e)
+	return &Error{
+		message:   e,
+		errorCode: resp.StatusCode(),
+	}
 }
 
 // New create a new client.
@@ -131,6 +147,8 @@ type Client interface {
 	SetDhcpConfig(status *model.DhcpStatus) error
 	AddDHCPStaticLease(lease model.DhcpStaticLease) error
 	DeleteDHCPStaticLease(lease model.DhcpStaticLease) error
+	TLSConfig() (*model.TlsConfig, error)
+	SetTLSConfig(tls *model.TlsConfig) error
 }
 
 type client struct {
@@ -449,4 +467,15 @@ func (cl *client) ProfileInfo() (*model.ProfileInfo, error) {
 func (cl *client) SetProfileInfo(profile *model.ProfileInfo) error {
 	cl.log.With("language", profile.Language, "theme", profile.Theme).Info("Set profile")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(profile), "/profile/update")
+}
+
+func (cl *client) TLSConfig() (*model.TlsConfig, error) {
+	tlsc := &model.TlsConfig{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(tlsc), "/tls/status")
+	return tlsc, err
+}
+
+func (cl *client) SetTLSConfig(tlsc *model.TlsConfig) error {
+	cl.log.With("enabled", tlsc.Enabled).Info("Set TLS config")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(tlsc), "/tls/configure")
 }
