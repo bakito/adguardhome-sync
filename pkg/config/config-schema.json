@@ -150,6 +150,9 @@
         },
         "theme": {
           "type": "boolean"
+        },
+        "tlsConfig": {
+          "type": "boolean"
         }
       },
       "type": "object"

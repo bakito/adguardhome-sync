@@ -102,7 +102,7 @@ var _ = Describe("Types", func() {
 		Context("LogDisabled", func() {
 			It("should log all features", func() {
 				f := NewFeatures(false)
-				Ω(f.collectDisabled()).Should(HaveLen(11))
+				Ω(f.collectDisabled()).Should(HaveLen(12))
 			})
 			It("should log no features", func() {
 				f := NewFeatures(true)
