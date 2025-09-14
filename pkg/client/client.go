@@ -22,6 +22,19 @@ import (
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
 
+type Error struct {
+	message   string
+	errorCode int
+}
+
+func (e *Error) Error() string {
+	return e.message
+}
+
+func (e *Error) Code() int {
+	return e.errorCode
+}
+
 var (
 	l = log.GetLogger("client")
 	// ErrSetupNeeded custom error.
@@ -36,7 +49,10 @@ func detailedError(resp *resty.Response, err error) error {
 	if err != nil {
 		e += ": " + err.Error()
 	}
-	return errors.New(e)
+	return &Error{
+		message:   e,
+		errorCode: resp.StatusCode(),
+	}
 }
 
 // New create a new client.

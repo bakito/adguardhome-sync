@@ -3,6 +3,7 @@ package sync
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"runtime"
 	"sort"
 	"time"
@@ -184,7 +185,14 @@ func (w *worker) sync() {
 	o.profileInfo, err = oc.ProfileInfo()
 	if err != nil {
 		sl.With("error", err).Error("Error getting profileInfo info")
-		return
+
+		// Workaround for https://github.com/AdguardTeam/AdGuardHome/issues/7987
+		// and https://github.com/AdguardTeam/AdGuardHome/issues/7985
+
+		clientErr := &client.Error{}
+		if !w.cfg.ContinueOnError || !errors.As(err, &clientErr) || clientErr.Code() != http.StatusUnauthorized {
+			return
+		}
 	}
 
 	o.parental, err = oc.Parental()
