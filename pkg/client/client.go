@@ -477,5 +477,5 @@ func (cl *client) TLSConfig() (*model.TlsConfig, error) {
 
 func (cl *client) SetTLSConfig(tlsc *model.TlsConfig) error {
 	cl.log.With("enabled", tlsc.Enabled).Info("Set TLS config")
-	return cl.doPut(cl.client.R().EnableTrace().SetBody(tlsc), "/tls/configure")
+	return cl.doPost(cl.client.R().EnableTrace().SetBody(tlsc), "/tls/configure")
 }

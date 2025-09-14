@@ -594,6 +594,7 @@ var _ = Describe("Sync", func() {
 						GeneralSettings: true,
 						StatsConfig:     true,
 						QueryLogConfig:  true,
+						TLSConfig:       true,
 					},
 				}
 			})
@@ -614,6 +615,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
@@ -633,6 +635,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 				w.sync()
 			})
 			It("should not sync DHCP", func() {
@@ -653,6 +656,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 
 				// replica
 				cl.EXPECT().Host()
@@ -671,6 +675,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 				w.sync()
 			})
 			It("origin version is too small", func() {
@@ -696,6 +701,7 @@ var _ = Describe("Sync", func() {
 				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 
 				// replica
 				cl.EXPECT().Host().Times(2)

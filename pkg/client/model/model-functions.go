@@ -490,3 +490,7 @@ func sumUp(t, o *[]int) *[]int {
 	}
 	return t
 }
+
+func (c *TlsConfig) Equals(config *TlsConfig) bool {
+	return utils.JSONEquals(c, config)
+}
