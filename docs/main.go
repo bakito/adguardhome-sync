@@ -3,6 +3,9 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
 	"reflect"
 	"strings"
 
@@ -10,9 +13,47 @@ import (
 )
 
 func main() {
-	_, _ = fmt.Println("| Name | Type | Description |")
-	_, _ = fmt.Println("| :--- | ---- |:----------- |")
+	// Read the README.md file
+	content, err := os.ReadFile("README.md")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert to string for easier manipulation
+	fileContent := string(content)
+
+	// Generate the environment variables documentation
+	var buf strings.Builder
+	_, _ = buf.WriteString("| Name | Type | Description |\n")
+	_, _ = buf.WriteString("| :--- | ---- |:----------- |\n")
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
 	printEnvTags(reflect.TypeOf(types.Config{}), "")
+	_ = w.Close()
+	envDoc, _ := io.ReadAll(r)
+	os.Stdout = oldStdout
+	_, _ = buf.Write(envDoc)
+
+	// Find the markers and replace content between them
+	startMarker := "<!-- env-doc-start -->"
+	endMarker := "<!-- env-doc-end -->"
+
+	start := strings.Index(fileContent, startMarker)
+	end := strings.Index(fileContent, endMarker)
+
+	if start == -1 || end == -1 {
+		log.Fatal("Could not find markers in README.md")
+	}
+
+	// Construct new content
+	newContent := fileContent[:start+len(startMarker)] + "\n" + buf.String() + fileContent[end:]
+
+	// Write back to README.md
+	err = os.WriteFile("README.md", []byte(newContent), 0o644)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // printEnvTags recursively prints all fields with `env` tags.
@@ -36,8 +77,6 @@ func printEnvTags(t reflect.Type, prefix string) {
 				envTag = "ORIGIN"
 			case "Replica":
 				envTag = "REPLICA#"
-			default:
-				continue
 			}
 		}
 		combinedTag := envTag

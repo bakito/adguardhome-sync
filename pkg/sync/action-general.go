@@ -236,6 +236,22 @@ var (
 		}
 		return nil
 	}
+	tlsConfig = func(ac *actionContext) error {
+		tlsc, err := ac.client.TLSConfig()
+		if err != nil {
+			return err
+		}
+
+		if !tlsc.Equals(ac.origin.tlsConfig) {
+			if err := ac.client.SetTLSConfig(ac.origin.tlsConfig); err != nil {
+				ac.rl.With("enabled", ac.origin.tlsConfig.Enabled, "error", err).Error("error setting tls config")
+				if !ac.cfg.ContinueOnError {
+					return err
+				}
+			}
+		}
+		return nil
+	}
 )
 
 func syncFilterType(

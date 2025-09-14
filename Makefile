@@ -15,6 +15,10 @@ deepcopy-gen: tb.controller-gen
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
 	$(TB_CONTROLLER_GEN) paths=./pkg/types object
 
+.PHONY: docs
+docs:
+	go run docs/main.go
+
 # Run tests
 test: generate lint test-ci
 

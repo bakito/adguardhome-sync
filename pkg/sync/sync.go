@@ -264,6 +264,14 @@ func (w *worker) sync() {
 		}
 	}
 
+	if w.cfg.Features.TLSConfig {
+		o.tlsConfig, err = oc.TLSConfig()
+		if err != nil {
+			sl.With("error", err).Error("Error getting tls config")
+			return
+		}
+	}
+
 	w.actions = setupActions(w.cfg)
 
 	replicas := w.cfg.UniqueReplicas()
@@ -369,4 +377,5 @@ type origin struct {
 	safeSearch              *model.SafeSearchConfig
 	profileInfo             *model.ProfileInfo
 	safeBrowsing            bool
+	tlsConfig               *model.TlsConfig
 }
