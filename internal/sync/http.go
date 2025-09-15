@@ -37,31 +37,28 @@ func (w *worker) handleRoot(c *gin.Context) {
 		"Build":      version.Build,
 		"SyncStatus": w.status(),
 		"Stats": map[string]any{
-			"Labels":  getLast24Hours(),
-			"DNS":     dns,
-			"Blocked": blocked,
-			"BlockedPercentage": fmt.Sprintf(
-				"%.2f",
-				(float64(*total.NumBlockedFiltering)*100.0)/float64(*total.NumDnsQueries),
-			),
-			"Malware": malware,
-			"MalwarePercentage": fmt.Sprintf(
-				"%.2f",
-				(float64(*total.NumReplacedSafebrowsing)*100.0)/float64(*total.NumDnsQueries),
-			),
-			"Adult": adult,
-			"AdultPercentage": fmt.Sprintf(
-				"%.2f",
-				(float64(*total.NumReplacedParental)*100.0)/float64(*total.NumDnsQueries),
-			),
-
-			"TotalDNS":     total.NumDnsQueries,
-			"TotalBlocked": total.NumBlockedFiltering,
-			"TotalMalware": total.NumReplacedSafebrowsing,
-			"TotalAdult":   total.NumReplacedParental,
+			"Labels":            getLast24Hours(),
+			"DNS":               dns,
+			"Blocked":           blocked,
+			"BlockedPercentage": percent(total.NumBlockedFiltering, total.NumDnsQueries),
+			"Malware":           malware,
+			"MalwarePercentage": percent(total.NumReplacedSafebrowsing, total.NumDnsQueries),
+			"Adult":             adult,
+			"AdultPercentage":   percent(total.NumReplacedParental, total.NumDnsQueries),
+			"TotalDNS":          total.NumDnsQueries,
+			"TotalBlocked":      total.NumBlockedFiltering,
+			"TotalMalware":      total.NumReplacedSafebrowsing,
+			"TotalAdult":        total.NumReplacedParental,
 		},
 	},
 	)
+}
+
+func percent(a, b *int) string {
+	if a == nil || b == nil || *b == 0 {
+		return "0.00"
+	}
+	return fmt.Sprintf("%.2f", (float64(*a)*100.0)/float64(*b))
 }
 
 func (w *worker) handleLogs(c *gin.Context) {
