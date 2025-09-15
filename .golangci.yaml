@@ -166,6 +166,8 @@ linters:
           disabled: true
         - name: enforce-switch-style
           disabled: true
+        - name: blank-imports
+          disabled: true
     staticcheck:
       checks:
        - 'all'
