@@ -102,8 +102,6 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 			"Do not use single replica and numbered (list) replica config combined")
 	}
 
-	handleDeprecatedEnvVars(cfg)
-
 	if cfg.Replica != nil {
 		cfg.Replicas = []types.AdGuardInstance{*cfg.Replica}
 		cfg.Replica = nil
