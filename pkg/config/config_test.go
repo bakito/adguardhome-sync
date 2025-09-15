@@ -233,16 +233,6 @@ var _ = Describe("Config", func() {
 					Ω(err).ShouldNot(HaveOccurred())
 					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
 				})
-				It("should have the feature dns server config from the config DEPRECATED env var", func() {
-					setEnv("FEATURES_DNS_SERVERCONFIG", "false")
-					flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
-				})
 			})
 
 			Context("Headers", func() {
