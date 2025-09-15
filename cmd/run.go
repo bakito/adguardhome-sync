@@ -3,9 +3,9 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/bakito/adguardhome-sync/pkg/config"
-	"github.com/bakito/adguardhome-sync/pkg/log"
-	"github.com/bakito/adguardhome-sync/pkg/sync"
+	"github.com/bakito/adguardhome-sync/internal/config"
+	"github.com/bakito/adguardhome-sync/internal/log"
+	"github.com/bakito/adguardhome-sync/internal/sync"
 )
 
 // runCmd represents the run command.

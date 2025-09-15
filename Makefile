@@ -13,7 +13,7 @@ generate: model mocks deepcopy-gen
 deepcopy-gen: tb.controller-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
-	$(TB_CONTROLLER_GEN) paths=./pkg/types object
+	$(TB_CONTROLLER_GEN) paths=./internal/types object
 
 .PHONY: docs
 docs:
@@ -23,7 +23,7 @@ docs:
 test: generate lint test-ci
 
 fuzz:
-	 go test -fuzz=FuzzMask -v ./pkg/types/ -fuzztime=60s
+	 go test -fuzz=FuzzMask -v ./internal/types/ -fuzztime=60s
 
 # Run ci tests
 test-ci: mocks tidy tb.ginkgo
@@ -32,8 +32,8 @@ test-ci: mocks tidy tb.ginkgo
 	go tool cover -func=coverage.out
 
 mocks: tb.mockgen
-	$(TB_MOCKGEN) -package client -destination pkg/mocks/client/mock.go github.com/bakito/adguardhome-sync/pkg/client Client
-	$(TB_MOCKGEN) -package client -destination pkg/mocks/flags/mock.go github.com/bakito/adguardhome-sync/pkg/config Flags
+	$(TB_MOCKGEN) -package client -destination internal/mocks/client/mock.go github.com/bakito/adguardhome-sync/internal/client Client
+	$(TB_MOCKGEN) -package client -destination internal/mocks/flags/mock.go github.com/bakito/adguardhome-sync/internal/config Flags
 
 release: tb.semver tb.goreleaser
 	@version=$$($(TB_SEMVER)); \
@@ -80,7 +80,7 @@ ADGUARD_HOME_VERSION ?= v0.107.65
 model: tb.oapi-codegen
 	@mkdir -p tmp
 	go run openapi/main.go $(ADGUARD_HOME_VERSION)
-	$(TB_OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > pkg/client/model/model_generated.go
+	$(TB_OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > internal/client/model/model_generated.go
 
 model-diff:
 	go run openapi/main.go $(ADGUARD_HOME_VERSION)
