@@ -26,14 +26,7 @@ func main() {
 	var buf strings.Builder
 	_, _ = buf.WriteString("| Name | Type | Description |\n")
 	_, _ = buf.WriteString("| :--- | ---- |:----------- |\n")
-	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	printEnvTags(reflect.TypeOf(types.Config{}), "")
-	_ = w.Close()
-	envDoc, _ := io.ReadAll(r)
-	os.Stdout = oldStdout
-	_, _ = buf.Write(envDoc)
+	printEnvTags(&buf, reflect.TypeOf(types.Config{}), "")
 
 	// Find the markers and replace content between them
 	startMarker := "<!-- env-doc-start -->"
@@ -57,7 +50,7 @@ func main() {
 }
 
 // printEnvTags recursively prints all fields with `env` tags.
-func printEnvTags(t reflect.Type, prefix string) {
+func printEnvTags(w io.Writer, t reflect.Type, prefix string) {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
@@ -92,12 +85,12 @@ func printEnvTags(t reflect.Type, prefix string) {
 		}
 
 		if ft.Kind() == reflect.Struct && ft.Name() != "Time" { // skip time.Time
-			printEnvTags(ft, strings.TrimSuffix(combinedTag, "_"))
+			printEnvTags(w, ft, strings.TrimSuffix(combinedTag, "_"))
 		} else if envTag != "" {
 			envVar := strings.Trim(combinedTag, "_") + " (" + ft.Kind().String() + ")"
 			docs := field.Tag.Get("documentation")
 
-			_, _ = fmt.Printf("| %s | %s | %s |\n", envVar, ft.Kind().String(), docs)
+			_, _ = fmt.Fprintf(w, "| %s | %s | %s |\n", envVar, ft.Kind().String(), docs)
 		}
 	}
 }
