@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/bakito/adguardhome-sync/pkg/log"
+	"github.com/bakito/adguardhome-sync/internal/log"
 	"github.com/bakito/adguardhome-sync/version"
 )
 

@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/bakito/adguardhome-sync/pkg/types"
+	"github.com/bakito/adguardhome-sync/internal/types"
 )
 
 func main() {
