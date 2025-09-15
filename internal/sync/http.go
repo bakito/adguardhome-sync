@@ -18,16 +18,8 @@ import (
 
 	"github.com/bakito/adguardhome-sync/internal/log"
 	"github.com/bakito/adguardhome-sync/internal/metrics"
+	"github.com/bakito/adguardhome-sync/internal/sync/static"
 	"github.com/bakito/adguardhome-sync/version"
-)
-
-var (
-	//go:embed index.html
-	index []byte
-	//go:embed favicon.ico
-	favicon []byte
-	//go:embed logo.svg
-	logo []byte
 )
 
 func (w *worker) handleSync(c *gin.Context) {
@@ -70,14 +62,6 @@ func (w *worker) handleRoot(c *gin.Context) {
 		},
 	},
 	)
-}
-
-func (w *worker) handleFavicon(c *gin.Context) {
-	c.Data(http.StatusOK, "image/x-icon", favicon)
-}
-
-func (w *worker) handleLogo(c *gin.Context) {
-	c.Data(http.StatusOK, "image/svg+xml", logo)
 }
 
 func (w *worker) handleLogs(c *gin.Context) {
@@ -137,8 +121,7 @@ func (w *worker) listenAndServe() {
 	group.GET("/api/v1/logs", w.handleLogs)
 	group.POST("/api/v1/clear-logs", w.handleClearLogs)
 	group.GET("/api/v1/status", w.handleStatus)
-	group.GET("/favicon.ico", w.handleFavicon)
-	group.GET("/logo.svg", w.handleLogo)
+	static.HandleResources(group, w.cfg.API.DarkMode)
 	group.GET("/", w.handleRoot)
 	if w.cfg.API.Metrics.Enabled {
 		group.GET("/metrics", metrics.Handler())
@@ -153,7 +136,7 @@ func (w *worker) listenAndServe() {
 		ReadHeaderTimeout: 1 * time.Second,
 	}
 
-	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(string(index))))
+	r.SetHTMLTemplate(template.Must(template.New("index.html").Parse(static.Index())))
 
 	go func() {
 		var err error
