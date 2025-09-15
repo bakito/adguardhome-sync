@@ -22,7 +22,7 @@ func NewFeatures(enabled bool) Features {
 		Services:        enabled,
 		Filters:         enabled,
 		Theme:           enabled,
-		TLSConfig:       enabled,
+		TLSConfig:       false,
 	}
 }
 

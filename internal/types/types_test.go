@@ -106,7 +106,7 @@ var _ = Describe("Types", func() {
 			})
 			It("should log no features", func() {
 				f := NewFeatures(true)
-				Ω(f.collectDisabled()).Should(BeEmpty())
+				Ω(f.collectDisabled()).Should(HaveLen(1))
 			})
 		})
 	})
