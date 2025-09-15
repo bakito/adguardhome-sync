@@ -212,7 +212,7 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | REPLICA#_INTERFACE_NAME (string) | string | Network interface name |
 | REPLICA#_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
 | CRON (string) | string | Cron expression for the sync interval |
-| RUN_ON_START (bool) | bool | Run the sung on startup |
+| RUN_ON_START (bool) | bool | Run the sync on startup |
 | PRINT_CONFIG_ONLY (bool) | bool | Print current config only and stop the application |
 | CONTINUE_ON_ERROR (bool) | bool | Continue sync on errors |
 | API_PORT (int) | int | API port |
