@@ -215,7 +215,7 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | RUN_ON_START (bool) | bool | Run the sync on startup |
 | PRINT_CONFIG_ONLY (bool) | bool | Print current config only and stop the application |
 | CONTINUE_ON_ERROR (bool) | bool | Continue sync on errors |
-| API_PORT (int) | int | API port |
+| API_PORT (int) | int | API port (API is disabled if port is set to 0) |
 | API_USERNAME (string) | string | API username |
 | API_PASSWORD (string) | string | API password |
 | API_DARK_MODE (bool) | bool | API dark mode |
