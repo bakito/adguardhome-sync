@@ -17,7 +17,7 @@ deepcopy-gen: tb.controller-gen
 
 .PHONY: docs
 docs:
-	go run docs/main.go
+	go run cmd/docs/main.go
 
 # Run tests
 test: generate lint test-ci
@@ -79,12 +79,12 @@ ADGUARD_HOME_VERSION ?= v0.107.66
 
 model: tb.oapi-codegen
 	@mkdir -p tmp
-	go run openapi/main.go $(ADGUARD_HOME_VERSION)
+	go run cmd/openapi/main.go $(ADGUARD_HOME_VERSION)
 	$(TB_OAPI_CODEGEN) -package model -generate types,client -config .oapi-codegen.yaml tmp/schema.yaml > internal/client/model/model_generated.go
 
 model-diff:
-	go run openapi/main.go $(ADGUARD_HOME_VERSION)
-	go run openapi/main.go
+	go run cmd/openapi/main.go $(ADGUARD_HOME_VERSION)
+	go run cmd/openapi/main.go
 	diff tmp/schema.yaml tmp/schema-master.yaml
 
 zellij:
