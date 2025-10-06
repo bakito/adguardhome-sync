@@ -8,5 +8,5 @@ replica:
 mode: env
 
 kubectl:
-  repository: bitnami/kubectl
-  tag: "1.30"
+  repository: bitnamisecure/kubectl
+  tag: "latest"
