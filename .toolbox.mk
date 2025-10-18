@@ -19,6 +19,7 @@ TB_GORELEASER ?= $(TB_LOCALBIN)/goreleaser
 TB_MOCKGEN ?= $(TB_LOCALBIN)/mockgen
 TB_OAPI_CODEGEN ?= $(TB_LOCALBIN)/oapi-codegen
 TB_SEMVER ?= $(TB_LOCALBIN)/semver
+TB_SYFT ?= $(TB_LOCALBIN)/syft
 
 ## Tool Versions
 # renovate: packageName=github.com/kubernetes-sigs/controller-tools
@@ -36,6 +37,9 @@ TB_OAPI_CODEGEN_VERSION ?= v2.5.0
 # renovate: packageName=github.com/bakito/semver
 TB_SEMVER_VERSION ?= v1.1.7
 TB_SEMVER_VERSION_NUM ?= $(call STRIP_V,$(TB_SEMVER_VERSION))
+# renovate: packageName=github.com/anchore/syft/cmd/syft
+TB_SYFT_VERSION ?= v1.34.2
+TB_SYFT_VERSION_NUM ?= $(call STRIP_V,$(TB_SYFT_VERSION))
 
 ## Tool Installer
 .PHONY: tb.controller-gen
@@ -66,6 +70,10 @@ tb.oapi-codegen: ## Download oapi-codegen locally if necessary.
 tb.semver: ## Download semver locally if necessary.
 	@test -s $(TB_SEMVER) && $(TB_SEMVER) -version | grep -q $(TB_SEMVER_VERSION_NUM) || \
 		GOBIN=$(TB_LOCALBIN) go install github.com/bakito/semver@$(TB_SEMVER_VERSION)
+.PHONY: tb.syft
+tb.syft: ## Download syft locally if necessary.
+	@test -s $(TB_SYFT) && $(TB_SYFT) --version | grep -q $(TB_SYFT_VERSION_NUM) || \
+		GOBIN=$(TB_LOCALBIN) go install github.com/anchore/syft/cmd/syft@$(TB_SYFT_VERSION)
 
 ## Reset Tools
 .PHONY: tb.reset
@@ -77,7 +85,8 @@ tb.reset:
 		$(TB_GORELEASER) \
 		$(TB_MOCKGEN) \
 		$(TB_OAPI_CODEGEN) \
-		$(TB_SEMVER)
+		$(TB_SEMVER) \
+		$(TB_SYFT)
 
 ## Update Tools
 .PHONY: tb.update
@@ -88,5 +97,6 @@ tb.update: tb.reset
 		github.com/goreleaser/goreleaser/v2?--version \
 		go.uber.org/mock/mockgen@github.com/uber-go/mock \
 		github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen \
-		github.com/bakito/semver?-version
+		github.com/bakito/semver?-version \
+		github.com/anchore/syft/cmd/syft?--version
 ## toolbox - end

@@ -50,3 +50,5 @@ changelog:
       - '^chore'
 release:
   prerelease: auto
+sboms:
+  - artifacts: archive

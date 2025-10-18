@@ -35,13 +35,13 @@ mocks: tb.mockgen
 	$(TB_MOCKGEN) -package client -destination internal/mocks/client/mock.go github.com/bakito/adguardhome-sync/internal/client Client
 	$(TB_MOCKGEN) -package client -destination internal/mocks/flags/mock.go github.com/bakito/adguardhome-sync/internal/config Flags
 
-release: tb.semver tb.goreleaser
+release: tb.semver tb.goreleaser tb.syft
 	@version=$$($(TB_SEMVER)); \
 	git tag -s $$version -m"Release $$version"
-	$(TB_GORELEASER) --clean --parallelism 2
+	PATH=$(TB_LOCALBIN):$${PATH} $$(TB_GORELEASER) --clean --parallelism 2
 
-test-release: tb.goreleaser
-	$(TB_GORELEASER) --skip=publish --snapshot --clean --parallelism 2
+test-release: tb.goreleaser tb.syft
+	PATH=$(TB_LOCALBIN):$${PATH} $(TB_GORELEASER) --skip=publish --snapshot --clean --parallelism 2
 
 start-replica:
 	docker rm -f adguardhome-replica
