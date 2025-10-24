@@ -195,6 +195,9 @@ type AddressesInfo struct {
 
 // BlockedService defines model for BlockedService.
 type BlockedService struct {
+	// GroupId The ID of the group, that the service belongs to.
+	GroupId *string `json:"group_id,omitempty"`
+
 	// IconSvg The SVG icon as a Base64-encoded string to make it easier to embed it into a data URL.
 	IconSvg string `json:"icon_svg"`
 
@@ -211,6 +214,7 @@ type BlockedService struct {
 // BlockedServicesAll defines model for BlockedServicesAll.
 type BlockedServicesAll struct {
 	BlockedServices []BlockedService `json:"blocked_services"`
+	Groups          interface{}      `json:"groups"`
 }
 
 // BlockedServicesArray defines model for BlockedServicesArray.
@@ -926,10 +930,19 @@ type RewriteEntry struct {
 
 	// Domain Domain name
 	Domain *string `json:"domain,omitempty"`
+
+	// Enabled Optional. If omitted on add, defaults to `true`. On update, omitted preserves previous value.
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // RewriteList Rewrite rules array
 type RewriteList = []RewriteEntry
+
+// RewriteSettings DNS rewrite settings
+type RewriteSettings struct {
+	// Enabled indicates whether rewrites are applied
+	Enabled bool `json:"enabled"`
+}
 
 // RewriteUpdate Rewrite rule update object
 type RewriteUpdate struct {
@@ -990,6 +1003,12 @@ type ServerStatus struct {
 	ProtectionEnabled          bool     `json:"protection_enabled"`
 	Running                    bool     `json:"running"`
 	Version                    string   `json:"version"`
+}
+
+// ServiceGroup defines model for ServiceGroup.
+type ServiceGroup struct {
+	// Id The ID of this group.
+	Id string `json:"id"`
 }
 
 // SetProtectionRequest Protection state configuration
@@ -1172,6 +1191,9 @@ type DhcpStaticLeaseBody = DhcpStaticLease
 // RewriteEntryBody Rewrite rule
 type RewriteEntryBody = RewriteEntry
 
+// RewriteSettingsBody DNS rewrite settings
+type RewriteSettingsBody = RewriteSettings
+
 // RewriteUpdateBody Rewrite rule update object
 type RewriteUpdateBody = RewriteUpdate
 
@@ -1322,6 +1344,9 @@ type RewriteAddJSONRequestBody = RewriteEntry
 
 // RewriteDeleteJSONRequestBody defines body for RewriteDelete for application/json ContentType.
 type RewriteDeleteJSONRequestBody = RewriteEntry
+
+// RewriteSettingsUpdateJSONRequestBody defines body for RewriteSettingsUpdate for application/json ContentType.
+type RewriteSettingsUpdateJSONRequestBody = RewriteSettings
 
 // RewriteUpdateJSONRequestBody defines body for RewriteUpdate for application/json ContentType.
 type RewriteUpdateJSONRequestBody = RewriteUpdate
@@ -1719,6 +1744,14 @@ type ClientInterface interface {
 
 	// RewriteList request
 	RewriteList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RewriteSettingsGet request
+	RewriteSettingsGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RewriteSettingsUpdateWithBody request with any body
+	RewriteSettingsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RewriteSettingsUpdate(ctx context.Context, body RewriteSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RewriteUpdateWithBody request with any body
 	RewriteUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2834,6 +2867,42 @@ func (c *AdguardHomeClient) RewriteDelete(ctx context.Context, body RewriteDelet
 
 func (c *AdguardHomeClient) RewriteList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRewriteListRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteSettingsGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteSettingsGetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteSettingsUpdateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteSettingsUpdateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *AdguardHomeClient) RewriteSettingsUpdate(ctx context.Context, body RewriteSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRewriteSettingsUpdateRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5361,6 +5430,73 @@ func NewRewriteListRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewRewriteSettingsGetRequest generates requests for RewriteSettingsGet
+func NewRewriteSettingsGetRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/rewrite/settings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRewriteSettingsUpdateRequest calls the generic RewriteSettingsUpdate builder with application/json body
+func NewRewriteSettingsUpdateRequest(server string, body RewriteSettingsUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRewriteSettingsUpdateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRewriteSettingsUpdateRequestWithBody generates requests for RewriteSettingsUpdate with any type of body
+func NewRewriteSettingsUpdateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/rewrite/settings/update")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewRewriteUpdateRequest calls the generic RewriteUpdate builder with application/json body
 func NewRewriteUpdateRequest(server string, body RewriteUpdateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -6306,6 +6442,14 @@ type ClientWithResponsesInterface interface {
 
 	// RewriteListWithResponse request
 	RewriteListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RewriteListResp, error)
+
+	// RewriteSettingsGetWithResponse request
+	RewriteSettingsGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RewriteSettingsGetResp, error)
+
+	// RewriteSettingsUpdateWithBodyWithResponse request with any body
+	RewriteSettingsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteSettingsUpdateResp, error)
+
+	RewriteSettingsUpdateWithResponse(ctx context.Context, body RewriteSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteSettingsUpdateResp, error)
 
 	// RewriteUpdateWithBodyWithResponse request with any body
 	RewriteUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteUpdateResp, error)
@@ -7643,6 +7787,49 @@ func (r RewriteListResp) StatusCode() int {
 	return 0
 }
 
+type RewriteSettingsGetResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *RewriteSettings
+}
+
+// Status returns HTTPResponse.Status
+func (r RewriteSettingsGetResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RewriteSettingsGetResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RewriteSettingsUpdateResp struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RewriteSettingsUpdateResp) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RewriteSettingsUpdateResp) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RewriteUpdateResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -8849,6 +9036,32 @@ func (c *ClientWithResponses) RewriteListWithResponse(ctx context.Context, reqEd
 		return nil, err
 	}
 	return ParseRewriteListResp(rsp)
+}
+
+// RewriteSettingsGetWithResponse request returning *RewriteSettingsGetResp
+func (c *ClientWithResponses) RewriteSettingsGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*RewriteSettingsGetResp, error) {
+	rsp, err := c.RewriteSettingsGet(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteSettingsGetResp(rsp)
+}
+
+// RewriteSettingsUpdateWithBodyWithResponse request with arbitrary body returning *RewriteSettingsUpdateResp
+func (c *ClientWithResponses) RewriteSettingsUpdateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RewriteSettingsUpdateResp, error) {
+	rsp, err := c.RewriteSettingsUpdateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteSettingsUpdateResp(rsp)
+}
+
+func (c *ClientWithResponses) RewriteSettingsUpdateWithResponse(ctx context.Context, body RewriteSettingsUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*RewriteSettingsUpdateResp, error) {
+	rsp, err := c.RewriteSettingsUpdate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRewriteSettingsUpdateResp(rsp)
 }
 
 // RewriteUpdateWithBodyWithResponse request with arbitrary body returning *RewriteUpdateResp
@@ -10371,6 +10584,48 @@ func ParseRewriteListResp(rsp *http.Response) (*RewriteListResp, error) {
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseRewriteSettingsGetResp parses an HTTP response from a RewriteSettingsGetWithResponse call
+func ParseRewriteSettingsGetResp(rsp *http.Response) (*RewriteSettingsGetResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RewriteSettingsGetResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest RewriteSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRewriteSettingsUpdateResp parses an HTTP response from a RewriteSettingsUpdateWithResponse call
+func ParseRewriteSettingsUpdateResp(rsp *http.Response) (*RewriteSettingsUpdateResp, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RewriteSettingsUpdateResp{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
