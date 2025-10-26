@@ -22,12 +22,11 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - 'name': 'Set up tools cache'
-        'uses': 'actions/cache@v4'
-        'with':
-          'path': "${{ github.workspace }}/bin"
-          'key': "${{ runner.os }}-${{ github.job }}-tools-${{ hashFiles('.toolbox.mk') }}"
-          'restore-keys': '${{ runner.os }}-${{ github.job }}-tools-'
+      - name: Cache toolbox binaries
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/bin
+          key: ${{ runner.os }}-${{ github.job }}-tools-${{ hashFiles('.toolbox.mk') }}
 
       - name: Lint
         run: make lint
@@ -49,12 +48,11 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - 'name': 'Set up tools cache'
-        'uses': 'actions/cache@v4'
-        'with':
-          'path': "${{ github.workspace }}/bin"
-          'key': "${{ runner.os }}-${{ github.job }}-tools-${{ hashFiles('.toolbox.mk') }}"
-          'restore-keys': '${{ runner.os }}-${{ github.job }}-tools-'
+      - name: Cache toolbox binaries
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/bin
+          key: ${{ runner.os }}-${{ github.job }}-tools-${{ hashFiles('.toolbox.mk') }}
 
       - name: Model
         run: make model
@@ -82,13 +80,11 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - 'name': 'Set up tools cache'
-        'uses': 'actions/cache@v4'
-        'with':
-          'path': "${{ github.workspace }}/bin"
-          'key': "${{ runner.os }}-${{ github.job }}-tools-${{ hashFiles('.toolbox.mk') }}"
-          'restore-keys': '${{ runner.os }}-${{ github.job }}-tools-'
+      - name: Cache toolbox binaries
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/bin
+          key: ${{ runner.os }}-${{ github.job }}-tools-${{ hashFiles('.toolbox.mk') }}
 
       - name: Run GoReleaser
         run: make test-release
-        
