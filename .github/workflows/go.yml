@@ -37,7 +37,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        
     steps:
 
       - name: Check out code into the Go module directory
