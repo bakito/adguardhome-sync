@@ -91,3 +91,4 @@ jobs:
 
       - name: Run GoReleaser
         run: make test-release
+        
