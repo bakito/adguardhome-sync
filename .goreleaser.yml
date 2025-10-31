@@ -41,7 +41,7 @@ builds:
     hooks:
       post:
         # don't upx windows binaries as they make trouble with virus scanners
-        - bash -c 'if [[ "{{ .Path }}" != *.exe ]] && [[ "{{ .Path }}" != *darwin* ]] && [[ "{{ .Path }}" != *openbsd* ]]; then upx {{ .Path }}; fi'
+        - bash -c 'if [[ "{{ .Path }}" != *.exe ]] && [[ "{{ .Path }}" != *darwin* ]] && [[ "{{ .Path }}" != *openbsd* ]] && [[ "{{ .Path }}" != *riscv* ]]; then upx {{ .Path }}; fi'
 checksum:
   name_template: 'checksums.txt'
 snapshot:
