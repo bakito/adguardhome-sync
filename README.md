@@ -3,8 +3,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/bakito/adguardhome-sync)](https://goreportcard.com/report/github.com/bakito/adguardhome-sync)
 [![Coverage Status](https://coveralls.io/repos/github/bakito/adguardhome-sync/badge.svg?branch=main&service=github)](https://coveralls.io/github/bakito/adguardhome-sync?branch=main)
 
-
-
 # <img src="./media/adguardhome-sync.svg" alt="AdGuardHome sync" width="50"/> AdGuardHome sync
 
 Synchronize [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome) config to replica instances.
@@ -45,7 +43,144 @@ go install github.com/bakito/adguardhome-sync@latest
 
 ## Prerequisites
 
-Both the origin instance and replica(s) must be initially set up with AdguardHome via the AdguardHome installation wizard.
+Both the origin instance and replica(s) must be initially set up with AdguardHome via the AdguardHome installation
+wizard.
+
+
+## Config via environment variables
+
+For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_URL` -> `REPLICA1_URL`
+<!-- env-doc-start -->
+| Name | Type | Description |
+| :--- | ---- |:----------- |
+| CRON (string) | string | Cron expression for the sync interval |
+| RUN_ON_START (bool) | bool | Run the sync on startup |
+| PRINT_CONFIG_ONLY (bool) | bool | Print current config only and stop the application |
+| CONTINUE_ON_ERROR (bool) | bool | Continue sync on errors |
+| ORIGIN_URL (string) | string | URL of adguardhome instance |
+| ORIGIN_WEB_URL (string) | string | Web URL of adguardhome instance |
+| ORIGIN_API_PATH (string) | string | API Path |
+| ORIGIN_USERNAME (string) | string | Adguardhome username |
+| ORIGIN_PASSWORD (string) | string | Adguardhome password |
+| ORIGIN_COOKIE (string) | string | Adguardhome cookie |
+| ORIGIN_REQUEST_HEADERS (map) | map | Request Headers 'key1:value1,key2:value2' |
+| ORIGIN_INSECURE_SKIP_VERIFY (bool) | bool | Skip TLS verification |
+| ORIGIN_AUTO_SETUP (bool) | bool | Automatically setup the instance if it is not initialized |
+| ORIGIN_INTERFACE_NAME (string) | string | Network interface name |
+| ORIGIN_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
+| REPLICA#_URL (string) | string | URL of adguardhome instance |
+| REPLICA#_WEB_URL (string) | string | Web URL of adguardhome instance |
+| REPLICA#_API_PATH (string) | string | API Path |
+| REPLICA#_USERNAME (string) | string | Adguardhome username |
+| REPLICA#_PASSWORD (string) | string | Adguardhome password |
+| REPLICA#_COOKIE (string) | string | Adguardhome cookie |
+| REPLICA#_REQUEST_HEADERS (map) | map | Request Headers 'key1:value1,key2:value2' |
+| REPLICA#_INSECURE_SKIP_VERIFY (bool) | bool | Skip TLS verification |
+| REPLICA#_AUTO_SETUP (bool) | bool | Automatically setup the instance if it is not initialized |
+| REPLICA#_INTERFACE_NAME (string) | string | Network interface name |
+| REPLICA#_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
+| API_PORT (int) | int | API port (API is disabled if port is set to 0) |
+| API_USERNAME (string) | string | API username |
+| API_PASSWORD (string) | string | API password |
+| API_DARK_MODE (bool) | bool | API dark mode |
+| API_METRICS_ENABLED (bool) | bool | Enable metrics |
+| API_METRICS_SCRAPE_INTERVAL (int64) | int64 | Interval for metrics scraping |
+| API_METRICS_QUERY_LOG_LIMIT (int) | int | Metrics log query limit |
+| API_TLS_CERT_DIR (string) | string | API TLS certificate directory |
+| API_TLS_CERT_NAME (string) | string | API TLS certificate file name |
+| API_TLS_KEY_NAME (string) | string | API TLS key file name |
+| FEATURES_DNS_ACCESS_LISTS (bool) | bool | Sync DNS access lists |
+| FEATURES_DNS_SERVER_CONFIG (bool) | bool | Sync DNS server config |
+| FEATURES_DNS_REWRITES (bool) | bool | Sync DNS rewrites |
+| FEATURES_DHCP_SERVER_CONFIG (bool) | bool | Sync DHCP server config |
+| FEATURES_DHCP_STATIC_LEASES (bool) | bool | Sync DHCP static leases |
+| FEATURES_GENERAL_SETTINGS (bool) | bool | Sync general settings |
+| FEATURES_QUERY_LOG_CONFIG (bool) | bool | Sync query log config |
+| FEATURES_STATS_CONFIG (bool) | bool | Sync stats config |
+| FEATURES_CLIENT_SETTINGS (bool) | bool | Sync client settings |
+| FEATURES_SERVICES (bool) | bool | Sync services |
+| FEATURES_FILTERS (bool) | bool | Sync filters |
+| FEATURES_THEME (bool) | bool | Sync the web UI theme |
+| FEATURES_TLS_CONFIG (bool) | bool | Sync the TLS config |
+<!-- env-doc-end -->
+
+### YAML Configuration file
+
+location: $HOME/.adguardhome-sync.yaml
+
+<!-- yaml-doc-start -->
+```yaml
+cron: # (string) Cron expression for the sync interval
+runOnStart: # (bool) Run the sync on startup
+printConfigOnly: # (bool) Print current config only and stop the application
+continueOnError: # (bool) Continue sync on errors
+origin: # (struct) Origin instance
+  url: # (string) URL of adguardhome instance
+  webURL: # (string) Web URL of adguardhome instance
+  apiPath: # (string) API Path
+  username: # (string) Adguardhome username
+  password: # (string) Adguardhome password
+  cookie: # (string) Adguardhome cookie
+  requestHeaders: # (map) Request Headers 'key1:value1,key2:value2'
+  insecureSkipVerify: # (bool) Skip TLS verification
+  autoSetup: # (bool) Automatically setup the instance if it is not initialized
+  interfaceName: # (string) Network interface name
+  dhcpServerEnabled: # (bool) Enable DHCP server
+replica: # (struct) Single or replica instance (don't use in combination with replicas')
+  url: # (string) URL of adguardhome instance
+  webURL: # (string) Web URL of adguardhome instance
+  apiPath: # (string) API Path
+  username: # (string) Adguardhome username
+  password: # (string) Adguardhome password
+  cookie: # (string) Adguardhome cookie
+  requestHeaders: # (map) Request Headers 'key1:value1,key2:value2'
+  insecureSkipVerify: # (bool) Skip TLS verification
+  autoSetup: # (bool) Automatically setup the instance if it is not initialized
+  interfaceName: # (string) Network interface name
+  dhcpServerEnabled: # (bool) Enable DHCP server
+replicas: # (struct) List or replica instances (don't use in combination with replicas')
+  - url: # (string) URL of adguardhome instance
+    webURL: # (string) Web URL of adguardhome instance
+    apiPath: # (string) API Path
+    username: # (string) Adguardhome username
+    password: # (string) Adguardhome password
+    cookie: # (string) Adguardhome cookie
+    requestHeaders: # (map) Request Headers 'key1:value1,key2:value2'
+    insecureSkipVerify: # (bool) Skip TLS verification
+    autoSetup: # (bool) Automatically setup the instance if it is not initialized
+    interfaceName: # (string) Network interface name
+    dhcpServerEnabled: # (bool) Enable DHCP server
+api: # (struct) 
+  port: # (int) API port (API is disabled if port is set to 0)
+  username: # (string) API username
+  password: # (string) API password
+  darkMode: # (bool) API dark mode
+  metrics: # (struct) 
+    enabled: # (bool) Enable metrics
+    scrapeInterval: # (int64) Interval for metrics scraping
+    queryLogLimit: # (int) Metrics log query limit
+  tls: # (struct) 
+    certDir: # (string) API TLS certificate directory
+    certName: # (string) API TLS certificate file name
+    keyName: # (string) API TLS key file name
+features: # (struct) 
+  dns: # (struct) 
+    accessLists: # (bool) Sync DNS access lists
+    serverConfig: # (bool) Sync DNS server config
+    rewrites: # (bool) Sync DNS rewrites
+  dhcp: # (struct) 
+    serverConfig: # (bool) Sync DHCP server config
+    staticLeases: # (bool) Sync DHCP static leases
+  generalSettings: # (bool) Sync general settings
+  queryLogConfig: # (bool) Sync query log config
+  statsConfig: # (bool) Sync stats config
+  clientSettings: # (bool) Sync client settings
+  services: # (bool) Sync services
+  filters: # (bool) Sync filters
+  theme: # (bool) Sync the web UI theme
+  tlsConfig: # (bool) Sync the TLS config
+```
+<!-- yaml-doc-end -->
 
 ## Username / Password vs. Cookie
 
@@ -183,153 +318,13 @@ services:
     restart: unless-stopped
 ```
 
-## Config via environment variables
+## Unraid
 
-For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_URL` -> `REPLICA1_URL`
-<!-- env-doc-start -->
-| Name | Type | Description |
-| :--- | ---- |:----------- |
-| ORIGIN_URL (string) | string | URL of adguardhome instance |
-| ORIGIN_WEB_URL (string) | string | Web URL of adguardhome instance |
-| ORIGIN_API_PATH (string) | string | API Path |
-| ORIGIN_USERNAME (string) | string | Adguardhome username |
-| ORIGIN_PASSWORD (string) | string | Adguardhome password |
-| ORIGIN_COOKIE (string) | string | Adguardhome cookie |
-| ORIGIN_REQUEST_HEADERS (map) | map | Request Headers 'key1:value1,key2:value2' |
-| ORIGIN_INSECURE_SKIP_VERIFY (bool) | bool | Skip TLS verification |
-| ORIGIN_AUTO_SETUP (bool) | bool | Automatically setup the instance if it is not initialized |
-| ORIGIN_INTERFACE_NAME (string) | string | Network interface name |
-| ORIGIN_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
-| REPLICA#_URL (string) | string | URL of adguardhome instance |
-| REPLICA#_WEB_URL (string) | string | Web URL of adguardhome instance |
-| REPLICA#_API_PATH (string) | string | API Path |
-| REPLICA#_USERNAME (string) | string | Adguardhome username |
-| REPLICA#_PASSWORD (string) | string | Adguardhome password |
-| REPLICA#_COOKIE (string) | string | Adguardhome cookie |
-| REPLICA#_REQUEST_HEADERS (map) | map | Request Headers 'key1:value1,key2:value2' |
-| REPLICA#_INSECURE_SKIP_VERIFY (bool) | bool | Skip TLS verification |
-| REPLICA#_AUTO_SETUP (bool) | bool | Automatically setup the instance if it is not initialized |
-| REPLICA#_INTERFACE_NAME (string) | string | Network interface name |
-| REPLICA#_DHCP_SERVER_ENABLED (bool) | bool | Enable DHCP server |
-| CRON (string) | string | Cron expression for the sync interval |
-| RUN_ON_START (bool) | bool | Run the sync on startup |
-| PRINT_CONFIG_ONLY (bool) | bool | Print current config only and stop the application |
-| CONTINUE_ON_ERROR (bool) | bool | Continue sync on errors |
-| API_PORT (int) | int | API port (API is disabled if port is set to 0) |
-| API_USERNAME (string) | string | API username |
-| API_PASSWORD (string) | string | API password |
-| API_DARK_MODE (bool) | bool | API dark mode |
-| API_METRICS_ENABLED (bool) | bool | Enable metrics |
-| API_METRICS_SCRAPE_INTERVAL (int64) | int64 | Interval for metrics scraping |
-| API_METRICS_QUERY_LOG_LIMIT (int) | int | Metrics log query limit |
-| API_TLS_CERT_DIR (string) | string | API TLS certificate directory |
-| API_TLS_CERT_NAME (string) | string | API TLS certificate file name |
-| API_TLS_KEY_NAME (string) | string | API TLS key file name |
-| FEATURES_DNS_ACCESS_LISTS (bool) | bool | Sync DNS access lists |
-| FEATURES_DNS_SERVER_CONFIG (bool) | bool | Sync DNS server config |
-| FEATURES_DNS_REWRITES (bool) | bool | Sync DNS rewrites |
-| FEATURES_DHCP_SERVER_CONFIG (bool) | bool | Sync DHCP server config |
-| FEATURES_DHCP_STATIC_LEASES (bool) | bool | Sync DHCP static leases |
-| FEATURES_GENERAL_SETTINGS (bool) | bool | Sync general settings |
-| FEATURES_QUERY_LOG_CONFIG (bool) | bool | Sync query log config |
-| FEATURES_STATS_CONFIG (bool) | bool | Sync stats config |
-| FEATURES_CLIENT_SETTINGS (bool) | bool | Sync client settings |
-| FEATURES_SERVICES (bool) | bool | Sync services |
-| FEATURES_FILTERS (bool) | bool | Sync filters |
-| FEATURES_THEME (bool) | bool | Sync the web UI theme |
-| FEATURES_TLS_CONFIG (bool) | bool | Sync the TLS config |
-<!-- env-doc-end -->
+⚠️ Disclaimer: There exists an unraid template for this application. This project does not manage this template.
+Also, as unraid is not known to me, I cannot give any support on unraind templates.
 
-### Unraid
-
-⚠️ Disclaimer: Tere exists an unraid tepmlate for this application. This template is not managed by this project.
-Also, as unraid is not known to me, I can not give any support on unraind templates.
-
-Note when running the Docker container in Unraid please remove unneeded env variables if don't needed.
-If replica2 isn't used this can cause sync errors.
-
-### Config file
-
-location: $HOME/.adguardhome-sync.yaml
-
-```yaml
-# cron expression to run in daemon mode. (default; "" = runs only once)
-cron: "0 */2 * * *"
-
-# runs the synchronisation on startup
-runOnStart: true
-
-# If enabled, the synchronisation task will not fail on single errors, but will log the errors and continue
-continueOnError: false
-
-origin:
-  # url of the origin instance
-  url: https://192.168.1.2:3000
-  # apiPath: define an api path if other than "/control"
-  # insecureSkipVerify: true # disable tls check
-  username: username
-  password: password
-  # cookie: Origin-Cookie-Name=CCCOOOKKKIIIEEE
-  # requestHeaders: # Additional request headers
-  #   AAA: bbb
-
-# replicas instances
-replicas:
-  # url of the replica instance
-  - url: http://192.168.1.3
-    username: username
-    password: password
-    # cookie: Replica1-Cookie-Name=CCCOOOKKKIIIEEE
-  - url: http://192.168.1.4
-    username: username
-    password: password
-    # cookie: Replica2-Cookie-Name=CCCOOOKKKIIIEEE
-    # autoSetup: true # if true, AdGuardHome is automatically initialized.
-    # webURL: "https://some-other.url" # used in the web interface (default: <replica-url>
-    # requestHeaders: # Additional request headers
-    #   AAA: bbb
-
-# Configure the sync API server, disabled if api port is 0
-api:
-  # Port, default 8080
-  port: 8080
-  # if username and password are defined, basic auth is applied to the sync API
-  username: username
-  password: password
-  # enable api dark mode
-  darkMode: true
-
-  # enable metrics on path '/metrics' (api port must be != 0)
-  # metrics:
-  #   enabled: true
-  #   scrapeInterval: 30s 
-  #   queryLogLimit: 10000
-
-  # enable tls for the api server
-  # tls:
-  #   # the directory of the provided tls certs
-  #   certDir: /path/to/certs
-  #   # the name of the cert file (default: tls.crt)
-  #   certName: foo.crt
-  #   # the name of the key file (default: tls.key)
-  #   keyName: bar.key
-
-# Configure sync features; by default all features are enabled.
-features:
-  generalSettings: true
-  queryLogConfig: true
-  statsConfig: true
-  clientSettings: true
-  services: true
-  filters: true
-  dhcp:
-    serverConfig: true
-    staticLeases: true
-  dns:
-    serverConfig: true
-    accessLists: true
-    rewrites: true
-```
+Note when running the Docker container in Unraid please remove unneeded env variables.
+If replica2 isn't used, this can cause sync errors.
 
 ## Home Assistant AdGuard Home Add-on users
 
