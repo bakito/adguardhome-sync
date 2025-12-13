@@ -44,8 +44,21 @@ builds:
         - bash -c 'if [[ "{{ .Path }}" != *.exe ]] && [[ "{{ .Path }}" != *darwin* ]] && [[ "{{ .Path }}" != *openbsd* ]] && [[ "{{ .Path }}" != *riscv* ]]; then upx {{ .Path }}; fi'
 checksum:
   name_template: 'checksums.txt'
+
+archives:
+  - id: default
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - LICENSE
+      - README.md
+
 snapshot:
-  version_template: "{{ .Tag }}-next"
+  version_template: "{{ .Version }}-next"
 changelog:
   sort: asc
   filters:
@@ -57,3 +70,11 @@ release:
   prerelease: auto
 sboms:
   - artifacts: archive
+
+homebrew_casks:
+  - name: adguardhome-sync
+    homepage: "https://github.com/bakito/adguardhome-sync"
+    description: "Synchronize AdGuard Home config to replicas"
+    repository:
+      owner: "bakito"
+      name: "homebrew-tap"

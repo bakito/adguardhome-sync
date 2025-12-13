@@ -1002,7 +1002,10 @@ type ServerStatus struct {
 	ProtectionDisabledDuration *int64   `json:"protection_disabled_duration,omitempty"`
 	ProtectionEnabled          bool     `json:"protection_enabled"`
 	Running                    bool     `json:"running"`
-	Version                    string   `json:"version"`
+
+	// StartTime Start time of the web API server (Unix time in milliseconds).
+	StartTime *float64 `json:"start_time,omitempty"`
+	Version   string   `json:"version"`
 }
 
 // ServiceGroup defines model for ServiceGroup.

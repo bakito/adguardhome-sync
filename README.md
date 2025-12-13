@@ -41,6 +41,16 @@ Get from [releases](https://github.com/bakito/adguardhome-sync/releases) or inst
 go install github.com/bakito/adguardhome-sync@latest
 ```
 
+### Brew
+
+```bash
+# Add the tap
+brew tap bakito/tap
+
+# install
+brew install --cask adguardhome-sync
+```
+
 ## Prerequisites
 
 Both the origin instance and replica(s) must be initially set up with AdguardHome via the AdguardHome installation
