@@ -178,10 +178,11 @@ var (
 			return err
 		}
 
-		// dc.Sanitize(ac.rl)
+		desired := ac.origin.dnsConfig.Clone()
+		desired.Sanitize(ac.rl)
 
-		if !dc.Equals(ac.origin.dnsConfig) {
-			if err = ac.client.SetDNSConfig(ac.origin.dnsConfig); err != nil {
+		if !dc.Equals(desired) {
+			if err = ac.client.SetDNSConfig(desired); err != nil {
 				return err
 			}
 		}
