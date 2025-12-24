@@ -50,6 +50,7 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 	if cl.client.UserInfo != nil {
 		rl = rl.With("username", cl.client.UserInfo.Username)
 	}
+	req.ForceContentType("application/json")
 	b, _ := json.Marshal(req.Body)
 	rl.With("body", string(b)).Debug("do post")
 	resp, err := req.Post(url)
@@ -76,6 +77,7 @@ func (cl *client) doPut(req *resty.Request, url string) error {
 	if cl.client.UserInfo != nil {
 		rl = rl.With("username", cl.client.UserInfo.Username)
 	}
+	req.ForceContentType("application/json")
 	b, _ := json.Marshal(req.Body)
 	rl.With("body", string(b)).Debug("do put")
 	resp, err := req.Put(url)
