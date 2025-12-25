@@ -201,6 +201,10 @@ instance behind its own authentication, the cookie from an authenticated request
 - This has been tested successfully against GL.Inet routers with AdGuard Home.
 - Note: due to the short validity of cookies, this approach is likely only suitable for one-time syncs
 
+### Integrate adguardhome-sync with GL.iNet Routers
+
+See [wiki](https://github.com/bakito/adguardhome-sync/wiki/Integration%E2%80%90GL.iNet)
+
 ## Run Linux/Mac
 
 ```bash
