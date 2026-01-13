@@ -2,6 +2,7 @@ package sync
 
 import (
 	"context"
+	// go embed blank import.
 	_ "embed"
 	"errors"
 	"fmt"
@@ -61,11 +62,11 @@ func percent(a, b *int) string {
 	return fmt.Sprintf("%.2f", (float64(*a)*100.0)/float64(*b))
 }
 
-func (w *worker) handleLogs(c *gin.Context) {
+func (*worker) handleLogs(c *gin.Context) {
 	c.Data(http.StatusOK, "text/plain", []byte(strings.Join(log.Logs(), "")))
 }
 
-func (w *worker) handleClearLogs(c *gin.Context) {
+func (*worker) handleClearLogs(c *gin.Context) {
 	log.Clear()
 	c.Status(http.StatusOK)
 }

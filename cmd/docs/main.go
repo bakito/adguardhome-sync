@@ -45,8 +45,8 @@ func main() {
 
 func generateEnvDocumentation(fileContent string) string {
 	var buf strings.Builder
-	_, _ = buf.WriteString("| Name | Type | Description |\n")
-	_, _ = buf.WriteString("| :--- | ---- |:----------- |\n")
+	buf.WriteString("| Name | Type | Description |\n")
+	buf.WriteString("| :--- | ---- |:----------- |\n")
 	writeEnvDocumentation(&buf, reflect.TypeOf(types.Config{}), "")
 
 	return updateDocumentationSection(fileContent, envStartMarker, envEndMarker, buf.String())
@@ -54,9 +54,9 @@ func generateEnvDocumentation(fileContent string) string {
 
 func generateYAMLDocumentation(fileContent string) string {
 	var buf strings.Builder
-	_, _ = buf.WriteString("```yaml\n")
+	buf.WriteString("```yaml\n")
 	writeYAMLDocumentation(&buf, reflect.TypeOf(types.Config{}), "", "")
-	_, _ = buf.WriteString("```\n")
+	buf.WriteString("```\n")
 
 	return updateDocumentationSection(fileContent, yamlStartMarker, yamlEndMarker, buf.String())
 }
@@ -108,7 +108,7 @@ func writeEnvDocumentation(w io.Writer, t reflect.Type, prefix string) {
 		} else if envTag != "" {
 			envVar := strings.Trim(combinedTag, "_") + " (" + ft.Kind().String() + ")"
 			docs := field.Tag.Get("documentation")
-			_, _ = fmt.Fprintf(w, "| %s | %s | %s |\n", envVar, ft.Kind().String(), docs)
+			fmt.Fprintf(w, "| %s | %s | %s |\n", envVar, ft.Kind().String(), docs)
 		}
 	}
 }
@@ -154,7 +154,7 @@ func writeYAMLDocumentation(w io.Writer, t reflect.Type, firstPrefix, otherPrefi
 
 		if yamlTag != "" {
 			docs := field.Tag.Get("documentation")
-			_, _ = fmt.Fprintf(w, "%s%s: # (%s) %s\n", pf, yamlTag, ft.Kind().String(), docs)
+			fmt.Fprintf(w, "%s%s: # (%s) %s\n", pf, yamlTag, ft.Kind().String(), docs)
 			i++
 		}
 

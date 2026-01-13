@@ -343,7 +343,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	}
 }
 
-func (w *worker) statusWithSetup(
+func (*worker) statusWithSetup(
 	rl *zap.SugaredLogger,
 	replica types.AdGuardInstance,
 	rc client.Client,

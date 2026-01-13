@@ -133,8 +133,6 @@ linters:
           exclude: [""]
           arguments:
             - allowedPackages: ["github.com/onsi/ginkgo/v2", "github.com/onsi/gomega"]
-        - name: empty-block
-          disabled: true
         - name: exported
           disabled: true
         - name: filename-format
@@ -150,28 +148,24 @@ linters:
           disabled: true
         - name: line-length-limit
           disabled: true
-        - name: max-control-nesting
-          disabled: true
+          arguments:
+            - &lineLength 128
         - name: max-public-structs
           disabled: true
-        - name: nested-structs
-          disabled: true
         - name: package-comments
-          disabled: true
-        - name: unused-parameter
-          disabled: true
-        - name: unused-receiver
           disabled: true
         - name: var-naming
           disabled: true
         - name: enforce-switch-style
           disabled: true
-        - name: blank-imports
-          disabled: true
+        - name: unhandled-error
+          arguments:
+            - '^fmt\.(Fp|P)?rint(f|ln)?$'
+            - '^(bytes\.Buffer|string\.Writer|strings\.Builder)\.Write(Byte|Rune|String)?$'
     staticcheck:
       checks:
-       - 'all'
-       - '-ST1000'
+        - 'all'
+        - '-ST1000'
   exclusions:
     generated: lax
     presets:
@@ -211,5 +205,5 @@ formatters:
       local-prefixes:
         - github.com/bakito/adguardhome-sync
     golines:
-      max-len: 128
+      max-len: *lineLength
       tab-len: 4

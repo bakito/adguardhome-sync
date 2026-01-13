@@ -97,7 +97,7 @@ func (l *logList) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	return nil
 }
 
-func (l *logList) Sync() error {
+func (*logList) Sync() error {
 	return nil
 }
 

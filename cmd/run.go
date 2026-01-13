@@ -13,7 +13,7 @@ var doCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Start a synchronization from origin to replica",
 	Long:  `Synchronizes the configuration form an origin instance to a replica`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		logger = log.GetLogger("run")
 		cfg, err := config.Get(cfgFile, cmd.Flags())
 		if err != nil {

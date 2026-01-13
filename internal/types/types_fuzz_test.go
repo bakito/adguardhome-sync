@@ -9,7 +9,7 @@ func FuzzMask(f *testing.F) {
 	for _, tc := range testcases {
 		f.Add(tc)
 	}
-	f.Fuzz(func(t *testing.T, value string) {
+	f.Fuzz(func(_ *testing.T, value string) {
 		_ = mask(value)
 	})
 }

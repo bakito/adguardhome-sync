@@ -95,10 +95,24 @@ var (
 			return err
 		}
 
-		if err = syncFilterType(ac.rl, ac.origin.filters.Filters, rf.Filters, false, ac.client, ac.cfg.ContinueOnError); err != nil {
+		if err = syncFilterType(
+			ac.rl,
+			ac.origin.filters.Filters,
+			rf.Filters,
+			false,
+			ac.client,
+			ac.cfg.ContinueOnError,
+		); err != nil {
 			return err
 		}
-		if err = syncFilterType(ac.rl, ac.origin.filters.WhitelistFilters, rf.WhitelistFilters, true, ac.client, ac.cfg.ContinueOnError); err != nil {
+		if err = syncFilterType(
+			ac.rl,
+			ac.origin.filters.WhitelistFilters,
+			rf.WhitelistFilters,
+			true,
+			ac.client,
+			ac.cfg.ContinueOnError,
+		); err != nil {
 			return err
 		}
 

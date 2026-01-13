@@ -86,21 +86,57 @@ func main() {
 	}
 }
 
-func correctEntries(schema map[string]any) {
+func correctEntries(map[string]any) {
 }
 
 func addFakeTags(schema map[string]any) {
 	fake := map[string]any{"faker": `slice_len=24`}
-	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "blocked_filtering", "x-oapi-codegen-extra-tags"); err != nil {
+	if err := unstructured.SetNestedMap(
+		schema,
+		fake,
+		"components",
+		"schemas",
+		"Stats",
+		"properties",
+		"blocked_filtering",
+		"x-oapi-codegen-extra-tags",
+	); err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "dns_queries", "x-oapi-codegen-extra-tags"); err != nil {
+	if err := unstructured.SetNestedMap(
+		schema,
+		fake,
+		"components",
+		"schemas",
+		"Stats",
+		"properties",
+		"dns_queries",
+		"x-oapi-codegen-extra-tags",
+	); err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "replaced_parental", "x-oapi-codegen-extra-tags"); err != nil {
+	if err := unstructured.SetNestedMap(
+		schema,
+		fake,
+		"components",
+		"schemas",
+		"Stats",
+		"properties",
+		"replaced_parental",
+		"x-oapi-codegen-extra-tags",
+	); err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(schema, fake, "components", "schemas", "Stats", "properties", "replaced_safebrowsing", "x-oapi-codegen-extra-tags"); err != nil {
+	if err := unstructured.SetNestedMap(
+		schema,
+		fake,
+		"components",
+		"schemas",
+		"Stats",
+		"properties",
+		"replaced_safebrowsing",
+		"x-oapi-codegen-extra-tags",
+	); err != nil {
 		log.Fatalln(err)
 	}
 }

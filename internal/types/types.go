@@ -20,18 +20,18 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Cron            string `documentation:"Cron expression for the sync interval"                                env:"CRON"              json:"cron,omitempty"            yaml:"cron,omitempty"`
-	RunOnStart      bool   `documentation:"Run the sync on startup"                                              env:"RUN_ON_START"      json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"`
-	PrintConfigOnly bool   `documentation:"Print current config only and stop the application"                   env:"PRINT_CONFIG_ONLY" json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
-	ContinueOnError bool   `documentation:"Continue sync on errors"                                              env:"CONTINUE_ON_ERROR" json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
+	Cron            string `documentation:"Cron expression for the sync interval"              env:"CRON"              json:"cron,omitempty"            yaml:"cron,omitempty"`
+	RunOnStart      bool   `documentation:"Run the sync on startup"                            env:"RUN_ON_START"      json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"`
+	PrintConfigOnly bool   `documentation:"Print current config only and stop the application" env:"PRINT_CONFIG_ONLY" json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
+	ContinueOnError bool   `documentation:"Continue sync on errors"                            env:"CONTINUE_ON_ERROR" json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
 	// Origin adguardhome instance
-	Origin *AdGuardInstance `documentation:"Origin instance"                                                                              json:"origin"                    yaml:"origin"`
+	Origin *AdGuardInstance `documentation:"Origin instance" json:"origin" yaml:"origin"`
 	// One single replica adguardhome instance
-	Replica *AdGuardInstance `documentation:"Single or replica instance (don't use in combination with replicas')"                         json:"replica,omitempty"         yaml:"replica,omitempty"`
+	Replica *AdGuardInstance `documentation:"Single or replica instance (don't use in combination with replicas')" json:"replica,omitempty" yaml:"replica,omitempty"`
 	// Multiple replica instances
-	Replicas []AdGuardInstance `documentation:"List or replica instances (don't use in combination with replicas')"                          json:"replicas,omitempty"        yaml:"replicas,omitempty"        faker:"slice_len=2"`
-	API      API               `                                                                                                             json:"api,omitempty"             yaml:"api,omitempty"`
-	Features Features          `                                                                                                             json:"features,omitempty"        yaml:"features,omitempty"`
+	Replicas []AdGuardInstance `documentation:"List or replica instances (don't use in combination with replicas')" faker:"slice_len=2" json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	API      API               `                                                                                                        json:"api,omitempty"      yaml:"api,omitempty"`
+	Features Features          `                                                                                                        json:"features,omitempty" yaml:"features,omitempty"`
 }
 
 // API configuration.

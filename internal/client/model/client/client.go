@@ -43,7 +43,7 @@ func New(config types.AdGuardInstance) (Client, error) {
 
 	aghClient, err := model.NewClient(u.String(), func(client *model.AdguardHomeClient) error {
 		client.Client = httpClient
-		client.RequestEditors = append(client.RequestEditors, func(ctx context.Context, req *http.Request) error {
+		client.RequestEditors = append(client.RequestEditors, func(_ context.Context, req *http.Request) error {
 			if config.Username != "" && config.Password != "" {
 				req.Header.Add("Authorization", "Basic "+basicAuth(config.Username, config.Password))
 			}

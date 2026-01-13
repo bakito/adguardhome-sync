@@ -124,7 +124,7 @@ var _ = Describe("Client", func() {
 			Ω(fs.Version).Should(Equal("v0.105.2"))
 		})
 		It("should return ErrSetupNeeded", func() {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				w.Header().Set("Location", "/install.html")
 				w.WriteHeader(http.StatusFound)
 			}))
@@ -348,7 +348,7 @@ var _ = Describe("Client", func() {
 	Context("helper functions", func() {
 		var cl client.Client
 		BeforeEach(func() {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(http.StatusUnauthorized)
 			}))
 			var err error
@@ -389,8 +389,8 @@ func ClientGet(file, path string) (*httptest.Server, client.Client) {
 }
 
 func ClientPost(path string, content ...string) (*httptest.Server, client.Client) {
-	index := 0
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	var index int
+	ts := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
 		body, err := io.ReadAll(r.Body)
 		Ω(err).ShouldNot(HaveOccurred())
@@ -405,7 +405,7 @@ func ClientPost(path string, content ...string) (*httptest.Server, client.Client
 
 func ClientPut(path string, content ...string) (*httptest.Server, client.Client) {
 	index := 0
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		Ω(r.URL.Path).Should(Equal(types.DefaultAPIPath + path))
 		body, err := io.ReadAll(r.Body)
 		Ω(err).ShouldNot(HaveOccurred())

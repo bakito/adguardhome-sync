@@ -29,7 +29,7 @@ var _ = Describe("Sync", func() {
 		mockCtrl = gm.NewController(GinkgoT())
 		cl = clientmock.NewMockClient(mockCtrl)
 		w = &worker{
-			createClient: func(instance types.AdGuardInstance) (client.Client, error) {
+			createClient: func(_ types.AdGuardInstance) (client.Client, error) {
 				return cl, nil
 			},
 			cfg: &types.Config{
