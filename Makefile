@@ -1,6 +1,9 @@
 # Include toolbox tasks
 include ./.toolbox.mk
 
+# Default image version/tag (override via: make build-image AGH_SYNC_VERSION=...)
+AGH_SYNC_VERSION ?= main
+
 # Run go lint against code
 lint: tb.golangci-lint
 	$(TB_GOLANGCI_LINT) run --fix
@@ -65,7 +68,11 @@ __check_defined = \
 
 build-image:
 	$(call check_defined, AGH_SYNC_VERSION)
-	docker build --build-arg VERSION=${AGH_SYNC_VERSION} --build-arg BUILD=$(shell date -u +'%Y-%m-%dT%H:%M:%S.%3NZ') --name adgardhome-replica -t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} .
+	docker build \
+		--build-arg VERSION=${AGH_SYNC_VERSION} \
+		--build-arg BUILD=$(shell date --utc +%Y-%m-%dT%H:%M:%SZ) \
+		-t ghcr.io/bakito/adguardhome-sync:${AGH_SYNC_VERSION} \
+		.
 
 kind-create:
 	kind delete cluster

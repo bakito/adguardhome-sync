@@ -4,9 +4,9 @@ on:
   workflow_dispatch: # allows manual triggering
   schedule:
     - cron: '0 0 * * *'
-  #pull_request:
-  #  branches:
-  #    - main
+  pull_request:
+    branches:
+      - main
   release:
     types:
       - published
