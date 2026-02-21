@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AdGuardHome Sync — Config</title>
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">⟲</div>
+        <div>
+          <div class="title">AdGuardHome Sync</div>
+          <div class="subtitle">Config editor (writes YAML + reload)</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="btnReload" class="btn btn-ghost" title="Restart sync process using the current YAML">Reload</button>
+        <button id="btnSave" class="btn btn-secondary" title="Write YAML only">Save</button>
+        <button id="btnSaveReload" class="btn btn-primary" title="Write YAML and restart sync process">Save & Reload</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="tilebar">
+        <div class="tile">
+          <div class="t">Config</div>
+          <div class="n" id="tileCfg">—</div>
+          <div class="s" id="tileCfgSub">—</div>
+        </div>
+        <div class="tile">
+          <div class="t">Origin</div>
+          <div class="n" id="tileOrigin">—</div>
+          <div class="s" id="tileCron">—</div>
+        </div>
+        <div class="tile">
+          <div class="t">Replicas</div>
+          <div class="n" id="tileReplicas">—</div>
+          <div class="s" id="tileFeatures">—</div>
+        </div>
+        <div class="tile">
+          <div class="t">Process</div>
+          <div class="n" id="tileProc">—</div>
+          <div class="s" id="tileProcSub">—</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-h">
+          <h2>Status</h2>
+          <span id="badge" class="badge badge-warn">Loading…</span>
+        </div>
+        <div class="kv">
+          <div class="k">Config path</div><div class="v mono" id="cfgPath">—</div>
+          <div class="k">File exists</div><div class="v" id="cfgExists">—</div>
+          <div class="k">Writable</div><div class="v" id="cfgWritable">—</div>
+          <div class="k">Sync process</div><div class="v" id="procState">—</div>
+          <div class="k">PID</div><div class="v mono" id="procPid">—</div>
+          <div class="k">Last exit</div><div class="v mono" id="procExit">—</div>
+        </div>
+
+        <div class="sep"></div>
+
+        <h3>Quick edit</h3>
+        <div class="help">
+          This tries to read/write the existing YAML as-is, so migrating from the original image won’t break.
+          If no file exists yet, paste a config below and click <b>Save & Reload</b>.
+        </div>
+
+        <div class="quick">
+          <label class="lbl">Origin URL</label>
+          <input id="originUrl" class="input" placeholder="http://adguard-primary:3000" />
+          <label class="lbl">Origin username</label>
+          <input id="originUser" class="input" placeholder="admin" />
+          <label class="lbl">Origin password</label>
+          <input id="originPass" type="password" class="input" placeholder="••••••••" />
+
+          <div class="row">
+            <button id="btnAddReplica" class="btn btn-ghost">+ Add replica</button>
+            <button id="btnApplyQuick" class="btn btn-secondary">Apply to YAML</button>
+          </div>
+
+          <div class="row">
+            <button id="btnEditCron" class="btn btn-ghost">Edit Cron</button>
+            <button id="btnEditApi" class="btn btn-ghost">Edit API</button>
+          </div>
+
+          <div id="replicaList" class="replicas"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-h">
+          <h2>YAML</h2>
+          <div class="right">
+            <button id="btnRefresh" class="btn btn-ghost" title="Reload YAML from disk">Refresh from disk</button>
+          </div>
+        </div>
+
+        <div class="changes" id="changesBox">
+          <div class="changes-h">
+            <div class="changes-title">Changes</div>
+            <div class="changes-meta"><span id="changesCount">0</span></div>
+          </div>
+          <div id="changesList" class="changes-list">No changes.</div>
+        </div>
+
+        <textarea id="yaml" class="editor" spellcheck="false" placeholder="Paste your adguardhome-sync.yaml here…"></textarea>
+        <div class="foot">
+          <div id="msg" class="msg"></div>
+          <div class="small">Tip: use <span class="mono">GUI_USERNAME</span>/<span class="mono">GUI_PASSWORD</span> to protect this page.</div>
+        </div>
+      </section>
+
+      <section class="card logsCard">
+        <div class="card-h">
+          <h2>Logs</h2>
+          <div class="right">
+            <button id="btnLogsPause" class="btn btn-ghost">Pause</button>
+            <button id="btnLogsClear" class="btn btn-ghost">Clear</button>
+            <button id="btnLogsCopy" class="btn btn-secondary">Copy</button>
+          </div>
+        </div>
+        <div class="help">Shows recent stdout/stderr from the sync process (kept in-memory). Docker logs still work as normal.</div>
+        <div id="logs" class="logs" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="dlgReplica" class="dlg">
+    <form method="dialog" class="dlg-body">
+      <h3 id="repTitle">Replica</h3>
+      <label class="lbl">Replica URL</label>
+      <input id="repUrl" class="input" placeholder="http://adguard-replica:3000" />
+      <label class="lbl">Replica username</label>
+      <input id="repUser" class="input" placeholder="admin" />
+      <label class="lbl">Replica password</label>
+      <input id="repPass" type="password" class="input" placeholder="••••••••" />
+      <div class="row">
+        <button class="btn btn-ghost" value="cancel">Cancel</button>
+        <button id="repOk" class="btn btn-primary" value="ok">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+
+  <dialog id="dlgCron" class="dlg">
+    <form method="dialog" class="dlg-body">
+      <h3>Edit Cron</h3>
+      <div class="help mini">
+        Cron runs the sync in daemon mode. If disabled, sync runs once (manual <b>Reload</b> still works).
+      </div>
+
+      <label class="lbl">Schedule</label>
+      <select id="cronMode" class="select">
+        <option value="off">Off (run once)</option>
+        <option value="min">Every N minutes</option>
+        <option value="hour">Every hour</option>
+        <option value="hours">Every N hours</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <div id="cronFields" class="grid2">
+        <div class="field" data-show="min">
+          <label class="lbl">Every (minutes)</label>
+          <input id="cronEveryMin" class="input" type="number" min="1" max="59" value="10" />
+        </div>
+
+        <div class="field" data-show="hours">
+          <label class="lbl">Every (hours)</label>
+          <input id="cronEveryHours" class="input" type="number" min="1" max="23" value="2" />
+        </div>
+
+        <div class="field" data-show="hours">
+          <label class="lbl">Minute</label>
+          <input id="cronHourMinute" class="input" type="number" min="0" max="59" value="0" />
+        </div>
+
+        <div class="field" data-show="daily weekly">
+          <label class="lbl">Hour</label>
+          <input id="cronAtHour" class="input" type="number" min="0" max="23" value="3" />
+        </div>
+
+        <div class="field" data-show="daily weekly">
+          <label class="lbl">Minute</label>
+          <input id="cronAtMinute" class="input" type="number" min="0" max="59" value="0" />
+        </div>
+
+        <div class="field" data-show="weekly">
+          <label class="lbl">Day</label>
+          <select id="cronWeekday" class="select">
+            <option value="1">Mon</option>
+            <option value="2">Tue</option>
+            <option value="3">Wed</option>
+            <option value="4">Thu</option>
+            <option value="5">Fri</option>
+            <option value="6">Sat</option>
+            <option value="0">Sun</option>
+          </select>
+        </div>
+
+        <div class="field" data-show="custom">
+          <label class="lbl">Cron expression</label>
+          <input id="cronCustom" class="input mono" placeholder="0 */2 * * *" />
+          <div class="hint">5 fields (min hour dom mon dow).</div>
+        </div>
+      </div>
+
+      <label class="lbl chkRow">
+        <input id="cronRunOnStart" type="checkbox" />
+        Run on start
+      </label>
+
+      <label class="lbl">Preview</label>
+      <input id="cronExpr" class="input mono" readonly />
+
+      <div class="row">
+        <button class="btn btn-ghost" value="cancel">Cancel</button>
+        <button class="btn btn-primary" value="ok">Apply</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlgApi" class="dlg">
+    <form method="dialog" class="dlg-body">
+      <h3>Edit API</h3>
+      <div class="help mini">
+        This is the <b>sync</b> API (adguardhome-sync dashboard). This GUI uses port <b>8080</b>, so pick <b>8081+</b>.
+        Leave username/password empty to disable basic auth.
+      </div>
+
+      <label class="lbl chkRow">
+        <input id="apiEnabled" type="checkbox" />
+        Enable sync API
+      </label>
+
+      <label class="lbl">Port</label>
+      <input id="apiPort" class="input" type="number" min="0" max="65535" placeholder="8081" />
+
+      <label class="lbl">Username (optional)</label>
+      <input id="apiUser" class="input" placeholder="sync" />
+
+      <label class="lbl">Password (optional)</label>
+      <input id="apiPass" class="input" type="password" placeholder="••••••••" />
+
+      <label class="lbl chkRow">
+        <input id="apiDark" type="checkbox" />
+        Dark mode
+      </label>
+
+      <div class="sep"></div>
+
+      <label class="lbl chkRow">
+        <input id="apiMetricsEnabled" type="checkbox" />
+        Enable metrics on <span class="mono">/metrics</span>
+      </label>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="lbl">Scrape interval</label>
+          <input id="apiScrapeInterval" class="input" placeholder="30s" />
+          <div class="hint">Examples: 30s, 1m, 5m.</div>
+        </div>
+        <div class="field">
+          <label class="lbl">Query log limit</label>
+          <input id="apiQueryLogLimit" class="input" type="number" min="0" placeholder="10000" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn btn-ghost" value="cancel">Cancel</button>
+        <button class="btn btn-primary" value="ok">Apply</button>
+      </div>
+    </form>
+  </dialog>
+
+    <script src="/ui/app.js"></script>
+</body>
+</html>
