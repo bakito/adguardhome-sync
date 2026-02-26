@@ -7,7 +7,6 @@ import (
 
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
-	"k8s.io/utils/ptr"
 
 	"github.com/bakito/adguardhome-sync/internal/utils"
 )
@@ -443,16 +442,16 @@ func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
 
 func NewStats() *Stats {
 	return &Stats{
-		NumBlockedFiltering:     ptr.To(0),
-		NumReplacedParental:     ptr.To(0),
-		NumReplacedSafesearch:   ptr.To(0),
-		NumReplacedSafebrowsing: ptr.To(0),
-		NumDnsQueries:           ptr.To(0),
+		NumBlockedFiltering:     new(0),
+		NumReplacedParental:     new(0),
+		NumReplacedSafesearch:   new(0),
+		NumReplacedSafebrowsing: new(0),
+		NumDnsQueries:           new(0),
 
-		BlockedFiltering:     ptr.To(make([]int, 24)),
-		DnsQueries:           ptr.To(make([]int, 24)),
-		ReplacedParental:     ptr.To(make([]int, 24)),
-		ReplacedSafebrowsing: ptr.To(make([]int, 24)),
+		BlockedFiltering:     new(make([]int, 24)),
+		DnsQueries:           new(make([]int, 24)),
+		ReplacedParental:     new(make([]int, 24)),
+		ReplacedSafebrowsing: new(make([]int, 24)),
 	}
 }
 
@@ -471,7 +470,7 @@ func (s *Stats) Add(other *Stats) {
 
 func addInt(t, add *int) *int {
 	if add != nil {
-		return ptr.To(*t + *add)
+		return new(*t + *add)
 	}
 	return t
 }

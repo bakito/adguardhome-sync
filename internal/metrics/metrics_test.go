@@ -4,7 +4,6 @@ import (
 	"github.com/go-faker/faker/v4"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/utils/ptr"
 
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 )
@@ -17,30 +16,30 @@ var _ = Describe("Metrics", func() {
 		It("generate correct stats", func() {
 			UpdateInstances(InstanceMetricsList{[]InstanceMetrics{
 				{HostName: "foo", Status: &model.ServerStatus{}, Stats: &model.Stats{
-					NumDnsQueries: ptr.To(100),
-					DnsQueries: ptr.To(
+					NumDnsQueries: new(100),
+					DnsQueries: new(
 						[]int{10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					),
 				}},
 				{HostName: "bar", Status: &model.ServerStatus{}, Stats: &model.Stats{
-					NumDnsQueries: ptr.To(200),
-					DnsQueries: ptr.To(
+					NumDnsQueries: new(200),
+					DnsQueries: new(
 						[]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					),
 				}},
 				{HostName: "aaa", Status: &model.ServerStatus{}, Stats: &model.Stats{
-					NumDnsQueries: ptr.To(300),
-					DnsQueries: ptr.To(
+					NumDnsQueries: new(300),
+					DnsQueries: new(
 						[]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 					),
 				}},
 			}})
 			Ω(stats).Should(HaveKey("foo"))
-			Ω(stats["foo"].NumDnsQueries).Should(Equal(ptr.To(100)))
+			Ω(stats["foo"].NumDnsQueries).Should(Equal(new(100)))
 			Ω(stats).Should(HaveKey("bar"))
-			Ω(stats["bar"].NumDnsQueries).Should(Equal(ptr.To(200)))
+			Ω(stats["bar"].NumDnsQueries).Should(Equal(new(200)))
 			Ω(stats).Should(HaveKey("aaa"))
-			Ω(stats["aaa"].NumDnsQueries).Should(Equal(ptr.To(300)))
+			Ω(stats["aaa"].NumDnsQueries).Should(Equal(new(300)))
 
 			os := getStats()
 			tot := os.Total()
