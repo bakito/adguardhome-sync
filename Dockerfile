@@ -1,4 +1,11 @@
-FROM golang:1.26-alpine AS builder
+# Multi-stage build with explicit platform specification
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
+
+WORKDIR /build
+
+ARG VERSION=main
+ARG TARGETOS=linux
+ARG TARGETARCH
 
 WORKDIR /go/src/app
 
@@ -17,12 +24,14 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 COPY . .
 
 # Build args should be as late as possible so they don't bust the deps cache.
-ARG VERSION=main
 ARG BUILD="N/A"
 
-RUN go build -a -installsuffix cgo \
-      -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" \
-      -o adguardhome-sync .
+RUN CGO_ENABLED=0 \
+    GOOS=$TARGETOS \
+    GOARCH=$TARGETARCH \
+    go build -a -installsuffix cgo \
+    -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" \
+    -o adguardhome-sync .
 
 RUN go version && upx -q adguardhome-sync
 
