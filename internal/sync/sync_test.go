@@ -12,7 +12,6 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	clientmock "github.com/bakito/adguardhome-sync/internal/mocks/client"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 	"github.com/bakito/adguardhome-sync/internal/versions"
 )
 
@@ -93,8 +92,8 @@ var _ = Describe("Sync", func() {
 			BeforeEach(func() {
 				domain = uuid.NewString()
 				answer = uuid.NewString()
-				reO = model.RewriteEntries{{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}}
-				reR = model.RewriteEntries{{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}}
+				reO = model.RewriteEntries{{Domain: new(domain), Answer: new(answer)}}
+				reR = model.RewriteEntries{{Domain: new(domain), Answer: new(answer)}}
 			})
 			It("should have no changes (empty slices)", func() {
 				ac.origin.rewrites = &reO
@@ -160,8 +159,8 @@ var _ = Describe("Sync", func() {
 			)
 			BeforeEach(func() {
 				name = uuid.NewString()
-				ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: utils.Ptr(name)}}}
-				clR = &model.Clients{Clients: &model.ClientsArray{{Name: utils.Ptr(name)}}}
+				ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: new(name)}}}
+				clR = &model.Clients{Clients: &model.ClientsArray{{Name: new(name)}}}
 			})
 			It("should have no changes (empty slices)", func() {
 				cl.EXPECT().Clients().Return(clR, nil)
@@ -176,7 +175,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should update one client", func() {
-				(*clR.Clients)[0].FilteringEnabled = utils.Ptr(true)
+				(*clR.Clients)[0].FilteringEnabled = new(true)
 				cl.EXPECT().Clients().Return(clR, nil)
 				cl.EXPECT().UpdateClient(&(*ac.origin.clients.Clients)[0])
 				err := actionClientSettings(ac)
@@ -229,15 +228,15 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have safeSearch enabled changes", func() {
-				ac.origin.safeSearch = &model.SafeSearchConfig{Enabled: utils.Ptr(true)}
+				ac.origin.safeSearch = &model.SafeSearchConfig{Enabled: new(true)}
 				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				cl.EXPECT().SetSafeSearchConfig(ac.origin.safeSearch)
 				err := actionSafeSearchConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have Duckduckgo safeSearch enabled changed", func() {
-				ac.origin.safeSearch = &model.SafeSearchConfig{Duckduckgo: utils.Ptr(true)}
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: utils.Ptr(true)}, nil)
+				ac.origin.safeSearch = &model.SafeSearchConfig{Duckduckgo: new(true)}
+				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: new(true)}, nil)
 				cl.EXPECT().SetSafeSearchConfig(ac.origin.safeSearch)
 				err := actionSafeSearchConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
@@ -390,7 +389,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have blockedServices schedule changes", func() {
-				ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{Ids: utils.Ptr([]string{"bar"})}
+				ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{Ids: new([]string{"bar"})}
 
 				cl.EXPECT().BlockedServicesSchedule().Return(rbss, nil)
 				cl.EXPECT().SetBlockedServicesSchedule(ac.origin.blockedServicesSchedule)
@@ -410,22 +409,22 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changes user roles", func() {
-				ac.origin.filters.UserRules = utils.Ptr([]string{"foo"})
+				ac.origin.filters.UserRules = new([]string{"foo"})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().SetCustomRules(ac.origin.filters.UserRules)
 				err := actionFilters(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changed filtering config", func() {
-				ac.origin.filters.Enabled = utils.Ptr(true)
-				ac.origin.filters.Interval = utils.Ptr(123)
+				ac.origin.filters.Enabled = new(true)
+				ac.origin.filters.Interval = new(123)
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
 				err := actionFilters(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should add a filter", func() {
-				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				ac.origin.filters.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
 				cl.EXPECT().RefreshFilters(gm.Any())
@@ -433,17 +432,17 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should delete a filter", func() {
-				rf.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				rf.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().DeleteFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
 				err := actionFilters(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should update a filter", func() {
-				ac.origin.filters.Filters = utils.Ptr(
+				ac.origin.filters.Filters = new(
 					[]model.Filter{{Name: "foo", Url: "https://foo.bar", Enabled: true}},
 				)
-				rf.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				rf.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().UpdateFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar", Enabled: true})
 				cl.EXPECT().RefreshFilters(gm.Any())
@@ -453,7 +452,7 @@ var _ = Describe("Sync", func() {
 
 			It("should abort after failed added filter", func() {
 				ac.cfg.ContinueOnError = false
-				ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				ac.origin.filters.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				cl.EXPECT().Filtering().Return(rf, nil)
 				cl.EXPECT().
 					AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).
@@ -464,7 +463,7 @@ var _ = Describe("Sync", func() {
 
 			It("should continue after failed added filter", func() {
 				ac.cfg.ContinueOnError = true
-				ac.origin.filters.Filters = utils.Ptr(
+				ac.origin.filters.Filters = new(
 					[]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}},
 				)
 				cl.EXPECT().Filtering().Return(rf, nil)
@@ -490,7 +489,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have access list changes", func() {
-				ral.BlockedHosts = utils.Ptr([]string{"foo"})
+				ral.BlockedHosts = new([]string{"foo"})
 				cl.EXPECT().AccessList().Return(ral, nil)
 				cl.EXPECT().SetAccessList(ac.origin.accessList)
 				err := actionDNSAccessLists(ac)
@@ -510,7 +509,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have dns config changes", func() {
-				rdc.BootstrapDns = utils.Ptr([]string{"foo"})
+				rdc.BootstrapDns = new([]string{"foo"})
 				cl.EXPECT().DNSConfig().Return(rdc, nil)
 				cl.EXPECT().SetDNSConfig(ac.origin.dnsConfig)
 				err := actionDNSServerConfig(ac)
@@ -523,10 +522,10 @@ var _ = Describe("Sync", func() {
 			BeforeEach(func() {
 				ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  utils.Ptr("1.2.3.4"),
-						RangeStart: utils.Ptr("1.2.3.5"),
-						RangeEnd:   utils.Ptr("1.2.3.6"),
-						SubnetMask: utils.Ptr("255.255.255.0"),
+						GatewayIp:  new("1.2.3.4"),
+						RangeStart: new("1.2.3.5"),
+						RangeEnd:   new("1.2.3.6"),
+						SubnetMask: new("255.255.255.0"),
 					},
 				}
 				rsc = &model.DhcpStatus{}
@@ -539,7 +538,7 @@ var _ = Describe("Sync", func() {
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should have changes", func() {
-				rsc.Enabled = utils.Ptr(true)
+				rsc.Enabled = new(true)
 				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				cl.EXPECT().SetDhcpConfig(ac.origin.dhcpServerConfig)
 				err := actionDHCPServerConfig(ac)
@@ -549,24 +548,24 @@ var _ = Describe("Sync", func() {
 				ac.replica.InterfaceName = "foo"
 				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := ac.origin.dhcpServerConfig.Clone()
-				oscClone.InterfaceName = utils.Ptr("foo")
+				oscClone.InterfaceName = new("foo")
 				cl.EXPECT().SetDhcpConfig(oscClone)
 				err := actionDHCPServerConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should enable the target dhcp server", func() {
-				ac.replica.DHCPServerEnabled = utils.Ptr(true)
+				ac.replica.DHCPServerEnabled = new(true)
 				cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := ac.origin.dhcpServerConfig.Clone()
-				oscClone.Enabled = utils.Ptr(true)
+				oscClone.Enabled = new(true)
 				cl.EXPECT().SetDhcpConfig(oscClone)
 				err := actionDHCPServerConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 			It("should not sync empty IPv4", func() {
-				ac.replica.DHCPServerEnabled = utils.Ptr(false)
+				ac.replica.DHCPServerEnabled = new(false)
 				ac.origin.dhcpServerConfig.V4 = &model.DhcpConfigV4{
-					GatewayIp: utils.Ptr(""),
+					GatewayIp: new(""),
 				}
 				err := actionDHCPServerConfig(ac)
 				Ω(err).ShouldNot(HaveOccurred())

@@ -211,7 +211,7 @@ var (
 			origClone := ac.origin.dhcpServerConfig.Clone()
 			if ac.replica.InterfaceName != "" {
 				// overwrite interface name
-				origClone.InterfaceName = utils.Ptr(ac.replica.InterfaceName)
+				origClone.InterfaceName = new(ac.replica.InterfaceName)
 			}
 			if ac.replica.DHCPServerEnabled != nil {
 				// overwrite dhcp enabled

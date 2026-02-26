@@ -432,7 +432,7 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 		l.Warn(
 			"disabling replica 'Use private reverse DNS resolvers' as no 'Private reverse DNS servers' are configured on origin",
 		)
-		c.UsePrivatePtrResolvers = utils.Ptr(false)
+		c.UsePrivatePtrResolvers = new(false)
 	}
 }
 

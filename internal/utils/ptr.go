@@ -2,10 +2,6 @@ package utils
 
 import "fmt"
 
-func Ptr[I any](i I) *I {
-	return &i
-}
-
 func PtrToString[I any](i *I) string {
 	if i == nil {
 		return ""

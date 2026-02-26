@@ -17,7 +17,6 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	"github.com/bakito/adguardhome-sync/internal/log"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 )
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
@@ -263,20 +262,20 @@ func (cl *client) Filtering() (*model.FilterStatus, error) {
 
 func (cl *client) AddFilter(whitelist bool, f model.Filter) error {
 	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
-	ff := &model.AddUrlRequest{Name: utils.Ptr(f.Name), Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	ff := &model.AddUrlRequest{Name: new(f.Name), Url: new(f.Url), Whitelist: new(whitelist)}
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
 }
 
 func (cl *client) DeleteFilter(whitelist bool, f model.Filter) error {
 	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
-	ff := &model.RemoveUrlRequest{Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	ff := &model.RemoveUrlRequest{Url: new(f.Url), Whitelist: new(whitelist)}
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
 }
 
 func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
 	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
 	fu := &model.FilterSetUrl{
-		Whitelist: utils.Ptr(whitelist), Url: utils.Ptr(f.Url),
+		Whitelist: new(whitelist), Url: new(f.Url),
 		Data: &model.FilterSetUrlData{Name: f.Name, Url: f.Url, Enabled: f.Enabled},
 	}
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
@@ -285,7 +284,7 @@ func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
 func (cl *client) RefreshFilters(whitelist bool) error {
 	cl.log.With("whitelist", whitelist).Info("Refresh filter")
 	return cl.doPost(
-		cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: utils.Ptr(whitelist)}),
+		cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: new(whitelist)}),
 		"/filtering/refresh",
 	)
 }
@@ -307,8 +306,8 @@ func (cl *client) SetCustomRules(rules *[]string) error {
 func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.FilterConfig{
-		Enabled:  utils.Ptr(enabled),
-		Interval: utils.Ptr(interval),
+		Enabled:  new(enabled),
+		Interval: new(interval),
 	}), "/filtering/config")
 }
 
