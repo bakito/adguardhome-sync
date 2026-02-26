@@ -67,6 +67,7 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | RUN_ON_START (bool) | bool | Run the sync on startup |
 | PRINT_CONFIG_ONLY (bool) | bool | Print current config only and stop the application |
 | CONTINUE_ON_ERROR (bool) | bool | Continue sync on errors |
+| HTTP_CLIENT_TIMEOUT (string) | string | Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$ |
 | ORIGIN_URL (string) | string | URL of adguardhome instance |
 | ORIGIN_WEB_URL (string) | string | Web URL of adguardhome instance |
 | ORIGIN_API_PATH (string) | string | API Path |
@@ -124,6 +125,7 @@ cron: # (string) Cron expression for the sync interval
 runOnStart: # (bool) Run the sync on startup
 printConfigOnly: # (bool) Print current config only and stop the application
 continueOnError: # (bool) Continue sync on errors
+httpClientTimeout: # (string) Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
 origin: # (struct) Origin instance
   url: # (string) URL of adguardhome instance
   webURL: # (string) Web URL of adguardhome instance

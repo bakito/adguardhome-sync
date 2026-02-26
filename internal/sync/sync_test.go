@@ -2,6 +2,7 @@ package sync
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
@@ -28,7 +29,7 @@ var _ = Describe("Sync", func() {
 		mockCtrl = gm.NewController(GinkgoT())
 		cl = clientmock.NewMockClient(mockCtrl)
 		w = &worker{
-			createClient: func(_ types.AdGuardInstance) (client.Client, error) {
+			createClient: func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
 				return cl, nil
 			},
 			cfg: &types.Config{

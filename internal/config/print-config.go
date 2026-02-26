@@ -40,7 +40,7 @@ func (ac *AppConfig) Print() error {
 }
 
 func aghVersion(i types.AdGuardInstance) string {
-	cl, err := client.New(i)
+	cl, err := client.New(i, 0)
 	if err != nil {
 		return "N/A"
 	}
