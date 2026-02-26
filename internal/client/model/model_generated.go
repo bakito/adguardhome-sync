@@ -704,6 +704,9 @@ type GetQueryLogConfigResponse struct {
 	// Ignored List of host names, which should not be written to log
 	Ignored []string `json:"ignored"`
 
+	// IgnoredEnabled If true, the host names in the `ignored` array are excluded from the query log.
+	IgnoredEnabled *bool `json:"ignored_enabled,omitempty"`
+
 	// Interval Time period for query log rotation in milliseconds.
 	Interval float32 `json:"interval"`
 }
@@ -715,6 +718,9 @@ type GetStatsConfigResponse struct {
 
 	// Ignored List of host names, which should not be counted
 	Ignored []string `json:"ignored"`
+
+	// IgnoredEnabled If true, the host names in the `ignored` array are excluded from the statistics.
+	IgnoredEnabled *bool `json:"ignored_enabled,omitempty"`
 
 	// Interval Statistics rotation interval in milliseconds
 	Interval float32 `json:"interval"`
@@ -1261,6 +1267,14 @@ type QueryLogParams struct {
 // QueryLogParamsResponseStatus defines parameters for QueryLog.
 type QueryLogParamsResponseStatus string
 
+// StatsParams defines parameters for Stats.
+type StatsParams struct {
+	// Recent The lookback period for statistics in milliseconds.  The interval must
+	// be a multiple of one hour and must not be greater than the value of
+	// `statistics.interval`.
+	Recent *int `form:"recent,omitempty" json:"recent,omitempty"`
+}
+
 // AccessSetJSONRequestBody defines body for AccessSet for application/json ContentType.
 type AccessSetJSONRequestBody = AccessSetRequest
 
@@ -1785,7 +1799,7 @@ type ClientInterface interface {
 	SafesearchStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Stats request
-	Stats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	Stats(ctx context.Context, params *StatsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetStatsConfig request
 	GetStatsConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3036,8 +3050,8 @@ func (c *AdguardHomeClient) SafesearchStatus(ctx context.Context, reqEditors ...
 	return c.Client.Do(req)
 }
 
-func (c *AdguardHomeClient) Stats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewStatsRequest(c.Server)
+func (c *AdguardHomeClient) Stats(ctx context.Context, params *StatsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStatsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5743,7 +5757,7 @@ func NewSafesearchStatusRequest(server string) (*http.Request, error) {
 }
 
 // NewStatsRequest generates requests for Stats
-func NewStatsRequest(server string) (*http.Request, error) {
+func NewStatsRequest(server string, params *StatsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -5759,6 +5773,28 @@ func NewStatsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Recent != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "recent", runtime.ParamLocationQuery, *params.Recent); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -6483,7 +6519,7 @@ type ClientWithResponsesInterface interface {
 	SafesearchStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchStatusResp, error)
 
 	// StatsWithResponse request
-	StatsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsResp, error)
+	StatsWithResponse(ctx context.Context, params *StatsParams, reqEditors ...RequestEditorFn) (*StatsResp, error)
 
 	// GetStatsConfigWithResponse request
 	GetStatsConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetStatsConfigResp, error)
@@ -9156,8 +9192,8 @@ func (c *ClientWithResponses) SafesearchStatusWithResponse(ctx context.Context, 
 }
 
 // StatsWithResponse request returning *StatsResp
-func (c *ClientWithResponses) StatsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsResp, error) {
-	rsp, err := c.Stats(ctx, reqEditors...)
+func (c *ClientWithResponses) StatsWithResponse(ctx context.Context, params *StatsParams, reqEditors ...RequestEditorFn) (*StatsResp, error) {
+	rsp, err := c.Stats(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
