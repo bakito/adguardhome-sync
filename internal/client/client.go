@@ -432,7 +432,7 @@ func (cl *client) DNSConfig() (*model.DNSConfig, error) {
 }
 
 func (cl *client) SetDNSConfig(config *model.DNSConfig) error {
-	cl.log.Info("Set dns config list")
+	cl.log.With("upstream-dns", config.UpstreamDns).Info("Set dns config list")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(config), "/dns_config")
 }
 
