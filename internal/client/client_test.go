@@ -15,7 +15,6 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client"
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 )
 
 var (
@@ -102,7 +101,7 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/filtering/set_rules",
 				`{"rules":[]}`,
 			)
-			err := cl.SetCustomRules(utils.Ptr([]string{}))
+			err := cl.SetCustomRules(new([]string{}))
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should set nil filter rules", func() {
@@ -161,16 +160,16 @@ var _ = Describe("Client", func() {
 		It("should add RewriteList", func() {
 			ts, cl = ClientPost("/rewrite/add", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
 			err := cl.AddRewriteEntries(
-				model.RewriteEntry{Answer: utils.Ptr("foo"), Domain: utils.Ptr("foo")},
-				model.RewriteEntry{Answer: utils.Ptr("bar"), Domain: utils.Ptr("bar")},
+				model.RewriteEntry{Answer: new("foo"), Domain: new("foo")},
+				model.RewriteEntry{Answer: new("bar"), Domain: new("bar")},
 			)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete RewriteList", func() {
 			ts, cl = ClientPost("/rewrite/delete", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
 			err := cl.DeleteRewriteEntries(
-				model.RewriteEntry{Answer: utils.Ptr("foo"), Domain: utils.Ptr("foo")},
-				model.RewriteEntry{Answer: utils.Ptr("bar"), Domain: utils.Ptr("bar")},
+				model.RewriteEntry{Answer: new("foo"), Domain: new("foo")},
+				model.RewriteEntry{Answer: new("bar"), Domain: new("bar")},
 			)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
@@ -205,12 +204,12 @@ var _ = Describe("Client", func() {
 		})
 		It("should enable safesearch", func() {
 			ts, cl = ClientPut("/safesearch/settings", `{"enabled":true}`)
-			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: utils.Ptr(true)})
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: new(true)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should disable safesearch", func() {
 			ts, cl = ClientPut("/safesearch/settings", `{"enabled":false}`)
-			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: utils.Ptr(false)})
+			err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: new(false)})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -258,11 +257,11 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/blocked_services/update",
 				`{"ids":["bar","foo"],"schedule":{"mon":{"end":99,"start":1}}}`)
 			err := cl.SetBlockedServicesSchedule(&model.BlockedServicesSchedule{
-				Ids: utils.Ptr([]string{"foo", "bar"}),
+				Ids: new([]string{"foo", "bar"}),
 				Schedule: &model.Schedule{
 					Mon: &model.DayRange{
-						Start: utils.Ptr(float32(1.0)),
-						End:   utils.Ptr(float32(99.0)),
+						Start: new(float32(1.0)),
+						End:   new(float32(99.0)),
 					},
 				},
 			})
@@ -281,21 +280,21 @@ var _ = Describe("Client", func() {
 			ts, cl = ClientPost("/clients/add",
 				`{"ids":["id"],"name":"foo"}`,
 			)
-			err := cl.AddClient(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
+			err := cl.AddClient(&model.Client{Name: new("foo"), Ids: new([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should update Clients", func() {
 			ts, cl = ClientPost("/clients/update",
 				`{"data":{"ids":["id"],"name":"foo"},"name":"foo"}`,
 			)
-			err := cl.UpdateClient(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
+			err := cl.UpdateClient(&model.Client{Name: new("foo"), Ids: new([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		It("should delete Clients", func() {
 			ts, cl = ClientPost("/clients/delete",
 				`{"ids":["id"],"name":"foo"}`,
 			)
-			err := cl.DeleteClient(&model.Client{Name: utils.Ptr("foo"), Ids: utils.Ptr([]string{"id"})})
+			err := cl.DeleteClient(&model.Client{Name: new("foo"), Ids: new([]string{"id"})})
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
@@ -319,9 +318,9 @@ var _ = Describe("Client", func() {
 			var interval model.QueryLogConfigInterval = 123
 			err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{
 				QueryLogConfig: model.QueryLogConfig{
-					AnonymizeClientIp: utils.Ptr(true),
+					AnonymizeClientIp: new(true),
 					Interval:          &interval,
-					Enabled:           utils.Ptr(true),
+					Enabled:           new(true),
 				},
 				Ignored: []string{"foo.bar"},
 			})

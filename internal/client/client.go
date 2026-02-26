@@ -17,7 +17,6 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	"github.com/bakito/adguardhome-sync/internal/log"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 )
 
 const envRedirectPolicyNoOfRedirects = "REDIRECT_POLICY_NO_OF_REDIRECTS"
@@ -113,6 +112,7 @@ type Client interface {
 	RewriteList() (*model.RewriteEntries, error)
 	AddRewriteEntries(e ...model.RewriteEntry) error
 	DeleteRewriteEntries(e ...model.RewriteEntry) error
+	UpdateRewriteEntries(e ...model.RewriteUpdate) error
 	Filtering() (*model.FilterStatus, error)
 	ToggleFiltering(enabled bool, interval int) error
 	AddFilter(whitelist bool, f model.Filter) error
@@ -202,7 +202,7 @@ func (cl *client) RewriteList() (*model.RewriteEntries, error) {
 
 func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 	for _, e := range entries {
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add DNS rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer, "enabled", e.Enabled).Info("Add DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/add")
 		if err != nil {
 			return err
@@ -213,8 +213,20 @@ func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 
 func (cl *client) DeleteRewriteEntries(entries ...model.RewriteEntry) error {
 	for _, e := range entries {
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete DNS rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer, "enabled", e.Enabled).Info("Delete DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/delete")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cl *client) UpdateRewriteEntries(entries ...model.RewriteUpdate) error {
+	for _, e := range entries {
+		cl.log.With("domain", e.Update.Domain, "answer", e.Update.Answer, "enabled", e.Update.Enabled).
+			Info("Update DNS rewrite entry")
+		err := cl.doPut(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/update")
 		if err != nil {
 			return err
 		}
@@ -263,20 +275,20 @@ func (cl *client) Filtering() (*model.FilterStatus, error) {
 
 func (cl *client) AddFilter(whitelist bool, f model.Filter) error {
 	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Add filter")
-	ff := &model.AddUrlRequest{Name: utils.Ptr(f.Name), Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	ff := &model.AddUrlRequest{Name: new(f.Name), Url: new(f.Url), Whitelist: new(whitelist)}
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/add_url")
 }
 
 func (cl *client) DeleteFilter(whitelist bool, f model.Filter) error {
 	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Delete filter")
-	ff := &model.RemoveUrlRequest{Url: utils.Ptr(f.Url), Whitelist: utils.Ptr(whitelist)}
+	ff := &model.RemoveUrlRequest{Url: new(f.Url), Whitelist: new(whitelist)}
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(ff), "/filtering/remove_url")
 }
 
 func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
 	cl.log.With("url", f.Url, "whitelist", whitelist, "enabled", f.Enabled).Info("Update filter")
 	fu := &model.FilterSetUrl{
-		Whitelist: utils.Ptr(whitelist), Url: utils.Ptr(f.Url),
+		Whitelist: new(whitelist), Url: new(f.Url),
 		Data: &model.FilterSetUrlData{Name: f.Name, Url: f.Url, Enabled: f.Enabled},
 	}
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(fu), "/filtering/set_url")
@@ -285,7 +297,7 @@ func (cl *client) UpdateFilter(whitelist bool, f model.Filter) error {
 func (cl *client) RefreshFilters(whitelist bool) error {
 	cl.log.With("whitelist", whitelist).Info("Refresh filter")
 	return cl.doPost(
-		cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: utils.Ptr(whitelist)}),
+		cl.client.R().EnableTrace().SetBody(&model.FilterRefreshRequest{Whitelist: new(whitelist)}),
 		"/filtering/refresh",
 	)
 }
@@ -307,8 +319,8 @@ func (cl *client) SetCustomRules(rules *[]string) error {
 func (cl *client) ToggleFiltering(enabled bool, interval int) error {
 	cl.log.With("enabled", enabled, "interval", interval).Info("Toggle filtering")
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(&model.FilterConfig{
-		Enabled:  utils.Ptr(enabled),
-		Interval: utils.Ptr(interval),
+		Enabled:  new(enabled),
+		Interval: new(interval),
 	}), "/filtering/config")
 }
 
@@ -319,7 +331,8 @@ func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, err
 }
 
 func (cl *client) SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error {
-	cl.log.With("services", schedule.ServicesString()).Info("Set blocked services schedule")
+	cl.log.With("services", schedule.ServicesString(), "timezone", schedule.Schedule.TimeZone).
+		Info("Set blocked services schedule")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(schedule), "/blocked_services/update")
 }
 

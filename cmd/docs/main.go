@@ -47,7 +47,7 @@ func generateEnvDocumentation(fileContent string) string {
 	var buf strings.Builder
 	buf.WriteString("| Name | Type | Description |\n")
 	buf.WriteString("| :--- | ---- |:----------- |\n")
-	writeEnvDocumentation(&buf, reflect.TypeOf(types.Config{}), "")
+	writeEnvDocumentation(&buf, reflect.TypeFor[types.Config](), "")
 
 	return updateDocumentationSection(fileContent, envStartMarker, envEndMarker, buf.String())
 }
@@ -55,7 +55,7 @@ func generateEnvDocumentation(fileContent string) string {
 func generateYAMLDocumentation(fileContent string) string {
 	var buf strings.Builder
 	buf.WriteString("```yaml\n")
-	writeYAMLDocumentation(&buf, reflect.TypeOf(types.Config{}), "", "")
+	writeYAMLDocumentation(&buf, reflect.TypeFor[types.Config](), "", "")
 	buf.WriteString("```\n")
 
 	return updateDocumentationSection(fileContent, yamlStartMarker, yamlEndMarker, buf.String())
@@ -74,7 +74,7 @@ func updateDocumentationSection(fileContent, startMarker, endMarker, newContent 
 }
 
 func writeEnvDocumentation(w io.Writer, t reflect.Type, prefix string) {
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {
@@ -99,7 +99,7 @@ func writeEnvDocumentation(w io.Writer, t reflect.Type, prefix string) {
 		combinedTag := buildCombinedTag(prefix, envTag)
 
 		ft := field.Type
-		if ft.Kind() == reflect.Ptr {
+		if ft.Kind() == reflect.Pointer {
 			ft = ft.Elem()
 		}
 
@@ -114,7 +114,7 @@ func writeEnvDocumentation(w io.Writer, t reflect.Type, prefix string) {
 }
 
 func writeYAMLDocumentation(w io.Writer, t reflect.Type, firstPrefix, otherPrefix string) {
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {
@@ -134,7 +134,7 @@ func writeYAMLDocumentation(w io.Writer, t reflect.Type, firstPrefix, otherPrefi
 		yamlTag = strings.TrimSuffix(yamlTag, ",omitempty")
 
 		ft := field.Type
-		if ft.Kind() == reflect.Ptr {
+		if ft.Kind() == reflect.Pointer {
 			ft = ft.Elem()
 		}
 

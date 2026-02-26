@@ -7,7 +7,6 @@ import (
 
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
-	"k8s.io/utils/ptr"
 
 	"github.com/bakito/adguardhome-sync/internal/utils"
 )
@@ -262,10 +261,13 @@ func (re *RewriteEntry) Key() string {
 }
 
 // RewriteEntries list of RewriteEntry.
-type RewriteEntries []RewriteEntry
+type (
+	RewriteEntries []RewriteEntry
+	RewriteUpdates []RewriteUpdate
+)
 
 // Merge RewriteEntries.
-func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicates RewriteEntries) {
+func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicates RewriteEntries, updates RewriteUpdates) {
 	current := make(map[string]RewriteEntry)
 
 	processed := make(map[string]bool)
@@ -280,8 +282,14 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicat
 	}
 
 	for _, rr := range *other {
-		if _, ok := current[rr.Key()]; ok {
+		if cr, ok := current[rr.Key()]; ok {
 			delete(current, rr.Key())
+			if cr.Enabled != nil && (rr.Enabled == nil || *rr.Enabled != *cr.Enabled) {
+				updates = append(updates, RewriteUpdate{
+					Target: &cr,
+					Update: &rr,
+				})
+			}
 		} else {
 			if _, ok := processed[rr.Key()]; !ok {
 				adds = append(adds, rr)
@@ -297,7 +305,7 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicat
 		removes = append(removes, rr)
 	}
 
-	return adds, removes, duplicates
+	return adds, removes, duplicates, updates
 }
 
 func MergeFilters(this, other *[]Filter) (adds, updates, removes []Filter) {
@@ -432,7 +440,7 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 		l.Warn(
 			"disabling replica 'Use private reverse DNS resolvers' as no 'Private reverse DNS servers' are configured on origin",
 		)
-		c.UsePrivatePtrResolvers = utils.Ptr(false)
+		c.UsePrivatePtrResolvers = new(false)
 	}
 }
 
@@ -443,16 +451,16 @@ func (sc *GetStatsConfigResponse) Equals(o *GetStatsConfigResponse) bool {
 
 func NewStats() *Stats {
 	return &Stats{
-		NumBlockedFiltering:     ptr.To(0),
-		NumReplacedParental:     ptr.To(0),
-		NumReplacedSafesearch:   ptr.To(0),
-		NumReplacedSafebrowsing: ptr.To(0),
-		NumDnsQueries:           ptr.To(0),
+		NumBlockedFiltering:     new(0),
+		NumReplacedParental:     new(0),
+		NumReplacedSafesearch:   new(0),
+		NumReplacedSafebrowsing: new(0),
+		NumDnsQueries:           new(0),
 
-		BlockedFiltering:     ptr.To(make([]int, 24)),
-		DnsQueries:           ptr.To(make([]int, 24)),
-		ReplacedParental:     ptr.To(make([]int, 24)),
-		ReplacedSafebrowsing: ptr.To(make([]int, 24)),
+		BlockedFiltering:     new(make([]int, 24)),
+		DnsQueries:           new(make([]int, 24)),
+		ReplacedParental:     new(make([]int, 24)),
+		ReplacedSafebrowsing: new(make([]int, 24)),
 	}
 }
 
@@ -471,7 +479,7 @@ func (s *Stats) Add(other *Stats) {
 
 func addInt(t, add *int) *int {
 	if add != nil {
-		return ptr.To(*t + *add)
+		return new(*t + *add)
 	}
 	return t
 }

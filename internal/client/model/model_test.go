@@ -10,7 +10,6 @@ import (
 
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 )
 
 var _ = Describe("Types", func() {
@@ -109,7 +108,7 @@ var _ = Describe("Types", func() {
 		It("should build a key with url and api apiPath", func() {
 			domain := uuid.NewString()
 			answer := uuid.NewString()
-			re := &model.RewriteEntry{Domain: utils.Ptr(domain), Answer: utils.Ptr(answer)}
+			re := &model.RewriteEntry{Domain: new(domain), Answer: new(answer)}
 			Ω(re.Key()).Should(Equal(domain + "#" + answer))
 		})
 	})
@@ -124,18 +123,18 @@ var _ = Describe("Types", func() {
 				b = &model.QueryLogConfigWithIgnored{}
 			})
 			It("should be equal", func() {
-				a.Enabled = utils.Ptr(true)
+				a.Enabled = new(true)
 				var interval model.QueryLogConfigInterval = 1
 				a.Interval = &interval
-				a.AnonymizeClientIp = utils.Ptr(true)
-				b.Enabled = utils.Ptr(true)
+				a.AnonymizeClientIp = new(true)
+				b.Enabled = new(true)
 				b.Interval = &interval
-				b.AnonymizeClientIp = utils.Ptr(true)
+				b.AnonymizeClientIp = new(true)
 				Ω(a.Equals(b)).Should(BeTrue())
 			})
 			It("should not be equal when enabled differs", func() {
-				a.Enabled = utils.Ptr(true)
-				b.Enabled = utils.Ptr(false)
+				a.Enabled = new(true)
+				b.Enabled = new(false)
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 			It("should not be equal when interval differs", func() {
@@ -146,8 +145,8 @@ var _ = Describe("Types", func() {
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 			It("should not be equal when anonymizeClientIP differs", func() {
-				a.AnonymizeClientIp = utils.Ptr(true)
-				b.AnonymizeClientIp = utils.Ptr(false)
+				a.AnonymizeClientIp = new(true)
+				b.AnonymizeClientIp = new(false)
 				Ω(a.Equals(b)).ShouldNot(BeTrue())
 			})
 		})
@@ -166,52 +165,67 @@ var _ = Describe("Types", func() {
 			})
 
 			It("should add a missing rewrite entry", func() {
-				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(HaveLen(1))
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 
 				Ω(*a[0].Domain).Should(Equal(domain))
 			})
 
 			It("should remove additional rewrite entry", func() {
-				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 
 				Ω(*r[0].Domain).Should(Equal(domain))
 			})
 
 			It("should have no changes", func() {
-				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 			})
 
 			It("should remove target duplicate", func() {
-				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 			})
 
 			It("should remove target duplicate", func() {
-				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				originRE = append(originRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				replicaRE = append(replicaRE, model.RewriteEntry{Domain: utils.Ptr(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(HaveLen(1))
+				Ω(u).Should(BeEmpty())
+			})
+
+			It("should update a changed", func() {
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain), Enabled: new(true)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain), Enabled: new(false)})
+				a, r, d, u := replicaRE.Merge(&originRE)
+				Ω(a).Should(BeEmpty())
+				Ω(r).Should(BeEmpty())
+				Ω(d).Should(BeEmpty())
+				Ω(u).Should(HaveLen(1))
 			})
 		})
 	})
@@ -275,7 +289,7 @@ var _ = Describe("Types", func() {
 			})
 
 			It("should add a missing client", func() {
-				originClients.Add(model.Client{Name: utils.Ptr(name)})
+				originClients.Add(model.Client{Name: new(name)})
 				a, u, d := replicaClients.Merge(originClients)
 				Ω(a).Should(HaveLen(1))
 				Ω(u).Should(BeEmpty())
@@ -285,7 +299,7 @@ var _ = Describe("Types", func() {
 			})
 
 			It("should remove additional client", func() {
-				replicaClients.Add(model.Client{Name: utils.Ptr(name)})
+				replicaClients.Add(model.Client{Name: new(name)})
 				a, u, d := replicaClients.Merge(originClients)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(BeEmpty())
@@ -296,8 +310,8 @@ var _ = Describe("Types", func() {
 
 			It("should update existing client when name differs", func() {
 				disallowed := true
-				originClients.Add(model.Client{Name: utils.Ptr(name), FilteringEnabled: utils.Ptr(disallowed)})
-				replicaClients.Add(model.Client{Name: utils.Ptr(name), FilteringEnabled: utils.Ptr(!disallowed)})
+				originClients.Add(model.Client{Name: new(name), FilteringEnabled: new(disallowed)})
+				replicaClients.Add(model.Client{Name: new(name), FilteringEnabled: new(!disallowed)})
 				a, u, d := replicaClients.Merge(originClients)
 				Ω(a).Should(BeEmpty())
 				Ω(u).Should(HaveLen(1))
@@ -316,12 +330,12 @@ var _ = Describe("Types", func() {
 			)
 			BeforeEach(func() {
 				cl1 = &model.Client{
-					Name:                    utils.Ptr("foo"),
-					BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("UTC")},
+					Name:                    new("foo"),
+					BlockedServicesSchedule: &model.Schedule{TimeZone: new("UTC")},
 				}
 				cl2 = &model.Client{
-					Name:                    utils.Ptr("foo"),
-					BlockedServicesSchedule: &model.Schedule{TimeZone: utils.Ptr("Local")},
+					Name:                    new("foo"),
+					BlockedServicesSchedule: &model.Schedule{TimeZone: new("Local")},
 				}
 			})
 
@@ -352,13 +366,13 @@ var _ = Describe("Types", func() {
 	Context("DNSConfig", func() {
 		Context("Equals", func() {
 			It("should be equal", func() {
-				dc1 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"a"})}
-				dc2 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"a"})}
+				dc1 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"a"})}
+				dc2 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"a"})}
 				Ω(dc1.Equals(dc2)).Should(BeTrue())
 			})
 			It("should not be equal", func() {
-				dc1 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"a"})}
-				dc2 := &model.DNSConfig{LocalPtrUpstreams: utils.Ptr([]string{"b"})}
+				dc1 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"a"})}
+				dc2 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"b"})}
 				Ω(dc1.Equals(dc2)).ShouldNot(BeTrue())
 			})
 		})
@@ -368,20 +382,20 @@ var _ = Describe("Types", func() {
 			It("should be equal", func() {
 				dc1 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:     utils.Ptr("1.2.3.4"),
-						LeaseDuration: utils.Ptr(123),
-						RangeStart:    utils.Ptr("1.2.3.5"),
-						RangeEnd:      utils.Ptr("1.2.3.6"),
-						SubnetMask:    utils.Ptr("255.255.255.0"),
+						GatewayIp:     new("1.2.3.4"),
+						LeaseDuration: new(123),
+						RangeStart:    new("1.2.3.5"),
+						RangeEnd:      new("1.2.3.6"),
+						SubnetMask:    new("255.255.255.0"),
 					},
 				}
 				dc2 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:     utils.Ptr("1.2.3.4"),
-						LeaseDuration: utils.Ptr(123),
-						RangeStart:    utils.Ptr("1.2.3.5"),
-						RangeEnd:      utils.Ptr("1.2.3.6"),
-						SubnetMask:    utils.Ptr("255.255.255.0"),
+						GatewayIp:     new("1.2.3.4"),
+						LeaseDuration: new(123),
+						RangeStart:    new("1.2.3.5"),
+						RangeEnd:      new("1.2.3.6"),
+						SubnetMask:    new("255.255.255.0"),
 					},
 				}
 				Ω(dc1.Equals(dc2)).Should(BeTrue())
@@ -389,20 +403,20 @@ var _ = Describe("Types", func() {
 			It("should not be equal", func() {
 				dc1 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:     utils.Ptr("1.2.3.3"),
-						LeaseDuration: utils.Ptr(123),
-						RangeStart:    utils.Ptr("1.2.3.5"),
-						RangeEnd:      utils.Ptr("1.2.3.6"),
-						SubnetMask:    utils.Ptr("255.255.255.0"),
+						GatewayIp:     new("1.2.3.3"),
+						LeaseDuration: new(123),
+						RangeStart:    new("1.2.3.5"),
+						RangeEnd:      new("1.2.3.6"),
+						SubnetMask:    new("255.255.255.0"),
 					},
 				}
 				dc2 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:     utils.Ptr("1.2.3.4"),
-						LeaseDuration: utils.Ptr(123),
-						RangeStart:    utils.Ptr("1.2.3.5"),
-						RangeEnd:      utils.Ptr("1.2.3.6"),
-						SubnetMask:    utils.Ptr("255.255.255.0"),
+						GatewayIp:     new("1.2.3.4"),
+						LeaseDuration: new(123),
+						RangeStart:    new("1.2.3.5"),
+						RangeEnd:      new("1.2.3.6"),
+						SubnetMask:    new("255.255.255.0"),
 					},
 				}
 				Ω(dc1.Equals(dc2)).ShouldNot(BeTrue())
@@ -412,11 +426,11 @@ var _ = Describe("Types", func() {
 			It("clone should be equal", func() {
 				dc1 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:     utils.Ptr("1.2.3.4"),
-						LeaseDuration: utils.Ptr(123),
-						RangeStart:    utils.Ptr("1.2.3.5"),
-						RangeEnd:      utils.Ptr("1.2.3.6"),
-						SubnetMask:    utils.Ptr("255.255.255.0"),
+						GatewayIp:     new("1.2.3.4"),
+						LeaseDuration: new(123),
+						RangeStart:    new("1.2.3.5"),
+						RangeEnd:      new("1.2.3.6"),
+						SubnetMask:    new("255.255.255.0"),
 					},
 				}
 				Ω(dc1.Clone().Equals(dc1)).Should(BeTrue())
@@ -436,7 +450,7 @@ var _ = Describe("Types", func() {
 						GatewayIp: nil,
 					},
 					V6: &model.DhcpConfigV6{
-						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeStart: new("1.2.3.5"),
 					},
 				}
 				Ω(dc1.HasConfig()).Should(BeTrue())
@@ -444,10 +458,10 @@ var _ = Describe("Types", func() {
 			It("should not have a v4 config with empty IP", func() {
 				dc1 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp: utils.Ptr(""),
+						GatewayIp: new(""),
 					},
 					V6: &model.DhcpConfigV6{
-						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeStart: new("1.2.3.5"),
 					},
 				}
 				Ω(dc1.HasConfig()).Should(BeTrue())
@@ -455,11 +469,11 @@ var _ = Describe("Types", func() {
 			It("should not have a v6 config", func() {
 				dc1 := &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:     utils.Ptr("1.2.3.4"),
-						LeaseDuration: utils.Ptr(123),
-						RangeStart:    utils.Ptr("1.2.3.5"),
-						RangeEnd:      utils.Ptr("1.2.3.6"),
-						SubnetMask:    utils.Ptr("255.255.255.0"),
+						GatewayIp:     new("1.2.3.4"),
+						LeaseDuration: new(123),
+						RangeStart:    new("1.2.3.5"),
+						RangeEnd:      new("1.2.3.6"),
+						SubnetMask:    new("255.255.255.0"),
 					},
 					V6: &model.DhcpConfigV6{},
 				}

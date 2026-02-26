@@ -680,3 +680,21 @@ func (mr *MockClientMockRecorder) UpdateFilter(whitelist, f any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFilter", reflect.TypeOf((*MockClient)(nil).UpdateFilter), whitelist, f)
 }
+
+// UpdateRewriteEntries mocks base method.
+func (m *MockClient) UpdateRewriteEntries(e ...model.RewriteUpdate) error {
+	m.ctrl.T.Helper()
+	varargs := []any{}
+	for _, a := range e {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateRewriteEntries", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRewriteEntries indicates an expected call of UpdateRewriteEntries.
+func (mr *MockClientMockRecorder) UpdateRewriteEntries(e ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRewriteEntries", reflect.TypeOf((*MockClient)(nil).UpdateRewriteEntries), e...)
+}

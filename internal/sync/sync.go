@@ -16,7 +16,6 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/log"
 	"github.com/bakito/adguardhome-sync/internal/metrics"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 	"github.com/bakito/adguardhome-sync/internal/versions"
 	"github.com/bakito/adguardhome-sync/version"
 )
@@ -145,7 +144,7 @@ func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 		return st
 	}
 	st.Status = "success"
-	st.ProtectionEnabled = utils.Ptr(status.ProtectionEnabled)
+	st.ProtectionEnabled = new(status.ProtectionEnabled)
 	return st
 }
 
