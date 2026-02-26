@@ -75,12 +75,15 @@ var (
 			return err
 		}
 
-		a, r, d := replicaRewrites.Merge(ac.origin.rewrites)
+		a, r, d, u := replicaRewrites.Merge(ac.origin.rewrites)
 
 		if err = ac.client.DeleteRewriteEntries(r...); err != nil {
 			return err
 		}
 		if err = ac.client.AddRewriteEntries(a...); err != nil {
+			return err
+		}
+		if err = ac.client.UpdateRewriteEntries(u...); err != nil {
 			return err
 		}
 

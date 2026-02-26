@@ -166,20 +166,22 @@ var _ = Describe("Types", func() {
 
 			It("should add a missing rewrite entry", func() {
 				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(HaveLen(1))
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 
 				Ω(*a[0].Domain).Should(Equal(domain))
 			})
 
 			It("should remove additional rewrite entry", func() {
 				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 
 				Ω(*r[0].Domain).Should(Equal(domain))
 			})
@@ -187,30 +189,43 @@ var _ = Describe("Types", func() {
 			It("should have no changes", func() {
 				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
 				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 			})
 
 			It("should remove target duplicate", func() {
 				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
 				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
 				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(HaveLen(1))
 				Ω(d).Should(BeEmpty())
+				Ω(u).Should(BeEmpty())
 			})
 
 			It("should remove target duplicate", func() {
 				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
 				originRE = append(originRE, model.RewriteEntry{Domain: new(domain)})
 				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain)})
-				a, r, d := replicaRE.Merge(&originRE)
+				a, r, d, u := replicaRE.Merge(&originRE)
 				Ω(a).Should(BeEmpty())
 				Ω(r).Should(BeEmpty())
 				Ω(d).Should(HaveLen(1))
+				Ω(u).Should(BeEmpty())
+			})
+
+			It("should update a changed", func() {
+				originRE = append(originRE, model.RewriteEntry{Domain: new(domain), Enabled: new(true)})
+				replicaRE = append(replicaRE, model.RewriteEntry{Domain: new(domain), Enabled: new(false)})
+				a, r, d, u := replicaRE.Merge(&originRE)
+				Ω(a).Should(BeEmpty())
+				Ω(r).Should(BeEmpty())
+				Ω(d).Should(BeEmpty())
+				Ω(u).Should(HaveLen(1))
 			})
 		})
 	})

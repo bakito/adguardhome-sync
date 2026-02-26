@@ -112,6 +112,7 @@ type Client interface {
 	RewriteList() (*model.RewriteEntries, error)
 	AddRewriteEntries(e ...model.RewriteEntry) error
 	DeleteRewriteEntries(e ...model.RewriteEntry) error
+	UpdateRewriteEntries(e ...model.RewriteUpdate) error
 	Filtering() (*model.FilterStatus, error)
 	ToggleFiltering(enabled bool, interval int) error
 	AddFilter(whitelist bool, f model.Filter) error
@@ -201,7 +202,7 @@ func (cl *client) RewriteList() (*model.RewriteEntries, error) {
 
 func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 	for _, e := range entries {
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Add DNS rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer, "enabled", e.Enabled).Info("Add DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/add")
 		if err != nil {
 			return err
@@ -212,8 +213,20 @@ func (cl *client) AddRewriteEntries(entries ...model.RewriteEntry) error {
 
 func (cl *client) DeleteRewriteEntries(entries ...model.RewriteEntry) error {
 	for _, e := range entries {
-		cl.log.With("domain", e.Domain, "answer", e.Answer).Info("Delete DNS rewrite entry")
+		cl.log.With("domain", e.Domain, "answer", e.Answer, "enabled", e.Enabled).Info("Delete DNS rewrite entry")
 		err := cl.doPost(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/delete")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cl *client) UpdateRewriteEntries(entries ...model.RewriteUpdate) error {
+	for _, e := range entries {
+		cl.log.With("domain", e.Update.Domain, "answer", e.Update.Answer, "enabled", e.Update.Enabled).
+			Info("Update DNS rewrite entry")
+		err := cl.doPut(cl.client.R().EnableTrace().SetBody(&e), "/rewrite/update")
 		if err != nil {
 			return err
 		}

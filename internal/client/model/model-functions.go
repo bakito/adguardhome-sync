@@ -261,10 +261,13 @@ func (re *RewriteEntry) Key() string {
 }
 
 // RewriteEntries list of RewriteEntry.
-type RewriteEntries []RewriteEntry
+type (
+	RewriteEntries []RewriteEntry
+	RewriteUpdates []RewriteUpdate
+)
 
 // Merge RewriteEntries.
-func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicates RewriteEntries) {
+func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicates RewriteEntries, updates RewriteUpdates) {
 	current := make(map[string]RewriteEntry)
 
 	processed := make(map[string]bool)
@@ -279,8 +282,14 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicat
 	}
 
 	for _, rr := range *other {
-		if _, ok := current[rr.Key()]; ok {
+		if cr, ok := current[rr.Key()]; ok {
 			delete(current, rr.Key())
+			if cr.Enabled != nil && (rr.Enabled == nil || *rr.Enabled != *cr.Enabled) {
+				updates = append(updates, RewriteUpdate{
+					Target: &cr,
+					Update: &rr,
+				})
+			}
 		} else {
 			if _, ok := processed[rr.Key()]; !ok {
 				adds = append(adds, rr)
@@ -296,7 +305,7 @@ func (rwe *RewriteEntries) Merge(other *RewriteEntries) (adds, removes, duplicat
 		removes = append(removes, rr)
 	}
 
-	return adds, removes, duplicates
+	return adds, removes, duplicates, updates
 }
 
 func MergeFilters(this, other *[]Filter) (adds, updates, removes []Filter) {
