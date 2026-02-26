@@ -106,6 +106,7 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | FEATURES_DHCP_SERVER_CONFIG (bool) | bool | Sync DHCP server config |
 | FEATURES_DHCP_STATIC_LEASES (bool) | bool | Sync DHCP static leases |
 | FEATURES_GENERAL_SETTINGS (bool) | bool | Sync general settings |
+| FEATURES_PROTECTION_STATUS (bool) | bool | Sync the protection status (disabled if generalSettings is disabled) |
 | FEATURES_QUERY_LOG_CONFIG (bool) | bool | Sync query log config |
 | FEATURES_STATS_CONFIG (bool) | bool | Sync stats config |
 | FEATURES_CLIENT_SETTINGS (bool) | bool | Sync client settings |
@@ -184,6 +185,7 @@ features: # (struct)
     serverConfig: # (bool) Sync DHCP server config
     staticLeases: # (bool) Sync DHCP static leases
   generalSettings: # (bool) Sync general settings
+  protectionStatus: # (bool) Sync the protection status (disabled if generalSettings is disabled)
   queryLogConfig: # (bool) Sync query log config
   statsConfig: # (bool) Sync stats config
   clientSettings: # (bool) Sync client settings

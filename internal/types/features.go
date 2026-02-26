@@ -28,16 +28,17 @@ func NewFeatures(enabled bool) Features {
 
 // Features feature flags.
 type Features struct {
-	DNS             DNS  `json:"dns"             yaml:"dns"`
-	DHCP            DHCP `json:"dhcp"            yaml:"dhcp"`
-	GeneralSettings bool `json:"generalSettings" yaml:"generalSettings" documentation:"Sync general settings" env:"FEATURES_GENERAL_SETTINGS"`
-	QueryLogConfig  bool `json:"queryLogConfig"  yaml:"queryLogConfig"  documentation:"Sync query log config" env:"FEATURES_QUERY_LOG_CONFIG"`
-	StatsConfig     bool `json:"statsConfig"     yaml:"statsConfig"     documentation:"Sync stats config"     env:"FEATURES_STATS_CONFIG"`
-	ClientSettings  bool `json:"clientSettings"  yaml:"clientSettings"  documentation:"Sync client settings"  env:"FEATURES_CLIENT_SETTINGS"`
-	Services        bool `json:"services"        yaml:"services"        documentation:"Sync services"         env:"FEATURES_SERVICES"`
-	Filters         bool `json:"filters"         yaml:"filters"         documentation:"Sync filters"          env:"FEATURES_FILTERS"`
-	Theme           bool `json:"theme"           yaml:"theme"           documentation:"Sync the web UI theme" env:"FEATURES_THEME"`
-	TLSConfig       bool `json:"tlsConfig"       yaml:"tlsConfig"       documentation:"Sync the TLS config"   env:"FEATURES_TLS_CONFIG"`
+	DNS              DNS  `json:"dns"              yaml:"dns"`
+	DHCP             DHCP `json:"dhcp"             yaml:"dhcp"`
+	GeneralSettings  bool `json:"generalSettings"  yaml:"generalSettings"  documentation:"Sync general settings"                                                env:"FEATURES_GENERAL_SETTINGS"`
+	ProtectionStatus bool `json:"protectionStatus" yaml:"protectionStatus" documentation:"Sync the protection status (disabled if generalSettings is disabled)" env:"FEATURES_PROTECTION_STATUS"`
+	QueryLogConfig   bool `json:"queryLogConfig"   yaml:"queryLogConfig"   documentation:"Sync query log config"                                                env:"FEATURES_QUERY_LOG_CONFIG"`
+	StatsConfig      bool `json:"statsConfig"      yaml:"statsConfig"      documentation:"Sync stats config"                                                    env:"FEATURES_STATS_CONFIG"`
+	ClientSettings   bool `json:"clientSettings"   yaml:"clientSettings"   documentation:"Sync client settings"                                                 env:"FEATURES_CLIENT_SETTINGS"`
+	Services         bool `json:"services"         yaml:"services"         documentation:"Sync services"                                                        env:"FEATURES_SERVICES"`
+	Filters          bool `json:"filters"          yaml:"filters"          documentation:"Sync filters"                                                         env:"FEATURES_FILTERS"`
+	Theme            bool `json:"theme"            yaml:"theme"            documentation:"Sync the web UI theme"                                                env:"FEATURES_THEME"`
+	TLSConfig        bool `json:"tlsConfig"        yaml:"tlsConfig"        documentation:"Sync the TLS config"                                                  env:"FEATURES_TLS_CONFIG"`
 }
 
 // DHCP features.

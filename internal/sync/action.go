@@ -10,9 +10,11 @@ import (
 
 func setupActions(cfg *types.Config) (actions []syncAction) {
 	if cfg.Features.GeneralSettings {
+		actions = append(actions, action("profile info", actionProfileInfo))
+		if cfg.Features.ProtectionStatus {
+			actions = append(actions, action("protection", actionProtection))
+		}
 		actions = append(actions,
-			action("profile info", actionProfileInfo),
-			action("protection", actionProtection),
 			action("parental", actionParental),
 			action("safe search config", actionSafeSearchConfig),
 			action("safe browsing", actionSafeBrowsing),
