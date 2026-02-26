@@ -37,7 +37,7 @@ func (w *worker) scrape() {
 
 func (w *worker) getMetrics(inst types.AdGuardInstance) metrics.InstanceMetrics {
 	var im metrics.InstanceMetrics
-	client, err := w.createClient(inst)
+	client, err := w.createClient(inst, w.cfg.ClientTimeout)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		return im

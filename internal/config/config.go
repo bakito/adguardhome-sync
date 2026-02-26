@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"regexp"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 
@@ -108,6 +109,13 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	}
 
 	cfg.Replicas, err = enrichReplicasFromEnv(cfg.Replicas)
+
+	if cfg.ClientTimeoutString != "" {
+		cfg.ClientTimeout, err = time.ParseDuration(cfg.ClientTimeoutString)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return &AppConfig{cfg: cfg, filePath: path, content: content}, err
 }

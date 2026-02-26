@@ -20,10 +20,12 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Cron            string `documentation:"Cron expression for the sync interval"              env:"CRON"              json:"cron,omitempty"            yaml:"cron,omitempty"`
-	RunOnStart      bool   `documentation:"Run the sync on startup"                            env:"RUN_ON_START"      json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"`
-	PrintConfigOnly bool   `documentation:"Print current config only and stop the application" env:"PRINT_CONFIG_ONLY" json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
-	ContinueOnError bool   `documentation:"Continue sync on errors"                            env:"CONTINUE_ON_ERROR" json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
+	Cron                string        `documentation:"Cron expression for the sync interval"                                          env:"CRON"                json:"cron,omitempty"              yaml:"cron,omitempty"`
+	RunOnStart          bool          `documentation:"Run the sync on startup"                                                        env:"RUN_ON_START"        json:"runOnStart,omitempty"        yaml:"runOnStart,omitempty"`
+	PrintConfigOnly     bool          `documentation:"Print current config only and stop the application"                             env:"PRINT_CONFIG_ONLY"   json:"printConfigOnly,omitempty"   yaml:"printConfigOnly,omitempty"`
+	ContinueOnError     bool          `documentation:"Continue sync on errors"                                                        env:"CONTINUE_ON_ERROR"   json:"continueOnError,omitempty"   yaml:"continueOnError,omitempty"`
+	ClientTimeoutString string        `documentation:"Define a custom http client timeout ^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$" env:"HTTP_CLIENT_TIMEOUT" json:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty" faker:"oneof: 30s, 5m"`
+	ClientTimeout       time.Duration `                                                                                                                         json:"-"                           yaml:"-"`
 	// Origin adguardhome instance
 	Origin *AdGuardInstance `documentation:"Origin instance" json:"origin" yaml:"origin"`
 	// One single replica adguardhome instance

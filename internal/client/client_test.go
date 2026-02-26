@@ -38,7 +38,7 @@ var _ = Describe("Client", func() {
 			inst := types.AdGuardInstance{URL: "https://foo.bar:3000"}
 			err := inst.Init()
 			Ω(err).ShouldNot(HaveOccurred())
-			cl, _ := client.New(inst)
+			cl, _ := client.New(inst, 0)
 			host := cl.Host()
 			Ω(host).Should(Equal("foo.bar:3000"))
 		})
@@ -127,7 +127,7 @@ var _ = Describe("Client", func() {
 				w.Header().Set("Location", "/install.html")
 				w.WriteHeader(http.StatusFound)
 			}))
-			cl, err := client.New(types.AdGuardInstance{URL: ts.URL})
+			cl, err := client.New(types.AdGuardInstance{URL: ts.URL}, 0)
 			Ω(err).ShouldNot(HaveOccurred())
 			_, err = cl.Status()
 			Ω(err).Should(HaveOccurred())
@@ -351,7 +351,7 @@ var _ = Describe("Client", func() {
 				w.WriteHeader(http.StatusUnauthorized)
 			}))
 			var err error
-			cl, err = client.New(types.AdGuardInstance{URL: ts.URL})
+			cl, err = client.New(types.AdGuardInstance{URL: ts.URL}, 0)
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 		Context("doGet", func() {
@@ -382,7 +382,7 @@ func ClientGet(file, path string) (*httptest.Server, client.Client) {
 		_, err = w.Write(b)
 		Ω(err).ShouldNot(HaveOccurred())
 	}))
-	cl, err := client.New(types.AdGuardInstance{URL: ts.URL})
+	cl, err := client.New(types.AdGuardInstance{URL: ts.URL}, 0)
 	Ω(err).ShouldNot(HaveOccurred())
 	return ts, cl
 }
@@ -397,7 +397,7 @@ func ClientPost(path string, content ...string) (*httptest.Server, client.Client
 		index++
 	}))
 
-	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password})
+	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password}, 0)
 	Ω(err).ShouldNot(HaveOccurred())
 	return ts, cl
 }
@@ -412,7 +412,7 @@ func ClientPut(path string, content ...string) (*httptest.Server, client.Client)
 		index++
 	}))
 
-	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password})
+	cl, err := client.New(types.AdGuardInstance{URL: ts.URL, Username: username, Password: password}, 0)
 	Ω(err).ShouldNot(HaveOccurred())
 	return ts, cl
 }

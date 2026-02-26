@@ -10,6 +10,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
@@ -55,7 +56,7 @@ func detailedError(resp *resty.Response, err error) error {
 }
 
 // New create a new client.
-func New(config types.AdGuardInstance) (Client, error) {
+func New(config types.AdGuardInstance, timeout time.Duration) (Client, error) {
 	var apiURL string
 	if config.APIPath == "" {
 		apiURL = config.URL + "/control"
@@ -68,6 +69,10 @@ func New(config types.AdGuardInstance) (Client, error) {
 	}
 	u.Path = path.Clean(u.Path)
 	cl := resty.New().SetBaseURL(u.String()).SetDisableWarn(true).SetHeaders(config.RequestHeaders)
+
+	if timeout > 0 {
+		cl = cl.SetTimeout(timeout)
+	}
 
 	// #nosec G402 has to be explicitly enabled
 	cl.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: config.InsecureSkipVerify})

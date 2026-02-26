@@ -94,7 +94,7 @@ type worker struct {
 	cfg          *types.Config
 	running      bool
 	cron         *cron.Cron
-	createClient func(instance types.AdGuardInstance) (client.Client, error)
+	createClient func(instance types.AdGuardInstance, timeout time.Duration) (client.Client, error)
 	actions      []syncAction
 }
 
@@ -123,7 +123,7 @@ func (w *worker) status() *syncStatus {
 func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 	st := replicaStatus{Host: inst.WebHost, URL: inst.WebURL}
 
-	oc, err := w.createClient(inst)
+	oc, err := w.createClient(inst, w.cfg.ClientTimeout)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		st.Status = "danger"
@@ -158,7 +158,7 @@ func (w *worker) sync() {
 		w.running = false
 	}()
 
-	oc, err := w.createClient(*w.cfg.Origin)
+	oc, err := w.createClient(*w.cfg.Origin, w.cfg.ClientTimeout)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
 		return
@@ -280,7 +280,7 @@ func (w *worker) sync() {
 }
 
 func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
-	rc, err := w.createClient(replica)
+	rc, err := w.createClient(replica, w.cfg.ClientTimeout)
 	if err != nil {
 		l.With("error", err, "url", replica.URL).Error("Error creating replica client")
 		return
