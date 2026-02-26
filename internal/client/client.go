@@ -318,7 +318,8 @@ func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, err
 }
 
 func (cl *client) SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error {
-	cl.log.With("services", schedule.ServicesString()).Info("Set blocked services schedule")
+	cl.log.With("services", schedule.ServicesString(), "timezone", schedule.Schedule.TimeZone).
+		Info("Set blocked services schedule")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(schedule), "/blocked_services/update")
 }
 
