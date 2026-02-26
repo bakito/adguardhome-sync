@@ -1,48 +1,57 @@
-FROM golang:1.26-alpine AS builder
+# syntax=docker/dockerfile:1.7
 
-WORKDIR /go/src/app
+# Build stage
+# NOTE: adguardhome-sync currently requires Go >= 1.25.5
+# Use BUILDPLATFORM for the builder to avoid QEMU slow builds for multi-arch.
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
 
-RUN apk add --no-cache upx ca-certificates tzdata
+ARG TARGETOS=linux
+ARG TARGETARCH
+WORKDIR /src
 
-ENV CGO_ENABLED=0 \
-  GOOS=linux
+RUN apk add --no-cache ca-certificates git
 
-# Copy only module files first to maximize layer caching for deps.
+# Copy go module files first for better caching
 COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
-
-# Now copy the rest of the source code.
+# Copy the rest
 COPY . .
 
-# Build args should be as late as possible so they don't bust the deps cache.
-ARG VERSION=main
-ARG BUILD="N/A"
+# Build upstream adguardhome-sync (root main package)
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath -ldflags="-s -w" -o /out/adguardhome-sync .
 
-RUN go build -a -installsuffix cgo \
-      -ldflags="-w -s -X github.com/bakito/adguardhome-sync/version.Version=${VERSION} -X github.com/bakito/adguardhome-sync/version.Build=${BUILD}" \
-      -o adguardhome-sync .
+# Build GUI wrapper
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath -ldflags="-s -w" -o /out/adguardhome-sync-gui ./cmd/gui
 
-RUN go version && upx -q adguardhome-sync
+# Runtime stage
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata && adduser -D -H -u 10001 app
+WORKDIR /app
+COPY --from=builder /out/adguardhome-sync /usr/local/bin/adguardhome-sync
+COPY --from=builder /out/adguardhome-sync-gui /usr/local/bin/adguardhome-sync-gui
 
-# application image
-FROM scratch
-ARG VERSION=main
-ARG BUILD="N/A"
-WORKDIR /opt/go
+ENV CONFIG_PATH=/config/adguardhome-sync.yaml
+ENV SYNC_BIN=/usr/local/bin/adguardhome-sync
+ENV SYNC_ARGS=""
+# Sync API (adguardhome-sync built-in UI) is disabled by default to avoid port clash with this GUI (both default to 8080).
+# Enable it by setting api.port in YAML (e.g. 8081) and exposing that port, or force via SYNC_API_PORT.
+ENV GUI_BIND=0.0.0.0:8080
 
-LABEL org.opencontainers.image.title="adguardhome-sync" \
-      org.opencontainers.image.description="Sync AdGuard Home configuration between instances" \
-      org.opencontainers.image.url="https://github.com/bakito/adguardhome-sync" \
-      org.opencontainers.image.source="https://github.com/bakito/adguardhome-sync" \
-      org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.created="${BUILD}" \
-      org.opencontainers.image.authors="bakito <github@bakito.ch>"
+# Optional basic auth for the GUI:
+#   GUI_USERNAME=admin
+#   GUI_PASSWORD=changeme
+ENV GUI_USERNAME=""
+ENV GUI_PASSWORD=""
+
+VOLUME ["/config"]
 EXPOSE 8080
-ENTRYPOINT ["/opt/go/adguardhome-sync"]
-CMD ["run", "--config", "/config/adguardhome-sync.yaml"]
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder /usr/share/zoneinfo/ /usr/share/zoneinfo/
-COPY --from=builder /go/src/app/adguardhome-sync /opt/go/adguardhome-sync
-USER 1001
+
+USER app
+ENTRYPOINT ["/usr/local/bin/adguardhome-sync-gui"]
