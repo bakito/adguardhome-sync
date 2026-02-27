@@ -206,8 +206,7 @@ func (clients *Clients) Add(cl Client) {
 	if clients.Clients == nil {
 		clients.Clients = &ClientsArray{cl}
 	} else {
-		a := append(*clients.Clients, cl)
-		clients.Clients = &a
+		clients.Clients = new(append(*clients.Clients, cl))
 	}
 }
 
