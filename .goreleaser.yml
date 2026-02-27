@@ -60,6 +60,7 @@ archives:
 snapshot:
   version_template: "{{ .Version }}-next"
 changelog:
+  use: github
   sort: asc
   filters:
     exclude:

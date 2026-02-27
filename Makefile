@@ -40,7 +40,8 @@ mocks: tb.mockgen
 
 release: tb.semver tb.goreleaser tb.syft
 	@version=$$($(TB_SEMVER)); \
-	git tag -s $$version -m"Release $$version"
+	git tag -s $$version -m"Release $$version"; \
+	git push origin $$version
 	PATH=$(TB_LOCALBIN):$${PATH} $(TB_GORELEASER) --clean --parallelism 2
 
 test-release: tb.goreleaser tb.syft
