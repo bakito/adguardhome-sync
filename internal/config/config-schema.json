@@ -143,6 +143,9 @@
         "generalSettings": {
           "type": "boolean"
         },
+        "protectionStatus": {
+          "type": "boolean"
+        },
         "queryLogConfig": {
           "type": "boolean"
         },

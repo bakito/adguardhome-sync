@@ -68,6 +68,7 @@ func init() {
 	doCmd.PersistentFlags().Bool(config.FlagFeatureServices, true, "Enable services sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFilters, true, "Enable filters sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureTLSConfig, false, "Enable TLS config sync feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureProtectionStatus, true, "Enable protections status sync")
 
 	doCmd.PersistentFlags().String(config.FlagOriginURL, "", "Origin instance url")
 	doCmd.PersistentFlags().

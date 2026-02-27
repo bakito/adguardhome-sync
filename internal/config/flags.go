@@ -178,8 +178,13 @@ func (fr *flagReader) readFeatureFlags() error {
 	}); err != nil {
 		return err
 	}
-	return fr.setBoolFlag(FlagFeatureTLSConfig, func(_ *types.Config, value bool) {
+	if err := fr.setBoolFlag(FlagFeatureTLSConfig, func(_ *types.Config, value bool) {
 		fr.cfg.Features.TLSConfig = value
+	}); err != nil {
+		return err
+	}
+	return fr.setBoolFlag(FlagFeatureProtectionStatus, func(_ *types.Config, value bool) {
+		fr.cfg.Features.ProtectionStatus = value
 	})
 }
 
