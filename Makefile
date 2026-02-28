@@ -47,6 +47,9 @@ release: tb.semver tb.goreleaser tb.syft
 test-release: tb.goreleaser tb.syft
 	PATH=$(TB_LOCALBIN):$${PATH} $(TB_GORELEASER) --skip=publish --snapshot --clean --parallelism 2
 
+check-vulnerabilities:
+	go run golang.org/x/vuln/cmd/govulncheck@latest -show verbose,color ./...
+
 start-replica:
 	docker rm -f adguardhome-replica
 	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:latest
