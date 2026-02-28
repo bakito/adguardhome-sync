@@ -1,0 +1,24 @@
+name: govulncheck
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule: # daily at 03:16 UTC
+    - cron: '16 03 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  govulncheck:
+    name: Check Vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Check Vulnerabilities
+        run: make check-vulnerabilities
