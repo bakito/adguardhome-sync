@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
@@ -52,7 +53,11 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 	}
 	// adguard home requires content type json to be set on every request
 	req.Header.Set("Content-Type", "application/json")
-	b, _ := json.Marshal(req.Body)
+	var b []byte
+	if req.Body != nil {
+		b, _ = json.Marshal(req.Body)
+	}
+	req.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	rl.With("body", string(b), "content-type", req.Header.Get("Content-Type")).Debug("do post")
 	resp, err := req.Post(url)
 	if err != nil {
@@ -80,7 +85,11 @@ func (cl *client) doPut(req *resty.Request, url string) error {
 	}
 	// adguard home requires content type json to be set on every request
 	req.Header.Set("Content-Type", "application/json")
-	b, _ := json.Marshal(req.Body)
+	var b []byte
+	if req.Body != nil {
+		b, _ = json.Marshal(req.Body)
+	}
+	req.Header.Set("Content-Length", strconv.Itoa(len(b)))
 	rl.With("body", string(b), "content-type", req.Header.Get("Content-Type")).Debug("do put")
 	resp, err := req.Put(url)
 	if err != nil {
