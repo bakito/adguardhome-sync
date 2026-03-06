@@ -1,45 +1,57 @@
 package config
 
 import (
+	"testing"
+
 	"github.com/go-faker/faker/v4"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
 
 	"github.com/bakito/adguardhome-sync/internal/types"
 )
 
-var _ = Describe("Config", func() {
-	Context("validateSchema", func() {
-		DescribeTable("validateSchema config",
-			func(configFile string, expectFail bool) {
-				err := validateSchema(configFile)
-				if expectFail {
-					Ω(err).Should(HaveOccurred())
-				} else {
-					Ω(err).ShouldNot(HaveOccurred())
-				}
-			},
-			Entry(`Should be valid`, "../../testdata/config/config-valid.yaml", false),
-			Entry(`Should be valid if file doesn't exist`, "../../testdata/config/foo.bar", false),
-			Entry(`Should fail if file is not yaml`, "../../go.mod", true),
-		)
-		It("validate config with all fields randomly populated", func() {
-			cfg := &types.Config{}
-
-			err := faker.FakeData(cfg)
-			Ω(err).ShouldNot(HaveOccurred())
-
-			data, err := yaml.Marshal(&cfg)
-			Ω(err).ShouldNot(HaveOccurred())
-
-			err = validateYAML(data)
-			Ω(err).ShouldNot(HaveOccurred())
+func Test_validateSchema(t *testing.T) {
+	tests := []struct {
+		name       string
+		configFile string
+		expectFail bool
+	}{
+		{"Should be valid", "../../testdata/config/config-valid.yaml", false},
+		{"Should be valid if file doesn't exist", "../../testdata/config/foo.bar", false},
+		{"Should fail if file is not yaml", "../../go.mod", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateSchema(tt.configFile)
+			if (err != nil) != tt.expectFail {
+				t.Errorf("validateSchema() error = %v, expectFail %v", err, tt.expectFail)
+			}
 		})
-		It("validate config with empty file", func() {
-			var data []byte
-			err := validateYAML(data)
-			Ω(err).ShouldNot(HaveOccurred())
-		})
-	})
-})
+	}
+}
+
+func Test_validateYAML_faker(t *testing.T) {
+	cfg := &types.Config{}
+
+	err := faker.FakeData(cfg)
+	if err != nil {
+		t.Fatalf("faker.FakeData() error = %v", err)
+	}
+
+	data, err := yaml.Marshal(&cfg)
+	if err != nil {
+		t.Fatalf("yaml.Marshal() error = %v", err)
+	}
+
+	err = validateYAML(data)
+	if err != nil {
+		t.Errorf("validateYAML() error = %v", err)
+	}
+}
+
+func Test_validateYAML_empty(t *testing.T) {
+	var data []byte
+	err := validateYAML(data)
+	if err != nil {
+		t.Errorf("validateYAML() error = %v", err)
+	}
+}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -111,8 +111,14 @@ func (w *worker) status() *syncStatus {
 		syncStatus.Replicas = append(syncStatus.Replicas, st)
 	}
 
-	sort.Slice(syncStatus.Replicas, func(i, j int) bool {
-		return syncStatus.Replicas[i].Host < syncStatus.Replicas[j].Host
+	slices.SortFunc(syncStatus.Replicas, func(i, j replicaStatus) int {
+		if i.Host < j.Host {
+			return -1
+		}
+		if i.Host > j.Host {
+			return 1
+		}
+		return 0
 	})
 
 	syncStatus.SyncRunning = w.running

@@ -1,60 +1,78 @@
 package config
 
 import (
-	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
-	"github.com/bakito/adguardhome-sync/internal/test/matchers"
 	"github.com/bakito/adguardhome-sync/internal/types"
 	"github.com/bakito/adguardhome-sync/version"
+
+	_ "embed"
 )
 
-var _ = Describe("AppConfig", func() {
-	var (
-		ac  *AppConfig
-		env []string
-	)
-	BeforeEach(func() {
-		ac = &AppConfig{
-			cfg: &types.Config{
-				Origin: &types.AdGuardInstance{
-					URL: "https://ha.xxxx.net:3000",
+func TestAppConfig_printInternal(t *testing.T) {
+	env := []string{"FOO=foo", "BAR=bar"}
+
+	tests := []struct {
+		name     string
+		filePath string
+		expected int
+	}{
+		{
+			name:     "should printInternal config without file",
+			filePath: "",
+			expected: 1,
+		},
+		{
+			name:     "should printInternal config with file",
+			filePath: "config.yaml",
+			expected: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ac := &AppConfig{
+				cfg: &types.Config{
+					Origin: &types.AdGuardInstance{
+						URL: "https://ha.xxxx.net:3000",
+					},
 				},
-			},
-			content: `
+				content: `
 origin:
   url: https://ha.xxxx.net:3000
 `,
-		}
-		env = []string{"FOO=foo", "BAR=bar"}
-	})
-	Context("printInternal", func() {
-		It("should printInternal config without file", func() {
-			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(out).
-				Should(matchers.EqualIgnoringLineEndings(fmt.Sprintf(expected(1), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
-		})
-		It("should printInternal config with file", func() {
-			ac.filePath = "config.yaml"
-			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(out).
-				Should(matchers.EqualIgnoringLineEndings(fmt.Sprintf(expected(2), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)))
-		})
-	})
-})
+				filePath: tt.filePath,
+			}
 
-func expected(id int) string {
+			out, err := ac.printInternal(env, "v0.0.1", []string{"v0.0.2"})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			want := fmt.Sprintf(expected(t, tt.expected), version.Version, version.Build, runtime.GOOS, runtime.GOARCH)
+			if normalize(out) != normalize(want) {
+				t.Errorf("expected %s but got %s", want, out)
+			}
+		})
+	}
+}
+
+func normalize(s string) string {
+	return strings.ReplaceAll(s, "\r\n", "\n")
+}
+
+func expected(t *testing.T, id int) string {
+	t.Helper()
 	b, err := os.ReadFile(
 		filepath.Join("..", "..", "testdata", "config", fmt.Sprintf("print-config_test_expected%d.md", id)),
 	)
-	Ω(err).ShouldNot(HaveOccurred())
+	if err != nil {
+		t.Fatalf("failed to read expected file: %v", err)
+	}
 	return string(b)
 }

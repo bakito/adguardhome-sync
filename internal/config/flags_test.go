@@ -2,23 +2,19 @@ package config
 
 import (
 	"strings"
+	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/google/go-cmp/cmp"
 	gm "go.uber.org/mock/gomock"
 
 	flagsmock "github.com/bakito/adguardhome-sync/internal/mocks/flags"
 	"github.com/bakito/adguardhome-sync/internal/types"
 )
 
-var _ = Describe("Config", func() {
-	var (
-		cfg      *types.Config
-		flags    *flagsmock.MockFlags
-		mockCtrl *gm.Controller
-	)
-	BeforeEach(func() {
-		cfg = &types.Config{
+func Test_readFlags(t *testing.T) {
+	setup := func(t *testing.T) (*types.Config, *flagsmock.MockFlags, *gm.Controller) {
+		t.Helper()
+		cfg := &types.Config{
 			Origin:  &types.AdGuardInstance{},
 			Replica: &types.AdGuardInstance{},
 			Features: types.Features{
@@ -39,39 +35,52 @@ var _ = Describe("Config", func() {
 				Filters:         true,
 			},
 		}
-		mockCtrl = gm.NewController(GinkgoT())
-		flags = flagsmock.NewMockFlags(mockCtrl)
-	})
-	AfterEach(func() {
-		defer mockCtrl.Finish()
-	})
-	Context("readFlags", func() {
-		It("should not change the config with nil flags", func() {
+		mockCtrl := gm.NewController(t)
+		flags := flagsmock.NewMockFlags(mockCtrl)
+		return cfg, flags, mockCtrl
+	}
+
+	t.Run("readFlags", func(t *testing.T) {
+		t.Run("should not change the config with nil flags", func(t *testing.T) {
+			cfg, _, ctrl := setup(t)
+			defer ctrl.Finish()
 			clone := cfg.DeepCopy()
 			err := readFlags(cfg, nil)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg).Should(Equal(clone))
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if diff := cmp.Diff(clone, cfg); diff != "" {
+				t.Errorf("config was changed (-want +got):\n%s", diff)
+			}
 		})
-		It("should not change the config with no changed flags", func() {
+		t.Run("should not change the config with no changed flags", func(t *testing.T) {
+			cfg, flags, ctrl := setup(t)
+			defer ctrl.Finish()
 			clone := cfg.DeepCopy()
 			flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 			err := readFlags(cfg, flags)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg).Should(Equal(clone))
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if diff := cmp.Diff(clone, cfg); diff != "" {
+				t.Errorf("config was changed (-want +got):\n%s", diff)
+			}
 		})
 	})
-	Context("readFeatureFlags", func() {
-		It("should disable all flags", func() {
+
+	t.Run("readFeatureFlags", func(t *testing.T) {
+		t.Run("should disable all flags", func(t *testing.T) {
+			cfg, flags, ctrl := setup(t)
+			defer ctrl.Finish()
 			flags.EXPECT().Changed(gm.Any()).DoAndReturn(func(name string) bool {
 				return strings.HasPrefix(name, "feature")
 			}).AnyTimes()
 			flags.EXPECT().GetBool(gm.Any()).Return(false, nil).AnyTimes()
 			err := readFlags(cfg, flags)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg.Features).Should(Equal(types.Features{
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			expectedFeatures := types.Features{
 				DNS: types.DNS{
 					AccessLists:  false,
 					ServerConfig: false,
@@ -87,11 +96,17 @@ var _ = Describe("Config", func() {
 				ClientSettings:  false,
 				Services:        false,
 				Filters:         false,
-			}))
+			}
+			if cfg.Features != expectedFeatures {
+				t.Errorf("expected %+v but got %+v", expectedFeatures, cfg.Features)
+			}
 		})
 	})
-	Context("readAPIFlags", func() {
-		It("should change all values", func() {
+
+	t.Run("readAPIFlags", func(t *testing.T) {
+		t.Run("should change all values", func(t *testing.T) {
+			cfg, flags, ctrl := setup(t)
+			defer ctrl.Finish()
 			cfg.API = types.API{
 				Port:     1111,
 				Username: "2222",
@@ -106,18 +121,25 @@ var _ = Describe("Config", func() {
 			flags.EXPECT().GetString(FlagAPIPassword).Return("bbbb", nil)
 			flags.EXPECT().GetBool(FlagAPIDarkMode).Return(true, nil)
 			err := readFlags(cfg, flags)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg.API).Should(Equal(types.API{
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			expectedAPI := types.API{
 				Port:     9999,
 				Username: "aaaa",
 				Password: "bbbb",
 				DarkMode: true,
-			}))
+			}
+			if cfg.API != expectedAPI {
+				t.Errorf("expected %+v but got %+v", expectedAPI, cfg.API)
+			}
 		})
 	})
-	Context("readRootFlags", func() {
-		It("should change all values", func() {
+
+	t.Run("readRootFlags", func(t *testing.T) {
+		t.Run("should change all values", func(t *testing.T) {
+			cfg, flags, ctrl := setup(t)
+			defer ctrl.Finish()
 			cfg.Cron = "*/10 * * * *"
 			cfg.PrintConfigOnly = false
 			cfg.ContinueOnError = false
@@ -134,16 +156,28 @@ var _ = Describe("Config", func() {
 			flags.EXPECT().GetBool(FlagPrintConfigOnly).Return(true, nil)
 			flags.EXPECT().GetBool(FlagContinueOnError).Return(true, nil)
 			err := readFlags(cfg, flags)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg.Cron).Should(Equal("*/30 * * * *"))
-			Ω(cfg.RunOnStart).Should(BeTrue())
-			Ω(cfg.PrintConfigOnly).Should(BeTrue())
-			Ω(cfg.ContinueOnError).Should(BeTrue())
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if cfg.Cron != "*/30 * * * *" {
+				t.Errorf("expected cron to be */30 * * * *, but got %v", cfg.Cron)
+			}
+			if !cfg.RunOnStart {
+				t.Error("expected RunOnStart to be true")
+			}
+			if !cfg.PrintConfigOnly {
+				t.Error("expected PrintConfigOnly to be true")
+			}
+			if !cfg.ContinueOnError {
+				t.Error("expected ContinueOnError to be true")
+			}
 		})
 	})
-	Context("readOriginFlags", func() {
-		It("should change all values", func() {
+
+	t.Run("readOriginFlags", func(t *testing.T) {
+		t.Run("should change all values", func(t *testing.T) {
+			cfg, flags, ctrl := setup(t)
+			defer ctrl.Finish()
 			cfg.Origin = &types.AdGuardInstance{
 				URL:                "1",
 				WebURL:             "2",
@@ -171,9 +205,10 @@ var _ = Describe("Config", func() {
 			flags.EXPECT().GetString(FlagOriginCookie).Return("f", nil)
 			flags.EXPECT().GetBool(FlagOriginISV).Return(true, nil)
 			err := readFlags(cfg, flags)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg.Origin).Should(Equal(&types.AdGuardInstance{
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			expectedOrigin := &types.AdGuardInstance{
 				URL:                "a",
 				WebURL:             "b",
 				APIPath:            "c",
@@ -181,11 +216,17 @@ var _ = Describe("Config", func() {
 				Password:           "e",
 				Cookie:             "f",
 				InsecureSkipVerify: true,
-			}))
+			}
+			if diff := cmp.Diff(expectedOrigin, cfg.Origin); diff != "" {
+				t.Errorf("origin was changed (-want +got):\n%s", diff)
+			}
 		})
 	})
-	Context("readReplicaFlags", func() {
-		It("should change all values", func() {
+
+	t.Run("readReplicaFlags", func(t *testing.T) {
+		t.Run("should change all values", func(t *testing.T) {
+			cfg, flags, ctrl := setup(t)
+			defer ctrl.Finish()
 			cfg.Replica = &types.AdGuardInstance{
 				URL:                "1",
 				WebURL:             "2",
@@ -219,9 +260,10 @@ var _ = Describe("Config", func() {
 			flags.EXPECT().GetBool(FlagReplicaAutoSetup).Return(true, nil)
 			flags.EXPECT().GetString(FlagReplicaInterfaceName).Return("g", nil)
 			err := readFlags(cfg, flags)
-
-			Ω(err).ShouldNot(HaveOccurred())
-			Ω(cfg.Replica).Should(Equal(&types.AdGuardInstance{
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			expectedReplica := &types.AdGuardInstance{
 				URL:                "a",
 				WebURL:             "b",
 				APIPath:            "c",
@@ -231,7 +273,11 @@ var _ = Describe("Config", func() {
 				InsecureSkipVerify: true,
 				AutoSetup:          true,
 				InterfaceName:      "g",
-			}))
+			}
+
+			if diff := cmp.Diff(expectedReplica, cfg.Replica); diff != "" {
+				t.Errorf("replica was changed (-want +got):\n%s", diff)
+			}
 		})
 	})
-})
+}

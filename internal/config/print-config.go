@@ -2,10 +2,9 @@ package config
 
 import (
 	"bytes"
-	_ "embed"
 	"os"
 	"runtime"
-	"sort"
+	"slices"
 	"strings"
 	"text/template"
 
@@ -14,6 +13,8 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client"
 	"github.com/bakito/adguardhome-sync/internal/types"
 	"github.com/bakito/adguardhome-sync/version"
+
+	_ "embed"
 )
 
 //go:embed print-config.md
@@ -69,7 +70,7 @@ func (ac *AppConfig) printInternal(env []string, originVersion string, replicaVe
 		return "", err
 	}
 
-	sort.Strings(env)
+	slices.Sort(env)
 
 	var buf bytes.Buffer
 

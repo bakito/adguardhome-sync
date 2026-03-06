@@ -1,3 +1,4 @@
+# managed by https://github.com/bakito/github-files sync action
 version: '2'
 linters:
   enable:
@@ -8,6 +9,7 @@ linters:
     - containedctx
     - copyloopvar
     - decorder
+    - depguard
     - dogsled
     - dupword
     - durationcheck
@@ -65,7 +67,6 @@ linters:
     - asasalint
     - contextcheck
     - cyclop
-    - depguard
     - dupl
     - errchkjson
     - exhaustive
@@ -101,6 +102,19 @@ linters:
     - wrapcheck
     - wsl
   settings:
+    depguard:
+      rules:
+        no_third_party_test_libraries:
+          list-mode: lax
+          files:
+            - $test
+          deny:
+            - pkg: github.com/onsi/ginkgo
+              desc: See https://go.dev/wiki/TestComments#assert-libraries
+            - pkg: github.com/onsi/gomega
+              desc: See https://go.dev/wiki/TestComments#assert-libraries
+            - pkg: github.com/stretchr/testify
+              desc: See https://go.dev/wiki/TestComments#assert-libraries
     gocritic:
       enable-all: true
       disabled-checks:
@@ -110,10 +124,10 @@ linters:
         - unnamedResult
         - whyNoLint
     govet:
+      enable-all: true
       disable:
         - fieldalignment
         - shadow
-      enable-all: true
     misspell:
       locale: US
     revive:
@@ -128,11 +142,13 @@ linters:
         - name: deep-exit
           disabled: true
         - name: dot-imports
-          severity: warning
           disabled: false
+          severity: warning
           exclude: [""]
           arguments:
             - allowedPackages: ["github.com/onsi/ginkgo/v2", "github.com/onsi/gomega"]
+        - name: enforce-switch-style
+          disabled: true
         - name: exported
           disabled: true
         - name: filename-format
@@ -148,20 +164,18 @@ linters:
           disabled: true
         - name: line-length-limit
           disabled: true
-          arguments:
-            - &lineLength 128
         - name: max-public-structs
           disabled: true
         - name: package-comments
           disabled: true
-        - name: var-naming
-          disabled: true
-        - name: enforce-switch-style
+        - name: package-naming
           disabled: true
         - name: unhandled-error
           arguments:
             - '^fmt\.(Fp|P)?rint(f|ln)?$'
             - '^(bytes\.Buffer|string\.Writer|strings\.Builder)\.Write(Byte|Rune|String)?$'
+        - name: var-naming
+          disabled: true
     staticcheck:
       checks:
         - 'all'
@@ -180,11 +194,11 @@ linters:
           - forbidigo
         path: ^internal/cmds/
       - linters:
-          - forcetypeassert
-        path: _test\.go$
-      - linters:
           - forbidigo
         path: assets/scripts/generate-commit.go
+      - linters:
+          - forcetypeassert
+        path: _test\.go$
 formatters:
   enable:
     - gci
@@ -194,16 +208,15 @@ formatters:
     - golines
   settings:
     gci:
+      custom-order: true
       sections:
         - standard
         - default
-        - prefix(github.com/bakito/adguardhome-sync)
-    gofumpt:
-      module-path: github.com/bakito/adguardhome-sync
-      extra-rules: true
-    goimports:
-      local-prefixes:
-        - github.com/bakito/adguardhome-sync
+        - prefix(github.com/bakito)
+        - blank
+        - dot
+    gofmt:
+      simplify: true
     golines:
-      max-len: *lineLength
+      max-len: 128
       tab-len: 4
