@@ -2,8 +2,6 @@ package sync
 
 import (
 	"context"
-	// go embed blank import.
-	_ "embed"
 	"errors"
 	"fmt"
 	"html/template"
@@ -21,6 +19,9 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/metrics"
 	"github.com/bakito/adguardhome-sync/internal/sync/static"
 	"github.com/bakito/adguardhome-sync/version"
+
+	// go embed blank import.
+	_ "embed"
 )
 
 func (w *worker) handleSync(c *gin.Context) {

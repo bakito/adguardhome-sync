@@ -3,12 +3,13 @@ package config_test
 import (
 	"os"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	gm "go.uber.org/mock/gomock"
 
 	"github.com/bakito/adguardhome-sync/internal/config"
 	flagsmock "github.com/bakito/adguardhome-sync/internal/mocks/flags"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Config", func() {

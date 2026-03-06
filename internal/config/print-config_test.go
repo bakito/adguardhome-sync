@@ -1,18 +1,19 @@
 package config
 
 import (
-	_ "embed"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"github.com/bakito/adguardhome-sync/internal/test/matchers"
 	"github.com/bakito/adguardhome-sync/internal/types"
 	"github.com/bakito/adguardhome-sync/version"
+
+	_ "embed"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("AppConfig", func() {
