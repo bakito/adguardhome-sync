@@ -1,11 +1,12 @@
+# managed by https://github.com/bakito/github-files sync action
 name: govulncheck
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-  schedule: # daily at 03:16 UTC
-    - cron: '16 03 * * *'
+  schedule: # daily at 03:33 UTC
+    - cron: '33 03 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,5 +21,7 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+      - name: Generate
+        run: if make -n generate > /dev/null 2>&1; then make generate; fi
       - name: Check Vulnerabilities
-        run: make check-vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest -show verbose,color ./...
