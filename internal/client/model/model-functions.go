@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/jinzhu/copier"
@@ -105,15 +105,15 @@ func (c *DNSConfig) Clone() *DNSConfig {
 // Sort dns config.
 func (c *DNSConfig) Sort() {
 	if c.UpstreamDns != nil {
-		sort.Strings(*c.UpstreamDns)
+		slices.Sort(*c.UpstreamDns)
 	}
 
 	if c.UpstreamDns != nil {
-		sort.Strings(*c.BootstrapDns)
+		slices.Sort(*c.BootstrapDns)
 	}
 
 	if c.UpstreamDns != nil {
-		sort.Strings(*c.LocalPtrUpstreams)
+		slices.Sort(*c.LocalPtrUpstreams)
 	}
 }
 
@@ -136,8 +136,8 @@ func EqualsStringSlice(a, b *[]string, sortIt bool) bool {
 	aa := *a
 	bb := *b
 	if sortIt {
-		sort.Strings(aa)
-		sort.Strings(bb)
+		slices.Sort(aa)
+		slices.Sort(bb)
 	}
 	if len(aa) != len(bb) {
 		return false
@@ -153,16 +153,16 @@ func EqualsStringSlice(a, b *[]string, sortIt bool) bool {
 // Sort clients.
 func (cl *Client) Sort() {
 	if cl.Ids != nil {
-		sort.Strings(*cl.Ids)
+		slices.Sort(*cl.Ids)
 	}
 	if cl.Tags != nil {
-		sort.Strings(*cl.Tags)
+		slices.Sort(*cl.Tags)
 	}
 	if cl.BlockedServices != nil {
-		sort.Strings(*cl.BlockedServices)
+		slices.Sort(*cl.BlockedServices)
 	}
 	if cl.Upstreams != nil {
-		sort.Strings(*cl.Upstreams)
+		slices.Sort(*cl.Upstreams)
 	}
 }
 
@@ -427,7 +427,7 @@ func ArrayString(a *[]string) string {
 		return "[]"
 	}
 	sorted := *a
-	sort.Strings(sorted)
+	slices.Sort(sorted)
 	return fmt.Sprintf("[%s]", strings.Join(sorted, ","))
 }
 

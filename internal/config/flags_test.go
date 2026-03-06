@@ -3,12 +3,13 @@ package config
 import (
 	"strings"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	gm "go.uber.org/mock/gomock"
 
 	flagsmock "github.com/bakito/adguardhome-sync/internal/mocks/flags"
 	"github.com/bakito/adguardhome-sync/internal/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Config", func() {

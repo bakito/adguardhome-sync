@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	gm "go.uber.org/mock/gomock"
 
 	"github.com/bakito/adguardhome-sync/internal/client"
@@ -14,6 +12,9 @@ import (
 	clientmock "github.com/bakito/adguardhome-sync/internal/mocks/client"
 	"github.com/bakito/adguardhome-sync/internal/types"
 	"github.com/bakito/adguardhome-sync/internal/versions"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Sync", func() {

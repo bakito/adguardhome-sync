@@ -9,12 +9,13 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"github.com/bakito/adguardhome-sync/internal/client"
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	"github.com/bakito/adguardhome-sync/internal/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var (

@@ -2,10 +2,11 @@ package metrics
 
 import (
 	"github.com/go-faker/faker/v4"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"github.com/bakito/adguardhome-sync/internal/client/model"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Metrics", func() {

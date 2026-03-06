@@ -1,10 +1,11 @@
 package static
 
 import (
-	_ "embed"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	_ "embed"
 )
 
 var (

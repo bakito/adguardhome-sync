@@ -2,11 +2,12 @@ package config
 
 import (
 	"github.com/go-faker/faker/v4"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
 
 	"github.com/bakito/adguardhome-sync/internal/types"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Config", func() {
