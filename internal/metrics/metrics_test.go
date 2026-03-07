@@ -13,15 +13,15 @@ func TestUpdateInstances_getStats(t *testing.T) {
 	stats = make(OverallStats)
 	UpdateInstances(InstanceMetricsList{Metrics: []InstanceMetrics{
 		{HostName: "foo", Status: &model.ServerStatus{}, Stats: &model.Stats{
-			NumDnsQueries: ptr(100),
+			NumDnsQueries: new(100),
 			DnsQueries:    &[]int{10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		}},
 		{HostName: "bar", Status: &model.ServerStatus{}, Stats: &model.Stats{
-			NumDnsQueries: ptr(200),
+			NumDnsQueries: new(200),
 			DnsQueries:    &[]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		}},
 		{HostName: "aaa", Status: &model.ServerStatus{}, Stats: &model.Stats{
-			NumDnsQueries: ptr(300),
+			NumDnsQueries: new(300),
 			DnsQueries:    &[]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		}},
 	}})
@@ -102,8 +102,4 @@ func verifyStats(t *testing.T, lines []Line) {
 	if diff := cmp.Diff(total.Data, sum); diff != "" {
 		t.Errorf("sum mismatch (-want +got):\n%s", diff)
 	}
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }

@@ -124,7 +124,7 @@ func TestClient_Filter(t *testing.T) {
 			`{"rules":[]}`,
 		)
 		defer ts.Close()
-		err := cl.SetCustomRules(ptr([]string{}))
+		err := cl.SetCustomRules(new([]string{}))
 		if err != nil {
 			t.Errorf("SetCustomRules() error = %v", err)
 		}
@@ -208,8 +208,8 @@ func TestClient_RewriteList(t *testing.T) {
 		ts, cl := ClientPost(t, "/rewrite/add", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
 		defer ts.Close()
 		err := cl.AddRewriteEntries(
-			model.RewriteEntry{Answer: ptr("foo"), Domain: ptr("foo")},
-			model.RewriteEntry{Answer: ptr("bar"), Domain: ptr("bar")},
+			model.RewriteEntry{Answer: new("foo"), Domain: new("foo")},
+			model.RewriteEntry{Answer: new("bar"), Domain: new("bar")},
 		)
 		if err != nil {
 			t.Errorf("AddRewriteEntries() error = %v", err)
@@ -219,8 +219,8 @@ func TestClient_RewriteList(t *testing.T) {
 		ts, cl := ClientPost(t, "/rewrite/delete", `{"answer":"foo","domain":"foo"}`, `{"answer":"bar","domain":"bar"}`)
 		defer ts.Close()
 		err := cl.DeleteRewriteEntries(
-			model.RewriteEntry{Answer: ptr("foo"), Domain: ptr("foo")},
-			model.RewriteEntry{Answer: ptr("bar"), Domain: ptr("bar")},
+			model.RewriteEntry{Answer: new("foo"), Domain: new("foo")},
+			model.RewriteEntry{Answer: new("bar"), Domain: new("bar")},
 		)
 		if err != nil {
 			t.Errorf("DeleteRewriteEntries() error = %v", err)
@@ -273,7 +273,7 @@ func TestClient_SafeSearchConfig(t *testing.T) {
 	t.Run("should enable safesearch", func(t *testing.T) {
 		ts, cl := ClientPut(t, "/safesearch/settings", `{"enabled":true}`)
 		defer ts.Close()
-		err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: ptr(true)})
+		err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: new(true)})
 		if err != nil {
 			t.Errorf("SetSafeSearchConfig(true) error = %v", err)
 		}
@@ -281,7 +281,7 @@ func TestClient_SafeSearchConfig(t *testing.T) {
 	t.Run("should disable safesearch", func(t *testing.T) {
 		ts, cl := ClientPut(t, "/safesearch/settings", `{"enabled":false}`)
 		defer ts.Close()
-		err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: ptr(false)})
+		err := cl.SetSafeSearchConfig(&model.SafeSearchConfig{Enabled: new(false)})
 		if err != nil {
 			t.Errorf("SetSafeSearchConfig(false) error = %v", err)
 		}
@@ -354,11 +354,11 @@ func TestClient_BlockedServicesSchedule(t *testing.T) {
 			`{"ids":["bar","foo"],"schedule":{"mon":{"end":99,"start":1}}}`)
 		defer ts.Close()
 		err := cl.SetBlockedServicesSchedule(&model.BlockedServicesSchedule{
-			Ids: ptr([]string{"foo", "bar"}),
+			Ids: new([]string{"foo", "bar"}),
 			Schedule: &model.Schedule{
 				Mon: &model.DayRange{
-					Start: ptr(float32(1.0)),
-					End:   ptr(float32(99.0)),
+					Start: new(float32(1.0)),
+					End:   new(float32(99.0)),
 				},
 			},
 		})
@@ -385,7 +385,7 @@ func TestClient_Clients(t *testing.T) {
 			`{"ids":["id"],"name":"foo"}`,
 		)
 		defer ts.Close()
-		err := cl.AddClient(&model.Client{Name: ptr("foo"), Ids: ptr([]string{"id"})})
+		err := cl.AddClient(&model.Client{Name: new("foo"), Ids: new([]string{"id"})})
 		if err != nil {
 			t.Errorf("AddClient() error = %v", err)
 		}
@@ -395,7 +395,7 @@ func TestClient_Clients(t *testing.T) {
 			`{"data":{"ids":["id"],"name":"foo"},"name":"foo"}`,
 		)
 		defer ts.Close()
-		err := cl.UpdateClient(&model.Client{Name: ptr("foo"), Ids: ptr([]string{"id"})})
+		err := cl.UpdateClient(&model.Client{Name: new("foo"), Ids: new([]string{"id"})})
 		if err != nil {
 			t.Errorf("UpdateClient() error = %v", err)
 		}
@@ -405,7 +405,7 @@ func TestClient_Clients(t *testing.T) {
 			`{"ids":["id"],"name":"foo"}`,
 		)
 		defer ts.Close()
-		err := cl.DeleteClient(&model.Client{Name: ptr("foo"), Ids: ptr([]string{"id"})})
+		err := cl.DeleteClient(&model.Client{Name: new("foo"), Ids: new([]string{"id"})})
 		if err != nil {
 			t.Errorf("DeleteClient() error = %v", err)
 		}
@@ -437,9 +437,9 @@ func TestClient_QueryLogConfig(t *testing.T) {
 		var interval model.QueryLogConfigInterval = 123
 		err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{
 			QueryLogConfig: model.QueryLogConfig{
-				AnonymizeClientIp: ptr(true),
+				AnonymizeClientIp: new(true),
 				Interval:          &interval,
-				Enabled:           ptr(true),
+				Enabled:           new(true),
 			},
 			Ignored: []string{"foo.bar"},
 		})
@@ -566,8 +566,4 @@ func ClientPut(t *testing.T, path string, content ...string) (*httptest.Server, 
 		t.Fatalf("client.New error = %v", err)
 	}
 	return ts, cl
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }
