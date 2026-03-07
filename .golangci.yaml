@@ -145,8 +145,6 @@ linters:
           disabled: false
           severity: warning
           exclude: [""]
-          arguments:
-            - allowedPackages: ["github.com/onsi/ginkgo/v2", "github.com/onsi/gomega"]
         - name: enforce-switch-style
           disabled: true
         - name: exported
