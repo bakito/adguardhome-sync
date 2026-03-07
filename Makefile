@@ -29,9 +29,9 @@ fuzz:
 	 go test -fuzz=FuzzMask -v ./internal/types/ -fuzztime=60s
 
 # Run ci tests
-test-ci: mocks tidy tb.ginkgo
-	$(TB_GINKGO) --cover --coverprofile coverage.out.tmp ./...
-	cat coverage.out.tmp | grep -v "_generated.go" > coverage.out
+test-ci: mocks tidy
+	go test -cover -coverprofile coverage.out.tmp ./...
+	cat coverage.out.tmp | grep -v "_generated.go" | grep -v "zz_generated.deepcopy.go" > coverage.out
 	go tool cover -func=coverage.out
 
 mocks: tb.mockgen

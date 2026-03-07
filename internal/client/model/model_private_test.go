@@ -1,104 +1,161 @@
 package model
 
 import (
-	"github.com/onsi/gomega"
-	"go.uber.org/zap"
+	"testing"
 
 	"github.com/bakito/adguardhome-sync/internal/log"
-
-	. "github.com/onsi/ginkgo/v2"
 )
 
-var _ = Describe("Types", func() {
-	Context("DhcpConfigV4", func() {
-		DescribeTable("DhcpConfigV4 should not be valid",
-			func(v4 DhcpConfigV4) {
-				gomega.Ω(v4.isValid()).Should(gomega.BeFalse())
-			},
-			Entry(`When GatewayIp is nil`, DhcpConfigV4{
+func TestDhcpConfigV4_isValid(t *testing.T) {
+	tests := []struct {
+		name string
+		v4   DhcpConfigV4
+		want bool
+	}{
+		{
+			name: "When GatewayIp is nil",
+			v4: DhcpConfigV4{
 				GatewayIp:  nil,
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			}),
-			Entry(`When GatewayIp is ""`, DhcpConfigV4{
-				GatewayIp:  new(""),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			}),
-			Entry(`When SubnetMask is nil`, DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: nil,
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			}),
-			Entry(`When SubnetMask is ""`, DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new(""),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			}),
-			Entry(`When SubnetMask is nil`, DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: nil,
-				RangeEnd:   new("4.4.4.4"),
-			}),
-			Entry(`When SubnetMask is ""`, DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new(""),
-				RangeEnd:   new("4.4.4.4"),
-			}),
-			Entry(`When RangeEnd is nil`, DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   nil,
-			}),
-			Entry(`When RangeEnd is ""`, DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new(""),
-			}),
-		)
-	})
-	Context("DhcpConfigV6", func() {
-		DescribeTable("DhcpConfigV6 should not be valid",
-			func(v6 DhcpConfigV6) {
-				gomega.Ω(v6.isValid()).Should(gomega.BeFalse())
+				SubnetMask: ptr("2.2.2.2"),
+				RangeStart: ptr("3.3.3.3"),
+				RangeEnd:   ptr("4.4.4.4"),
 			},
-			Entry(`When SubnetMask is nil`, DhcpConfigV6{RangeStart: nil}),
-			Entry(`When SubnetMask is ""`, DhcpConfigV6{RangeStart: new("")}),
-		)
-	})
-	Context("DNSConfig", func() {
-		var (
-			cfg *DNSConfig
-			l   *zap.SugaredLogger
-		)
+			want: false,
+		},
+		{
+			name: "When GatewayIp is \"\"",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr(""),
+				SubnetMask: ptr("2.2.2.2"),
+				RangeStart: ptr("3.3.3.3"),
+				RangeEnd:   ptr("4.4.4.4"),
+			},
+			want: false,
+		},
+		{
+			name: "When SubnetMask is nil",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr("1.1.1.1"),
+				SubnetMask: nil,
+				RangeStart: ptr("3.3.3.3"),
+				RangeEnd:   ptr("4.4.4.4"),
+			},
+			want: false,
+		},
+		{
+			name: "When SubnetMask is \"\"",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr("1.1.1.1"),
+				SubnetMask: ptr(""),
+				RangeStart: ptr("3.3.3.3"),
+				RangeEnd:   ptr("4.4.4.4"),
+			},
+			want: false,
+		},
+		{
+			name: "When RangeStart is nil",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr("1.1.1.1"),
+				SubnetMask: ptr("2.2.2.2"),
+				RangeStart: nil,
+				RangeEnd:   ptr("4.4.4.4"),
+			},
+			want: false,
+		},
+		{
+			name: "When RangeStart is \"\"",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr("1.1.1.1"),
+				SubnetMask: ptr("2.2.2.2"),
+				RangeStart: ptr(""),
+				RangeEnd:   ptr("4.4.4.4"),
+			},
+			want: false,
+		},
+		{
+			name: "When RangeEnd is nil",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr("1.1.1.1"),
+				SubnetMask: ptr("2.2.2.2"),
+				RangeStart: ptr("3.3.3.3"),
+				RangeEnd:   nil,
+			},
+			want: false,
+		},
+		{
+			name: "When RangeEnd is \"\"",
+			v4: DhcpConfigV4{
+				GatewayIp:  ptr("1.1.1.1"),
+				SubnetMask: ptr("2.2.2.2"),
+				RangeStart: ptr("3.3.3.3"),
+				RangeEnd:   ptr(""),
+			},
+			want: false,
+		},
+	}
 
-		BeforeEach(func() {
-			cfg = &DNSConfig{
-				UsePrivatePtrResolvers: new(true),
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.v4.isValid(); got != tt.want {
+				t.Errorf("isValid() = %v, want %v", got, tt.want)
 			}
-			l = log.GetLogger("test")
 		})
-		Context("Sanitize", func() {
-			It("should disable UsePrivatePtrResolvers resolvers is nil ", func() {
-				cfg.LocalPtrUpstreams = nil
-				cfg.Sanitize(l)
-				gomega.Ω(cfg.UsePrivatePtrResolvers).ShouldNot(gomega.BeNil())
-				gomega.Ω(*cfg.UsePrivatePtrResolvers).Should(gomega.Equal(false))
-			})
-			It("should disable UsePrivatePtrResolvers resolvers is empty ", func() {
-				cfg.LocalPtrUpstreams = new([]string{})
-				cfg.Sanitize(l)
-				gomega.Ω(cfg.UsePrivatePtrResolvers).ShouldNot(gomega.BeNil())
-				gomega.Ω(*cfg.UsePrivatePtrResolvers).Should(gomega.Equal(false))
-			})
+	}
+}
+
+func TestDhcpConfigV6_isValid(t *testing.T) {
+	tests := []struct {
+		name string
+		v6   DhcpConfigV6
+		want bool
+	}{
+		{
+			name: "When RangeStart is nil",
+			v6:   DhcpConfigV6{RangeStart: nil},
+			want: false,
+		},
+		{
+			name: "When RangeStart is \"\"",
+			v6:   DhcpConfigV6{RangeStart: ptr("")},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.v6.isValid(); got != tt.want {
+				t.Errorf("isValid() = %v, want %v", got, tt.want)
+			}
 		})
+	}
+}
+
+func TestDNSConfig_Sanitize(t *testing.T) {
+	l := log.GetLogger("test")
+
+	t.Run("should disable UsePrivatePtrResolvers if resolvers is nil", func(t *testing.T) {
+		cfg := &DNSConfig{
+			UsePrivatePtrResolvers: ptr(true),
+			LocalPtrUpstreams:      nil,
+		}
+		cfg.Sanitize(l)
+		if cfg.UsePrivatePtrResolvers == nil || *cfg.UsePrivatePtrResolvers {
+			t.Errorf("expected UsePrivatePtrResolvers to be false, got %v", cfg.UsePrivatePtrResolvers)
+		}
 	})
-})
+
+	t.Run("should disable UsePrivatePtrResolvers if resolvers is empty", func(t *testing.T) {
+		cfg := &DNSConfig{
+			UsePrivatePtrResolvers: ptr(true),
+			LocalPtrUpstreams:      ptr([]string{}),
+		}
+		cfg.Sanitize(l)
+		if cfg.UsePrivatePtrResolvers == nil || *cfg.UsePrivatePtrResolvers {
+			t.Errorf("expected UsePrivatePtrResolvers to be false, got %v", cfg.UsePrivatePtrResolvers)
+		}
+	})
+}
+
+func ptr[T any](v T) *T {
+	return &v
+}

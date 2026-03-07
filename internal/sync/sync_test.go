@@ -2,8 +2,10 @@ package sync
 
 import (
 	"errors"
+	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	gm "go.uber.org/mock/gomock"
 
@@ -11,577 +13,763 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	clientmock "github.com/bakito/adguardhome-sync/internal/mocks/client"
 	"github.com/bakito/adguardhome-sync/internal/types"
+	"github.com/bakito/adguardhome-sync/internal/utils"
 	"github.com/bakito/adguardhome-sync/internal/versions"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Sync", func() {
-	var (
-		mockCtrl *gm.Controller
-		cl       *clientmock.MockClient
-		w        *worker
-		te       error
-		ac       *actionContext
-	)
+type testEnv struct {
+	mockCtrl *gm.Controller
+	cl       *clientmock.MockClient
+	w        *worker
+	ac       *actionContext
+	te       error
+}
 
-	BeforeEach(func() {
-		mockCtrl = gm.NewController(GinkgoT())
-		cl = clientmock.NewMockClient(mockCtrl)
-		w = &worker{
-			createClient: func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
-				return cl, nil
-			},
-			cfg: &types.Config{
-				Features: types.Features{
-					DHCP: types.DHCP{
-						ServerConfig: true,
-						StaticLeases: true,
-					},
-					DNS: types.DNS{
-						ServerConfig: true,
-						Rewrites:     true,
-						AccessLists:  true,
-					},
-					Filters:         true,
-					ClientSettings:  true,
-					Services:        true,
-					GeneralSettings: true,
-					StatsConfig:     true,
-					QueryLogConfig:  true,
-					Theme:           true,
+func newTestEnv(t *testing.T) *testEnv {
+	t.Helper()
+	mockCtrl := gm.NewController(t)
+	cl := clientmock.NewMockClient(mockCtrl)
+	te := errors.New(uuid.NewString())
+	w := &worker{
+		createClient: func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+			return cl, nil
+		},
+		cfg: &types.Config{
+			Features: types.Features{
+				DHCP: types.DHCP{
+					ServerConfig: true,
+					StaticLeases: true,
 				},
-				Replicas: []types.AdGuardInstance{
-					{},
+				DNS: types.DNS{
+					ServerConfig: true,
+					Rewrites:     true,
+					AccessLists:  true,
 				},
+				Filters:         true,
+				ClientSettings:  true,
+				Services:        true,
+				GeneralSettings: true,
+				StatsConfig:     true,
+				QueryLogConfig:  true,
+				Theme:           true,
 			},
-		}
-		te = errors.New(uuid.NewString())
-
-		ac = &actionContext{
-			cfg: w.cfg,
-			rl:  l,
-			origin: &origin{
-				profileInfo: &model.ProfileInfo{
-					Name:     "origin",
-					Language: "en",
-					Theme:    "auto",
-				},
-				status:         &model.ServerStatus{},
-				safeSearch:     &model.SafeSearchConfig{},
-				queryLogConfig: &model.QueryLogConfigWithIgnored{},
-				statsConfig:    &model.PutStatsConfigUpdateRequest{},
+			Replicas: []types.AdGuardInstance{
+				{},
 			},
-			replicaStatus: &model.ServerStatus{},
-			client:        cl,
-			replica:       w.cfg.Replicas[0],
-		}
-	})
-	AfterEach(func() {
-		defer mockCtrl.Finish()
-	})
+		},
+	}
 
-	Context("worker", func() {
-		Context("actionDNSRewrites", func() {
-			var (
-				domain string
-				answer string
-				reO    model.RewriteEntries
-				reR    model.RewriteEntries
-			)
+	ac := &actionContext{
+		cfg: w.cfg,
+		rl:  l,
+		origin: &origin{
+			profileInfo: &model.ProfileInfo{
+				Name:     "origin",
+				Language: "en",
+				Theme:    "auto",
+			},
+			status:         &model.ServerStatus{},
+			safeSearch:     &model.SafeSearchConfig{},
+			queryLogConfig: &model.QueryLogConfigWithIgnored{},
+			statsConfig:    &model.PutStatsConfigUpdateRequest{},
+		},
+		replicaStatus: &model.ServerStatus{},
+		client:        cl,
+		replica:       w.cfg.Replicas[0],
+	}
+	return &testEnv{
+		mockCtrl: mockCtrl,
+		cl:       cl,
+		w:        w,
+		ac:       ac,
+		te:       te,
+	}
+}
 
-			BeforeEach(func() {
-				domain = uuid.NewString()
-				answer = uuid.NewString()
-				reO = model.RewriteEntries{{Domain: new(domain), Answer: new(answer)}}
-				reR = model.RewriteEntries{{Domain: new(domain), Answer: new(answer)}}
-			})
-			It("should have no changes (empty slices)", func() {
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().AddRewriteEntries()
-				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().UpdateRewriteEntries()
-				err := actionDNSRewrites(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should add one rewrite entry", func() {
-				reR = []model.RewriteEntry{}
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().AddRewriteEntries(reO[0])
-				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().UpdateRewriteEntries()
-				err := actionDNSRewrites(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should remove one rewrite entry", func() {
-				reO = []model.RewriteEntry{}
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().AddRewriteEntries()
-				cl.EXPECT().DeleteRewriteEntries(reR[0])
-				cl.EXPECT().UpdateRewriteEntries()
-				err := actionDNSRewrites(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should update one rewrite entry", func() {
-				reO[0].Enabled = new(false)
-				reR[0].Enabled = new(true)
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().AddRewriteEntries()
-				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().UpdateRewriteEntries(gm.Any())
-				err := actionDNSRewrites(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should return error when error on RewriteList()", func() {
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(nil, te)
-				err := actionDNSRewrites(ac)
-				Ω(err).Should(HaveOccurred())
-			})
-			It("should return error when error on AddRewriteEntries()", func() {
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().AddRewriteEntries().Return(te)
-				err := actionDNSRewrites(ac)
-				Ω(err).Should(HaveOccurred())
-			})
-			It("should return error when error on DeleteRewriteEntries()", func() {
-				ac.origin.rewrites = &reO
-				cl.EXPECT().RewriteList().Return(&reR, nil)
-				cl.EXPECT().DeleteRewriteEntries().Return(te)
-				err := actionDNSRewrites(ac)
-				Ω(err).Should(HaveOccurred())
-			})
-		})
-		Context("actionClientSettings", func() {
-			var (
-				clR  *model.Clients
-				name string
-			)
-			BeforeEach(func() {
-				name = uuid.NewString()
-				ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: new(name)}}}
-				clR = &model.Clients{Clients: &model.ClientsArray{{Name: new(name)}}}
-			})
-			It("should have no changes (empty slices)", func() {
-				cl.EXPECT().Clients().Return(clR, nil)
-				err := actionClientSettings(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should add one client", func() {
-				clR.Clients = &model.ClientsArray{}
-				cl.EXPECT().Clients().Return(clR, nil)
-				cl.EXPECT().AddClient(&(*ac.origin.clients.Clients)[0])
-				err := actionClientSettings(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should update one client", func() {
-				(*clR.Clients)[0].FilteringEnabled = new(true)
-				cl.EXPECT().Clients().Return(clR, nil)
-				cl.EXPECT().UpdateClient(&(*ac.origin.clients.Clients)[0])
-				err := actionClientSettings(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should delete one client", func() {
-				ac.origin.clients.Clients = &model.ClientsArray{}
-				cl.EXPECT().Clients().Return(clR, nil)
-				cl.EXPECT().DeleteClient(&(*clR.Clients)[0])
-				err := actionClientSettings(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should return error when error on Clients()", func() {
-				cl.EXPECT().Clients().Return(nil, te)
-				err := actionClientSettings(ac)
-				Ω(err).Should(HaveOccurred())
-			})
-		})
-		Context("actionParental", func() {
-			It("should have no changes", func() {
-				cl.EXPECT().Parental()
-				err := actionParental(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have parental enabled changes", func() {
-				ac.origin.parental = true
-				cl.EXPECT().Parental()
-				cl.EXPECT().ToggleParental(true)
-				err := actionParental(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-		Context("actionProtection", func() {
-			It("should have no changes", func() {
-				err := actionProtection(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have protection enabled changes", func() {
-				ac.origin.status.ProtectionEnabled = true
-				cl.EXPECT().ToggleProtection(true)
-				err := actionProtection(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-		Context("actionSafeSearchConfig", func() {
-			It("should have no changes", func() {
-				cl.EXPECT().SafeSearchConfig().Return(ac.origin.safeSearch, nil)
+func TestSync(t *testing.T) {
+	t.Run("worker", func(t *testing.T) {
+		t.Run("actionDNSRewrites", func(t *testing.T) {
+			domain := uuid.NewString()
+			answer := uuid.NewString()
+			reO := model.RewriteEntries{{Domain: &domain, Answer: &answer}}
+			reR := model.RewriteEntries{{Domain: &domain, Answer: &answer}}
 
-				err := actionSafeSearchConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should have no changes (empty slices)", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.rewrites = &reO
+				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.cl.EXPECT().AddRewriteEntries()
+				env.cl.EXPECT().DeleteRewriteEntries()
+				env.cl.EXPECT().UpdateRewriteEntries()
+				err := actionDNSRewrites(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+				}
 			})
-			It("should have safeSearch enabled changes", func() {
-				ac.origin.safeSearch = &model.SafeSearchConfig{Enabled: new(true)}
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SetSafeSearchConfig(ac.origin.safeSearch)
-				err := actionSafeSearchConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should add one rewrite entry", func(t *testing.T) {
+				env := newTestEnv(t)
+				reRLocal := model.RewriteEntries{}
+				env.ac.origin.rewrites = &reO
+				env.cl.EXPECT().RewriteList().Return(&reRLocal, nil)
+				env.cl.EXPECT().AddRewriteEntries(reO[0])
+				env.cl.EXPECT().DeleteRewriteEntries()
+				env.cl.EXPECT().UpdateRewriteEntries()
+				err := actionDNSRewrites(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+				}
 			})
-			It("should have Duckduckgo safeSearch enabled changed", func() {
-				ac.origin.safeSearch = &model.SafeSearchConfig{Duckduckgo: new(true)}
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: new(true)}, nil)
-				cl.EXPECT().SetSafeSearchConfig(ac.origin.safeSearch)
-				err := actionSafeSearchConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should remove one rewrite entry", func(t *testing.T) {
+				env := newTestEnv(t)
+				reOLocal := model.RewriteEntries{}
+				env.ac.origin.rewrites = &reOLocal
+				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.cl.EXPECT().AddRewriteEntries()
+				env.cl.EXPECT().DeleteRewriteEntries(reR[0])
+				env.cl.EXPECT().UpdateRewriteEntries()
+				err := actionDNSRewrites(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+				}
+			})
+			t.Run("should update one rewrite entry", func(t *testing.T) {
+				env := newTestEnv(t)
+				reOLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: utils.Ptr(false)}}
+				reRLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: utils.Ptr(true)}}
+				env.ac.origin.rewrites = &reOLocal
+				env.cl.EXPECT().RewriteList().Return(&reRLocal, nil)
+				env.cl.EXPECT().AddRewriteEntries()
+				env.cl.EXPECT().DeleteRewriteEntries()
+				env.cl.EXPECT().UpdateRewriteEntries(gm.Any())
+				err := actionDNSRewrites(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+				}
+			})
+			t.Run("should return error when error on RewriteList()", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.rewrites = &reO
+				env.cl.EXPECT().RewriteList().Return(nil, env.te)
+				err := actionDNSRewrites(env.ac)
+				if err == nil {
+					t.Error("actionDNSRewrites() error = nil, want error")
+				}
+			})
+			t.Run("should return error when error on AddRewriteEntries()", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.rewrites = &reO
+				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.cl.EXPECT().DeleteRewriteEntries()
+				env.cl.EXPECT().AddRewriteEntries().Return(env.te)
+				err := actionDNSRewrites(env.ac)
+				if err == nil {
+					t.Error("actionDNSRewrites() error = nil, want error")
+				}
+			})
+			t.Run("should return error when error on DeleteRewriteEntries()", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.rewrites = &reO
+				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.cl.EXPECT().DeleteRewriteEntries().Return(env.te)
+				err := actionDNSRewrites(env.ac)
+				if err == nil {
+					t.Error("actionDNSRewrites() error = nil, want error")
+				}
 			})
 		})
-		Context("actionProfileInfo", func() {
-			It("should have no changes", func() {
-				cl.EXPECT().ProfileInfo().Return(ac.origin.profileInfo, nil)
-				err := actionProfileInfo(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+
+		t.Run("actionClientSettings", func(t *testing.T) {
+			name := uuid.NewString()
+
+			t.Run("should have no changes (empty slices)", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: &name}}}
+				clR := &model.Clients{Clients: &model.ClientsArray{{Name: &name}}}
+				env.cl.EXPECT().Clients().Return(clR, nil)
+				err := actionClientSettings(env.ac)
+				if err != nil {
+					t.Errorf("actionClientSettings() error = %v, want nil", err)
+				}
 			})
-			It("should have profileInfo language changed", func() {
-				ac.origin.profileInfo.Language = "de"
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en"}, nil)
-				cl.EXPECT().SetProfileInfo(&model.ProfileInfo{
+			t.Run("should add one client", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: &name}}}
+				clRLocal := &model.Clients{Clients: &model.ClientsArray{}}
+				env.cl.EXPECT().Clients().Return(clRLocal, nil)
+				env.cl.EXPECT().AddClient(&(*env.ac.origin.clients.Clients)[0])
+				err := actionClientSettings(env.ac)
+				if err != nil {
+					t.Errorf("actionClientSettings() error = %v, want nil", err)
+				}
+			})
+			t.Run("should update one client", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: &name}}}
+				clRLocal := &model.Clients{Clients: &model.ClientsArray{{Name: &name, FilteringEnabled: utils.Ptr(true)}}}
+				env.cl.EXPECT().Clients().Return(clRLocal, nil)
+				env.cl.EXPECT().UpdateClient(&(*env.ac.origin.clients.Clients)[0])
+				err := actionClientSettings(env.ac)
+				if err != nil {
+					t.Errorf("actionClientSettings() error = %v, want nil", err)
+				}
+			})
+			t.Run("should delete one client", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{}}
+				clR := &model.Clients{Clients: &model.ClientsArray{{Name: &name}}}
+				env.cl.EXPECT().Clients().Return(clR, nil)
+				env.cl.EXPECT().DeleteClient(&(*clR.Clients)[0])
+				err := actionClientSettings(env.ac)
+				if err != nil {
+					t.Errorf("actionClientSettings() error = %v, want nil", err)
+				}
+			})
+			t.Run("should return error when error on Clients()", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Clients().Return(nil, env.te)
+				err := actionClientSettings(env.ac)
+				if err == nil {
+					t.Error("actionClientSettings() error = nil, want error")
+				}
+			})
+		})
+
+		t.Run("actionParental", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Parental()
+				err := actionParental(env.ac)
+				if err != nil {
+					t.Errorf("actionParental() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have parental enabled changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.parental = true
+				env.cl.EXPECT().Parental()
+				env.cl.EXPECT().ToggleParental(true)
+				err := actionParental(env.ac)
+				if err != nil {
+					t.Errorf("actionParental() error = %v, want nil", err)
+				}
+			})
+		})
+
+		t.Run("actionProtection", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				err := actionProtection(env.ac)
+				if err != nil {
+					t.Errorf("actionProtection() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have protection enabled changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.status.ProtectionEnabled = true
+				env.cl.EXPECT().ToggleProtection(true)
+				err := actionProtection(env.ac)
+				if err != nil {
+					t.Errorf("actionProtection() error = %v, want nil", err)
+				}
+			})
+		})
+
+		t.Run("actionSafeSearchConfig", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().SafeSearchConfig().Return(env.ac.origin.safeSearch, nil)
+
+				err := actionSafeSearchConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionSafeSearchConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have safeSearch enabled changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.safeSearch = &model.SafeSearchConfig{Enabled: utils.Ptr(true)}
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				env.cl.EXPECT().SetSafeSearchConfig(env.ac.origin.safeSearch)
+				err := actionSafeSearchConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionSafeSearchConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have Duckduckgo safeSearch enabled changed", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.safeSearch = &model.SafeSearchConfig{Duckduckgo: utils.Ptr(true)}
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: utils.Ptr(true)}, nil)
+				env.cl.EXPECT().SetSafeSearchConfig(env.ac.origin.safeSearch)
+				err := actionSafeSearchConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionSafeSearchConfig() error = %v, want nil", err)
+				}
+			})
+		})
+
+		t.Run("actionProfileInfo", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().ProfileInfo().Return(env.ac.origin.profileInfo, nil)
+				err := actionProfileInfo(env.ac)
+				if err != nil {
+					t.Errorf("actionProfileInfo() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have profileInfo language changed", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.profileInfo.Language = "de"
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en"}, nil)
+				env.cl.EXPECT().SetProfileInfo(&model.ProfileInfo{
 					Language: "de",
 					Name:     "replica",
 					Theme:    "auto",
 				})
-				err := actionProfileInfo(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+				err := actionProfileInfo(env.ac)
+				if err != nil {
+					t.Errorf("actionProfileInfo() error = %v, want nil", err)
+				}
 			})
-			It("should not change theme if feature is disabled", func() {
-				ac.origin.profileInfo.Language = "de"
-				ac.cfg.Features.Theme = false
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en"}, nil)
-				cl.EXPECT().SetProfileInfo(&model.ProfileInfo{
+			t.Run("should not change theme if feature is disabled", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.profileInfo.Language = "de"
+				env.ac.cfg.Features.Theme = false
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{Name: "replica", Language: "en"}, nil)
+				env.cl.EXPECT().SetProfileInfo(&model.ProfileInfo{
 					Language: "de",
 					Name:     "replica",
 					Theme:    "",
 				})
-				err := actionProfileInfo(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should not sync profileInfo if language is not set", func() {
-				ac.origin.profileInfo.Language = ""
-				cl.EXPECT().
-					ProfileInfo().
-					Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
-				cl.EXPECT().SetProfileInfo(ac.origin.profileInfo).Times(0)
-				err := actionProfileInfo(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should not sync profileInfo if theme is not set", func() {
-				ac.origin.profileInfo.Theme = ""
-				cl.EXPECT().
-					ProfileInfo().
-					Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
-				cl.EXPECT().SetProfileInfo(ac.origin.profileInfo).Times(0)
-				err := actionProfileInfo(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-		Context("actionSafeBrowsing", func() {
-			It("should have no changes", func() {
-				cl.EXPECT().SafeBrowsing()
-				err := actionSafeBrowsing(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-
-			It("should have safeBrowsing enabled changes", func() {
-				ac.origin.safeBrowsing = true
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().ToggleSafeBrowsing(true)
-				err := actionSafeBrowsing(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-		Context("actionQueryLogConfig", func() {
-			var qlc *model.QueryLogConfigWithIgnored
-			BeforeEach(func() {
-				qlc = &model.QueryLogConfigWithIgnored{}
-			})
-			It("should have no changes", func() {
-				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
-				err := actionQueryLogConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have QueryLogConfig changes", func() {
-				var interval model.QueryLogConfigInterval = 123
-				ac.origin.queryLogConfig.Interval = &interval
-				cl.EXPECT().QueryLogConfig().Return(qlc, nil)
-				cl.EXPECT().
-					SetQueryLogConfig(&model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil}})
-				err := actionQueryLogConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-		Context("syncConfigs", func() {
-			var sc *model.PutStatsConfigUpdateRequest
-			BeforeEach(func() {
-				sc = &model.PutStatsConfigUpdateRequest{}
-			})
-			It("should have no changes", func() {
-				cl.EXPECT().StatsConfig().Return(sc, nil)
-				err := actionStatsConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have StatsConfig changes", func() {
-				var interval float32 = 123
-				ac.origin.statsConfig.Interval = interval
-				cl.EXPECT().StatsConfig().Return(sc, nil)
-				cl.EXPECT().SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
-				err := actionStatsConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-		Context("statusWithSetup", func() {
-			var (
-				status *model.ServerStatus
-				inst   types.AdGuardInstance
-			)
-			BeforeEach(func() {
-				status = &model.ServerStatus{}
-				inst = types.AdGuardInstance{
-					AutoSetup: true,
+				err := actionProfileInfo(env.ac)
+				if err != nil {
+					t.Errorf("actionProfileInfo() error = %v, want nil", err)
 				}
 			})
-			It("should get the replica status", func() {
-				cl.EXPECT().Status().Return(status, nil)
-				st, err := w.statusWithSetup(l, inst, cl)
-				Ω(err).ShouldNot(HaveOccurred())
-				Ω(st).Should(Equal(status))
+			t.Run("should not sync profileInfo if language is not set", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.profileInfo.Language = ""
+				env.cl.EXPECT().
+					ProfileInfo().
+					Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				env.cl.EXPECT().SetProfileInfo(env.ac.origin.profileInfo).Times(0)
+				err := actionProfileInfo(env.ac)
+				if err != nil {
+					t.Errorf("actionProfileInfo() error = %v, want nil", err)
+				}
 			})
-			It("should runs setup before getting replica status", func() {
-				cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
-				cl.EXPECT().Setup()
-				cl.EXPECT().Status().Return(status, nil)
-				st, err := w.statusWithSetup(l, inst, cl)
-				Ω(err).ShouldNot(HaveOccurred())
-				Ω(st).Should(Equal(status))
-			})
-			It("should fail on setup", func() {
-				cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
-				cl.EXPECT().Setup().Return(te)
-				st, err := w.statusWithSetup(l, inst, cl)
-				Ω(err).Should(HaveOccurred())
-				Ω(st).Should(BeNil())
+			t.Run("should not sync profileInfo if theme is not set", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.profileInfo.Theme = ""
+				env.cl.EXPECT().
+					ProfileInfo().
+					Return(&model.ProfileInfo{Name: "replica", Language: "en", Theme: "auto"}, nil)
+				env.cl.EXPECT().SetProfileInfo(env.ac.origin.profileInfo).Times(0)
+				err := actionProfileInfo(env.ac)
+				if err != nil {
+					t.Errorf("actionProfileInfo() error = %v, want nil", err)
+				}
 			})
 		})
-		Context("actionBlockedServicesSchedule", func() {
-			var rbss *model.BlockedServicesSchedule
-			BeforeEach(func() {
-				ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{}
-				rbss = &model.BlockedServicesSchedule{}
-			})
-			It("should have no changes", func() {
-				cl.EXPECT().BlockedServicesSchedule().Return(ac.origin.blockedServicesSchedule, nil)
-				err := actionBlockedServicesSchedule(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have blockedServices schedule changes", func() {
-				ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{Ids: new([]string{"bar"})}
 
-				cl.EXPECT().BlockedServicesSchedule().Return(rbss, nil)
-				cl.EXPECT().SetBlockedServicesSchedule(ac.origin.blockedServicesSchedule)
-				err := actionBlockedServicesSchedule(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+		t.Run("actionSafeBrowsing", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().SafeBrowsing()
+				err := actionSafeBrowsing(env.ac)
+				if err != nil {
+					t.Errorf("actionSafeBrowsing() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should have safeBrowsing enabled changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.safeBrowsing = true
+				env.cl.EXPECT().SafeBrowsing()
+				env.cl.EXPECT().ToggleSafeBrowsing(true)
+				err := actionSafeBrowsing(env.ac)
+				if err != nil {
+					t.Errorf("actionSafeBrowsing() error = %v, want nil", err)
+				}
 			})
 		})
-		Context("syncFilters", func() {
-			var rf *model.FilterStatus
-			BeforeEach(func() {
-				ac.origin.filters = &model.FilterStatus{}
-				rf = &model.FilterStatus{}
+
+		t.Run("actionQueryLogConfig", func(t *testing.T) {
+			qlc := &model.QueryLogConfigWithIgnored{}
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().QueryLogConfig().Return(qlc, nil)
+				err := actionQueryLogConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionQueryLogConfig() error = %v, want nil", err)
+				}
 			})
-			It("should have no changes", func() {
-				cl.EXPECT().Filtering().Return(rf, nil)
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should have QueryLogConfig changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				var interval model.QueryLogConfigInterval = 123
+				env.ac.origin.queryLogConfig.Interval = &interval
+				env.cl.EXPECT().QueryLogConfig().Return(qlc, nil)
+				env.cl.EXPECT().
+					SetQueryLogConfig(&model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil}})
+				err := actionQueryLogConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionQueryLogConfig() error = %v, want nil", err)
+				}
 			})
-			It("should have changes user roles", func() {
-				ac.origin.filters.UserRules = new([]string{"foo"})
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().SetCustomRules(ac.origin.filters.UserRules)
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+		})
+
+		t.Run("actionStatsConfig", func(t *testing.T) {
+			sc := &model.PutStatsConfigUpdateRequest{}
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().StatsConfig().Return(sc, nil)
+				err := actionStatsConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionStatsConfig() error = %v, want nil", err)
+				}
 			})
-			It("should have changed filtering config", func() {
-				ac.origin.filters.Enabled = new(true)
-				ac.origin.filters.Interval = new(123)
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should have StatsConfig changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				var interval float32 = 123
+				env.ac.origin.statsConfig.Interval = interval
+				env.cl.EXPECT().StatsConfig().Return(sc, nil)
+				env.cl.EXPECT().SetStatsConfig(&model.PutStatsConfigUpdateRequest{Interval: interval})
+				err := actionStatsConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionStatsConfig() error = %v, want nil", err)
+				}
 			})
-			It("should add a filter", func() {
-				ac.origin.filters.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
-				cl.EXPECT().RefreshFilters(gm.Any())
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+		})
+
+		t.Run("statusWithSetup", func(t *testing.T) {
+			status := &model.ServerStatus{}
+			inst := types.AdGuardInstance{
+				AutoSetup: true,
+			}
+			t.Run("should get the replica status", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Status().Return(status, nil)
+				st, err := env.w.statusWithSetup(l, inst, env.cl)
+				if err != nil {
+					t.Errorf("statusWithSetup() error = %v, want nil", err)
+				}
+				if diff := cmp.Diff(status, st); diff != "" {
+					t.Errorf("statusWithSetup() mismatch (-want +got):\n%s", diff)
+				}
 			})
-			It("should delete a filter", func() {
-				rf.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().DeleteFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should runs setup before getting replica status", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
+				env.cl.EXPECT().Setup()
+				env.cl.EXPECT().Status().Return(status, nil)
+				st, err := env.w.statusWithSetup(l, inst, env.cl)
+				if err != nil {
+					t.Errorf("statusWithSetup() error = %v, want nil", err)
+				}
+				if diff := cmp.Diff(status, st); diff != "" {
+					t.Errorf("statusWithSetup() mismatch (-want +got):\n%s", diff)
+				}
 			})
-			It("should update a filter", func() {
-				ac.origin.filters.Filters = new(
+			t.Run("should fail on setup", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
+				env.cl.EXPECT().Setup().Return(env.te)
+				st, err := env.w.statusWithSetup(l, inst, env.cl)
+				if err == nil {
+					t.Error("statusWithSetup() error = nil, want error")
+				}
+				if st != nil {
+					t.Errorf("statusWithSetup() st = %v, want nil", st)
+				}
+			})
+		})
+
+		t.Run("actionBlockedServicesSchedule", func(t *testing.T) {
+			rbss := &model.BlockedServicesSchedule{}
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{}
+				env.cl.EXPECT().BlockedServicesSchedule().Return(env.ac.origin.blockedServicesSchedule, nil)
+				err := actionBlockedServicesSchedule(env.ac)
+				if err != nil {
+					t.Errorf("actionBlockedServicesSchedule() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have blockedServices schedule changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{Ids: utils.Ptr([]string{"bar"})}
+
+				env.cl.EXPECT().BlockedServicesSchedule().Return(rbss, nil)
+				env.cl.EXPECT().SetBlockedServicesSchedule(env.ac.origin.blockedServicesSchedule)
+				err := actionBlockedServicesSchedule(env.ac)
+				if err != nil {
+					t.Errorf("actionBlockedServicesSchedule() error = %v, want nil", err)
+				}
+			})
+		})
+
+		t.Run("actionFilters", func(t *testing.T) {
+			rf := &model.FilterStatus{}
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have changes user roles", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.UserRules = utils.Ptr([]string{"foo"})
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().SetCustomRules(env.ac.origin.filters.UserRules)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have changed filtering config", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.Enabled = utils.Ptr(true)
+				env.ac.origin.filters.Interval = utils.Ptr(123)
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().ToggleFiltering(*env.ac.origin.filters.Enabled, *env.ac.origin.filters.Interval)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+			t.Run("should add a filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
+				env.cl.EXPECT().RefreshFilters(gm.Any())
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+			t.Run("should delete a filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				rfLocal := &model.FilterStatus{Filters: utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})}
+				env.cl.EXPECT().Filtering().Return(rfLocal, nil)
+				env.cl.EXPECT().DeleteFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+			t.Run("should update a filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.Filters = utils.Ptr(
 					[]model.Filter{{Name: "foo", Url: "https://foo.bar", Enabled: true}},
 				)
-				rf.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().UpdateFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar", Enabled: true})
-				cl.EXPECT().RefreshFilters(gm.Any())
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+				rfLocal := &model.FilterStatus{Filters: utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})}
+				env.cl.EXPECT().Filtering().Return(rfLocal, nil)
+				env.cl.EXPECT().UpdateFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar", Enabled: true})
+				env.cl.EXPECT().RefreshFilters(gm.Any())
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
 			})
 
-			It("should abort after failed added filter", func() {
-				ac.cfg.ContinueOnError = false
-				ac.origin.filters.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().
+			t.Run("should abort after failed added filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = false
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().
 					AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).
 					Return(errors.New("test failure"))
-				err := actionFilters(ac)
-				Ω(err).Should(HaveOccurred())
+				err := actionFilters(env.ac)
+				if err == nil {
+					t.Error("actionFilters() error = nil, want error")
+				}
 			})
 
-			It("should continue after failed added filter", func() {
-				ac.cfg.ContinueOnError = true
-				ac.origin.filters.Filters = new(
+			t.Run("should continue after failed added filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = true
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.Filters = utils.Ptr(
 					[]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}},
 				)
-				cl.EXPECT().Filtering().Return(rf, nil)
-				cl.EXPECT().
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().
 					AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).
 					Return(errors.New("test failure"))
-				cl.EXPECT().AddFilter(false, model.Filter{Name: "bar", Url: "https://bar.foo"})
-				cl.EXPECT().RefreshFilters(gm.Any())
-				err := actionFilters(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+				env.cl.EXPECT().AddFilter(false, model.Filter{Name: "bar", Url: "https://bar.foo"})
+				env.cl.EXPECT().RefreshFilters(gm.Any())
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
 			})
 		})
 
-		Context("actionDNSAccessLists", func() {
-			var ral *model.AccessList
-			BeforeEach(func() {
-				ac.origin.accessList = &model.AccessList{}
-				ral = &model.AccessList{}
+		t.Run("actionDNSAccessLists", func(t *testing.T) {
+			ral := &model.AccessList{}
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.accessList = &model.AccessList{}
+				env.cl.EXPECT().AccessList().Return(ral, nil)
+				err := actionDNSAccessLists(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSAccessLists() error = %v, want nil", err)
+				}
 			})
-			It("should have no changes", func() {
-				cl.EXPECT().AccessList().Return(ral, nil)
-				err := actionDNSAccessLists(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have access list changes", func() {
-				ral.BlockedHosts = new([]string{"foo"})
-				cl.EXPECT().AccessList().Return(ral, nil)
-				cl.EXPECT().SetAccessList(ac.origin.accessList)
-				err := actionDNSAccessLists(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-		})
-
-		Context("actionDNSServerConfig", func() {
-			var rdc *model.DNSConfig
-			BeforeEach(func() {
-				ac.origin.dnsConfig = &model.DNSConfig{}
-				rdc = &model.DNSConfig{}
-			})
-			It("should have no changes", func() {
-				cl.EXPECT().DNSConfig().Return(rdc, nil)
-				err := actionDNSServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have dns config changes", func() {
-				rdc.BootstrapDns = new([]string{"foo"})
-				cl.EXPECT().DNSConfig().Return(rdc, nil)
-				cl.EXPECT().SetDNSConfig(ac.origin.dnsConfig)
-				err := actionDNSServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			t.Run("should have access list changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.accessList = &model.AccessList{}
+				ralLocal := &model.AccessList{BlockedHosts: utils.Ptr([]string{"foo"})}
+				env.cl.EXPECT().AccessList().Return(ralLocal, nil)
+				env.cl.EXPECT().SetAccessList(env.ac.origin.accessList)
+				err := actionDNSAccessLists(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSAccessLists() error = %v, want nil", err)
+				}
 			})
 		})
 
-		Context("actionDHCPServerConfig", func() {
-			var rsc *model.DhcpStatus
-			BeforeEach(func() {
-				ac.origin.dhcpServerConfig = &model.DhcpStatus{
+		t.Run("actionDNSServerConfig", func(t *testing.T) {
+			rdc := &model.DNSConfig{}
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dnsConfig = &model.DNSConfig{}
+				env.cl.EXPECT().DNSConfig().Return(rdc, nil)
+				err := actionDNSServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should have dns config changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dnsConfig = &model.DNSConfig{}
+				rdcLocal := &model.DNSConfig{BootstrapDns: utils.Ptr([]string{"foo"})}
+				env.cl.EXPECT().DNSConfig().Return(rdcLocal, nil)
+				env.cl.EXPECT().SetDNSConfig(env.ac.origin.dnsConfig)
+				err := actionDNSServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
+				}
+			})
+		})
+
+		t.Run("actionDHCPServerConfig", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  new("1.2.3.4"),
-						RangeStart: new("1.2.3.5"),
-						RangeEnd:   new("1.2.3.6"),
-						SubnetMask: new("255.255.255.0"),
+						GatewayIp:  utils.Ptr("1.2.3.4"),
+						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeEnd:   utils.Ptr("1.2.3.6"),
+						SubnetMask: utils.Ptr("255.255.255.0"),
 					},
 				}
-				rsc = &model.DhcpStatus{}
-				w.cfg.Features.DHCP.StaticLeases = false
-			})
-			It("should have no changes", func() {
-				rsc.V4 = ac.origin.dhcpServerConfig.V4
-				cl.EXPECT().DhcpConfig().Return(rsc, nil)
-				err := actionDHCPServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should have changes", func() {
-				rsc.Enabled = new(true)
-				cl.EXPECT().DhcpConfig().Return(rsc, nil)
-				cl.EXPECT().SetDhcpConfig(ac.origin.dhcpServerConfig)
-				err := actionDHCPServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should use replica interface name", func() {
-				ac.replica.InterfaceName = "foo"
-				cl.EXPECT().DhcpConfig().Return(rsc, nil)
-				oscClone := ac.origin.dhcpServerConfig.Clone()
-				oscClone.InterfaceName = new("foo")
-				cl.EXPECT().SetDhcpConfig(oscClone)
-				err := actionDHCPServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should enable the target dhcp server", func() {
-				ac.replica.DHCPServerEnabled = new(true)
-				cl.EXPECT().DhcpConfig().Return(rsc, nil)
-				oscClone := ac.origin.dhcpServerConfig.Clone()
-				oscClone.Enabled = new(true)
-				cl.EXPECT().SetDhcpConfig(oscClone)
-				err := actionDHCPServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
-			})
-			It("should not sync empty IPv4", func() {
-				ac.replica.DHCPServerEnabled = new(false)
-				ac.origin.dhcpServerConfig.V4 = &model.DhcpConfigV4{
-					GatewayIp: new(""),
+				env.w.cfg.Features.DHCP.StaticLeases = false
+				rsc := &model.DhcpStatus{V4: env.ac.origin.dhcpServerConfig.V4}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				err := actionDHCPServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPServerConfig() error = %v, want nil", err)
 				}
-				err := actionDHCPServerConfig(ac)
-				Ω(err).ShouldNot(HaveOccurred())
+			})
+			t.Run("should have changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:  utils.Ptr("1.2.3.4"),
+						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeEnd:   utils.Ptr("1.2.3.6"),
+						SubnetMask: utils.Ptr("255.255.255.0"),
+					},
+				}
+				env.w.cfg.Features.DHCP.StaticLeases = false
+				rscLocal := &model.DhcpStatus{Enabled: utils.Ptr(true)}
+				env.cl.EXPECT().DhcpConfig().Return(rscLocal, nil)
+				env.cl.EXPECT().SetDhcpConfig(env.ac.origin.dhcpServerConfig)
+				err := actionDHCPServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPServerConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should use replica interface name", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:  utils.Ptr("1.2.3.4"),
+						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeEnd:   utils.Ptr("1.2.3.6"),
+						SubnetMask: utils.Ptr("255.255.255.0"),
+					},
+				}
+				env.w.cfg.Features.DHCP.StaticLeases = false
+				env.ac.replica.InterfaceName = "foo"
+				rsc := &model.DhcpStatus{}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				oscClone := env.ac.origin.dhcpServerConfig.Clone()
+				oscClone.InterfaceName = utils.Ptr("foo")
+				env.cl.EXPECT().SetDhcpConfig(oscClone)
+				err := actionDHCPServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPServerConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should enable the target dhcp server", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:  utils.Ptr("1.2.3.4"),
+						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeEnd:   utils.Ptr("1.2.3.6"),
+						SubnetMask: utils.Ptr("255.255.255.0"),
+					},
+				}
+				env.w.cfg.Features.DHCP.StaticLeases = false
+				env.ac.replica.DHCPServerEnabled = utils.Ptr(true)
+				rsc := &model.DhcpStatus{}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				oscClone := env.ac.origin.dhcpServerConfig.Clone()
+				oscClone.Enabled = utils.Ptr(true)
+				env.cl.EXPECT().SetDhcpConfig(oscClone)
+				err := actionDHCPServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPServerConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should not sync empty IPv4", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					V4: &model.DhcpConfigV4{
+						GatewayIp:  utils.Ptr("1.2.3.4"),
+						RangeStart: utils.Ptr("1.2.3.5"),
+						RangeEnd:   utils.Ptr("1.2.3.6"),
+						SubnetMask: utils.Ptr("255.255.255.0"),
+					},
+				}
+				env.w.cfg.Features.DHCP.StaticLeases = false
+				env.ac.replica.DHCPServerEnabled = utils.Ptr(false)
+				env.ac.origin.dhcpServerConfig.V4 = &model.DhcpConfigV4{
+					GatewayIp: utils.Ptr(""),
+				}
+				err := actionDHCPServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPServerConfig() error = %v, want nil", err)
+				}
 			})
 		})
 
-		Context("sync", func() {
-			BeforeEach(func() {
-				w.cfg = &types.Config{
+		t.Run("sync", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg = &types.Config{
 					Origin:  &types.AdGuardInstance{},
 					Replica: &types.AdGuardInstance{URL: "foo"},
 					Features: types.Features{
@@ -603,119 +791,166 @@ var _ = Describe("Sync", func() {
 						TLSConfig:       true,
 					},
 				}
-			})
-			It("should have no changes", func() {
 				// origin
-				cl.EXPECT().Host().Times(2)
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
-				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().BlockedServicesSchedule()
-				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
-				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
-				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
-				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+				env.cl.EXPECT().Host().Times(2)
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
+				env.cl.EXPECT().Parental()
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				env.cl.EXPECT().SafeBrowsing()
+				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().BlockedServicesSchedule()
+				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
+				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				env.cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 
 				// replica
-				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
-				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().AddRewriteEntries()
-				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().UpdateRewriteEntries()
-				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
-				cl.EXPECT().BlockedServicesSchedule()
-				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
-				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
-				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
-				w.sync()
+				env.cl.EXPECT().Host()
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
+				env.cl.EXPECT().Parental()
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				env.cl.EXPECT().SafeBrowsing()
+				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
+				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().AddRewriteEntries()
+				env.cl.EXPECT().DeleteRewriteEntries()
+				env.cl.EXPECT().UpdateRewriteEntries()
+				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				env.cl.EXPECT().BlockedServicesSchedule()
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				env.cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+				env.w.sync()
 			})
-			It("should not sync DHCP", func() {
-				w.cfg.Features.DHCP.ServerConfig = false
-				w.cfg.Features.DHCP.StaticLeases = false
+			t.Run("should not sync DHCP", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg = &types.Config{
+					Origin:  &types.AdGuardInstance{},
+					Replica: &types.AdGuardInstance{URL: "foo"},
+					Features: types.Features{
+						DHCP: types.DHCP{
+							ServerConfig: false,
+							StaticLeases: false,
+						},
+						DNS: types.DNS{
+							ServerConfig: true,
+							Rewrites:     true,
+							AccessLists:  true,
+						},
+						Filters:         true,
+						ClientSettings:  true,
+						Services:        true,
+						GeneralSettings: true,
+						StatsConfig:     true,
+						QueryLogConfig:  true,
+						TLSConfig:       true,
+					},
+				}
 				// origin
-				cl.EXPECT().Host().Times(2)
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
-				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().BlockedServicesSchedule()
-				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
-				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
-				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+				env.cl.EXPECT().Host().Times(2)
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
+				env.cl.EXPECT().Parental()
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				env.cl.EXPECT().SafeBrowsing()
+				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().BlockedServicesSchedule()
+				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
+				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 
 				// replica
-				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
-				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().AddRewriteEntries()
-				cl.EXPECT().DeleteRewriteEntries()
-				cl.EXPECT().UpdateRewriteEntries()
-				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
-				cl.EXPECT().BlockedServicesSchedule()
-				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
-				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
-				w.sync()
+				env.cl.EXPECT().Host()
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
+				env.cl.EXPECT().Parental()
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				env.cl.EXPECT().SafeBrowsing()
+				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
+				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().AddRewriteEntries()
+				env.cl.EXPECT().DeleteRewriteEntries()
+				env.cl.EXPECT().UpdateRewriteEntries()
+				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				env.cl.EXPECT().BlockedServicesSchedule()
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+				env.w.sync()
 			})
-			It("origin version is too small", func() {
+			t.Run("origin version is too small", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg = &types.Config{
+					Origin:  &types.AdGuardInstance{},
+					Replica: &types.AdGuardInstance{URL: "foo"},
+				}
 				// origin
-				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
-				w.sync()
+				env.cl.EXPECT().Host()
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
+				env.w.sync()
 			})
-			It("replica version is too small", func() {
+			t.Run("replica version is too small", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg = &types.Config{
+					Origin:  &types.AdGuardInstance{},
+					Replica: &types.AdGuardInstance{URL: "foo"},
+					Features: types.Features{
+						DHCP: types.DHCP{
+							ServerConfig: true,
+							StaticLeases: true,
+						},
+						DNS: types.DNS{
+							ServerConfig: true,
+							Rewrites:     true,
+							AccessLists:  true,
+						},
+						Filters:         true,
+						ClientSettings:  true,
+						Services:        true,
+						GeneralSettings: true,
+						StatsConfig:     true,
+						QueryLogConfig:  true,
+						TLSConfig:       true,
+					},
+				}
 				// origin
-				cl.EXPECT().Host()
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
-				cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
-				cl.EXPECT().Parental()
-				cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
-				cl.EXPECT().SafeBrowsing()
-				cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
-				cl.EXPECT().BlockedServicesSchedule()
-				cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
-				cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
-				cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
-				cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
-				cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
-				cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+				env.cl.EXPECT().Host()
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
+				env.cl.EXPECT().Parental()
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				env.cl.EXPECT().SafeBrowsing()
+				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().BlockedServicesSchedule()
+				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
+				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				env.cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
 
 				// replica
-				cl.EXPECT().Host().Times(2)
-				cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
-				w.sync()
+				env.cl.EXPECT().Host().Times(2)
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.106.9"}, nil)
+				env.w.sync()
 			})
 		})
 	})
-})
+}

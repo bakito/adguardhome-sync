@@ -9,6 +9,7 @@ linters:
     - containedctx
     - copyloopvar
     - decorder
+    - depguard
     - dogsled
     - dupword
     - durationcheck
@@ -101,6 +102,19 @@ linters:
     - wrapcheck
     - wsl
   settings:
+    depguard:
+      rules:
+        no_third_party_test_libraries:
+          list-mode: lax
+          files:
+            - $test
+          deny:
+            - pkg: github.com/onsi/ginkgo
+              desc: See https://go.dev/wiki/TestComments#assert-libraries
+            - pkg: github.com/onsi/gomega
+              desc: See https://go.dev/wiki/TestComments#assert-libraries
+            - pkg: github.com/stretchr/testify
+              desc: See https://go.dev/wiki/TestComments#assert-libraries
     gocritic:
       enable-all: true
       disabled-checks:
