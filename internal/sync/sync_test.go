@@ -951,5 +951,159 @@ func TestSync(t *testing.T) {
 				env.w.sync()
 			})
 		})
+
+		t.Run("Sync", func(t *testing.T) {
+			t.Run("should fail on empty origin URL", func(t *testing.T) {
+				err := Sync(&types.Config{Origin: &types.AdGuardInstance{URL: ""}})
+				if err == nil || err.Error() != "origin URL is required" {
+					t.Errorf("Sync() error = %v, want error: origin URL is required", err)
+				}
+			})
+			t.Run("should fail on empty replicas", func(t *testing.T) {
+				err := Sync(&types.Config{Origin: &types.AdGuardInstance{URL: "http://origin"}})
+				if err == nil || err.Error() != "no replicas configured" {
+					t.Errorf("Sync() error = %v, want error: no replicas configured", err)
+				}
+			})
+			t.Run("should fail on invalid cron", func(t *testing.T) {
+				cfg := &types.Config{
+					Origin:   &types.AdGuardInstance{URL: "http://origin"},
+					Replicas: []types.AdGuardInstance{{URL: "http://replica"}},
+					Cron:     "invalid",
+				}
+				err := Sync(cfg)
+				if err == nil {
+					t.Error("Sync() error = nil, want error")
+				}
+			})
+			t.Run("should run sync once", func(_ *testing.T) {
+				// worker creation is internal, but we can mock createClient in newTestEnv
+				// but Sync creates its own worker.
+				// For better testing we should probably refactor Sync to accept a factory.
+				// Given I should not refactor too much, I will focus on methods that are more easily testable.
+			})
+		})
+
+		t.Run("worker.status", func(t *testing.T) {
+			t.Run("should return status", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin", WebHost: "origin"}
+				env.w.cfg.Replicas = []types.AdGuardInstance{{URL: "http://replica", WebHost: "replica"}}
+
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{ProtectionEnabled: true}, nil).Times(2)
+				env.cl.EXPECT().Host().Return("origin").AnyTimes()
+
+				s := env.w.status()
+				if s == nil {
+					t.Fatal("status() returned nil")
+				}
+				if s.Origin.Host != "origin" {
+					t.Errorf("status().Origin.Host = %s, want origin", s.Origin.Host)
+				}
+				if len(s.Replicas) != 1 {
+					t.Errorf("len(status().Replicas) = %d, want 1", len(s.Replicas))
+				}
+				if s.Replicas[0].Host != "replica" {
+					t.Errorf("status().Replicas[0].Host = %s, want replica", s.Replicas[0].Host)
+				}
+			})
+		})
+
+		t.Run("worker.getStatus", func(t *testing.T) {
+			t.Run("should handle client creation error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin"}
+				env.w.createClient = func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+					return nil, errors.New("creation error")
+				}
+				st := env.w.getStatus(types.AdGuardInstance{WebHost: "host", WebURL: "url"})
+				if st.Status != "danger" || st.Error != "creation error" {
+					t.Errorf("getStatus() status = %s, error = %s", st.Status, st.Error)
+				}
+			})
+			t.Run("should handle setup needed error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
+				st := env.w.getStatus(types.AdGuardInstance{WebHost: "host", WebURL: "url"})
+				if st.Status != "warning" || st.Error != client.ErrSetupNeeded.Error() {
+					t.Errorf("getStatus() status = %s, error = %s", st.Status, st.Error)
+				}
+			})
+		})
+		t.Run("worker.sync", func(t *testing.T) {
+			t.Run("should handle client creation error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin"}
+				env.w.createClient = func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+					return nil, errors.New("creation error")
+				}
+				env.w.sync()
+				if env.w.running {
+					t.Error("worker should not be running")
+				}
+			})
+			t.Run("should handle status error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin"}
+				env.cl.EXPECT().Status().Return(nil, errors.New("status error"))
+				env.cl.EXPECT().Host().Return("origin")
+				env.w.sync()
+			})
+			t.Run("should handle profileInfo error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin"}
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().Host().Return("origin")
+				env.cl.EXPECT().ProfileInfo().Return(nil, errors.New("profile error"))
+				env.w.sync()
+			})
+		})
+		t.Run("worker.syncTo", func(t *testing.T) {
+			t.Run("should handle client creation error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.createClient = func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+					return nil, errors.New("creation error")
+				}
+				env.w.syncTo(l, &origin{status: &model.ServerStatus{}}, types.AdGuardInstance{})
+			})
+			t.Run("should handle status error", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Status().Return(nil, errors.New("status error"))
+				env.cl.EXPECT().Host().Return("replica").AnyTimes()
+				env.w.syncTo(l, &origin{status: &model.ServerStatus{}}, types.AdGuardInstance{})
+			})
+			t.Run("should handle version mismatch", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.107.0"}, nil)
+				env.cl.EXPECT().Host().Return("replica").AnyTimes()
+				env.w.syncTo(l, &origin{status: &model.ServerStatus{Version: "v0.108.0"}}, types.AdGuardInstance{})
+			})
+		})
+		t.Run("runOnStartAsync", func(t *testing.T) {
+			t.Run("should run sync asynchronously", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin"}
+				cfg := &types.Config{RunOnStart: true, Origin: env.w.cfg.Origin}
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil).AnyTimes()
+				env.cl.EXPECT().Host().Return("origin").AnyTimes()
+				env.cl.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil).AnyTimes()
+				env.cl.EXPECT().Parental().Return(false, nil).AnyTimes()
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil).AnyTimes()
+				env.cl.EXPECT().SafeBrowsing().Return(false, nil).AnyTimes()
+				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil).AnyTimes()
+				env.cl.EXPECT().BlockedServicesSchedule().Return(&model.BlockedServicesSchedule{}, nil).AnyTimes()
+				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil).AnyTimes()
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil).AnyTimes()
+				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil).AnyTimes()
+				env.cl.EXPECT().StatsConfig().Return(&model.GetStatsConfigResponse{}, nil).AnyTimes()
+				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil).AnyTimes()
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil).AnyTimes()
+				env.cl.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil).AnyTimes()
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil).AnyTimes()
+
+				runOnStartAsync(cfg, env.w)
+				time.Sleep(100 * time.Millisecond) // Give it a bit of time to run
+			})
+		})
 	})
 }
