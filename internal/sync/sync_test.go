@@ -13,7 +13,6 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 	clientmock "github.com/bakito/adguardhome-sync/internal/mocks/client"
 	"github.com/bakito/adguardhome-sync/internal/types"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 	"github.com/bakito/adguardhome-sync/internal/versions"
 )
 
@@ -134,8 +133,8 @@ func TestSync(t *testing.T) {
 			})
 			t.Run("should update one rewrite entry", func(t *testing.T) {
 				env := newTestEnv(t)
-				reOLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: utils.Ptr(false)}}
-				reRLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: utils.Ptr(true)}}
+				reOLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: new(false)}}
+				reRLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: new(true)}}
 				env.ac.origin.rewrites = &reOLocal
 				env.cl.EXPECT().RewriteList().Return(&reRLocal, nil)
 				env.cl.EXPECT().AddRewriteEntries()
@@ -205,7 +204,7 @@ func TestSync(t *testing.T) {
 			t.Run("should update one client", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.clients = &model.Clients{Clients: &model.ClientsArray{{Name: &name}}}
-				clRLocal := &model.Clients{Clients: &model.ClientsArray{{Name: &name, FilteringEnabled: utils.Ptr(true)}}}
+				clRLocal := &model.Clients{Clients: &model.ClientsArray{{Name: &name, FilteringEnabled: new(true)}}}
 				env.cl.EXPECT().Clients().Return(clRLocal, nil)
 				env.cl.EXPECT().UpdateClient(&(*env.ac.origin.clients.Clients)[0])
 				err := actionClientSettings(env.ac)
@@ -286,7 +285,7 @@ func TestSync(t *testing.T) {
 			})
 			t.Run("should have safeSearch enabled changes", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.safeSearch = &model.SafeSearchConfig{Enabled: utils.Ptr(true)}
+				env.ac.origin.safeSearch = &model.SafeSearchConfig{Enabled: new(true)}
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				env.cl.EXPECT().SetSafeSearchConfig(env.ac.origin.safeSearch)
 				err := actionSafeSearchConfig(env.ac)
@@ -296,8 +295,8 @@ func TestSync(t *testing.T) {
 			})
 			t.Run("should have Duckduckgo safeSearch enabled changed", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.safeSearch = &model.SafeSearchConfig{Duckduckgo: utils.Ptr(true)}
-				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: utils.Ptr(true)}, nil)
+				env.ac.origin.safeSearch = &model.SafeSearchConfig{Duckduckgo: new(true)}
+				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{Google: new(true)}, nil)
 				env.cl.EXPECT().SetSafeSearchConfig(env.ac.origin.safeSearch)
 				err := actionSafeSearchConfig(env.ac)
 				if err != nil {
@@ -495,7 +494,7 @@ func TestSync(t *testing.T) {
 			})
 			t.Run("should have blockedServices schedule changes", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{Ids: utils.Ptr([]string{"bar"})}
+				env.ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{Ids: new([]string{"bar"})}
 
 				env.cl.EXPECT().BlockedServicesSchedule().Return(rbss, nil)
 				env.cl.EXPECT().SetBlockedServicesSchedule(env.ac.origin.blockedServicesSchedule)
@@ -520,7 +519,7 @@ func TestSync(t *testing.T) {
 			t.Run("should have changes user roles", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.filters = &model.FilterStatus{}
-				env.ac.origin.filters.UserRules = utils.Ptr([]string{"foo"})
+				env.ac.origin.filters.UserRules = new([]string{"foo"})
 				env.cl.EXPECT().Filtering().Return(rf, nil)
 				env.cl.EXPECT().SetCustomRules(env.ac.origin.filters.UserRules)
 				err := actionFilters(env.ac)
@@ -531,8 +530,8 @@ func TestSync(t *testing.T) {
 			t.Run("should have changed filtering config", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.filters = &model.FilterStatus{}
-				env.ac.origin.filters.Enabled = utils.Ptr(true)
-				env.ac.origin.filters.Interval = utils.Ptr(123)
+				env.ac.origin.filters.Enabled = new(true)
+				env.ac.origin.filters.Interval = new(123)
 				env.cl.EXPECT().Filtering().Return(rf, nil)
 				env.cl.EXPECT().ToggleFiltering(*env.ac.origin.filters.Enabled, *env.ac.origin.filters.Interval)
 				err := actionFilters(env.ac)
@@ -543,7 +542,7 @@ func TestSync(t *testing.T) {
 			t.Run("should add a filter", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.filters = &model.FilterStatus{}
-				env.ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				env.ac.origin.filters.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				env.cl.EXPECT().Filtering().Return(rf, nil)
 				env.cl.EXPECT().AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
 				env.cl.EXPECT().RefreshFilters(gm.Any())
@@ -555,7 +554,7 @@ func TestSync(t *testing.T) {
 			t.Run("should delete a filter", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.filters = &model.FilterStatus{}
-				rfLocal := &model.FilterStatus{Filters: utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})}
+				rfLocal := &model.FilterStatus{Filters: new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})}
 				env.cl.EXPECT().Filtering().Return(rfLocal, nil)
 				env.cl.EXPECT().DeleteFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"})
 				err := actionFilters(env.ac)
@@ -566,10 +565,10 @@ func TestSync(t *testing.T) {
 			t.Run("should update a filter", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.filters = &model.FilterStatus{}
-				env.ac.origin.filters.Filters = utils.Ptr(
+				env.ac.origin.filters.Filters = new(
 					[]model.Filter{{Name: "foo", Url: "https://foo.bar", Enabled: true}},
 				)
-				rfLocal := &model.FilterStatus{Filters: utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})}
+				rfLocal := &model.FilterStatus{Filters: new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})}
 				env.cl.EXPECT().Filtering().Return(rfLocal, nil)
 				env.cl.EXPECT().UpdateFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar", Enabled: true})
 				env.cl.EXPECT().RefreshFilters(gm.Any())
@@ -583,7 +582,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.cfg.ContinueOnError = false
 				env.ac.origin.filters = &model.FilterStatus{}
-				env.ac.origin.filters.Filters = utils.Ptr([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
+				env.ac.origin.filters.Filters = new([]model.Filter{{Name: "foo", Url: "https://foo.bar"}})
 				env.cl.EXPECT().Filtering().Return(rf, nil)
 				env.cl.EXPECT().
 					AddFilter(false, model.Filter{Name: "foo", Url: "https://foo.bar"}).
@@ -598,7 +597,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.cfg.ContinueOnError = true
 				env.ac.origin.filters = &model.FilterStatus{}
-				env.ac.origin.filters.Filters = utils.Ptr(
+				env.ac.origin.filters.Filters = new(
 					[]model.Filter{{Name: "foo", Url: "https://foo.bar"}, {Name: "bar", Url: "https://bar.foo"}},
 				)
 				env.cl.EXPECT().Filtering().Return(rf, nil)
@@ -628,7 +627,7 @@ func TestSync(t *testing.T) {
 			t.Run("should have access list changes", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.accessList = &model.AccessList{}
-				ralLocal := &model.AccessList{BlockedHosts: utils.Ptr([]string{"foo"})}
+				ralLocal := &model.AccessList{BlockedHosts: new([]string{"foo"})}
 				env.cl.EXPECT().AccessList().Return(ralLocal, nil)
 				env.cl.EXPECT().SetAccessList(env.ac.origin.accessList)
 				err := actionDNSAccessLists(env.ac)
@@ -652,7 +651,7 @@ func TestSync(t *testing.T) {
 			t.Run("should have dns config changes", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dnsConfig = &model.DNSConfig{}
-				rdcLocal := &model.DNSConfig{BootstrapDns: utils.Ptr([]string{"foo"})}
+				rdcLocal := &model.DNSConfig{BootstrapDns: new([]string{"foo"})}
 				env.cl.EXPECT().DNSConfig().Return(rdcLocal, nil)
 				env.cl.EXPECT().SetDNSConfig(env.ac.origin.dnsConfig)
 				err := actionDNSServerConfig(env.ac)
@@ -667,10 +666,10 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  utils.Ptr("1.2.3.4"),
-						RangeStart: utils.Ptr("1.2.3.5"),
-						RangeEnd:   utils.Ptr("1.2.3.6"),
-						SubnetMask: utils.Ptr("255.255.255.0"),
+						GatewayIp:  new("1.2.3.4"),
+						RangeStart: new("1.2.3.5"),
+						RangeEnd:   new("1.2.3.6"),
+						SubnetMask: new("255.255.255.0"),
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
@@ -685,14 +684,14 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  utils.Ptr("1.2.3.4"),
-						RangeStart: utils.Ptr("1.2.3.5"),
-						RangeEnd:   utils.Ptr("1.2.3.6"),
-						SubnetMask: utils.Ptr("255.255.255.0"),
+						GatewayIp:  new("1.2.3.4"),
+						RangeStart: new("1.2.3.5"),
+						RangeEnd:   new("1.2.3.6"),
+						SubnetMask: new("255.255.255.0"),
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
-				rscLocal := &model.DhcpStatus{Enabled: utils.Ptr(true)}
+				rscLocal := &model.DhcpStatus{Enabled: new(true)}
 				env.cl.EXPECT().DhcpConfig().Return(rscLocal, nil)
 				env.cl.EXPECT().SetDhcpConfig(env.ac.origin.dhcpServerConfig)
 				err := actionDHCPServerConfig(env.ac)
@@ -704,10 +703,10 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  utils.Ptr("1.2.3.4"),
-						RangeStart: utils.Ptr("1.2.3.5"),
-						RangeEnd:   utils.Ptr("1.2.3.6"),
-						SubnetMask: utils.Ptr("255.255.255.0"),
+						GatewayIp:  new("1.2.3.4"),
+						RangeStart: new("1.2.3.5"),
+						RangeEnd:   new("1.2.3.6"),
+						SubnetMask: new("255.255.255.0"),
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
@@ -715,7 +714,7 @@ func TestSync(t *testing.T) {
 				rsc := &model.DhcpStatus{}
 				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := env.ac.origin.dhcpServerConfig.Clone()
-				oscClone.InterfaceName = utils.Ptr("foo")
+				oscClone.InterfaceName = new("foo")
 				env.cl.EXPECT().SetDhcpConfig(oscClone)
 				err := actionDHCPServerConfig(env.ac)
 				if err != nil {
@@ -726,18 +725,18 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  utils.Ptr("1.2.3.4"),
-						RangeStart: utils.Ptr("1.2.3.5"),
-						RangeEnd:   utils.Ptr("1.2.3.6"),
-						SubnetMask: utils.Ptr("255.255.255.0"),
+						GatewayIp:  new("1.2.3.4"),
+						RangeStart: new("1.2.3.5"),
+						RangeEnd:   new("1.2.3.6"),
+						SubnetMask: new("255.255.255.0"),
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
-				env.ac.replica.DHCPServerEnabled = utils.Ptr(true)
+				env.ac.replica.DHCPServerEnabled = new(true)
 				rsc := &model.DhcpStatus{}
 				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := env.ac.origin.dhcpServerConfig.Clone()
-				oscClone.Enabled = utils.Ptr(true)
+				oscClone.Enabled = new(true)
 				env.cl.EXPECT().SetDhcpConfig(oscClone)
 				err := actionDHCPServerConfig(env.ac)
 				if err != nil {
@@ -748,16 +747,16 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
 					V4: &model.DhcpConfigV4{
-						GatewayIp:  utils.Ptr("1.2.3.4"),
-						RangeStart: utils.Ptr("1.2.3.5"),
-						RangeEnd:   utils.Ptr("1.2.3.6"),
-						SubnetMask: utils.Ptr("255.255.255.0"),
+						GatewayIp:  new("1.2.3.4"),
+						RangeStart: new("1.2.3.5"),
+						RangeEnd:   new("1.2.3.6"),
+						SubnetMask: new("255.255.255.0"),
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
-				env.ac.replica.DHCPServerEnabled = utils.Ptr(false)
+				env.ac.replica.DHCPServerEnabled = new(false)
 				env.ac.origin.dhcpServerConfig.V4 = &model.DhcpConfigV4{
-					GatewayIp: utils.Ptr(""),
+					GatewayIp: new(""),
 				}
 				err := actionDHCPServerConfig(env.ac)
 				if err != nil {
