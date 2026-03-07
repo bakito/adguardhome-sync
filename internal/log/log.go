@@ -24,11 +24,19 @@ func GetLogger(name string) *zap.SugaredLogger {
 }
 
 func init() {
+	logger, err := initRootLogger()
+	if err != nil {
+		panic(err)
+	}
+	rootLogger = logger
+}
+
+func initRootLogger() (*zap.Logger, error) {
 	level := zap.InfoLevel
 
 	if lvl, ok := os.LookupEnv(envLogLevel); ok {
 		if err := level.Set(lvl); err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
 
@@ -56,7 +64,7 @@ func init() {
 		})
 	})
 
-	rootLogger, _ = cfg.Build(opt)
+	return cfg.Build(opt)
 }
 
 type logList struct {

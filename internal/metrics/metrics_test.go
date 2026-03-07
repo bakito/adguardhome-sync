@@ -1,92 +1,93 @@
 package metrics
 
 import (
+	"testing"
+
 	"github.com/go-faker/faker/v4"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/bakito/adguardhome-sync/internal/client/model"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Metrics", func() {
-	BeforeEach(func() {
-		stats = make(OverallStats)
-	})
-	Context("UpdateInstances / getStats", func() {
-		It("generate correct stats", func() {
-			UpdateInstances(InstanceMetricsList{[]InstanceMetrics{
-				{HostName: "foo", Status: &model.ServerStatus{}, Stats: &model.Stats{
-					NumDnsQueries: new(100),
-					DnsQueries: new(
-						[]int{10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					),
-				}},
-				{HostName: "bar", Status: &model.ServerStatus{}, Stats: &model.Stats{
-					NumDnsQueries: new(200),
-					DnsQueries: new(
-						[]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					),
-				}},
-				{HostName: "aaa", Status: &model.ServerStatus{}, Stats: &model.Stats{
-					NumDnsQueries: new(300),
-					DnsQueries: new(
-						[]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					),
-				}},
-			}})
-			Ω(stats).Should(HaveKey("foo"))
-			Ω(stats["foo"].NumDnsQueries).Should(Equal(new(100)))
-			Ω(stats).Should(HaveKey("bar"))
-			Ω(stats["bar"].NumDnsQueries).Should(Equal(new(200)))
-			Ω(stats).Should(HaveKey("aaa"))
-			Ω(stats["aaa"].NumDnsQueries).Should(Equal(new(300)))
+func TestUpdateInstances_getStats(t *testing.T) {
+	stats = make(OverallStats)
+	UpdateInstances(InstanceMetricsList{Metrics: []InstanceMetrics{
+		{HostName: "foo", Status: &model.ServerStatus{}, Stats: &model.Stats{
+			NumDnsQueries: new(100),
+			DnsQueries:    &[]int{10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		}},
+		{HostName: "bar", Status: &model.ServerStatus{}, Stats: &model.Stats{
+			NumDnsQueries: new(200),
+			DnsQueries:    &[]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		}},
+		{HostName: "aaa", Status: &model.ServerStatus{}, Stats: &model.Stats{
+			NumDnsQueries: new(300),
+			DnsQueries:    &[]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		}},
+	}})
 
-			os := getStats()
-			tot := os.Total()
-			Ω(*tot.NumDnsQueries).Should(Equal(600))
-			Ω(
-				*tot.DnsQueries,
-			).Should(Equal([]int{60, 120, 180, 240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
+	if _, ok := stats["foo"]; !ok {
+		t.Error("stats should have key 'foo'")
+	}
+	if *stats["foo"].NumDnsQueries != 100 {
+		t.Errorf("stats['foo'].NumDnsQueries = %v, want 100", *stats["foo"].NumDnsQueries)
+	}
+	if _, ok := stats["bar"]; !ok {
+		t.Error("stats should have key 'bar'")
+	}
+	if *stats["bar"].NumDnsQueries != 200 {
+		t.Errorf("stats['bar'].NumDnsQueries = %v, want 200", *stats["bar"].NumDnsQueries)
+	}
+	if _, ok := stats["aaa"]; !ok {
+		t.Error("stats should have key 'aaa'")
+	}
+	if *stats["aaa"].NumDnsQueries != 300 {
+		t.Errorf("stats['aaa'].NumDnsQueries = %v, want 300", *stats["aaa"].NumDnsQueries)
+	}
 
-			foo := os["foo"]
-			bar := os["bar"]
-			aaa := os["aaa"]
+	os := getStats()
+	tot := os.Total()
+	if *tot.NumDnsQueries != 600 {
+		t.Errorf("os.Total().NumDnsQueries = %v, want 600", *tot.NumDnsQueries)
+	}
+	wantDNSQueries := []int{60, 120, 180, 240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	if diff := cmp.Diff(wantDNSQueries, *tot.DnsQueries); diff != "" {
+		t.Errorf("os.Total().DnsQueries mismatch (-want +got):\n%s", diff)
+	}
 
-			Ω(*foo.NumDnsQueries).Should(Equal(100))
-			Ω(*bar.NumDnsQueries).Should(Equal(200))
-			Ω(*aaa.NumDnsQueries).Should(Equal(300))
-			Ω(
-				*foo.DnsQueries,
-			).Should(Equal([]int{10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
-			Ω(
-				*bar.DnsQueries,
-			).Should(Equal([]int{20, 40, 60, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
-			Ω(
-				*aaa.DnsQueries,
-			).Should(Equal([]int{30, 60, 90, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}))
-		})
-	})
-	Context("StatsGraph", func() {
-		var metrics InstanceMetricsList
-		BeforeEach(func() {
-			err := faker.FakeData(&metrics)
-			Ω(err).ShouldNot(HaveOccurred())
-		})
-		It("should provide correct results with faked values", func() {
-			UpdateInstances(metrics)
+	foo := os["foo"]
+	bar := os["bar"]
+	aaa := os["aaa"]
 
-			_, dns, blocked, malware, adult := StatsGraph()
+	if *foo.NumDnsQueries != 100 {
+		t.Errorf("foo.NumDnsQueries = %v, want 100", *foo.NumDnsQueries)
+	}
+	if *bar.NumDnsQueries != 200 {
+		t.Errorf("bar.NumDnsQueries = %v, want 200", *bar.NumDnsQueries)
+	}
+	if *aaa.NumDnsQueries != 300 {
+		t.Errorf("aaa.NumDnsQueries = %v, want 300", *aaa.NumDnsQueries)
+	}
+}
 
-			verifyStats(dns)
-			verifyStats(blocked)
-			verifyStats(malware)
-			verifyStats(adult)
-		})
-	})
-})
+func TestStatsGraph(t *testing.T) {
+	var metrics InstanceMetricsList
+	err := faker.FakeData(&metrics)
+	if err != nil {
+		t.Fatalf("faker.FakeData error = %v", err)
+	}
+	UpdateInstances(metrics)
 
-func verifyStats(lines []Line) {
+	_, dns, blocked, malware, adult := StatsGraph()
+
+	verifyStats(t, dns)
+	verifyStats(t, blocked)
+	verifyStats(t, malware)
+	verifyStats(t, adult)
+}
+
+func verifyStats(t *testing.T, lines []Line) {
+	t.Helper()
 	var total Line
 	sum := make([]int, len(lines[0].Data))
 	for _, l := range lines {
@@ -98,5 +99,7 @@ func verifyStats(lines []Line) {
 			}
 		}
 	}
-	Ω(sum).Should(Equal(total.Data))
+	if diff := cmp.Diff(total.Data, sum); diff != "" {
+		t.Errorf("sum mismatch (-want +got):\n%s", diff)
+	}
 }

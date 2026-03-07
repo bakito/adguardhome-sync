@@ -1,11 +1,12 @@
 package sync
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"github.com/bakito/adguardhome-sync/internal/client"
 	"github.com/bakito/adguardhome-sync/internal/client/model"
-	"github.com/bakito/adguardhome-sync/internal/utils"
 )
 
 var (
@@ -119,12 +120,12 @@ var (
 			return err
 		}
 
-		if utils.PtrToString(ac.origin.filters.UserRules) != utils.PtrToString(rf.UserRules) {
+		if ptrToString(ac.origin.filters.UserRules) != ptrToString(rf.UserRules) {
 			return ac.client.SetCustomRules(ac.origin.filters.UserRules)
 		}
 
-		if !utils.PtrEquals(ac.origin.filters.Enabled, rf.Enabled) ||
-			!utils.PtrEquals(ac.origin.filters.Interval, rf.Interval) {
+		if !ptrEquals(ac.origin.filters.Enabled, rf.Enabled) ||
+			!ptrEquals(ac.origin.filters.Interval, rf.Interval) {
 			return ac.client.ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
 		}
 		return nil
@@ -315,4 +316,21 @@ func syncFilterType(
 		}
 	}
 	return nil
+}
+
+func ptrEquals[I comparable](a, b *I) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+	return *a == *b
+}
+
+func ptrToString[I any](i *I) string {
+	if i == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", i)
 }

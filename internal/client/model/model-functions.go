@@ -408,7 +408,8 @@ func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo, withTheme bool) *ProfileInf
 	if withTheme && o.Theme != "" {
 		merged.Theme = o.Theme
 	}
-	if merged.Name == "" || merged.Language == "" || merged.Equals(pi, false) {
+	if merged.Name == "" || merged.Language == "" ||
+		(merged.Language == pi.Language && (!withTheme || merged.Theme == pi.Theme)) {
 		return nil
 	}
 	return merged

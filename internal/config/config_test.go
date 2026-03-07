@@ -1,261 +1,368 @@
 package config_test
 
 import (
-	"os"
+	"strings"
+	"testing"
 
 	gm "go.uber.org/mock/gomock"
 
 	"github.com/bakito/adguardhome-sync/internal/config"
 	flagsmock "github.com/bakito/adguardhome-sync/internal/mocks/flags"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Config", func() {
-	Context("Get", func() {
-		var (
-			flags          *flagsmock.MockFlags
-			mockCtrl       *gm.Controller
-			changedEnvVars []string
-			setEnv         = func(name, value string) {
-				_ = os.Setenv(name, value)
-				changedEnvVars = append(changedEnvVars, name)
-			}
-		)
-		BeforeEach(func() {
-			mockCtrl = gm.NewController(GinkgoT())
-			flags = flagsmock.NewMockFlags(mockCtrl)
-			changedEnvVars = nil
-		})
-		AfterEach(func() {
-			for _, envVar := range changedEnvVars {
-				_ = os.Unsetenv(envVar)
-				println(envVar)
-			}
-			defer mockCtrl.Finish()
-		})
-		Context("Get", func() {
-			Context("Mixed Config", func() {
-				It("should have the origin URL from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+type configTestHelper struct {
+	flags    *flagsmock.MockFlags
+	mockCtrl *gm.Controller
+}
 
-					_, err := config.Get("../../testdata/config_test_replicas_and_replica.yaml", flags)
-					Ω(err).Should(HaveOccurred())
-					Ω(err.Error()).Should(ContainSubstring("mixed replica config in use"))
-				})
-			})
-			Context("Env Var Clash", func() {
-				It("should not use USERNAME env variable if it is defined (#570)", func() {
-					incorrect := "ThisIsNotTheCorrectUsername"
-					setEnv("USERNAME", incorrect)
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+func newConfigTestHelper(t *testing.T) *configTestHelper {
+	t.Helper()
+	mockCtrl := gm.NewController(t)
+	return &configTestHelper{
+		mockCtrl: mockCtrl,
+		flags:    flagsmock.NewMockFlags(mockCtrl),
+	}
+}
 
-					c, err := config.Get("../../testdata/config_test_replica.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(c.Get().Origin.Username).ShouldNot(Equal(incorrect))
-					Ω(c.Get().Replicas[0].Username).ShouldNot(Equal(incorrect))
-				})
-			})
-			Context("Origin Url", func() {
-				It("should have the origin URL from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+func (*configTestHelper) setEnv(t *testing.T, name, value string) {
+	t.Helper()
+	t.Setenv(name, value)
+}
 
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Origin.URL).Should(Equal("https://origin-file:443"))
-				})
-				It("should have the origin URL from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagOriginURL).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
+func (h *configTestHelper) finish() {
+	h.mockCtrl.Finish()
+}
 
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Origin.URL).Should(Equal("https://origin-flag:443"))
-				})
-				It("should have the origin URL from the config env var", func() {
-					setEnv("ORIGIN_URL", "https://origin-env:443")
-					flags.EXPECT().Changed(config.FlagOriginURL).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
+func TestConfigGet_MixedConfig(t *testing.T) {
+	h := newConfigTestHelper(t)
+	defer h.finish()
 
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Origin.URL).Should(Equal("https://origin-env:443"))
-				})
-			})
-			Context("Replica insecure skip verify", func() {
-				It("should have the insecure skip verify from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+	h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeFalse())
-				})
-				It("should have the insecure skip verify from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagReplicaISV).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
+	_, err := config.Get("../../testdata/config_test_replicas_and_replica.yaml", h.flags)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if !strings.Contains(err.Error(), "mixed replica config in use") {
+		t.Errorf("expected error containing 'mixed replica config in use', got '%s'", err.Error())
+	}
+}
 
-					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeTrue())
-				})
-				It("should have the insecure skip verify from the config env var", func() {
-					setEnv("REPLICA_INSECURE_SKIP_VERIFY", "false")
-					flags.EXPECT().Changed(config.FlagReplicaISV).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
+func TestConfigGet_EnvVarClash(t *testing.T) {
+	h := newConfigTestHelper(t)
+	defer h.finish()
 
-					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeFalse())
-				})
-			})
+	incorrect := "ThisIsNotTheCorrectUsername"
+	h.setEnv(t, "USERNAME", incorrect)
+	h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-			Context("Replica 1 insecure skip verify", func() {
-				It("should have the insecure skip verify from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+	c, err := config.Get("../../testdata/config_test_replica.yaml", h.flags)
+	if err != nil {
+		t.Fatalf("config.Get error = %v, want nil", err)
+	}
+	if c.Get().Origin.Username == incorrect {
+		t.Errorf("origin username should not be %s", incorrect)
+	}
+	if c.Get().Replicas[0].Username == incorrect {
+		t.Errorf("replica username should not be %s", incorrect)
+	}
+}
 
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeFalse())
-				})
-				It("should have the insecure skip verify from the config env var", func() {
-					setEnv("REPLICA1_INSECURE_SKIP_VERIFY", "true")
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+func TestConfigGet_OriginUrl(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
 
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].InsecureSkipVerify).Should(BeTrue())
-				})
-			})
-			Context("API Port", func() {
-				It("should have the api port from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().API.Port).Should(Equal(9090))
-				})
-				It("should have the api port from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().API.Port).Should(Equal(9990))
-				})
-				It("should have the api port from the config env var", func() {
-					setEnv("API_PORT", "9999")
-					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().API.Port).Should(Equal(9999))
-				})
-			})
-
-			Context("Replica DHCPServerEnabled", func() {
-				It("should have the dhcp server enabled from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replica.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-					Ω(*cfg.Get().Replicas[0].DHCPServerEnabled).Should(BeFalse())
-				})
-			})
-
-			Context("Replica 1 DHCPServerEnabled", func() {
-				It("should have the dhcp server enabled from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].DHCPServerEnabled).ShouldNot(BeNil())
-					Ω(*cfg.Get().Replicas[0].DHCPServerEnabled).Should(BeFalse())
-				})
-			})
-			Context("API Port", func() {
-				It("should have the api port from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().API.Port).Should(Equal(9090))
-				})
-				It("should have the api port from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().API.Port).Should(Equal(9990))
-				})
-				It("should have the api port from the config env var", func() {
-					setEnv("API_PORT", "9999")
-					flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().API.Port).Should(Equal(9999))
-				})
-			})
-
-			Context("Feature DNS Server Config", func() {
-				It("should have the feature dns server config from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
-				})
-				It("should have the feature dns server config from the config flags", func() {
-					flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeTrue())
-				})
-				It("should have the feature dns server config from the config env var", func() {
-					setEnv("FEATURES_DNS_SERVER_CONFIG", "false")
-					flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-					flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Features.DNS.ServerConfig).Should(BeFalse())
-				})
-			})
-
-			Context("Headers", func() {
-				It("have headers from the config file", func() {
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].RequestHeaders).Should(HaveLen(2))
-					Ω(cfg.Get().Replicas[0].RequestHeaders["FOO"]).Should(Equal("bar"))
-					Ω(cfg.Get().Replicas[0].RequestHeaders["Client-ID"]).Should(Equal("xxxx"))
-				})
-				It("have headers from the config file will be replaced when defined as ENV", func() {
-					setEnv("REPLICA1_REQUEST_HEADERS", "AAA:bbb")
-					flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
-
-					cfg, err := config.Get("../../testdata/config_test_replicas.yaml", flags)
-					Ω(err).ShouldNot(HaveOccurred())
-					Ω(cfg.Get().Replicas[0].RequestHeaders).Should(HaveLen(1))
-					Ω(cfg.Get().Replicas[0].RequestHeaders["AAA"]).Should(Equal("bbb"))
-				})
-			})
-		})
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Origin.URL != "https://origin-file:443" {
+			t.Errorf("origin URL = %s, want https://origin-file:443", cfg.Get().Origin.URL)
+		}
 	})
-})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagOriginURL).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Origin.URL != "https://origin-flag:443" {
+			t.Errorf("origin URL = %s, want https://origin-flag:443", cfg.Get().Origin.URL)
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "ORIGIN_URL", "https://origin-env:443")
+		h.flags.EXPECT().Changed(config.FlagOriginURL).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetString(config.FlagOriginURL).Return("https://origin-flag:443", nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Origin.URL != "https://origin-env:443" {
+			t.Errorf("origin URL = %s, want https://origin-env:443", cfg.Get().Origin.URL)
+		}
+	})
+}
+
+func TestConfigGet_ReplicaInsecureSkipVerify(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replica.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Replicas[0].InsecureSkipVerify {
+			t.Error("replica InsecureSkipVerify = true, want false")
+		}
+	})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagReplicaISV).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replica.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if !cfg.Get().Replicas[0].InsecureSkipVerify {
+			t.Error("replica InsecureSkipVerify = false, want true")
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "REPLICA_INSECURE_SKIP_VERIFY", "false")
+		h.flags.EXPECT().Changed(config.FlagReplicaISV).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagReplicaISV).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replica.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Replicas[0].InsecureSkipVerify {
+			t.Error("replica InsecureSkipVerify = true, want false")
+		}
+	})
+}
+
+func TestConfigGet_Replica1InsecureSkipVerify(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Replicas[0].InsecureSkipVerify {
+			t.Error("replica InsecureSkipVerify = true, want false")
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "REPLICA1_INSECURE_SKIP_VERIFY", "true")
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if !cfg.Get().Replicas[0].InsecureSkipVerify {
+			t.Error("replica InsecureSkipVerify = false, want true")
+		}
+	})
+}
+
+func TestConfigGet_APIPort(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().API.Port != 9090 {
+			t.Errorf("API Port = %d, want 9090", cfg.Get().API.Port)
+		}
+	})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().API.Port != 9990 {
+			t.Errorf("API Port = %d, want 9990", cfg.Get().API.Port)
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "API_PORT", "9999")
+		h.flags.EXPECT().Changed(config.FlagAPIPort).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetInt(config.FlagAPIPort).Return(9990, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().API.Port != 9999 {
+			t.Errorf("API Port = %d, want 9999", cfg.Get().API.Port)
+		}
+	})
+}
+
+func TestConfigGet_ReplicaDHCPServerEnabled(t *testing.T) {
+	h := newConfigTestHelper(t)
+	defer h.finish()
+	h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+	cfg, err := config.Get("../../testdata/config_test_replica.yaml", h.flags)
+	if err != nil {
+		t.Fatalf("config.Get error = %v, want nil", err)
+	}
+	if cfg.Get().Replicas[0].DHCPServerEnabled == nil {
+		t.Fatal("replica DHCPServerEnabled is nil")
+	}
+	if *cfg.Get().Replicas[0].DHCPServerEnabled {
+		t.Error("replica DHCPServerEnabled = true, want false")
+	}
+}
+
+func TestConfigGet_Replica1DHCPServerEnabled(t *testing.T) {
+	h := newConfigTestHelper(t)
+	defer h.finish()
+	h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+	cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+	if err != nil {
+		t.Fatalf("config.Get error = %v, want nil", err)
+	}
+	if cfg.Get().Replicas[0].DHCPServerEnabled == nil {
+		t.Fatal("replica DHCPServerEnabled is nil")
+	}
+	if *cfg.Get().Replicas[0].DHCPServerEnabled {
+		t.Error("replica DHCPServerEnabled = true, want false")
+	}
+}
+
+func TestConfigGet_FeatureDNSServerConfig(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.DNS.ServerConfig {
+			t.Error("feature DNS server config = true, want false")
+		}
+	})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if !cfg.Get().Features.DNS.ServerConfig {
+			t.Error("feature DNS server config = false, want true")
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "FEATURES_DNS_SERVER_CONFIG", "false")
+		h.flags.EXPECT().Changed(config.FlagFeatureDNSServerConfig).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureDNSServerConfig).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.DNS.ServerConfig {
+			t.Error("feature DNS server config = true, want false")
+		}
+	})
+}
+
+func TestConfigGet_Headers(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if len(cfg.Get().Replicas[0].RequestHeaders) != 2 {
+			t.Errorf("headers length = %d, want 2", len(cfg.Get().Replicas[0].RequestHeaders))
+		}
+		if cfg.Get().Replicas[0].RequestHeaders["FOO"] != "bar" {
+			t.Errorf("FOO header = %s, want bar", cfg.Get().Replicas[0].RequestHeaders["FOO"])
+		}
+		if cfg.Get().Replicas[0].RequestHeaders["Client-ID"] != "xxxx" {
+			t.Errorf("Client-ID header = %s, want xxxx", cfg.Get().Replicas[0].RequestHeaders["Client-ID"])
+		}
+	})
+
+	t.Run("from config file replaced by ENV", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "REPLICA1_REQUEST_HEADERS", "AAA:bbb")
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if len(cfg.Get().Replicas[0].RequestHeaders) != 1 {
+			t.Errorf("headers length = %d, want 1", len(cfg.Get().Replicas[0].RequestHeaders))
+		}
+		if cfg.Get().Replicas[0].RequestHeaders["AAA"] != "bbb" {
+			t.Errorf("AAA header = %s, want bbb", cfg.Get().Replicas[0].RequestHeaders["AAA"])
+		}
+	})
+}
