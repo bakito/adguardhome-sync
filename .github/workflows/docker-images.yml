@@ -18,6 +18,10 @@ concurrency:
 jobs:
   images:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # required for keyless signing via GitHub OIDC
     strategy:
       matrix:
         build:
@@ -28,6 +32,10 @@ jobs:
     steps:
       - name: Get current date
         run: echo "curr_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@ba7bc0a3fef59531c69a25acd34668d6d3fe6f22 # v4.1.0
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
       - name: Set up Docker Buildx
@@ -51,7 +59,7 @@ jobs:
         run: |
           sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
 
-      - name: Build images ${{github.event.release.tag_name }}
+      - name: Build images ${{ github.event.release.tag_name }}
         id: docker_build_release
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         if: ${{ github.event.release.tag_name != '' }}
@@ -66,6 +74,17 @@ jobs:
             VERSION=${{ github.event.release.tag_name }}
             BUILD=${{ env.curr_date }}
 
+      - name: Sign release images
+        if: ${{ github.event.release.tag_name != '' }}
+        env:
+          DIGEST: ${{ steps.docker_build_release.outputs.digest }}
+        run: |
+          for IMAGE in \
+            quay.io/bakito/adguardhome-sync \
+            ghcr.io/bakito/adguardhome-sync; do
+            cosign sign --yes --recursive "${IMAGE}@${DIGEST}"
+          done
+
       - name: Check for commits in the last 24 hours
         run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
         if: ${{ github.event.release.tag_name == '' }}
@@ -73,7 +92,7 @@ jobs:
       - name: Build images
         id: docker_build_main
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
-        if: ${{ github.event.release.tag_name == '' && env.NEW_COMMIT_COUNT > 0  }}
+        if: ${{ github.event.release.tag_name == '' && env.NEW_COMMIT_COUNT > 0 }}
         with:
           context: .
           pull: true
@@ -85,5 +104,16 @@ jobs:
             VERSION=main
             BUILD=${{ env.curr_date }}
 
+      - name: Sign main images
+        if: ${{ github.event.release.tag_name == '' && env.NEW_COMMIT_COUNT > 0 && github.ref == 'refs/heads/main' }}
+        env:
+          DIGEST: ${{ steps.docker_build_main.outputs.digest }}
+        run: |
+          for IMAGE in \
+            quay.io/bakito/adguardhome-sync \
+            ghcr.io/bakito/adguardhome-sync; do
+            cosign sign --yes --recursive "${IMAGE}@${DIGEST}"
+          done
+
       - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+        run: echo ${{ steps.docker_build_release.outputs.digest }}${{ steps.docker_build_main.outputs.digest }}
