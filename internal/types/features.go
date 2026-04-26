@@ -55,7 +55,7 @@ type FiltersType struct {
 }
 
 // UnmarshalYAML implements custom unmarshalling for FiltersType.
-func (f *FiltersType) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (f *FiltersType) UnmarshalYAML(unmarshal func(any) error) error {
 	var b bool
 	if err := unmarshal(&b); err == nil {
 		f.BlacklistFilters = b
