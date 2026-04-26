@@ -31,7 +31,11 @@ func setupFlagsTest(t *testing.T) (*types.Config, *flagsmock.MockFlags, *gm.Cont
 			StatsConfig:     true,
 			ClientSettings:  true,
 			Services:        true,
-			Filters:         true,
+			Filters: types.FiltersType{
+				BlacklistFilters: true,
+				WhitelistFilters: true,
+				UserRules:        true,
+			},
 		},
 	}
 	mockCtrl := gm.NewController(t)
@@ -96,7 +100,11 @@ func TestReadFeatureFlags_DisableAll(t *testing.T) {
 		StatsConfig:     false,
 		ClientSettings:  false,
 		Services:        false,
-		Filters:         false,
+		Filters: types.FiltersType{
+			BlacklistFilters: false,
+			WhitelistFilters: false,
+			UserRules:        false,
+		},
 	}
 
 	if diff := cmp.Diff(expectedFeatures, cfg.Features); diff != "" {

@@ -22,6 +22,9 @@ const (
 	FlagFeatureClient           = "feature-client-settings"
 	FlagFeatureServices         = "feature-services"
 	FlagFeatureFilters          = "feature-filters"
+	FlagFeatureFiltersBlacklist = "feature-filters-blacklist-filters"
+	FlagFeatureFiltersWhitelist = "feature-filters-whitelist-filters"
+	FlagFeatureFiltersUserRules = "feature-filters-user-rules"
 	FlagFeatureTLSConfig        = "feature-tls-config"
 	FlagFeatureProtectionStatus = "feature-protection_status"
 

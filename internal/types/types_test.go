@@ -157,7 +157,7 @@ func TestFeature_collectDisabled(t *testing.T) {
 		all  bool
 		want int
 	}{
-		{name: "should log all features", all: false, want: 12},
+		{name: "should log all features", all: false, want: 14},
 		{name: "should log no features", all: true, want: 1},
 	}
 	for _, tt := range tests {

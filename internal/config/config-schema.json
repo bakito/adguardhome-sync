@@ -138,7 +138,26 @@
           "type": "object"
         },
         "filters": {
-          "type": "boolean"
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "blacklistFilters": {
+                  "type": "boolean"
+                },
+                "whitelistFilters": {
+                  "type": "boolean"
+                },
+                "userRules": {
+                  "type": "boolean"
+                }
+              }
+            }
+          ]
         },
         "generalSettings": {
           "type": "boolean"

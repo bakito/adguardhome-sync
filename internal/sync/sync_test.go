@@ -44,7 +44,11 @@ func newTestEnv(t *testing.T) *testEnv {
 					Rewrites:     true,
 					AccessLists:  true,
 				},
-				Filters:         true,
+				Filters: types.FiltersType{
+					BlacklistFilters: true,
+					WhitelistFilters: true,
+					UserRules:        true,
+				},
 				ClientSettings:  true,
 				Services:        true,
 				GeneralSettings: true,
@@ -516,7 +520,7 @@ func TestSync(t *testing.T) {
 					t.Errorf("actionFilters() error = %v, want nil", err)
 				}
 			})
-			t.Run("should have changes user roles", func(t *testing.T) {
+			t.Run("should have changes user rules", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.filters = &model.FilterStatus{}
 				env.ac.origin.filters.UserRules = new([]string{"foo"})
@@ -781,7 +785,11 @@ func TestSync(t *testing.T) {
 							Rewrites:     true,
 							AccessLists:  true,
 						},
-						Filters:         true,
+						Filters: types.FiltersType{
+							BlacklistFilters: true,
+							WhitelistFilters: true,
+							UserRules:        true,
+						},
 						ClientSettings:  true,
 						Services:        true,
 						GeneralSettings: true,
@@ -845,7 +853,11 @@ func TestSync(t *testing.T) {
 							Rewrites:     true,
 							AccessLists:  true,
 						},
-						Filters:         true,
+						Filters: types.FiltersType{
+							BlacklistFilters: true,
+							WhitelistFilters: true,
+							UserRules:        true,
+						},
 						ClientSettings:  true,
 						Services:        true,
 						GeneralSettings: true,
@@ -918,7 +930,11 @@ func TestSync(t *testing.T) {
 							Rewrites:     true,
 							AccessLists:  true,
 						},
-						Filters:         true,
+						Filters: types.FiltersType{
+							BlacklistFilters: true,
+							WhitelistFilters: true,
+							UserRules:        true,
+						},
 						ClientSettings:  true,
 						Services:        true,
 						GeneralSettings: true,

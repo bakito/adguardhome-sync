@@ -66,7 +66,11 @@ func init() {
 	doCmd.PersistentFlags().Bool(config.FlagFeatureStats, true, "Enable stats config feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureClient, true, "Enable client settings feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureServices, true, "Enable services sync feature")
-	doCmd.PersistentFlags().Bool(config.FlagFeatureFilters, true, "Enable filters sync feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureFilters, true, "Deprecated: use per-filter flags instead")
+	doCmd.PersistentFlags().MarkHidden(config.FlagFeatureFilters)
+	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersBlacklist, true, "Enable blacklist filters sync feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersWhitelist, true, "Enable whitelist filters sync feature")
+	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersUserRules, true, "Enable user rules sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureTLSConfig, false, "Enable TLS config sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureProtectionStatus, true, "Enable protections status sync")
 

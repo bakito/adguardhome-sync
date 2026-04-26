@@ -99,33 +99,43 @@ var (
 			return err
 		}
 
-		if err = syncFilterType(
-			ac.rl,
-			ac.origin.filters.Filters,
-			rf.Filters,
-			false,
-			ac.client,
-			ac.cfg.ContinueOnError,
-		); err != nil {
-			return err
-		}
-		if err = syncFilterType(
-			ac.rl,
-			ac.origin.filters.WhitelistFilters,
-			rf.WhitelistFilters,
-			true,
-			ac.client,
-			ac.cfg.ContinueOnError,
-		); err != nil {
-			return err
+		if ac.cfg.Features.Filters.BlacklistFilters {
+			if err = syncFilterType(
+				ac.rl,
+				ac.origin.filters.Filters,
+				rf.Filters,
+				false,
+				ac.client,
+				ac.cfg.ContinueOnError,
+			); err != nil {
+				return err
+			}
 		}
 
-		if ptrToString(ac.origin.filters.UserRules) != ptrToString(rf.UserRules) {
-			return ac.client.SetCustomRules(ac.origin.filters.UserRules)
+		if ac.cfg.Features.Filters.WhitelistFilters {
+			if err = syncFilterType(
+				ac.rl,
+				ac.origin.filters.WhitelistFilters,
+				rf.WhitelistFilters,
+				true,
+				ac.client,
+				ac.cfg.ContinueOnError,
+			); err != nil {
+				return err
+			}
 		}
 
-		if !ptrEquals(ac.origin.filters.Enabled, rf.Enabled) ||
-			!ptrEquals(ac.origin.filters.Interval, rf.Interval) {
+		if ac.cfg.Features.Filters.UserRules {
+			if ptrToString(ac.origin.filters.UserRules) != ptrToString(rf.UserRules) {
+				if err = ac.client.SetCustomRules(ac.origin.filters.UserRules); err != nil {
+					return err
+				}
+			}
+		}
+
+		if ac.origin.filters.Enabled != nil && ac.origin.filters.Interval != nil &&
+			(!ptrEquals(ac.origin.filters.Enabled, rf.Enabled) ||
+				!ptrEquals(ac.origin.filters.Interval, rf.Interval)) {
 			return ac.client.ToggleFiltering(*ac.origin.filters.Enabled, *ac.origin.filters.Interval)
 		}
 		return nil
