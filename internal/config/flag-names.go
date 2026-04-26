@@ -23,7 +23,7 @@ const (
 	FlagFeatureServices         = "feature-services"
 	FlagFeatureFilters          = "feature-filters"
 	FlagFeatureTLSConfig        = "feature-tls-config"
-	FlagFeatureProtectionStatus = "feature-protection_status"
+	FlagFeatureProtectionStatus = "feature-protection-status"
 
 	FlagOriginURL      = "origin-url"
 	FlagOriginWebURL   = "origin-web-url"
