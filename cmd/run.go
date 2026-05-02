@@ -68,7 +68,7 @@ func init() {
 	doCmd.PersistentFlags().Bool(config.FlagFeatureServices, true, "Enable services sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFilters, true, "Enable filters sync feature")
 
-cobra.CheckErr(doCmd.PersistentFlags().MarkDeprecated(config.FlagFeatureFilters, "Unified Filters Sync feature is deprecated, use per-filter flags instead"))
+	cobra.CheckErr(doCmd.PersistentFlags().MarkDeprecated(config.FlagFeatureFilters, "use --feature-filters-blacklist, --feature-filters-whitelist, and --feature-filters-user-rules instead"))
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersBlacklist, true, "Enable blacklist filters sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersWhitelist, true, "Enable whitelist filters sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersUserRules, true, "Enable user rules sync feature")
