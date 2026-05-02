@@ -615,6 +615,124 @@ func TestSync(t *testing.T) {
 					t.Errorf("actionFilters() error = %v, want nil", err)
 				}
 			})
+
+			// --- Granular filter feature flag tests ---
+
+			t.Run("should skip blacklist sync when BlacklistFilters is disabled", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.Features.Filters.BlacklistFilters = false
+				env.ac.origin.filters = &model.FilterStatus{
+					Filters:          new([]model.Filter{{Name: "bl", Url: "https://bl.example"}}),
+					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
+				}
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				// Only whitelist add+refresh; no blacklist calls.
+				env.cl.EXPECT().AddFilter(true, model.Filter{Name: "wl", Url: "https://wl.example"})
+				env.cl.EXPECT().RefreshFilters(true)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should skip whitelist sync when WhitelistFilters is disabled", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.Features.Filters.WhitelistFilters = false
+				env.ac.origin.filters = &model.FilterStatus{
+					Filters:          new([]model.Filter{{Name: "bl", Url: "https://bl.example"}}),
+					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
+				}
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				// Only blacklist add+refresh; no whitelist calls.
+				env.cl.EXPECT().AddFilter(false, model.Filter{Name: "bl", Url: "https://bl.example"})
+				env.cl.EXPECT().RefreshFilters(false)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should skip user rules sync when UserRules is disabled", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.Features.Filters.UserRules = false
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.UserRules = new([]string{"||example.com^"})
+				// SetCustomRules must NOT be called.
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should only sync user rules when blacklist and whitelist are disabled", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.Features.Filters.BlacklistFilters = false
+				env.ac.cfg.Features.Filters.WhitelistFilters = false
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.ac.origin.filters.UserRules = new([]string{"||blocked.example^"})
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().SetCustomRules(env.ac.origin.filters.UserRules)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should add a whitelist filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{
+					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
+				}
+				env.cl.EXPECT().Filtering().Return(rf, nil)
+				env.cl.EXPECT().AddFilter(true, model.Filter{Name: "wl", Url: "https://wl.example"})
+				env.cl.EXPECT().RefreshFilters(true)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should delete a whitelist filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				rfLocal := &model.FilterStatus{
+					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
+				}
+				env.cl.EXPECT().Filtering().Return(rfLocal, nil)
+				env.cl.EXPECT().DeleteFilter(true, model.Filter{Name: "wl", Url: "https://wl.example"})
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should update a whitelist filter", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{
+					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example", Enabled: true}}),
+				}
+				rfLocal := &model.FilterStatus{
+					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
+				}
+				env.cl.EXPECT().Filtering().Return(rfLocal, nil)
+				env.cl.EXPECT().UpdateFilter(true, model.Filter{Name: "wl", Url: "https://wl.example", Enabled: true})
+				env.cl.EXPECT().RefreshFilters(true)
+				err := actionFilters(env.ac)
+				if err != nil {
+					t.Errorf("actionFilters() error = %v, want nil", err)
+				}
+			})
+
+			t.Run("should return error on Filtering() failure", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.filters = &model.FilterStatus{}
+				env.cl.EXPECT().Filtering().Return(nil, env.te)
+				err := actionFilters(env.ac)
+				if err == nil {
+					t.Error("actionFilters() error = nil, want error")
+				}
+			})
 		})
 
 		t.Run("actionDNSAccessLists", func(t *testing.T) {
