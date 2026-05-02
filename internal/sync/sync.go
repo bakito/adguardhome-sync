@@ -296,8 +296,8 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 	rl.Info("Start sync")
 	start := time.Now()
 	withError := false
-	delta := time.Since(start).Seconds()
 	defer func() {
+		delta := time.Since(start).Seconds()		
 		metrics.UpdateResult(rc.Host(), !withError, delta)
 		doneLog := rl.With("duration", fmt.Sprintf("%vs", delta))
 		if withError {
