@@ -111,7 +111,9 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | FEATURES_STATS_CONFIG (bool) | bool | Sync stats config |
 | FEATURES_CLIENT_SETTINGS (bool) | bool | Sync client settings |
 | FEATURES_SERVICES (bool) | bool | Sync services |
-| FEATURES_FILTERS (bool) | bool | Sync filters |
+| FEATURES_FILTERS_FEATURES_FILTERS_BLACKLIST_FILTERS (bool) | bool | Sync blacklist filters |
+| FEATURES_FILTERS_FEATURES_FILTERS_WHITELIST_FILTERS (bool) | bool | Sync whitelist filters |
+| FEATURES_FILTERS_FEATURES_FILTERS_USER_RULES (bool) | bool | Sync user rules |
 | FEATURES_THEME (bool) | bool | Sync the web UI theme |
 | FEATURES_TLS_CONFIG (bool) | bool | Sync the TLS config |
 <!-- env-doc-end -->
@@ -190,7 +192,10 @@ features: # (struct)
   statsConfig: # (bool) Sync stats config
   clientSettings: # (bool) Sync client settings
   services: # (bool) Sync services
-  filters: # (bool) Sync filters
+  filters: # (struct) Sync filters (use sub-fields for granular control)
+    blacklistFilters: # (bool) Sync blacklist filters
+    whitelistFilters: # (bool) Sync whitelist filters
+    userRules: # (bool) Sync user rules
   theme: # (bool) Sync the web UI theme
   tlsConfig: # (bool) Sync the TLS config
 ```
