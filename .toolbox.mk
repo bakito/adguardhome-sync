@@ -38,7 +38,7 @@ TB_OAPI_CODEGEN_VERSION ?= v2.6.0
 TB_SEMVER_VERSION ?= v1.1.10
 TB_SEMVER_VERSION_NUM ?= $(call STRIP_V,$(TB_SEMVER_VERSION))
 # renovate: packageName=github.com/anchore/syft/cmd/syft
-TB_SYFT_VERSION ?= v1.43.0
+TB_SYFT_VERSION ?= v1.44.0
 TB_SYFT_VERSION_NUM ?= $(call STRIP_V,$(TB_SYFT_VERSION))
 
 ## Tool Installer
