@@ -40,26 +40,33 @@ jobs:
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check for commits in the last 24 hours
+        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
+        if: ${{ github.event.release.tag_name == '' }}
+
       - name: Login to Quay
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        if: ${{ github.event.release.tag_name != '' || (github.ref == 'refs/heads/main' && env.NEW_COMMIT_COUNT > 0) }}
         with:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Login to ghcr.io
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        if: ${{ github.event.release.tag_name != '' || (github.ref == 'refs/heads/main' && env.NEW_COMMIT_COUNT > 0) }}
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Modify Dockerfile
         run: |
           sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
 
-      - name: Build images ${{ github.event.release.tag_name }}
+      - name: Build release images ${{ github.event.release.tag_name }}
         id: docker_build_release
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         if: ${{ github.event.release.tag_name != '' }}
@@ -84,10 +91,6 @@ jobs:
             ghcr.io/bakito/adguardhome-sync; do
             cosign sign --yes --recursive "${IMAGE}@${DIGEST}"
           done
-
-      - name: Check for commits in the last 24 hours
-        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '24 hours ago' | wc -l)" >> $GITHUB_ENV
-        if: ${{ github.event.release.tag_name == '' }}
 
       - name: Build images
         id: docker_build_main

@@ -26,7 +26,7 @@ const (
 	FlagFeatureFiltersWhitelist = "feature-filters-whitelist-filters"
 	FlagFeatureFiltersUserRules = "feature-filters-user-rules"
 	FlagFeatureTLSConfig        = "feature-tls-config"
-	FlagFeatureProtectionStatus = "feature-protection_status"
+	FlagFeatureProtectionStatus = "feature-protection-status"
 
 	FlagOriginURL      = "origin-url"
 	FlagOriginWebURL   = "origin-web-url"
