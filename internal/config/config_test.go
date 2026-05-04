@@ -327,6 +327,150 @@ func TestConfigGet_FeatureDNSServerConfig(t *testing.T) {
 	})
 }
 
+func TestConfigGet_FeatureFiltersBlacklist(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if !cfg.Get().Features.Filters.Blacklist {
+			t.Error("feature filters blacklist = false, want true")
+		}
+	})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagFeatureFiltersBlacklist).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureFiltersBlacklist).Return(false, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.Filters.Blacklist {
+			t.Error("feature filters blacklist = true, want false")
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "FEATURES_FILTERS_BLACKLIST", "false")
+		h.flags.EXPECT().Changed(config.FlagFeatureFiltersBlacklist).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureFiltersBlacklist).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.Filters.Blacklist {
+			t.Error("feature filters blacklist = true, want false")
+		}
+	})
+}
+
+func TestConfigGet_FeatureFiltersWhitelist(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.Filters.Whitelist {
+			t.Error("feature filters whitelist = true, want false")
+		}
+	})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagFeatureFiltersWhitelist).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureFiltersWhitelist).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if !cfg.Get().Features.Filters.Whitelist {
+			t.Error("feature filters whitelist = false, want true")
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "FEATURES_FILTERS_WHITELIST", "false")
+		h.flags.EXPECT().Changed(config.FlagFeatureFiltersWhitelist).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureFiltersWhitelist).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.Filters.Whitelist {
+			t.Error("feature filters whitelist = true, want false")
+		}
+	})
+}
+
+func TestConfigGet_FeatureFiltersUserRules(t *testing.T) {
+	t.Run("from config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if !cfg.Get().Features.Filters.UserRules {
+			t.Error("feature filters user rules = false, want true")
+		}
+	})
+
+	t.Run("from config flags", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(config.FlagFeatureFiltersUserRules).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureFiltersUserRules).Return(false, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.Filters.UserRules {
+			t.Error("feature filters user rules = true, want false")
+		}
+	})
+
+	t.Run("from config env var", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "FEATURES_FILTERS_USER_RULES", "false")
+		h.flags.EXPECT().Changed(config.FlagFeatureFiltersUserRules).Return(true).AnyTimes()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+		h.flags.EXPECT().GetBool(config.FlagFeatureFiltersUserRules).Return(true, nil).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+		if cfg.Get().Features.Filters.UserRules {
+			t.Error("feature filters user rules = true, want false")
+		}
+	})
+}
+
 func TestConfigGet_Headers(t *testing.T) {
 	t.Run("from config file", func(t *testing.T) {
 		h := newConfigTestHelper(t)

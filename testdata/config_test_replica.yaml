@@ -34,5 +34,8 @@ features:
   statsConfig: true
   clientSettings: true
   services: true
-  filters: true
+  filters:
+    blacklist: true
+    whitelist: false
+    userRules: true
   theme: true
