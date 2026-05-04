@@ -166,6 +166,9 @@ func writeYAMLDocumentation(w io.Writer, t reflect.Type, firstPrefix, otherPrefi
 
 func buildCombinedTag(prefix, envTag string) string {
 	if prefix != "" && envTag != "" {
+		if strings.HasPrefix(envTag, prefix+"_") {
+			return envTag
+		}
 		return prefix + "_" + envTag
 	} else if prefix != "" {
 		return prefix

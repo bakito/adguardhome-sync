@@ -99,7 +99,7 @@ var (
 			return err
 		}
 
-		if ac.cfg.Features.Filters.BlacklistFilters {
+		if ac.cfg.Features.Filters.Blacklist {
 			if err = syncFilterType(
 				ac.rl,
 				ac.origin.filters.Filters,
@@ -112,7 +112,7 @@ var (
 			}
 		}
 
-		if ac.cfg.Features.Filters.WhitelistFilters {
+		if ac.cfg.Features.Filters.Whitelist {
 			if err = syncFilterType(
 				ac.rl,
 				ac.origin.filters.WhitelistFilters,

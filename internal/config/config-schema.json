@@ -146,10 +146,10 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "blacklistFilters": {
+                "blacklist": {
                   "type": "boolean"
                 },
-                "whitelistFilters": {
+                "whitelist": {
                   "type": "boolean"
                 },
                 "userRules": {

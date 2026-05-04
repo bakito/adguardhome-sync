@@ -32,8 +32,8 @@ func setupFlagsTest(t *testing.T) (*types.Config, *flagsmock.MockFlags, *gm.Cont
 			ClientSettings:  true,
 			Services:        true,
 			Filters: types.FiltersType{
-				BlacklistFilters: true,
-				WhitelistFilters: true,
+				Blacklist: true,
+				Whitelist: true,
 				UserRules:        true,
 			},
 		},
@@ -101,8 +101,8 @@ func TestReadFeatureFlags_DisableAll(t *testing.T) {
 		ClientSettings:  false,
 		Services:        false,
 		Filters: types.FiltersType{
-			BlacklistFilters: false,
-			WhitelistFilters: false,
+			Blacklist: false,
+			Whitelist: false,
 			UserRules:        false,
 		},
 	}

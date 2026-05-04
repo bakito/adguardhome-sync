@@ -23,9 +23,9 @@ func NewFeatures(enabled bool) Features {
 		ClientSettings:  enabled,
 		Services:        enabled,
 		Filters: FiltersType{
-			BlacklistFilters: enabled,
-			WhitelistFilters: enabled,
-			UserRules:        enabled,
+			Blacklist:   enabled,
+			Whitelist:   enabled,
+			UserRules:   enabled,
 		},
 		Theme:     enabled,
 		TLSConfig: false,
@@ -49,17 +49,17 @@ type Features struct {
 
 // FiltersType features.
 type FiltersType struct {
-	BlacklistFilters bool `documentation:"Sync blacklist filters" env:"FEATURES_FILTERS_BLACKLIST_FILTERS" json:"blacklistFilters" yaml:"blacklistFilters"`
-	WhitelistFilters bool `documentation:"Sync whitelist filters" env:"FEATURES_FILTERS_WHITELIST_FILTERS" json:"whitelistFilters" yaml:"whitelistFilters"`
-	UserRules        bool `documentation:"Sync user rules"        env:"FEATURES_FILTERS_USER_RULES"        json:"userRules"        yaml:"userRules"`
+	Blacklist        bool `documentation:"Sync blacklist filters" env:"FEATURES_FILTERS_BLACKLIST"    json:"blacklist" yaml:"blacklist"`
+	Whitelist        bool `documentation:"Sync whitelist filters" env:"FEATURES_FILTERS_WHITELIST"    json:"whitelist" yaml:"whitelist"`
+	UserRules        bool `documentation:"Sync user rules"        env:"FEATURES_FILTERS_USER_RULES"   json:"userRules" yaml:"userRules"`
 }
 
 // UnmarshalYAML implements custom unmarshalling for FiltersType.
 func (f *FiltersType) UnmarshalYAML(unmarshal func(any) error) error {
 	var b bool
 	if err := unmarshal(&b); err == nil {
-		f.BlacklistFilters = b
-		f.WhitelistFilters = b
+		f.Blacklist = b
+		f.Whitelist = b
 		f.UserRules = b
 		return nil
 	}
@@ -77,8 +77,8 @@ func (f *FiltersType) UnmarshalYAML(unmarshal func(any) error) error {
 func (f *FiltersType) UnmarshalJSON(b []byte) error {
 	var v bool
 	if err := json.Unmarshal(b, &v); err == nil {
-		f.BlacklistFilters = v
-		f.WhitelistFilters = v
+		f.Blacklist = v
+		f.Whitelist = v
 		f.UserRules = v
 		return nil
 	}
@@ -95,13 +95,13 @@ func (f *FiltersType) UnmarshalJSON(b []byte) error {
 // UnmarshalText implements custom unmarshalling for env vars.
 func (f *FiltersType) UnmarshalText(text []byte) error {
 	if string(text) == "true" {
-		f.BlacklistFilters = true
-		f.WhitelistFilters = true
+		f.Blacklist = true
+		f.Whitelist = true
 		f.UserRules = true
 		return nil
 	} else if string(text) == "false" {
-		f.BlacklistFilters = false
-		f.WhitelistFilters = false
+		f.Blacklist = false
+		f.Whitelist = false
 		f.UserRules = false
 		return nil
 	}
@@ -162,11 +162,11 @@ func (f *Features) collectDisabled() []string {
 	if !f.Services {
 		features = append(features, "BlockedServices")
 	}
-	if !f.Filters.BlacklistFilters {
-		features = append(features, "Filters.BlacklistFilters")
+	if !f.Filters.Blacklist {
+		features = append(features, "Filters.Blacklist")
 	}
-	if !f.Filters.WhitelistFilters {
-		features = append(features, "Filters.WhitelistFilters")
+	if !f.Filters.Whitelist {
+		features = append(features, "Filters.Whitelist")
 	}
 	if !f.Filters.UserRules {
 		features = append(features, "Filters.UserRules")

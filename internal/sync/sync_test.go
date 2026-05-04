@@ -45,9 +45,9 @@ func newTestEnv(t *testing.T) *testEnv {
 					AccessLists:  true,
 				},
 				Filters: types.FiltersType{
-					BlacklistFilters: true,
-					WhitelistFilters: true,
-					UserRules:        true,
+					Blacklist:    true,
+					Whitelist:    true,
+					UserRules:    true,
 				},
 				ClientSettings:  true,
 				Services:        true,
@@ -618,9 +618,9 @@ func TestSync(t *testing.T) {
 
 			// --- Granular filter feature flag tests ---
 
-			t.Run("should skip blacklist sync when BlacklistFilters is disabled", func(t *testing.T) {
+			t.Run("should skip blacklist sync when Blacklist is disabled", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.cfg.Features.Filters.BlacklistFilters = false
+				env.ac.cfg.Features.Filters.Blacklist = false
 				env.ac.origin.filters = &model.FilterStatus{
 					Filters:          new([]model.Filter{{Name: "bl", Url: "https://bl.example"}}),
 					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
@@ -635,9 +635,9 @@ func TestSync(t *testing.T) {
 				}
 			})
 
-			t.Run("should skip whitelist sync when WhitelistFilters is disabled", func(t *testing.T) {
+			t.Run("should skip whitelist sync when Whitelist is disabled", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.cfg.Features.Filters.WhitelistFilters = false
+				env.ac.cfg.Features.Filters.Whitelist = false
 				env.ac.origin.filters = &model.FilterStatus{
 					Filters:          new([]model.Filter{{Name: "bl", Url: "https://bl.example"}}),
 					WhitelistFilters: new([]model.Filter{{Name: "wl", Url: "https://wl.example"}}),
@@ -667,8 +667,8 @@ func TestSync(t *testing.T) {
 
 			t.Run("should only sync user rules when blacklist and whitelist are disabled", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.cfg.Features.Filters.BlacklistFilters = false
-				env.ac.cfg.Features.Filters.WhitelistFilters = false
+				env.ac.cfg.Features.Filters.Blacklist = false
+				env.ac.cfg.Features.Filters.Whitelist = false
 				env.ac.origin.filters = &model.FilterStatus{}
 				env.ac.origin.filters.UserRules = new([]string{"||blocked.example^"})
 				env.cl.EXPECT().Filtering().Return(rf, nil)
@@ -904,9 +904,9 @@ func TestSync(t *testing.T) {
 							AccessLists:  true,
 						},
 						Filters: types.FiltersType{
-							BlacklistFilters: true,
-							WhitelistFilters: true,
-							UserRules:        true,
+							Blacklist:   true,
+							Whitelist:   true,
+							UserRules:   true,
 						},
 						ClientSettings:  true,
 						Services:        true,
@@ -972,9 +972,9 @@ func TestSync(t *testing.T) {
 							AccessLists:  true,
 						},
 						Filters: types.FiltersType{
-							BlacklistFilters: true,
-							WhitelistFilters: true,
-							UserRules:        true,
+							Blacklist:    true,
+							Whitelist:    true,
+							UserRules:    true,
 						},
 						ClientSettings:  true,
 						Services:        true,
@@ -1049,9 +1049,9 @@ func TestSync(t *testing.T) {
 							AccessLists:  true,
 						},
 						Filters: types.FiltersType{
-							BlacklistFilters: true,
-							WhitelistFilters: true,
-							UserRules:        true,
+							Blacklist:    true,
+							Whitelist:    true,
+							UserRules:    true,
 						},
 						ClientSettings:  true,
 						Services:        true,
