@@ -193,8 +193,8 @@ features: # (struct)
   clientSettings: # (bool) Sync client settings
   services: # (bool) Sync services
   filters: # (struct) Sync filters (use sub-fields for granular control)
-    blacklistFilters: # (bool) Sync blacklist filters
-    whitelistFilters: # (bool) Sync whitelist filters
+    blacklist: # (bool) Sync blacklist filters
+    whitelist: # (bool) Sync whitelist filters
     userRules: # (bool) Sync user rules
   theme: # (bool) Sync the web UI theme
   tlsConfig: # (bool) Sync the TLS config
