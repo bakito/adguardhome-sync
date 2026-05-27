@@ -23,7 +23,7 @@ linters:
     - gochecksumtype
     - gocritic
     - godot
-    - gomodguard
+    - gomodguard_v2
     - goprintffuncname
     - gosmopolitan
     - grouper
