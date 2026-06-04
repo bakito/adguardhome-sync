@@ -13,7 +13,6 @@ STRIP_V = $(patsubst v%,%,$(1))
 
 ## Tool Binaries
 TB_CONTROLLER_GEN ?= $(TB_LOCALBIN)/controller-gen
-TB_GINKGO ?= $(TB_LOCALBIN)/ginkgo
 TB_GOLANGCI_LINT ?= $(TB_LOCALBIN)/golangci-lint
 TB_GORELEASER ?= $(TB_LOCALBIN)/goreleaser
 TB_MOCKGEN ?= $(TB_LOCALBIN)/mockgen
@@ -38,7 +37,7 @@ TB_OAPI_CODEGEN_VERSION ?= v2.7.0
 TB_SEMVER_VERSION ?= v1.1.10
 TB_SEMVER_VERSION_NUM ?= $(call STRIP_V,$(TB_SEMVER_VERSION))
 # renovate: packageName=github.com/anchore/syft/cmd/syft
-TB_SYFT_VERSION ?= v1.44.0
+TB_SYFT_VERSION ?= v1.45.0
 TB_SYFT_VERSION_NUM ?= $(call STRIP_V,$(TB_SYFT_VERSION))
 
 ## Tool Installer
@@ -46,10 +45,6 @@ TB_SYFT_VERSION_NUM ?= $(call STRIP_V,$(TB_SYFT_VERSION))
 tb.controller-gen: ## Download controller-gen locally if necessary.
 	@test -s $(TB_CONTROLLER_GEN) || \
 		GOBIN=$(TB_LOCALBIN) go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(TB_CONTROLLER_GEN_VERSION)
-.PHONY: tb.ginkgo
-tb.ginkgo: ## Download ginkgo locally if necessary.
-	@test -s $(TB_GINKGO) || \
-		GOBIN=$(TB_LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo
 .PHONY: tb.golangci-lint
 tb.golangci-lint: ## Download golangci-lint locally if necessary.
 	@test -s $(TB_GOLANGCI_LINT) && $(TB_GOLANGCI_LINT) --version | grep -q $(TB_GOLANGCI_LINT_VERSION_NUM) || \
@@ -80,7 +75,6 @@ tb.syft: ## Download syft locally if necessary.
 tb.reset:
 	@rm -f \
 		$(TB_CONTROLLER_GEN) \
-		$(TB_GINKGO) \
 		$(TB_GOLANGCI_LINT) \
 		$(TB_GORELEASER) \
 		$(TB_MOCKGEN) \
