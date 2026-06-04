@@ -34,7 +34,7 @@ func setupFlagsTest(t *testing.T) (*types.Config, *flagsmock.MockFlags, *gm.Cont
 			Filters: types.FiltersType{
 				Blacklist: true,
 				Whitelist: true,
-				UserRules:        true,
+				UserRules: true,
 			},
 		},
 	}
@@ -103,7 +103,7 @@ func TestReadFeatureFlags_DisableAll(t *testing.T) {
 		Filters: types.FiltersType{
 			Blacklist: false,
 			Whitelist: false,
-			UserRules:        false,
+			UserRules: false,
 		},
 	}
 

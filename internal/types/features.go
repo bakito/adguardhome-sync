@@ -23,9 +23,9 @@ func NewFeatures(enabled bool) Features {
 		ClientSettings:  enabled,
 		Services:        enabled,
 		Filters: FiltersType{
-			Blacklist:   enabled,
-			Whitelist:   enabled,
-			UserRules:   enabled,
+			Blacklist: enabled,
+			Whitelist: enabled,
+			UserRules: enabled,
 		},
 		Theme:     enabled,
 		TLSConfig: false,
@@ -49,9 +49,9 @@ type Features struct {
 
 // FiltersType features.
 type FiltersType struct {
-	Blacklist        bool `documentation:"Sync blacklist filters" env:"FEATURES_FILTERS_BLACKLIST"    json:"blacklist" yaml:"blacklist"`
-	Whitelist        bool `documentation:"Sync whitelist filters" env:"FEATURES_FILTERS_WHITELIST"    json:"whitelist" yaml:"whitelist"`
-	UserRules        bool `documentation:"Sync user rules"        env:"FEATURES_FILTERS_USER_RULES"   json:"userRules" yaml:"userRules"`
+	Blacklist bool `documentation:"Sync blacklist filters" env:"FEATURES_FILTERS_BLACKLIST"  json:"blacklist" yaml:"blacklist"`
+	Whitelist bool `documentation:"Sync whitelist filters" env:"FEATURES_FILTERS_WHITELIST"  json:"whitelist" yaml:"whitelist"`
+	UserRules bool `documentation:"Sync user rules"        env:"FEATURES_FILTERS_USER_RULES" json:"userRules" yaml:"userRules"`
 }
 
 // UnmarshalYAML implements custom unmarshalling for FiltersType.
