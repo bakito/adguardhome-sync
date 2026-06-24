@@ -340,19 +340,34 @@ func (mr *MockClientMockRecorder) RefreshFilters(whitelist any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefreshFilters", reflect.TypeOf((*MockClient)(nil).RefreshFilters), whitelist)
 }
 
-// RewriteList mocks base method.
-func (m *MockClient) RewriteList() (*model.RewriteEntries, error) {
+// RewriteEntries mocks base method.
+func (m *MockClient) RewriteEntries() (*model.RewriteEntries, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RewriteList")
+	ret := m.ctrl.Call(m, "RewriteEntries")
 	ret0, _ := ret[0].(*model.RewriteEntries)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// RewriteList indicates an expected call of RewriteList.
-func (mr *MockClientMockRecorder) RewriteList() *gomock.Call {
+// RewriteEntries indicates an expected call of RewriteEntries.
+func (mr *MockClientMockRecorder) RewriteEntries() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RewriteList", reflect.TypeOf((*MockClient)(nil).RewriteList))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RewriteEntries", reflect.TypeOf((*MockClient)(nil).RewriteEntries))
+}
+
+// RewriteSettings mocks base method.
+func (m *MockClient) RewriteSettings() (*model.RewriteSettings, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RewriteSettings")
+	ret0, _ := ret[0].(*model.RewriteSettings)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RewriteSettings indicates an expected call of RewriteSettings.
+func (mr *MockClientMockRecorder) RewriteSettings() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RewriteSettings", reflect.TypeOf((*MockClient)(nil).RewriteSettings))
 }
 
 // SafeBrowsing mocks base method.
@@ -481,6 +496,20 @@ func (m *MockClient) SetQueryLogConfig(ql *model.QueryLogConfigWithIgnored) erro
 func (mr *MockClientMockRecorder) SetQueryLogConfig(ql any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetQueryLogConfig", reflect.TypeOf((*MockClient)(nil).SetQueryLogConfig), ql)
+}
+
+// SetRewriteSettings mocks base method.
+func (m *MockClient) SetRewriteSettings(s *model.RewriteSettings) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetRewriteSettings", s)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetRewriteSettings indicates an expected call of SetRewriteSettings.
+func (mr *MockClientMockRecorder) SetRewriteSettings(s any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRewriteSettings", reflect.TypeOf((*MockClient)(nil).SetRewriteSettings), s)
 }
 
 // SetSafeSearchConfig mocks base method.

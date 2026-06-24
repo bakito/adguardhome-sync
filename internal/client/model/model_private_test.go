@@ -17,68 +17,68 @@ func TestDhcpConfigV4_isValid(t *testing.T) {
 			name: "When GatewayIp is nil",
 			v4: DhcpConfigV4{
 				GatewayIp:  nil,
-				SubnetMask: ptr("2.2.2.2"),
-				RangeStart: ptr("3.3.3.3"),
-				RangeEnd:   ptr("4.4.4.4"),
+				SubnetMask: new("2.2.2.2"),
+				RangeStart: new("3.3.3.3"),
+				RangeEnd:   new("4.4.4.4"),
 			},
 			want: false,
 		},
 		{
 			name: "When GatewayIp is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr(""),
-				SubnetMask: ptr("2.2.2.2"),
-				RangeStart: ptr("3.3.3.3"),
-				RangeEnd:   ptr("4.4.4.4"),
+				GatewayIp:  new(""),
+				SubnetMask: new("2.2.2.2"),
+				RangeStart: new("3.3.3.3"),
+				RangeEnd:   new("4.4.4.4"),
 			},
 			want: false,
 		},
 		{
 			name: "When SubnetMask is nil",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr("1.1.1.1"),
+				GatewayIp:  new("1.1.1.1"),
 				SubnetMask: nil,
-				RangeStart: ptr("3.3.3.3"),
-				RangeEnd:   ptr("4.4.4.4"),
+				RangeStart: new("3.3.3.3"),
+				RangeEnd:   new("4.4.4.4"),
 			},
 			want: false,
 		},
 		{
 			name: "When SubnetMask is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr("1.1.1.1"),
-				SubnetMask: ptr(""),
-				RangeStart: ptr("3.3.3.3"),
-				RangeEnd:   ptr("4.4.4.4"),
+				GatewayIp:  new("1.1.1.1"),
+				SubnetMask: new(""),
+				RangeStart: new("3.3.3.3"),
+				RangeEnd:   new("4.4.4.4"),
 			},
 			want: false,
 		},
 		{
 			name: "When RangeStart is nil",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr("1.1.1.1"),
-				SubnetMask: ptr("2.2.2.2"),
+				GatewayIp:  new("1.1.1.1"),
+				SubnetMask: new("2.2.2.2"),
 				RangeStart: nil,
-				RangeEnd:   ptr("4.4.4.4"),
+				RangeEnd:   new("4.4.4.4"),
 			},
 			want: false,
 		},
 		{
 			name: "When RangeStart is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr("1.1.1.1"),
-				SubnetMask: ptr("2.2.2.2"),
-				RangeStart: ptr(""),
-				RangeEnd:   ptr("4.4.4.4"),
+				GatewayIp:  new("1.1.1.1"),
+				SubnetMask: new("2.2.2.2"),
+				RangeStart: new(""),
+				RangeEnd:   new("4.4.4.4"),
 			},
 			want: false,
 		},
 		{
 			name: "When RangeEnd is nil",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr("1.1.1.1"),
-				SubnetMask: ptr("2.2.2.2"),
-				RangeStart: ptr("3.3.3.3"),
+				GatewayIp:  new("1.1.1.1"),
+				SubnetMask: new("2.2.2.2"),
+				RangeStart: new("3.3.3.3"),
 				RangeEnd:   nil,
 			},
 			want: false,
@@ -86,10 +86,10 @@ func TestDhcpConfigV4_isValid(t *testing.T) {
 		{
 			name: "When RangeEnd is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  ptr("1.1.1.1"),
-				SubnetMask: ptr("2.2.2.2"),
-				RangeStart: ptr("3.3.3.3"),
-				RangeEnd:   ptr(""),
+				GatewayIp:  new("1.1.1.1"),
+				SubnetMask: new("2.2.2.2"),
+				RangeStart: new("3.3.3.3"),
+				RangeEnd:   new(""),
 			},
 			want: false,
 		},
@@ -117,7 +117,7 @@ func TestDhcpConfigV6_isValid(t *testing.T) {
 		},
 		{
 			name: "When RangeStart is \"\"",
-			v6:   DhcpConfigV6{RangeStart: ptr("")},
+			v6:   DhcpConfigV6{RangeStart: new("")},
 			want: false,
 		},
 	}
@@ -136,7 +136,7 @@ func TestDNSConfig_Sanitize(t *testing.T) {
 
 	t.Run("should disable UsePrivatePtrResolvers if resolvers is nil", func(t *testing.T) {
 		cfg := &DNSConfig{
-			UsePrivatePtrResolvers: ptr(true),
+			UsePrivatePtrResolvers: new(true),
 			LocalPtrUpstreams:      nil,
 		}
 		cfg.Sanitize(l)
@@ -147,8 +147,8 @@ func TestDNSConfig_Sanitize(t *testing.T) {
 
 	t.Run("should disable UsePrivatePtrResolvers if resolvers is empty", func(t *testing.T) {
 		cfg := &DNSConfig{
-			UsePrivatePtrResolvers: ptr(true),
-			LocalPtrUpstreams:      ptr([]string{}),
+			UsePrivatePtrResolvers: new(true),
+			LocalPtrUpstreams:      new([]string{}),
 		}
 		cfg.Sanitize(l)
 		if cfg.UsePrivatePtrResolvers == nil || *cfg.UsePrivatePtrResolvers {
@@ -177,13 +177,13 @@ func TestDhcpStatus_cleanV4V6(t *testing.T) {
 			name: "should keep V4 and V6 if they are valid",
 			ds: &DhcpStatus{
 				V4: &DhcpConfigV4{
-					GatewayIp:  ptr("1.1.1.1"),
-					SubnetMask: ptr("255.255.255.0"),
-					RangeStart: ptr("1.1.1.2"),
-					RangeEnd:   ptr("1.1.1.10"),
+					GatewayIp:  new("1.1.1.1"),
+					SubnetMask: new("255.255.255.0"),
+					RangeStart: new("1.1.1.2"),
+					RangeEnd:   new("1.1.1.10"),
 				},
 				V6: &DhcpConfigV6{
-					RangeStart: ptr("2001:db8::1"),
+					RangeStart: new("2001:db8::1"),
 				},
 			},
 			checkV4: true,
@@ -212,21 +212,21 @@ func TestStats_sumUp(t *testing.T) {
 	}{
 		{
 			name: "should sum up slices",
-			s1:   ptr([]int{1, 2, 3}),
-			s2:   ptr([]int{4, 5, 6}),
-			want: ptr([]int{5, 7, 9}),
+			s1:   new([]int{1, 2, 3}),
+			s2:   new([]int{4, 5, 6}),
+			want: new([]int{5, 7, 9}),
 		},
 		{
 			name: "should handle different lengths",
-			s1:   ptr([]int{1, 2}),
-			s2:   ptr([]int{4, 5, 6}),
-			want: ptr([]int{5, 7}),
+			s1:   new([]int{1, 2}),
+			s2:   new([]int{4, 5, 6}),
+			want: new([]int{5, 7}),
 		},
 		{
 			name: "should return target if other is nil",
-			s1:   ptr([]int{1, 2}),
+			s1:   new([]int{1, 2}),
 			s2:   nil,
-			want: ptr([]int{1, 2}),
+			want: new([]int{1, 2}),
 		},
 	}
 	for _, tt := range tests {
@@ -248,15 +248,15 @@ func TestStats_addInt(t *testing.T) {
 	}{
 		{
 			name: "should add int",
-			t:    ptr(1),
-			add:  ptr(2),
-			want: ptr(3),
+			t:    new(1),
+			add:  new(2),
+			want: new(3),
 		},
 		{
 			name: "should return t if add is nil",
-			t:    ptr(1),
+			t:    new(1),
 			add:  nil,
-			want: ptr(1),
+			want: new(1),
 		},
 	}
 	for _, tt := range tests {
@@ -285,25 +285,25 @@ func TestPtrEquals(t *testing.T) {
 		{
 			name: "a nil",
 			a:    nil,
-			b:    ptr(1),
+			b:    new(1),
 			want: false,
 		},
 		{
 			name: "b nil",
-			a:    ptr(1),
+			a:    new(1),
 			b:    nil,
 			want: false,
 		},
 		{
 			name: "equal",
-			a:    ptr(1),
-			b:    ptr(1),
+			a:    new(1),
+			b:    new(1),
 			want: true,
 		},
 		{
 			name: "not equal",
-			a:    ptr(1),
-			b:    ptr(2),
+			a:    new(1),
+			b:    new(2),
 			want: false,
 		},
 	}
@@ -318,9 +318,9 @@ func TestPtrEquals(t *testing.T) {
 
 func TestDNSConfig_Sort_Private(t *testing.T) {
 	cfg := &DNSConfig{
-		UpstreamDns:       ptr([]string{"b", "a"}),
-		BootstrapDns:      ptr([]string{"d", "c"}),
-		LocalPtrUpstreams: ptr([]string{"f", "e"}),
+		UpstreamDns:       new([]string{"b", "a"}),
+		BootstrapDns:      new([]string{"d", "c"}),
+		LocalPtrUpstreams: new([]string{"f", "e"}),
 	}
 	cfg.Sort()
 	if !reflect.DeepEqual(*cfg.UpstreamDns, []string{"a", "b"}) {
@@ -336,10 +336,10 @@ func TestDNSConfig_Sort_Private(t *testing.T) {
 
 func TestClient_Sort_Private(t *testing.T) {
 	cl := &Client{
-		Ids:             ptr([]string{"b", "a"}),
-		Tags:            ptr([]string{"d", "c"}),
-		BlockedServices: ptr([]string{"f", "e"}),
-		Upstreams:       ptr([]string{"h", "g"}),
+		Ids:             new([]string{"b", "a"}),
+		Tags:            new([]string{"d", "c"}),
+		BlockedServices: new([]string{"f", "e"}),
+		Upstreams:       new([]string{"h", "g"}),
 	}
 	cl.Sort()
 	if !reflect.DeepEqual(*cl.Ids, []string{"a", "b"}) {
@@ -354,8 +354,4 @@ func TestClient_Sort_Private(t *testing.T) {
 	if !reflect.DeepEqual(*cl.Upstreams, []string{"g", "h"}) {
 		t.Errorf("Upstreams sort failed, got %v", *cl.Upstreams)
 	}
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }

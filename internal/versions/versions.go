@@ -4,7 +4,7 @@ import "golang.org/x/mod/semver"
 
 const (
 	// MinAgh minimal adguardhome version.
-	MinAgh = "v0.107.40"
+	MinAgh = "v0.107.68"
 )
 
 func IsNewerThan(v1, v2 string) bool {

@@ -216,9 +216,15 @@ func (w *worker) sync() {
 		return
 	}
 
-	o.rewrites, err = oc.RewriteList()
+	o.rewriteSettings, err = oc.RewriteSettings()
 	if err != nil {
-		sl.With("error", err).Error("Error getting origin rewrites")
+		sl.With("error", err).Error("Error getting origin rewrite entries")
+		return
+	}
+
+	o.rewriteEntries, err = oc.RewriteEntries()
+	if err != nil {
+		sl.With("error", err).Error("Error getting origin rewrite entries")
 		return
 	}
 
@@ -369,7 +375,8 @@ func (*worker) statusWithSetup(
 
 type origin struct {
 	status                  *model.ServerStatus
-	rewrites                *model.RewriteEntries
+	rewriteSettings         *model.RewriteSettings
+	rewriteEntries          *model.RewriteEntries
 	blockedServicesSchedule *model.BlockedServicesSchedule
 	filters                 *model.FilterStatus
 	clients                 *model.Clients

@@ -70,13 +70,23 @@ var (
 		}
 		return nil
 	}
-	actionDNSRewrites = func(ac *actionContext) error {
-		replicaRewrites, err := ac.client.RewriteList()
+	actionRewriteSettings = func(ac *actionContext) error {
+		rs, err := ac.client.RewriteSettings()
+		if err != nil {
+			return err
+		}
+		if !rs.Equals(ac.origin.rewriteSettings) {
+			return ac.client.SetRewriteSettings(ac.origin.rewriteSettings)
+		}
+		return nil
+	}
+	actionRewriteEntries = func(ac *actionContext) error {
+		replicaRewrites, err := ac.client.RewriteEntries()
 		if err != nil {
 			return err
 		}
 
-		a, r, d, u := replicaRewrites.Merge(ac.origin.rewrites)
+		a, r, d, u := replicaRewrites.Merge(ac.origin.rewriteEntries)
 
 		if err = ac.client.DeleteRewriteEntries(r...); err != nil {
 			return err

@@ -196,7 +196,7 @@ func TestClient_RewriteList(t *testing.T) {
 	t.Run("should read RewriteList", func(t *testing.T) {
 		ts, cl := ClientGet(t, "rewrite-list.json", "/rewrite/list")
 		defer ts.Close()
-		rwl, err := cl.RewriteList()
+		rwl, err := cl.RewriteEntries()
 		if err != nil {
 			t.Fatalf("RewriteList() error = %v", err)
 		}

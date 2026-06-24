@@ -71,10 +71,11 @@ func newTestEnv(t *testing.T) *testEnv {
 				Language: "en",
 				Theme:    "auto",
 			},
-			status:         &model.ServerStatus{},
-			safeSearch:     &model.SafeSearchConfig{},
-			queryLogConfig: &model.QueryLogConfigWithIgnored{},
-			statsConfig:    &model.PutStatsConfigUpdateRequest{},
+			status:          &model.ServerStatus{},
+			safeSearch:      &model.SafeSearchConfig{},
+			queryLogConfig:  &model.QueryLogConfigWithIgnored{},
+			statsConfig:     &model.PutStatsConfigUpdateRequest{},
+			rewriteSettings: &model.RewriteSettings{},
 		},
 		replicaStatus: &model.ServerStatus{},
 		client:        cl,
@@ -91,7 +92,32 @@ func newTestEnv(t *testing.T) *testEnv {
 
 func TestSync(t *testing.T) {
 	t.Run("worker", func(t *testing.T) {
-		t.Run("actionDNSRewrites", func(t *testing.T) {
+		t.Run("actionRewriteSettings", func(t *testing.T) {
+			rsO := model.RewriteSettings{Enabled: true}
+			rsR := model.RewriteSettings{Enabled: false}
+
+			t.Run("should update the rewrite settings", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.rewriteSettings = &rsO
+				env.cl.EXPECT().RewriteSettings().Return(&rsR, nil)
+				env.cl.EXPECT().SetRewriteSettings(&rsO).Return(nil)
+				err := actionRewriteSettings(env.ac)
+				if err != nil {
+					t.Errorf("actionRewriteSettings() error = %v, want nil", err)
+				}
+			})
+			t.Run("should not update the rewrite settings", func(t *testing.T) {
+				rsR := model.RewriteSettings{Enabled: true}
+				env := newTestEnv(t)
+				env.ac.origin.rewriteSettings = &rsO
+				env.cl.EXPECT().RewriteSettings().Return(&rsR, nil)
+				err := actionRewriteSettings(env.ac)
+				if err != nil {
+					t.Errorf("actionRewriteSettings() error = %v, want nil", err)
+				}
+			})
+		})
+		t.Run("actionRewriteEntries", func(t *testing.T) {
 			domain := uuid.NewString()
 			answer := uuid.NewString()
 			reO := model.RewriteEntries{{Domain: &domain, Answer: &answer}}
@@ -99,84 +125,84 @@ func TestSync(t *testing.T) {
 
 			t.Run("should have no changes (empty slices)", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.rewrites = &reO
-				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.ac.origin.rewriteEntries = &reO
+				env.cl.EXPECT().RewriteEntries().Return(&reR, nil)
 				env.cl.EXPECT().AddRewriteEntries()
 				env.cl.EXPECT().DeleteRewriteEntries()
 				env.cl.EXPECT().UpdateRewriteEntries()
-				err := actionDNSRewrites(env.ac)
+				err := actionRewriteEntries(env.ac)
 				if err != nil {
-					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+					t.Errorf("actionRewriteEntries() error = %v, want nil", err)
 				}
 			})
 			t.Run("should add one rewrite entry", func(t *testing.T) {
 				env := newTestEnv(t)
 				reRLocal := model.RewriteEntries{}
-				env.ac.origin.rewrites = &reO
-				env.cl.EXPECT().RewriteList().Return(&reRLocal, nil)
+				env.ac.origin.rewriteEntries = &reO
+				env.cl.EXPECT().RewriteEntries().Return(&reRLocal, nil)
 				env.cl.EXPECT().AddRewriteEntries(reO[0])
 				env.cl.EXPECT().DeleteRewriteEntries()
 				env.cl.EXPECT().UpdateRewriteEntries()
-				err := actionDNSRewrites(env.ac)
+				err := actionRewriteEntries(env.ac)
 				if err != nil {
-					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+					t.Errorf("actionRewriteEntries() error = %v, want nil", err)
 				}
 			})
 			t.Run("should remove one rewrite entry", func(t *testing.T) {
 				env := newTestEnv(t)
 				reOLocal := model.RewriteEntries{}
-				env.ac.origin.rewrites = &reOLocal
-				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.ac.origin.rewriteEntries = &reOLocal
+				env.cl.EXPECT().RewriteEntries().Return(&reR, nil)
 				env.cl.EXPECT().AddRewriteEntries()
 				env.cl.EXPECT().DeleteRewriteEntries(reR[0])
 				env.cl.EXPECT().UpdateRewriteEntries()
-				err := actionDNSRewrites(env.ac)
+				err := actionRewriteEntries(env.ac)
 				if err != nil {
-					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+					t.Errorf("actionRewriteEntries() error = %v, want nil", err)
 				}
 			})
 			t.Run("should update one rewrite entry", func(t *testing.T) {
 				env := newTestEnv(t)
 				reOLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: new(false)}}
 				reRLocal := model.RewriteEntries{{Domain: &domain, Answer: &answer, Enabled: new(true)}}
-				env.ac.origin.rewrites = &reOLocal
-				env.cl.EXPECT().RewriteList().Return(&reRLocal, nil)
+				env.ac.origin.rewriteEntries = &reOLocal
+				env.cl.EXPECT().RewriteEntries().Return(&reRLocal, nil)
 				env.cl.EXPECT().AddRewriteEntries()
 				env.cl.EXPECT().DeleteRewriteEntries()
 				env.cl.EXPECT().UpdateRewriteEntries(gm.Any())
-				err := actionDNSRewrites(env.ac)
+				err := actionRewriteEntries(env.ac)
 				if err != nil {
-					t.Errorf("actionDNSRewrites() error = %v, want nil", err)
+					t.Errorf("actionRewriteEntries() error = %v, want nil", err)
 				}
 			})
-			t.Run("should return error when error on RewriteList()", func(t *testing.T) {
+			t.Run("should return error when error on RewriteEntries()", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.rewrites = &reO
-				env.cl.EXPECT().RewriteList().Return(nil, env.te)
-				err := actionDNSRewrites(env.ac)
+				env.ac.origin.rewriteEntries = &reO
+				env.cl.EXPECT().RewriteEntries().Return(nil, env.te)
+				err := actionRewriteEntries(env.ac)
 				if err == nil {
-					t.Error("actionDNSRewrites() error = nil, want error")
+					t.Error("actionRewriteEntries() error = nil, want error")
 				}
 			})
 			t.Run("should return error when error on AddRewriteEntries()", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.rewrites = &reO
-				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.ac.origin.rewriteEntries = &reO
+				env.cl.EXPECT().RewriteEntries().Return(&reR, nil)
 				env.cl.EXPECT().DeleteRewriteEntries()
 				env.cl.EXPECT().AddRewriteEntries().Return(env.te)
-				err := actionDNSRewrites(env.ac)
+				err := actionRewriteEntries(env.ac)
 				if err == nil {
-					t.Error("actionDNSRewrites() error = nil, want error")
+					t.Error("actionRewriteEntries() error = nil, want error")
 				}
 			})
 			t.Run("should return error when error on DeleteRewriteEntries()", func(t *testing.T) {
 				env := newTestEnv(t)
-				env.ac.origin.rewrites = &reO
-				env.cl.EXPECT().RewriteList().Return(&reR, nil)
+				env.ac.origin.rewriteEntries = &reO
+				env.cl.EXPECT().RewriteEntries().Return(&reR, nil)
 				env.cl.EXPECT().DeleteRewriteEntries().Return(env.te)
-				err := actionDNSRewrites(env.ac)
+				err := actionRewriteEntries(env.ac)
 				if err == nil {
-					t.Error("actionDNSRewrites() error = nil, want error")
+					t.Error("actionRewriteEntries() error = nil, want error")
 				}
 			})
 		})
@@ -923,7 +949,8 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().Parental()
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				env.cl.EXPECT().SafeBrowsing()
-				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().RewriteSettings().Return(&model.RewriteSettings{}, nil).AnyTimes()
+				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().BlockedServicesSchedule()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
@@ -943,7 +970,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().SafeBrowsing()
 				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().AddRewriteEntries()
 				env.cl.EXPECT().DeleteRewriteEntries()
 				env.cl.EXPECT().UpdateRewriteEntries()
@@ -991,7 +1018,8 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().Parental()
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				env.cl.EXPECT().SafeBrowsing()
-				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().RewriteSettings().Return(&model.RewriteSettings{}, nil).AnyTimes()
+				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().BlockedServicesSchedule()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
@@ -1010,7 +1038,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().SafeBrowsing()
 				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
-				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().AddRewriteEntries()
 				env.cl.EXPECT().DeleteRewriteEntries()
 				env.cl.EXPECT().UpdateRewriteEntries()
@@ -1068,7 +1096,8 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().Parental()
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				env.cl.EXPECT().SafeBrowsing()
-				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil)
+				env.cl.EXPECT().RewriteSettings().Return(&model.RewriteSettings{}, nil).AnyTimes()
+				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().BlockedServicesSchedule()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
@@ -1224,7 +1253,8 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().Parental().Return(false, nil).AnyTimes()
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil).AnyTimes()
 				env.cl.EXPECT().SafeBrowsing().Return(false, nil).AnyTimes()
-				env.cl.EXPECT().RewriteList().Return(&model.RewriteEntries{}, nil).AnyTimes()
+				env.cl.EXPECT().RewriteSettings().Return(&model.RewriteSettings{}, nil).AnyTimes()
+				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil).AnyTimes()
 				env.cl.EXPECT().BlockedServicesSchedule().Return(&model.BlockedServicesSchedule{}, nil).AnyTimes()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil).AnyTimes()
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil).AnyTimes()
