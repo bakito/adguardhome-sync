@@ -1,7 +1,5 @@
 replica:
   versions:
-    - v0.107.63
-    - v0.107.67
     - v0.107.68
     - latest
 

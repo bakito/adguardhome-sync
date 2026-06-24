@@ -116,14 +116,14 @@ func TestSafeSearchConfig_Equals(t *testing.T) {
 	}{
 		{
 			name: "equal",
-			ssc:  &model.SafeSearchConfig{Enabled: ptr(true)},
-			o:    &model.SafeSearchConfig{Enabled: ptr(true)},
+			ssc:  &model.SafeSearchConfig{Enabled: new(true)},
+			o:    &model.SafeSearchConfig{Enabled: new(true)},
 			want: true,
 		},
 		{
 			name: "not equal",
-			ssc:  &model.SafeSearchConfig{Enabled: ptr(true)},
-			o:    &model.SafeSearchConfig{Enabled: ptr(false)},
+			ssc:  &model.SafeSearchConfig{Enabled: new(true)},
+			o:    &model.SafeSearchConfig{Enabled: new(false)},
 			want: false,
 		},
 	}
@@ -273,8 +273,8 @@ func TestBlockedServicesSchedule_ServicesString(t *testing.T) {
 func TestStats_Add(t *testing.T) {
 	s1 := model.NewStats()
 	s2 := &model.Stats{
-		NumDnsQueries: ptr(10),
-		DnsQueries:    ptr(make([]int, 24)),
+		NumDnsQueries: new(10),
+		DnsQueries:    new(make([]int, 24)),
 	}
 	(*s2.DnsQueries)[0] = 5
 
@@ -296,14 +296,14 @@ func TestTlsConfig_Equals(t *testing.T) {
 	}{
 		{
 			name: "equal",
-			c:    &model.TlsConfig{ServerName: ptr("a")},
-			o:    &model.TlsConfig{ServerName: ptr("a")},
+			c:    &model.TlsConfig{ServerName: new("a")},
+			o:    &model.TlsConfig{ServerName: new("a")},
 			want: true,
 		},
 		{
 			name: "not equal",
-			c:    &model.TlsConfig{ServerName: ptr("a")},
-			o:    &model.TlsConfig{ServerName: ptr("b")},
+			c:    &model.TlsConfig{ServerName: new("a")},
+			o:    &model.TlsConfig{ServerName: new("b")},
 			want: false,
 		},
 	}
@@ -488,24 +488,24 @@ func TestQueryLogConfigWithIgnored_Equals(t *testing.T) {
 			name: "should be equal",
 			a: model.QueryLogConfigWithIgnored{
 				QueryLogConfig: model.QueryLogConfig{
-					Enabled:           ptr(true),
+					Enabled:           new(true),
 					Interval:          &interval1,
-					AnonymizeClientIp: ptr(true),
+					AnonymizeClientIp: new(true),
 				},
 			},
 			b: model.QueryLogConfigWithIgnored{
 				QueryLogConfig: model.QueryLogConfig{
-					Enabled:           ptr(true),
+					Enabled:           new(true),
 					Interval:          &interval1,
-					AnonymizeClientIp: ptr(true),
+					AnonymizeClientIp: new(true),
 				},
 			},
 			want: true,
 		},
 		{
 			name: "should not be equal when enabled differs",
-			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Enabled: ptr(true)}},
-			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Enabled: ptr(false)}},
+			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Enabled: new(true)}},
+			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Enabled: new(false)}},
 			want: false,
 		},
 		{
@@ -516,8 +516,8 @@ func TestQueryLogConfigWithIgnored_Equals(t *testing.T) {
 		},
 		{
 			name: "should not be equal when anonymizeClientIP differs",
-			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: ptr(true)}},
-			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: ptr(false)}},
+			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: new(true)}},
+			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: new(false)}},
 			want: false,
 		},
 	}
@@ -574,8 +574,8 @@ func TestRewriteEntries_Merge(t *testing.T) {
 		},
 		{
 			name:        "should update a changed",
-			originRE:    model.RewriteEntries{{Domain: &domain, Enabled: ptr(true)}},
-			replicaRE:   model.RewriteEntries{{Domain: &domain, Enabled: ptr(false)}},
+			originRE:    model.RewriteEntries{{Domain: &domain, Enabled: new(true)}},
+			replicaRE:   model.RewriteEntries{{Domain: &domain, Enabled: new(false)}},
 			wantUpdated: 1,
 		},
 	}
@@ -730,8 +730,7 @@ func TestClients_Merge(t *testing.T) {
 			},
 			replicaClients: func() model.Clients {
 				c := model.Clients{}
-				enabled := !disallowed
-				c.Add(model.Client{Name: &name, FilteringEnabled: &enabled})
+				c.Add(model.Client{Name: &name, FilteringEnabled: new(!disallowed)})
 				return c
 			}(),
 			wantUpdated: 1,
@@ -765,12 +764,12 @@ func TestClients_Merge(t *testing.T) {
 
 func TestClient_Equals(t *testing.T) {
 	cl1 := &model.Client{
-		Name:                    ptr("foo"),
-		BlockedServicesSchedule: &model.Schedule{TimeZone: ptr("UTC")},
+		Name:                    new("foo"),
+		BlockedServicesSchedule: &model.Schedule{TimeZone: new("UTC")},
 	}
 	cl2 := &model.Client{
-		Name:                    ptr("foo"),
-		BlockedServicesSchedule: &model.Schedule{TimeZone: ptr("Local")},
+		Name:                    new("foo"),
+		BlockedServicesSchedule: &model.Schedule{TimeZone: new("Local")},
 	}
 
 	if !cl1.Equals(cl2) {
@@ -804,15 +803,15 @@ func TestBlockedServices_Equals(t *testing.T) {
 
 func TestDNSConfig_Equals(t *testing.T) {
 	t.Run("should be equal", func(t *testing.T) {
-		dc1 := &model.DNSConfig{LocalPtrUpstreams: ptr([]string{"a"})}
-		dc2 := &model.DNSConfig{LocalPtrUpstreams: ptr([]string{"a"})}
+		dc1 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"a"})}
+		dc2 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"a"})}
 		if !dc1.Equals(dc2) {
 			t.Error("expected equal")
 		}
 	})
 	t.Run("should not be equal", func(t *testing.T) {
-		dc1 := &model.DNSConfig{LocalPtrUpstreams: ptr([]string{"a"})}
-		dc2 := &model.DNSConfig{LocalPtrUpstreams: ptr([]string{"b"})}
+		dc1 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"a"})}
+		dc2 := &model.DNSConfig{LocalPtrUpstreams: new([]string{"b"})}
 		if dc1.Equals(dc2) {
 			t.Error("expected not equal")
 		}
@@ -823,27 +822,27 @@ func TestDHCPServerConfig(t *testing.T) {
 	t.Run("Equals", func(t *testing.T) {
 		dc1 := &model.DhcpStatus{
 			V4: &model.DhcpConfigV4{
-				GatewayIp:     ptr("1.2.3.4"),
-				LeaseDuration: ptr(123),
-				RangeStart:    ptr("1.2.3.5"),
-				RangeEnd:      ptr("1.2.3.6"),
-				SubnetMask:    ptr("255.255.255.0"),
+				GatewayIp:     new("1.2.3.4"),
+				LeaseDuration: new(123),
+				RangeStart:    new("1.2.3.5"),
+				RangeEnd:      new("1.2.3.6"),
+				SubnetMask:    new("255.255.255.0"),
 			},
 		}
 		dc2 := &model.DhcpStatus{
 			V4: &model.DhcpConfigV4{
-				GatewayIp:     ptr("1.2.3.4"),
-				LeaseDuration: ptr(123),
-				RangeStart:    ptr("1.2.3.5"),
-				RangeEnd:      ptr("1.2.3.6"),
-				SubnetMask:    ptr("255.255.255.0"),
+				GatewayIp:     new("1.2.3.4"),
+				LeaseDuration: new(123),
+				RangeStart:    new("1.2.3.5"),
+				RangeEnd:      new("1.2.3.6"),
+				SubnetMask:    new("255.255.255.0"),
 			},
 		}
 		if !dc1.Equals(dc2) {
 			t.Error("expected equal")
 		}
 
-		dc1.V4.GatewayIp = ptr("1.2.3.3")
+		dc1.V4.GatewayIp = new("1.2.3.3")
 		if dc1.Equals(dc2) {
 			t.Error("expected not equal")
 		}
@@ -852,11 +851,11 @@ func TestDHCPServerConfig(t *testing.T) {
 	t.Run("Clone should be equal", func(t *testing.T) {
 		dc1 := &model.DhcpStatus{
 			V4: &model.DhcpConfigV4{
-				GatewayIp:     ptr("1.2.3.4"),
-				LeaseDuration: ptr(123),
-				RangeStart:    ptr("1.2.3.5"),
-				RangeEnd:      ptr("1.2.3.6"),
-				SubnetMask:    ptr("255.255.255.0"),
+				GatewayIp:     new("1.2.3.4"),
+				LeaseDuration: new(123),
+				RangeStart:    new("1.2.3.5"),
+				RangeEnd:      new("1.2.3.6"),
+				SubnetMask:    new("255.255.255.0"),
 			},
 		}
 		if !dc1.Clone().Equals(dc1) {
@@ -873,23 +872,23 @@ func TestDHCPServerConfig(t *testing.T) {
 			t.Error("expected no config")
 		}
 
-		dc1.V6.RangeStart = ptr("1.2.3.5")
+		dc1.V6.RangeStart = new("1.2.3.5")
 		if !dc1.HasConfig() {
 			t.Error("expected config")
 		}
 
-		dc1.V4.GatewayIp = ptr("")
+		dc1.V4.GatewayIp = new("")
 		if !dc1.HasConfig() {
 			t.Error("expected config")
 		}
 
 		dc1 = &model.DhcpStatus{
 			V4: &model.DhcpConfigV4{
-				GatewayIp:     ptr("1.2.3.4"),
-				LeaseDuration: ptr(123),
-				RangeStart:    ptr("1.2.3.5"),
-				RangeEnd:      ptr("1.2.3.6"),
-				SubnetMask:    ptr("255.255.255.0"),
+				GatewayIp:     new("1.2.3.4"),
+				LeaseDuration: new(123),
+				RangeStart:    new("1.2.3.5"),
+				RangeEnd:      new("1.2.3.6"),
+				SubnetMask:    new("255.255.255.0"),
 			},
 			V6: &model.DhcpConfigV6{},
 		}
@@ -922,11 +921,11 @@ func TestDHCPServerConfig(t *testing.T) {
 
 	t.Run("Clients_Add", func(t *testing.T) {
 		cs := &model.Clients{}
-		cs.Add(model.Client{Name: ptr("c1")})
+		cs.Add(model.Client{Name: new("c1")})
 		if len(*cs.Clients) != 1 {
 			t.Errorf("expected 1 client, got %d", len(*cs.Clients))
 		}
-		cs.Add(model.Client{Name: ptr("c2")})
+		cs.Add(model.Client{Name: new("c2")})
 		if len(*cs.Clients) != 2 {
 			t.Errorf("expected 2 clients, got %d", len(*cs.Clients))
 		}
@@ -963,8 +962,4 @@ func TestDHCPServerConfig(t *testing.T) {
 			t.Error("expected nil for empty language")
 		}
 	})
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }

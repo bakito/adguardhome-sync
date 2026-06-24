@@ -114,10 +114,12 @@ type Client interface {
 	Stats() (*model.Stats, error)
 	QueryLog(limit int) (*model.QueryLog, error)
 	ToggleProtection(enable bool) error
-	RewriteList() (*model.RewriteEntries, error)
+	RewriteEntries() (*model.RewriteEntries, error)
 	AddRewriteEntries(e ...model.RewriteEntry) error
 	DeleteRewriteEntries(e ...model.RewriteEntry) error
 	UpdateRewriteEntries(e ...model.RewriteUpdate) error
+	RewriteSettings() (*model.RewriteSettings, error)
+	SetRewriteSettings(s *model.RewriteSettings) error
 	Filtering() (*model.FilterStatus, error)
 	ToggleFiltering(enabled bool, interval int) error
 	AddFilter(whitelist bool, f model.Filter) error
@@ -199,7 +201,7 @@ func (cl *client) QueryLog(limit int) (*model.QueryLog, error) {
 	return ql, err
 }
 
-func (cl *client) RewriteList() (*model.RewriteEntries, error) {
+func (cl *client) RewriteEntries() (*model.RewriteEntries, error) {
 	rewrites := &model.RewriteEntries{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(&rewrites), "/rewrite/list")
 	return rewrites, err
@@ -237,6 +239,17 @@ func (cl *client) UpdateRewriteEntries(entries ...model.RewriteUpdate) error {
 		}
 	}
 	return nil
+}
+
+func (cl *client) RewriteSettings() (*model.RewriteSettings, error) {
+	rs := &model.RewriteSettings{}
+	err := cl.doGet(cl.client.R().EnableTrace().SetResult(rs), "/rewrite/settings")
+	return rs, err
+}
+
+func (cl *client) SetRewriteSettings(settings *model.RewriteSettings) error {
+	cl.log.With("enabled", settings.Enabled).Info("Set rewrite settings")
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(settings), "/rewrite/settings/update")
 }
 
 func (cl *client) SafeBrowsing() (bool, error) {

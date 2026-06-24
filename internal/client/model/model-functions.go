@@ -246,6 +246,10 @@ func (clients *Clients) Merge(other *Clients) (adds, removes, updates []*Client)
 	return adds, updates, removes
 }
 
+func (s *RewriteSettings) Equals(settings *RewriteSettings) bool {
+	return s.Enabled == settings.Enabled
+}
+
 // Key RewriteEntry key.
 func (re *RewriteEntry) Key() string {
 	var d string

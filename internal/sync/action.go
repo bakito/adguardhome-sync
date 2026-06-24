@@ -37,7 +37,8 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 	}
 	if cfg.Features.DNS.Rewrites {
 		actions = append(actions,
-			action("DNS rewrites", actionDNSRewrites),
+			action("DNS rewrite settings", actionRewriteSettings),
+			action("DNS rewrite entries", actionRewriteEntries),
 		)
 	}
 	if cfg.Features.Filters.Blacklist || cfg.Features.Filters.Whitelist || cfg.Features.Filters.UserRules {
