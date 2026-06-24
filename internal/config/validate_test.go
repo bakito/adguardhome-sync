@@ -15,7 +15,8 @@ func TestValidateSchema(t *testing.T) {
 		configFile string
 		expectFail bool
 	}{
-		{"Should be valid", "../../testdata/config/config-valid.yaml", false},
+		{"Should be valid - simple filter", "../../testdata/config/config-valid-simple-filter.yaml", false},
+		{"Should be valid - detailed filter", "../../testdata/config/config-valid-detailed-filter.yaml", false},
 		{"Should be valid if file doesn't exist", "../../testdata/config/foo.bar", false},
 		{"Should fail if file is not yaml", "../../go.mod", true},
 	}

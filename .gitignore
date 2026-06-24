@@ -11,5 +11,6 @@ tmp
 bin
 !testdata/e2e/bin
 config*.yaml
+!testdata/config/config*.yaml
 *.log
 wiki

@@ -1,0 +1,53 @@
+# cron expression to run in daemon mode. (default; "" = runs only once)
+cron: "*/10 * * * *"
+
+# runs the synchronisation on startup
+# This can cause errors on first run of adguard instances are not ready
+runOnStart: true
+
+continueOnError: false
+origin:
+  url: https://ha.xxxx.net:3000
+  insecureSkipVerify: true
+  username: xxxx
+  password: xxxx
+
+
+replicas:
+  - url: http://localhost:9091
+    webURL: http://127.0.0.1:9091
+    autoSetup: true
+    username: xxxx
+    password: p@xxxx
+    dhcpServerEnabled: false
+
+# Configure the sync API server, disabled if api port is 0
+api:
+  # Port, default 8080
+  port: 8090
+
+  darkMode: true
+  metrics:
+    enabled: true
+
+# Configure sync features; by default all features are enabled.
+
+features:
+  generalSettings: true
+  queryLogConfig: true
+  statsConfig: true
+  clientSettings: true
+  services: true
+  filters:
+    blacklist: false
+    whitelist: true
+    userRules: true
+
+  dhcp:
+    serverConfig: false
+    staticLeases: false
+
+  dns:
+    serverConfig: true
+    accessLists: true
+    rewrites: true
