@@ -46,6 +46,7 @@ go install github.com/bakito/adguardhome-sync@latest
 ```bash
 # Add the tap
 brew tap bakito/tap
+brew trust bakito/tap
 
 # install
 brew install --cask adguardhome-sync
