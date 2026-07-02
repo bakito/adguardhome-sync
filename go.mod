@@ -3,6 +3,7 @@ module github.com/bakito/adguardhome-sync
 go 1.26.4
 
 require (
+	github.com/bakito/docs-gen v0.0.2
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-faker/faker/v4 v4.8.0

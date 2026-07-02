@@ -20,44 +20,44 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Cron                string        `documentation:"Cron expression for the sync interval"                                          env:"CRON"                json:"cron,omitempty"              yaml:"cron,omitempty"`
-	RunOnStart          bool          `documentation:"Run the sync on startup"                                                        env:"RUN_ON_START"        json:"runOnStart,omitempty"        yaml:"runOnStart,omitempty"`
-	PrintConfigOnly     bool          `documentation:"Print current config only and stop the application"                             env:"PRINT_CONFIG_ONLY"   json:"printConfigOnly,omitempty"   yaml:"printConfigOnly,omitempty"`
-	ContinueOnError     bool          `documentation:"Continue sync on errors"                                                        env:"CONTINUE_ON_ERROR"   json:"continueOnError,omitempty"   yaml:"continueOnError,omitempty"`
-	ClientTimeoutString string        `documentation:"Define a custom http client timeout ^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$" env:"HTTP_CLIENT_TIMEOUT" json:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty" faker:"oneof: 30s, 5m"`
-	ClientTimeout       time.Duration `                                                                                                                         json:"-"                           yaml:"-"`
+	Cron                string        `docs:"Cron expression for the sync interval"                                          env:"CRON"                json:"cron,omitempty"              yaml:"cron,omitempty"`
+	RunOnStart          bool          `docs:"Run the sync on startup"                                                        env:"RUN_ON_START"        json:"runOnStart,omitempty"        yaml:"runOnStart,omitempty"`
+	PrintConfigOnly     bool          `docs:"Print current config only and stop the application"                             env:"PRINT_CONFIG_ONLY"   json:"printConfigOnly,omitempty"   yaml:"printConfigOnly,omitempty"`
+	ContinueOnError     bool          `docs:"Continue sync on errors"                                                        env:"CONTINUE_ON_ERROR"   json:"continueOnError,omitempty"   yaml:"continueOnError,omitempty"`
+	ClientTimeoutString string        `docs:"Define a custom http client timeout ^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$" env:"HTTP_CLIENT_TIMEOUT" json:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty" faker:"oneof: 30s, 5m"`
+	ClientTimeout       time.Duration `                                                                                                                json:"-"                           yaml:"-"`
 	// Origin adguardhome instance
-	Origin *AdGuardInstance `documentation:"Origin instance" json:"origin" yaml:"origin"`
+	Origin *AdGuardInstance `docs:"Origin instance" json:"origin" yaml:"origin"`
 	// One single replica adguardhome instance
-	Replica *AdGuardInstance `documentation:"Single or replica instance (don't use in combination with replicas')" json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replica *AdGuardInstance `docs:"Single or replica instance (don't use in combination with replicas')" json:"replica,omitempty" yaml:"replica,omitempty"`
 	// Multiple replica instances
-	Replicas []AdGuardInstance `documentation:"List or replica instances (don't use in combination with replicas')" faker:"slice_len=2" json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	API      API               `                                                                                                        json:"api,omitempty"      yaml:"api,omitempty"`
-	Features Features          `                                                                                                        json:"features,omitempty" yaml:"features,omitempty"`
+	Replicas []AdGuardInstance `docs:"List or replica instances (don't use in combination with replicas')" faker:"slice_len=2" json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	API      API               `                                                                                               json:"api,omitempty"      yaml:"api,omitempty"`
+	Features Features          `                                                                                               json:"features,omitempty" yaml:"features,omitempty"`
 }
 
 // API configuration.
 type API struct {
-	Port     int     `documentation:"API port (API is disabled if port is set to 0)" env:"API_PORT"      json:"port,omitempty"     yaml:"port,omitempty"`
-	Username string  `documentation:"API username"                                   env:"API_USERNAME"  json:"username,omitempty" yaml:"username,omitempty"`
-	Password string  `documentation:"API password"                                   env:"API_PASSWORD"  json:"password,omitempty" yaml:"password,omitempty"`
-	DarkMode bool    `documentation:"API dark mode"                                  env:"API_DARK_MODE" json:"darkMode,omitempty" yaml:"darkMode,omitempty"`
-	Metrics  Metrics `                                                                                   json:"metrics,omitempty"  yaml:"metrics,omitempty"`
-	TLS      TLS     `                                                                                   json:"tls,omitempty"      yaml:"tls,omitempty"`
+	Port     int     `docs:"API port (API is disabled if port is set to 0)" env:"API_PORT"      json:"port,omitempty"     yaml:"port,omitempty"`
+	Username string  `docs:"API username"                                   env:"API_USERNAME"  json:"username,omitempty" yaml:"username,omitempty"`
+	Password string  `docs:"API password"                                   env:"API_PASSWORD"  json:"password,omitempty" yaml:"password,omitempty"`
+	DarkMode bool    `docs:"API dark mode"                                  env:"API_DARK_MODE" json:"darkMode,omitempty" yaml:"darkMode,omitempty"`
+	Metrics  Metrics `                                                                          json:"metrics,omitempty"  yaml:"metrics,omitempty"`
+	TLS      TLS     `                                                                          json:"tls,omitempty"      yaml:"tls,omitempty"`
 }
 
 // Metrics configuration.
 type Metrics struct {
-	Enabled        bool          `documentation:"Enable metrics"                env:"API_METRICS_ENABLED"         json:"enabled,omitempty"        yaml:"enabled,omitempty"`
-	ScrapeInterval time.Duration `documentation:"Interval for metrics scraping" env:"API_METRICS_SCRAPE_INTERVAL" json:"scrapeInterval,omitempty" yaml:"scrapeInterval,omitempty"`
-	QueryLogLimit  int           `documentation:"Metrics log query limit"       env:"API_METRICS_QUERY_LOG_LIMIT" json:"queryLogLimit,omitempty"  yaml:"queryLogLimit,omitempty"`
+	Enabled        bool          `docs:"Enable metrics"                env:"API_METRICS_ENABLED"         json:"enabled,omitempty"        yaml:"enabled,omitempty"`
+	ScrapeInterval time.Duration `docs:"Interval for metrics scraping" env:"API_METRICS_SCRAPE_INTERVAL" json:"scrapeInterval,omitempty" yaml:"scrapeInterval,omitempty"`
+	QueryLogLimit  int           `docs:"Metrics log query limit"       env:"API_METRICS_QUERY_LOG_LIMIT" json:"queryLogLimit,omitempty"  yaml:"queryLogLimit,omitempty"`
 }
 
 // TLS configuration.
 type TLS struct {
-	CertDir  string `documentation:"API TLS certificate directory" env:"API_TLS_CERT_DIR"  json:"certDir,omitempty"  yaml:"certDir,omitempty"`
-	CertName string `documentation:"API TLS certificate file name" env:"API_TLS_CERT_NAME" json:"certName,omitempty" yaml:"certName,omitempty"`
-	KeyName  string `documentation:"API TLS key file name"         env:"API_TLS_KEY_NAME"  json:"keyName,omitempty"  yaml:"keyName,omitempty"`
+	CertDir  string `docs:"API TLS certificate directory" env:"API_TLS_CERT_DIR"  json:"certDir,omitempty"  yaml:"certDir,omitempty"`
+	CertName string `docs:"API TLS certificate file name" env:"API_TLS_CERT_NAME" json:"certName,omitempty" yaml:"certName,omitempty"`
+	KeyName  string `docs:"API TLS key file name"         env:"API_TLS_KEY_NAME"  json:"keyName,omitempty"  yaml:"keyName,omitempty"`
 }
 
 func (t TLS) Enabled() bool {
@@ -147,17 +147,17 @@ func (cfg *Config) Init() error {
 // AdGuardInstance AdguardHome config instance
 // +k8s:deepcopy-gen=true
 type AdGuardInstance struct {
-	URL                string            `documentation:"URL of adguardhome instance"                               env:"URL"                  faker:"url" json:"url"                         yaml:"url"`
-	WebURL             string            `documentation:"Web URL of adguardhome instance"                           env:"WEB_URL"              faker:"url" json:"webURL"                      yaml:"webURL"`
-	APIPath            string            `documentation:"API Path"                                                  env:"API_PATH"                         json:"apiPath,omitempty"           yaml:"apiPath,omitempty"`
-	Username           string            `documentation:"Adguardhome username"                                      env:"USERNAME"                         json:"username,omitempty"          yaml:"username,omitempty"`
-	Password           string            `documentation:"Adguardhome password"                                      env:"PASSWORD"                         json:"password,omitempty"          yaml:"password,omitempty"`
-	Cookie             string            `documentation:"Adguardhome cookie"                                        env:"COOKIE"                           json:"cookie,omitempty"            yaml:"cookie,omitempty"`
-	RequestHeaders     map[string]string `documentation:"Request Headers 'key1:value1,key2:value2'"                 env:"REQUEST_HEADERS"                  json:"requestHeaders,omitempty"    yaml:"requestHeaders,omitempty"`
-	InsecureSkipVerify bool              `documentation:"Skip TLS verification"                                     env:"INSECURE_SKIP_VERIFY"             json:"insecureSkipVerify"          yaml:"insecureSkipVerify"`
-	AutoSetup          bool              `documentation:"Automatically setup the instance if it is not initialized" env:"AUTO_SETUP"                       json:"autoSetup"                   yaml:"autoSetup"`
-	InterfaceName      string            `documentation:"Network interface name"                                    env:"INTERFACE_NAME"                   json:"interfaceName,omitempty"     yaml:"interfaceName,omitempty"`
-	DHCPServerEnabled  *bool             `documentation:"Enable DHCP server"                                        env:"DHCP_SERVER_ENABLED"              json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
+	URL                string            `docs:"URL of adguardhome instance"                               env:"URL"                  faker:"url" json:"url"                         yaml:"url"`
+	WebURL             string            `docs:"Web URL of adguardhome instance"                           env:"WEB_URL"              faker:"url" json:"webURL"                      yaml:"webURL"`
+	APIPath            string            `docs:"API Path"                                                  env:"API_PATH"                         json:"apiPath,omitempty"           yaml:"apiPath,omitempty"`
+	Username           string            `docs:"Adguardhome username"                                      env:"USERNAME"                         json:"username,omitempty"          yaml:"username,omitempty"`
+	Password           string            `docs:"Adguardhome password"                                      env:"PASSWORD"                         json:"password,omitempty"          yaml:"password,omitempty"`
+	Cookie             string            `docs:"Adguardhome cookie"                                        env:"COOKIE"                           json:"cookie,omitempty"            yaml:"cookie,omitempty"`
+	RequestHeaders     map[string]string `docs:"Request Headers 'key1:value1,key2:value2'"                 env:"REQUEST_HEADERS"                  json:"requestHeaders,omitempty"    yaml:"requestHeaders,omitempty"`
+	InsecureSkipVerify bool              `docs:"Skip TLS verification"                                     env:"INSECURE_SKIP_VERIFY"             json:"insecureSkipVerify"          yaml:"insecureSkipVerify"`
+	AutoSetup          bool              `docs:"Automatically setup the instance if it is not initialized" env:"AUTO_SETUP"                       json:"autoSetup"                   yaml:"autoSetup"`
+	InterfaceName      string            `docs:"Network interface name"                                    env:"INTERFACE_NAME"                   json:"interfaceName,omitempty"     yaml:"interfaceName,omitempty"`
+	DHCPServerEnabled  *bool             `docs:"Enable DHCP server"                                        env:"DHCP_SERVER_ENABLED"              json:"dhcpServerEnabled,omitempty" yaml:"dhcpServerEnabled,omitempty"`
 
 	Host    string `json:"-" yaml:"-"`
 	WebHost string `json:"-" yaml:"-"`

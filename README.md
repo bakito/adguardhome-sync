@@ -125,80 +125,154 @@ location: $HOME/.adguardhome-sync.yaml
 
 <!-- yaml-doc-start -->
 ```yaml
-cron: # (string) Cron expression for the sync interval
-runOnStart: # (bool) Run the sync on startup
-printConfigOnly: # (bool) Print current config only and stop the application
-continueOnError: # (bool) Continue sync on errors
-httpClientTimeout: # (string) Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
-origin: # (struct) Origin instance
-  url: # (string) URL of adguardhome instance
-  webURL: # (string) Web URL of adguardhome instance
-  apiPath: # (string) API Path
-  username: # (string) Adguardhome username
-  password: # (string) Adguardhome password
-  cookie: # (string) Adguardhome cookie
-  requestHeaders: # (map) Request Headers 'key1:value1,key2:value2'
-  insecureSkipVerify: # (bool) Skip TLS verification
-  autoSetup: # (bool) Automatically setup the instance if it is not initialized
-  interfaceName: # (string) Network interface name
-  dhcpServerEnabled: # (bool) Enable DHCP server
-replica: # (struct) Single or replica instance (don't use in combination with replicas')
-  url: # (string) URL of adguardhome instance
-  webURL: # (string) Web URL of adguardhome instance
-  apiPath: # (string) API Path
-  username: # (string) Adguardhome username
-  password: # (string) Adguardhome password
-  cookie: # (string) Adguardhome cookie
-  requestHeaders: # (map) Request Headers 'key1:value1,key2:value2'
-  insecureSkipVerify: # (bool) Skip TLS verification
-  autoSetup: # (bool) Automatically setup the instance if it is not initialized
-  interfaceName: # (string) Network interface name
-  dhcpServerEnabled: # (bool) Enable DHCP server
-replicas: # (struct) List or replica instances (don't use in combination with replicas')
-  - url: # (string) URL of adguardhome instance
-    webURL: # (string) Web URL of adguardhome instance
-    apiPath: # (string) API Path
-    username: # (string) Adguardhome username
-    password: # (string) Adguardhome password
-    cookie: # (string) Adguardhome cookie
-    requestHeaders: # (map) Request Headers 'key1:value1,key2:value2'
-    insecureSkipVerify: # (bool) Skip TLS verification
-    autoSetup: # (bool) Automatically setup the instance if it is not initialized
-    interfaceName: # (string) Network interface name
-    dhcpServerEnabled: # (bool) Enable DHCP server
-api: # (struct) 
-  port: # (int) API port (API is disabled if port is set to 0)
-  username: # (string) API username
-  password: # (string) API password
-  darkMode: # (bool) API dark mode
-  metrics: # (struct) 
-    enabled: # (bool) Enable metrics
-    scrapeInterval: # (int64) Interval for metrics scraping
-    queryLogLimit: # (int) Metrics log query limit
-  tls: # (struct) 
-    certDir: # (string) API TLS certificate directory
-    certName: # (string) API TLS certificate file name
-    keyName: # (string) API TLS key file name
-features: # (struct) 
-  dns: # (struct) 
-    accessLists: # (bool) Sync DNS access lists
-    serverConfig: # (bool) Sync DNS server config
-    rewrites: # (bool) Sync DNS rewrites
-  dhcp: # (struct) 
-    serverConfig: # (bool) Sync DHCP server config
-    staticLeases: # (bool) Sync DHCP static leases
-  generalSettings: # (bool) Sync general settings
-  protectionStatus: # (bool) Sync the protection status (disabled if generalSettings is disabled)
-  queryLogConfig: # (bool) Sync query log config
-  statsConfig: # (bool) Sync stats config
-  clientSettings: # (bool) Sync client settings
-  services: # (bool) Sync services
-  filters: # (struct) Sync filters (use sub-fields for granular control)
-    blacklist: # (bool) Sync blacklist filters
-    whitelist: # (bool) Sync whitelist filters
-    userRules: # (bool) Sync user rules
-  theme: # (bool) Sync the web UI theme
-  tlsConfig: # (bool) Sync the TLS config
+# Cron expression for the sync interval (string)
+cron:
+# Run the sync on startup (bool)
+runOnStart:
+# Print current config only and stop the application (bool)
+printConfigOnly:
+# Continue sync on errors (bool)
+continueOnError:
+# Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$ (string)
+httpClientTimeout:
+# Origin instance (struct)
+origin:
+  # URL of adguardhome instance (string)
+  url:
+  # Web URL of adguardhome instance (string)
+  webURL:
+  # API Path (string)
+  apiPath:
+  # Adguardhome username (string)
+  username:
+  # Adguardhome password (string)
+  password:
+  # Adguardhome cookie (string)
+  cookie:
+  # Request Headers 'key1:value1,key2:value2' (map[string:string])
+  requestHeaders:
+  # Skip TLS verification (bool)
+  insecureSkipVerify:
+  # Automatically setup the instance if it is not initialized (bool)
+  autoSetup:
+  # Network interface name (string)
+  interfaceName:
+  # Enable DHCP server (bool)
+  dhcpServerEnabled:
+# Single or replica instance (don't use in combination with replicas') (struct)
+replica:
+  # URL of adguardhome instance (string)
+  url:
+  # Web URL of adguardhome instance (string)
+  webURL:
+  # API Path (string)
+  apiPath:
+  # Adguardhome username (string)
+  username:
+  # Adguardhome password (string)
+  password:
+  # Adguardhome cookie (string)
+  cookie:
+  # Request Headers 'key1:value1,key2:value2' (map[string:string])
+  requestHeaders:
+  # Skip TLS verification (bool)
+  insecureSkipVerify:
+  # Automatically setup the instance if it is not initialized (bool)
+  autoSetup:
+  # Network interface name (string)
+  interfaceName:
+  # Enable DHCP server (bool)
+  dhcpServerEnabled:
+# List or replica instances (don't use in combination with replicas') (struct)
+replicas:
+  - # URL of adguardhome instance (string)
+  - url:
+    # Web URL of adguardhome instance (string)
+    webURL:
+    # API Path (string)
+    apiPath:
+    # Adguardhome username (string)
+    username:
+    # Adguardhome password (string)
+    password:
+    # Adguardhome cookie (string)
+    cookie:
+    # Request Headers 'key1:value1,key2:value2' (map[string:string])
+    requestHeaders:
+    # Skip TLS verification (bool)
+    insecureSkipVerify:
+    # Automatically setup the instance if it is not initialized (bool)
+    autoSetup:
+    # Network interface name (string)
+    interfaceName:
+    # Enable DHCP server (bool)
+    dhcpServerEnabled:
+#  (struct)
+api:
+  # API port (API is disabled if port is set to 0) (int)
+  port:
+  # API username (string)
+  username:
+  # API password (string)
+  password:
+  # API dark mode (bool)
+  darkMode:
+  #  (struct)
+  metrics:
+    # Enable metrics (bool)
+    enabled:
+    # Interval for metrics scraping (int64)
+    scrapeInterval:
+    # Metrics log query limit (int)
+    queryLogLimit:
+  #  (struct)
+  tls:
+    # API TLS certificate directory (string)
+    certDir:
+    # API TLS certificate file name (string)
+    certName:
+    # API TLS key file name (string)
+    keyName:
+#  (struct)
+features:
+  #  (struct)
+  dns:
+    # Sync DNS access lists (bool)
+    accessLists:
+    # Sync DNS server config (bool)
+    serverConfig:
+    # Sync DNS rewrites (bool)
+    rewrites:
+  #  (struct)
+  dhcp:
+    # Sync DHCP server config (bool)
+    serverConfig:
+    # Sync DHCP static leases (bool)
+    staticLeases:
+  # Sync general settings (bool)
+  generalSettings:
+  # Sync the protection status (disabled if generalSettings is disabled) (bool)
+  protectionStatus:
+  # Sync query log config (bool)
+  queryLogConfig:
+  # Sync stats config (bool)
+  statsConfig:
+  # Sync client settings (bool)
+  clientSettings:
+  # Sync services (bool)
+  services:
+  # Sync filters (use sub-fields for granular control) (struct)
+  filters:
+    # Sync blacklist filters (bool)
+    blacklist:
+    # Sync whitelist filters (bool)
+    whitelist:
+    # Sync user rules (bool)
+    userRules:
+  # Sync the web UI theme (bool)
+  theme:
+  # Sync the TLS config (bool)
+  tlsConfig:
 ```
 <!-- yaml-doc-end -->
 
