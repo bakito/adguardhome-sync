@@ -185,7 +185,7 @@ replica:
   dhcpServerEnabled:
 # List or replica instances (don't use in combination with replicas') (struct)
 replicas:
-  - # URL of adguardhome instance (string)
+    # URL of adguardhome instance (string)
   - url:
     # Web URL of adguardhome instance (string)
     webURL:

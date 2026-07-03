@@ -1,8 +1,8 @@
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7Dml6nw9rQ=
 github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
-github.com/bakito/docs-gen v0.0.2 h1:ACJVMRZuJsmpD1admjepbP8TXJtF9mCQp1ZYh7kAMTQ=
-github.com/bakito/docs-gen v0.0.2/go.mod h1:vIPGcnC2b8MkK3zRiJU4TsPoByKshHPBNBmdkIfl/5k=
+github.com/bakito/docs-gen v0.0.5 h1:bKqRKcf7taVxWd+rCzBWx4TO8HnLNHRUXdjHQESFXVA=
+github.com/bakito/docs-gen v0.0.5/go.mod h1:vIPGcnC2b8MkK3zRiJU4TsPoByKshHPBNBmdkIfl/5k=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=
