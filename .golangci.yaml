@@ -222,3 +222,4 @@ formatters:
     golines:
       max-len: 128
       tab-len: 4
+      reformat-tags: false
