@@ -1,6 +1,6 @@
 module github.com/bakito/adguardhome-sync
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/bakito/docs-gen v0.0.5
