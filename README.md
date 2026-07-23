@@ -462,6 +462,131 @@ The following log levels are supported (default: info)
 Default log format is `console`.
 It can be changed to `json` by setting the environment variable: `LOG_FORMAT=json`.
 
+## API Documentation
+
+### Overview
+The API provides endpoints for synchronization management, status monitoring, metrics collection, and log retrieval.
+
+### Base URL
+```
+http://localhost:<port>
+https://localhost:<port>  (if TLS enabled)
+```
+
+### Authentication
+- **Type**: Basic Authentication (optional)
+- **Username**: Configured via `API.Username`
+- **Password**: Configured via `API.Password`
+- **Note**: Authentication is applied to all endpoints except `/healthz` and the root path `/`
+
+### Endpoints
+
+#### Health Check
+
+**`GET /healthz`** | **`HEAD /healthz`**
+
+Health check endpoint to verify API and replica status.
+
+- **Authentication**: Not required
+- **Response**:
+  - `200 OK` - API and all replicas are healthy
+  - `503 Service Unavailable` - Origin or any replica is not in "success" status
+
+```bash
+curl http://localhost:5000/healthz
+```
+
+#### Synchronization
+
+**`POST /api/v1/sync`**
+
+Trigger a manual synchronization across all configured instances.
+
+- **Authentication**: Required (if configured)
+- **Response**: `200 OK` - Sync initiated successfully
+
+```bash
+curl -X POST http://localhost:5000/api/v1/sync
+```
+
+#### Status
+
+**`GET /api/v1/status`**
+
+Get the current synchronization and replica status.
+
+- **Authentication**: Required (if configured)
+- **Response** (`200 OK`):
+
+```json
+{
+  "syncRunning": false,
+  "origin": {
+    "host": "origin.example.com",
+    "url": "http://origin.example.com:80",
+    "status": "success",
+    "error": "",
+    "protection_enabled": true
+  },
+  "replicas": [
+    {
+      "host": "replica1.example.com",
+      "url": "http://replica1.example.com:80",
+      "status": "success",
+      "error": "",
+      "protection_enabled": true
+    }
+  ]
+}
+```
+
+#### Logs
+
+**`GET /api/v1/logs`**
+
+Retrieve application logs.
+
+- **Authentication**: Required (if configured)
+- **Response** (`200 OK`): Plain text logs
+
+```bash
+curl http://localhost:5000/api/v1/logs
+```
+
+**`POST /api/v1/clear-logs`**
+
+Clear all application logs.
+
+- **Authentication**: Required (if configured)
+- **Response**: `200 OK` - Logs cleared successfully
+
+```bash
+curl -X POST http://localhost:5000/api/v1/clear-logs
+```
+
+#### Metrics
+
+**`GET /metrics`**
+
+Prometheus-compatible metrics endpoint.
+
+- **Authentication**: Required (if configured)
+- **Availability**: Only available if `API.Metrics.Enabled` is `true`
+- **Response** (`200 OK`): Prometheus format metrics
+
+```bash
+curl http://localhost:5000/metrics
+```
+
+#### Web Dashboard
+
+**`GET /`**
+
+Serve the web dashboard with DNS statistics, sync status, and metrics (if enabled).
+
+- **Authentication**: Required (if configured)
+- **Response** (`200 OK`): HTML dashboard
+
 ## Video Tutorials
 
 - [Como replicar la configuración de tu servidor DNS Adguard automáticamente - Tu servidor Part #12](https://www.youtube.com/watch?v=1LPeu_JG064) (
