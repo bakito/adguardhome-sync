@@ -48,14 +48,14 @@ jobs:
         if: ${{ github.event.release.tag_name == '' }}
 
       - name: Login to Quay
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         if: ${{ github.event.release.tag_name != '' || (github.ref == 'refs/heads/main' && env.NEW_COMMIT_COUNT > 0) }}
         with:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Login to ghcr.io
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         if: ${{ github.event.release.tag_name != '' || (github.ref == 'refs/heads/main' && env.NEW_COMMIT_COUNT > 0) }}
         with:
           registry: ghcr.io
