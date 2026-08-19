@@ -313,7 +313,7 @@ adguardhome-sync run --cron "0 */2 * * *"
 
 > Verified on Ubuntu Linux 24.04
 
-Assume you have downloaded the the `adguardhome-sync` binary to `/opt/adguardhome-sync`.
+Assume you have downloaded the `adguardhome-sync` binary to `/opt/adguardhome-sync`.
 
 Create systemd service file `/opt/adguardhome-sync/adguardhome-sync.service`:
 
@@ -418,7 +418,7 @@ services:
 ## Unraid
 
 ⚠️ Disclaimer: There exists an unraid template for this application. This project does not manage this template.
-Also, as unraid is not known to me, I cannot give any support on unraind templates.
+Also, as unraid is not known to me, I cannot give any support on unraid templates.
 
 Note when running the Docker container in Unraid please remove unneeded env variables.
 If replica2 isn't used, this can cause sync errors.
