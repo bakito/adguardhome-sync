@@ -437,7 +437,7 @@ func TestSync(t *testing.T) {
 				env.ac.origin.queryLogConfig.Interval = &interval
 				env.cl.EXPECT().QueryLogConfig().Return(qlc, nil)
 				env.cl.EXPECT().
-					SetQueryLogConfig(&model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil}})
+					SetQueryLogConfig(&model.QueryLogConfigWithIgnored{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil})
 				err := actionQueryLogConfig(env.ac)
 				if err != nil {
 					t.Errorf("actionQueryLogConfig() error = %v, want nil", err)

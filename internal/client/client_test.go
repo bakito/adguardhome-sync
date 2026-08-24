@@ -436,12 +436,10 @@ func TestClient_QueryLogConfig(t *testing.T) {
 
 		var interval model.QueryLogConfigInterval = 123
 		err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{
-			QueryLogConfig: model.QueryLogConfig{
-				AnonymizeClientIp: new(true),
-				Interval:          &interval,
-				Enabled:           new(true),
-			},
-			Ignored: []string{"foo.bar"},
+			AnonymizeClientIp: new(true),
+			Interval:          &interval,
+			Enabled:           new(true),
+			Ignored:           []string{"foo.bar"},
 		})
 		if err != nil {
 			t.Errorf("SetQueryLogConfig() error = %v", err)
