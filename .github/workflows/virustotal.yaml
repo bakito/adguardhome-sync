@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Analyze Build Assets
-        uses: bakito/virustotal-action@f27c5bc29fedcfc124c12e1c37a91bfb0a20276f # v1.0.3
+        uses: bakito/virustotal-action@37c98d3e05c6b9fffd2bff30a0fba2db72d3458a # V1.0.4
         with:
           release_name: ${{github.event.release.tag_name}}
           vt_api_key: ${{secrets.VT_API_KEY}}
