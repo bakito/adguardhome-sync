@@ -22,7 +22,7 @@ TB_SYFT ?= $(TB_LOCALBIN)/syft
 
 ## Tool Versions
 # renovate: packageName=github.com/kubernetes-sigs/controller-tools
-TB_CONTROLLER_GEN_VERSION ?= v0.21.0
+TB_CONTROLLER_GEN_VERSION ?= v0.22.0
 # renovate: packageName=github.com/golangci/golangci-lint/v2
 TB_GOLANGCI_LINT_VERSION ?= v2.13.2
 TB_GOLANGCI_LINT_VERSION_NUM ?= $(call STRIP_V,$(TB_GOLANGCI_LINT_VERSION))
