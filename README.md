@@ -419,6 +419,8 @@ services:
 
 [Easypanel](https://easypanel.io/) can deploy adguardhome-sync with one click using its [official template](https://easypanel.io/templates/adguardhome-sync), which mounts a starter `adguardhome-sync.yaml` config for you.
 
+![adguardhome-sync deployed on Easypanel](docs/easypanel_deployed.png)
+
 ## Unraid
 
 ⚠️ Disclaimer: There exists an unraid template for this application. This project does not manage this template.
