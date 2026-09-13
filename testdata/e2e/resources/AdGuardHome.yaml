@@ -2,11 +2,18 @@ http:
   pprof:
     port: 6060
     enabled: false
+  doh:
+    routes:
+      - GET /dns-query
+      - POST /dns-query
+      - GET /dns-query/{ClientID}
+      - POST /dns-query/{ClientID}
+    insecure_enabled: false
   address: 0.0.0.0:3000
-  session_ttl: 720h
+  session_ttl: 30d
 users:
   - name: username
-    password: $2a$10$yrrX.EvDpUUnZxr74u6euOMeF6dPFd/mEyohDq1LkpH76JyeObPBm
+    password: $2a$10$t8cVKp2i49iJgQShTwC99.LpEQX0L039eyh5gF6.y8llWfR2Lu1J.
 auth_attempts: 5
 block_auth_min: 15
 http_proxy: ""
@@ -18,6 +25,8 @@ dns:
   port: 53
   anonymize_client_ip: false
   ratelimit: 20
+  ratelimit_subnet_len_ipv4: 24
+  ratelimit_subnet_len_ipv6: 56
   ratelimit_whitelist: []
   refuse_any: true
   upstream_dns:
@@ -37,10 +46,13 @@ dns:
   trusted_proxies:
     - 127.0.0.0/8
     - ::1/128
+  cache_enabled: true
   cache_size: 4194304
   cache_ttl_min: 0
   cache_ttl_max: 0
   cache_optimistic: true
+  cache_optimistic_answer_ttl: 30s
+  cache_optimistic_max_age: 12h
   bogus_nxdomain: []
   aaaa_disabled: false
   enable_dnssec: false
@@ -55,7 +67,7 @@ dns:
   bootstrap_prefer_ipv6: false
   upstream_timeout: 10s
   private_networks: []
-  use_private_ptr_resolvers: true
+  use_private_ptr_resolvers: false
   local_ptr_upstreams: []
   use_dns64: false
   dns64_prefixes: []
@@ -63,6 +75,8 @@ dns:
   use_http3_upstreams: false
   serve_plain_dns: true
   hostsfile_enabled: true
+  pending_requests:
+    enabled: true
 tls:
   enabled: false
   server_name: ""
@@ -72,7 +86,6 @@ tls:
   port_dns_over_quic: 853
   port_dnscrypt: 0
   dnscrypt_config_file: ""
-  allow_unencrypted_doh: false
   certificate_chain: ""
   private_key: ""
   certificate_path: ""
@@ -84,21 +97,23 @@ querylog:
   interval: 6h
   size_memory: 1000
   enabled: true
+  ignored_enabled: false
   file_enabled: true
 statistics:
   dir_path: ""
   ignored: []
-  interval: 24h
+  interval: 1d
   enabled: true
+  ignored_enabled: false
 filters:
   - enabled: true
     url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
     name: AdGuard DNS filter
-    id: 1
+    id: 1789307683
   - enabled: true
     url: https://adaway.org/hosts.txt
     name: AdAway Default Blocklist
-    id: 2
+    id: 1789307684
 whitelist_filters: []
 user_rules:
   - '||metrics2.data.hicloud.com^$important'
@@ -119,7 +134,7 @@ dhcp:
     options: []
   dhcpv6:
     range_start: ""
-    lease_duration: 86400
+    lease_duration: 0
     ra_slaac_only: false
     ra_allow_slaac: false
 filtering:
@@ -146,6 +161,7 @@ filtering:
     enabled: true
     bing: true
     duckduckgo: true
+    ecosia: true
     google: true
     pixabay: true
     yandex: true
@@ -156,9 +172,13 @@ filtering:
   rewrites:
     - domain: foo.com
       answer: 1.2.3.4
+      enabled: true
     - domain: bar.com
       answer: 1.2.3.3
-
+      enabled: true
+  safe_fs_patterns:
+    - /opt/adguardhome/work/userfilters/*
+  max_http_size: 256MB
   safebrowsing_cache_size: 1048576
   safesearch_cache_size: 1048576
   parental_cache_size: 1048576
@@ -166,6 +186,7 @@ filtering:
   filters_update_interval: 24
   blocked_response_ttl: 10
   filtering_enabled: true
+  rewrites_enabled: true
   parental_enabled: true
   safebrowsing_enabled: true
   protection_enabled: true
@@ -177,9 +198,15 @@ clients:
     dhcp: true
     hosts: true
   persistent:
-    - name: Device 1
-      ids:
-        - 2.2.2.2
+    - safe_search:
+        enabled: false
+        bing: false
+        duckduckgo: false
+        ecosia: false
+        google: false
+        pixabay: false
+        yandex: false
+        youtube: false
       blocked_services:
         schedule:
           time_zone: Europe/Zurich
@@ -189,7 +216,14 @@ clients:
           - qq
           - vk
           - ok
+      name: Device 1
+      ids:
+        - 2.2.2.2
+      tags: []
       upstreams: []
+      uid: 01a09b0c-899c-762f-ac57-6f5265eee613
+      upstreams_cache_size: 0
+      upstreams_cache_enabled: false
       use_global_settings: true
       filtering_enabled: false
       parental_enabled: false
@@ -210,4 +244,4 @@ os:
   group: ""
   user: ""
   rlimit_nofile: 0
-schema_version: 28
+schema_version: 34
