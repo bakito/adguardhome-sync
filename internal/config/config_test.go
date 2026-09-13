@@ -510,3 +510,87 @@ func TestConfigGet_Headers(t *testing.T) {
 		}
 	})
 }
+
+func TestConfigGet_ReplicaFeatures(t *testing.T) {
+	t.Run("from config file with per-replica features", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config/config-valid-replica-features.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+
+		c := cfg.Get()
+		if len(c.Replicas) != 2 {
+			t.Fatalf("replicas len = %d, want 2", len(c.Replicas))
+		}
+
+		// Replica 1 has no custom features; inherits global
+		if c.Replicas[0].Features != nil {
+			t.Errorf("replica 1 Features = %+v, want nil", c.Replicas[0].Features)
+		}
+		eff1 := c.Replicas[0].EffectiveFeatures(c.Features)
+		if !eff1.DNS.ServerConfig {
+			t.Error("replica 1 effective DNS serverConfig = false, want true")
+		}
+
+		// Replica 2 has custom features overriding DNS serverConfig to false
+		if c.Replicas[1].Features == nil {
+			t.Fatal("replica 2 Features = nil, want non-nil")
+		}
+		if c.Replicas[1].Features.DNS.ServerConfig {
+			t.Error("replica 2 DNS serverConfig = true, want false")
+		}
+		if c.Replicas[1].Features.DNS.AccessLists {
+			t.Error("replica 2 DNS accessLists = true, want false")
+		}
+		if !c.Replicas[1].Features.ClientSettings {
+			t.Error("replica 2 clientSettings = false, want true")
+		}
+		if !c.Replicas[1].Features.Filters.UserRules {
+			t.Error("replica 2 filters.userRules = false, want true")
+		}
+
+		eff2 := c.Replicas[1].EffectiveFeatures(c.Features)
+		if eff2.DNS.ServerConfig {
+			t.Error("replica 2 effective DNS serverConfig = true, want false")
+		}
+	})
+
+	t.Run("from env vars with per-replica features", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.setEnv(t, "REPLICA1_FEATURES_DNS_SERVER_CONFIG", "false")
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		cfg, err := config.Get("../../testdata/config_test_replicas.yaml", h.flags)
+		if err != nil {
+			t.Fatalf("config.Get error = %v, want nil", err)
+		}
+
+		c := cfg.Get()
+		if c.Replicas[0].Features == nil {
+			t.Fatal("replica 1 Features = nil, want non-nil from env")
+		}
+		if c.Replicas[0].Features.DNS.ServerConfig {
+			t.Error("replica 1 DNS serverConfig = true, want false")
+		}
+		eff := c.Replicas[0].EffectiveFeatures(c.Features)
+		if eff.DNS.ServerConfig {
+			t.Error("replica 1 effective DNS serverConfig = true, want false")
+		}
+	})
+
+	t.Run("fails when origin defines features in config file", func(t *testing.T) {
+		h := newConfigTestHelper(t)
+		defer h.finish()
+		h.flags.EXPECT().Changed(gm.Any()).Return(false).AnyTimes()
+
+		_, err := config.Get("../../testdata/config/config-invalid-origin-features.yaml", h.flags)
+		if err == nil {
+			t.Fatal("config.Get expected error for origin with features, got nil")
+		}
+	})
+}

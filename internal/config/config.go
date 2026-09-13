@@ -82,6 +82,15 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	if err := env.ParseWithOptions(replica, env.Options{Prefix: "REPLICA_"}); err != nil {
 		return nil, err
 	}
+	if hasReplicaFeaturesEnv("REPLICA_") {
+		if replica.Features == nil {
+			f := types.NewFeatures(true)
+			replica.Features = &f
+		}
+		if err := env.ParseWithOptions(replica.Features, env.Options{Prefix: "REPLICA_"}); err != nil {
+			return nil, err
+		}
+	}
 	// restore origin and replica
 	cfg.Origin = origin
 	cfg.Replica = replica
@@ -104,7 +113,7 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	}
 
 	if cfg.Replica != nil {
-		cfg.Replicas = []types.AdGuardInstance{*cfg.Replica}
+		cfg.Replicas = []types.Replica{*cfg.Replica}
 		cfg.Replica = nil
 	}
 
@@ -126,7 +135,7 @@ func initialConfig() *types.Config {
 		Origin: &types.AdGuardInstance{
 			APIPath: "/control",
 		},
-		Replica: &types.AdGuardInstance{
+		Replica: &types.Replica{
 			APIPath: "/control",
 		},
 		API: types.API{

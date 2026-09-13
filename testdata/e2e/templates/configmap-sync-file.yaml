@@ -21,5 +21,10 @@ data:
         username: username
         password: password
         autoSetup: true
+        {{- if eq $version "v0.107.79" }}
+        features:
+          dns:
+            serverConfig: false
+        {{- end }}
       {{- end }}
 {{- end }}

@@ -1,8 +1,11 @@
 package types
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestAdGuardInstance_Init(t *testing.T) {
@@ -62,7 +65,7 @@ func TestAdGuardInstance_Init(t *testing.T) {
 func TestConfig_Init(t *testing.T) {
 	cfg := Config{
 		Origin: &AdGuardInstance{},
-		Replicas: []AdGuardInstance{
+		Replicas: []Replica{
 			{URL: "https://localhost:3000"},
 		},
 	}
@@ -87,13 +90,13 @@ func TestConfig_Init(t *testing.T) {
 func TestConfig_UniqueReplicas(t *testing.T) {
 	cfg := Config{
 		Origin: &AdGuardInstance{},
-		Replicas: []AdGuardInstance{
+		Replicas: []Replica{
 			{URL: "a"},
 			{URL: "a", APIPath: DefaultAPIPath},
 			{URL: "a", APIPath: "foo"},
 			{URL: "b", APIPath: DefaultAPIPath},
 		},
-		Replica: &AdGuardInstance{URL: "b"},
+		Replica: &Replica{URL: "b"},
 	}
 	replicas := cfg.UniqueReplicas()
 	if len(replicas) != 3 {
@@ -104,10 +107,10 @@ func TestConfig_UniqueReplicas(t *testing.T) {
 func TestConfig_mask(t *testing.T) {
 	cfg := Config{
 		Origin: &AdGuardInstance{},
-		Replicas: []AdGuardInstance{
+		Replicas: []Replica{
 			{URL: "a", Username: "user", Password: "pass"},
 		},
-		Replica: &AdGuardInstance{URL: "a", Username: "user", Password: "pass"},
+		Replica: &Replica{URL: "a", Username: "user", Password: "pass"},
 		API:     API{Username: "user", Password: "pass"},
 	}
 	masked := cfg.mask()
@@ -233,4 +236,157 @@ func TestTLS_Certs(t *testing.T) {
 
 func normalizePath(path string) string {
 	return strings.ReplaceAll(path, "\\", "/")
+}
+
+func TestReplica_EffectiveFeatures(t *testing.T) {
+	global := NewFeatures(true)
+	global.GeneralSettings = false
+
+	t.Run("should return global features when Features is nil", func(t *testing.T) {
+		inst := Replica{}
+		got := inst.EffectiveFeatures(global)
+		if got != global {
+			t.Errorf("EffectiveFeatures() = %+v, want %+v", got, global)
+		}
+	})
+
+	t.Run("should return replica features when Features is set", func(t *testing.T) {
+		replicaFeatures := NewFeatures(false)
+		replicaFeatures.ClientSettings = true
+		inst := Replica{Features: &replicaFeatures}
+		got := inst.EffectiveFeatures(global)
+		if got != replicaFeatures {
+			t.Errorf("EffectiveFeatures() = %+v, want %+v", got, replicaFeatures)
+		}
+	})
+}
+
+func TestConfig_HasDHCPFeature(t *testing.T) {
+	t.Run("should return true when global DHCP serverConfig is true", func(t *testing.T) {
+		cfg := Config{
+			Features: NewFeatures(false),
+			Replicas: []Replica{{URL: "http://replica1"}},
+		}
+		cfg.Features.DHCP.ServerConfig = true
+		if !cfg.HasDHCPFeature() {
+			t.Error("HasDHCPFeature() = false, want true")
+		}
+	})
+
+	t.Run("should return true when replica DHCP staticLeases is true", func(t *testing.T) {
+		replicaFeat := NewFeatures(false)
+		replicaFeat.DHCP.StaticLeases = true
+		cfg := Config{
+			Features: NewFeatures(false),
+			Replicas: []Replica{{URL: "http://replica1", Features: &replicaFeat}},
+		}
+		if !cfg.HasDHCPFeature() {
+			t.Error("HasDHCPFeature() = false, want true")
+		}
+	})
+
+	t.Run("should return false when both global and replicas have DHCP disabled", func(t *testing.T) {
+		cfg := Config{
+			Features: NewFeatures(false),
+			Replicas: []Replica{{URL: "http://replica1"}},
+		}
+		if cfg.HasDHCPFeature() {
+			t.Error("HasDHCPFeature() = true, want false")
+		}
+	})
+}
+
+func TestConfig_HasTLSFeature(t *testing.T) {
+	t.Run("should return true when global TLSConfig is true", func(t *testing.T) {
+		cfg := Config{
+			Features: NewFeatures(false),
+			Replicas: []Replica{{URL: "http://replica1"}},
+		}
+		cfg.Features.TLSConfig = true
+		if !cfg.HasTLSFeature() {
+			t.Error("HasTLSFeature() = false, want true")
+		}
+	})
+
+	t.Run("should return true when replica TLSConfig is true", func(t *testing.T) {
+		replicaFeat := NewFeatures(false)
+		replicaFeat.TLSConfig = true
+		cfg := Config{
+			Features: NewFeatures(false),
+			Replicas: []Replica{{URL: "http://replica1", Features: &replicaFeat}},
+		}
+		if !cfg.HasTLSFeature() {
+			t.Error("HasTLSFeature() = false, want true")
+		}
+	})
+
+	t.Run("should return false when both global and replicas have TLS disabled", func(t *testing.T) {
+		cfg := Config{
+			Features: NewFeatures(false),
+			Replicas: []Replica{{URL: "http://replica1"}},
+		}
+		if cfg.HasTLSFeature() {
+			t.Error("HasTLSFeature() = true, want false")
+		}
+	})
+}
+
+func TestFeatures_UnmarshalYAML(t *testing.T) {
+	yamlData := `
+dns:
+  serverConfig: false
+clientSettings: false
+`
+	var f Features
+	if err := yaml.Unmarshal([]byte(yamlData), &f); err != nil {
+		t.Fatalf("yaml.Unmarshal error = %v", err)
+	}
+
+	if f.DNS.ServerConfig {
+		t.Error("DNS.ServerConfig = true, want false")
+	}
+	if f.ClientSettings {
+		t.Error("ClientSettings = true, want false")
+	}
+	// Unspecified fields should default to true (from NewFeatures(true))
+	if !f.GeneralSettings {
+		t.Error("GeneralSettings = false, want true")
+	}
+	if !f.DNS.Rewrites {
+		t.Error("DNS.Rewrites = false, want true")
+	}
+	if !f.Filters.Blacklist {
+		t.Error("Filters.Blacklist = false, want true")
+	}
+	if f.TLSConfig {
+		t.Error("TLSConfig = true, want false")
+	}
+}
+
+func TestFeatures_UnmarshalJSON(t *testing.T) {
+	jsonData := `{"dns": {"serverConfig": false}, "clientSettings": false}`
+	var f Features
+	if err := json.Unmarshal([]byte(jsonData), &f); err != nil {
+		t.Fatalf("json.Unmarshal error = %v", err)
+	}
+
+	if f.DNS.ServerConfig {
+		t.Error("DNS.ServerConfig = true, want false")
+	}
+	if f.ClientSettings {
+		t.Error("ClientSettings = true, want false")
+	}
+	// Unspecified fields should default to true
+	if !f.GeneralSettings {
+		t.Error("GeneralSettings = false, want true")
+	}
+	if !f.DNS.Rewrites {
+		t.Error("DNS.Rewrites = false, want true")
+	}
+	if !f.Filters.Blacklist {
+		t.Error("Filters.Blacklist = false, want true")
+	}
+	if f.TLSConfig {
+		t.Error("TLSConfig = true, want false")
+	}
 }

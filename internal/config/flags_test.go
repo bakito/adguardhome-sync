@@ -15,7 +15,7 @@ func setupFlagsTest(t *testing.T) (*types.Config, *flagsmock.MockFlags, *gm.Cont
 	t.Helper()
 	cfg := &types.Config{
 		Origin:  &types.AdGuardInstance{},
-		Replica: &types.AdGuardInstance{},
+		Replica: &types.Replica{},
 		Features: types.Features{
 			DNS: types.DNS{
 				AccessLists:  true,
@@ -238,7 +238,7 @@ func TestReadReplicaFlags_ChangeAll(t *testing.T) {
 	cfg, flags, mockCtrl := setupFlagsTest(t)
 	defer mockCtrl.Finish()
 
-	cfg.Replica = &types.AdGuardInstance{
+	cfg.Replica = &types.Replica{
 		URL:                "1",
 		WebURL:             "2",
 		APIPath:            "3",
@@ -275,7 +275,7 @@ func TestReadReplicaFlags_ChangeAll(t *testing.T) {
 		t.Fatalf("readFlags error = %v, want nil", err)
 	}
 
-	expectedReplica := &types.AdGuardInstance{
+	expectedReplica := &types.Replica{
 		URL:                "a",
 		WebURL:             "b",
 		APIPath:            "c",

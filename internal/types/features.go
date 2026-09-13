@@ -47,6 +47,30 @@ type Features struct {
 	TLSConfig        bool        `docs:"Sync the TLS config"                                                  env:"FEATURES_TLS_CONFIG"        json:"tlsConfig"        yaml:"tlsConfig"`
 }
 
+// UnmarshalYAML implements custom unmarshalling for Features.
+func (f *Features) UnmarshalYAML(unmarshal func(any) error) error {
+	*f = NewFeatures(true)
+	type Alias Features
+	a := Alias(*f)
+	if err := unmarshal(&a); err != nil {
+		return err
+	}
+	*f = Features(a)
+	return nil
+}
+
+// UnmarshalJSON implements custom unmarshalling for Features.
+func (f *Features) UnmarshalJSON(b []byte) error {
+	*f = NewFeatures(true)
+	type Alias Features
+	a := Alias(*f)
+	if err := json.Unmarshal(b, &a); err != nil {
+		return err
+	}
+	*f = Features(a)
+	return nil
+}
+
 // FiltersType features.
 type FiltersType struct {
 	Blacklist bool `docs:"Sync blacklist filters" env:"FEATURES_FILTERS_BLACKLIST"  json:"blacklist" yaml:"blacklist"`

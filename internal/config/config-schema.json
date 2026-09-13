@@ -2,6 +2,85 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
   "definitions": {
+    "Features": {
+      "additionalProperties": false,
+      "properties": {
+        "clientSettings": {
+          "type": "boolean"
+        },
+        "dhcp": {
+          "additionalProperties": false,
+          "properties": {
+            "serverConfig": {
+              "type": "boolean"
+            },
+            "staticLeases": {
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        },
+        "dns": {
+          "additionalProperties": false,
+          "properties": {
+            "accessLists": {
+              "type": "boolean"
+            },
+            "rewrites": {
+              "type": "boolean"
+            },
+            "serverConfig": {
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        },
+        "filters": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "blacklist": {
+                  "type": "boolean"
+                },
+                "whitelist": {
+                  "type": "boolean"
+                },
+                "userRules": {
+                  "type": "boolean"
+                }
+              }
+            }
+          ]
+        },
+        "generalSettings": {
+          "type": "boolean"
+        },
+        "protectionStatus": {
+          "type": "boolean"
+        },
+        "queryLogConfig": {
+          "type": "boolean"
+        },
+        "services": {
+          "type": "boolean"
+        },
+        "statsConfig": {
+          "type": "boolean"
+        },
+        "theme": {
+          "type": "boolean"
+        },
+        "tlsConfig": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "Instance": {
       "additionalProperties": false,
       "properties": {
@@ -16,6 +95,50 @@
         },
         "dhcpServerEnabled": {
           "type": "boolean"
+        },
+        "insecureSkipVerify": {
+          "type": "boolean"
+        },
+        "interfaceName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "webURL": {
+          "format": "uri",
+          "type": "string"
+        },
+        "requestHeaders": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "Replica": {
+      "additionalProperties": false,
+      "properties": {
+        "apiPath": {
+          "type": "string"
+        },
+        "autoSetup": {
+          "type": "boolean"
+        },
+        "cookie": {
+          "type": "string"
+        },
+        "dhcpServerEnabled": {
+          "type": "boolean"
+        },
+        "features": {
+          "$ref": "#/definitions/Features"
         },
         "insecureSkipVerify": {
           "type": "boolean"
@@ -105,83 +228,7 @@
       "pattern": "^([0-9]+(\\.[0-9]+)?(s|m))+$"
     },
     "features": {
-      "additionalProperties": false,
-      "properties": {
-        "clientSettings": {
-          "type": "boolean"
-        },
-        "dhcp": {
-          "additionalProperties": false,
-          "properties": {
-            "serverConfig": {
-              "type": "boolean"
-            },
-            "staticLeases": {
-              "type": "boolean"
-            }
-          },
-          "type": "object"
-        },
-        "dns": {
-          "additionalProperties": false,
-          "properties": {
-            "accessLists": {
-              "type": "boolean"
-            },
-            "rewrites": {
-              "type": "boolean"
-            },
-            "serverConfig": {
-              "type": "boolean"
-            }
-          },
-          "type": "object"
-        },
-        "filters": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "blacklist": {
-                  "type": "boolean"
-                },
-                "whitelist": {
-                  "type": "boolean"
-                },
-                "userRules": {
-                  "type": "boolean"
-                }
-              }
-            }
-          ]
-        },
-        "generalSettings": {
-          "type": "boolean"
-        },
-        "protectionStatus": {
-          "type": "boolean"
-        },
-        "queryLogConfig": {
-          "type": "boolean"
-        },
-        "services": {
-          "type": "boolean"
-        },
-        "statsConfig": {
-          "type": "boolean"
-        },
-        "theme": {
-          "type": "boolean"
-        },
-        "tlsConfig": {
-          "type": "boolean"
-        }
-      },
-      "type": "object"
+      "$ref": "#/definitions/Features"
     },
     "origin": {
       "$ref": "#/definitions/Instance"
@@ -190,11 +237,11 @@
       "type": "boolean"
     },
     "replica": {
-      "$ref": "#/definitions/Instance"
+      "$ref": "#/definitions/Replica"
     },
     "replicas": {
       "items": {
-        "$ref": "#/definitions/Instance"
+        "$ref": "#/definitions/Replica"
       },
       "type": "array"
     },

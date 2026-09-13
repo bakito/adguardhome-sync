@@ -88,7 +88,7 @@ func TestWorker_handleReadyz(t *testing.T) {
 			},
 			cfg: &types.Config{
 				Origin:   &types.AdGuardInstance{WebURL: "http://origin"},
-				Replicas: []types.AdGuardInstance{{WebURL: "http://replica1"}},
+				Replicas: []types.Replica{{AdGuardInstance: types.AdGuardInstance{WebURL: "http://replica1"}}},
 			},
 		}
 
@@ -118,7 +118,7 @@ func TestWorker_handleReadyz(t *testing.T) {
 			},
 			cfg: &types.Config{
 				Origin:   &types.AdGuardInstance{WebURL: "http://origin"},
-				Replicas: []types.AdGuardInstance{{WebURL: "http://replica1"}},
+				Replicas: []types.Replica{{AdGuardInstance: types.AdGuardInstance{WebURL: "http://replica1"}}},
 			},
 		}
 
@@ -151,7 +151,7 @@ func TestWorker_handleReadyz(t *testing.T) {
 			},
 			cfg: &types.Config{
 				Origin:   &types.AdGuardInstance{WebURL: "http://origin"},
-				Replicas: []types.AdGuardInstance{{WebURL: "http://replica1"}},
+				Replicas: []types.Replica{{AdGuardInstance: types.AdGuardInstance{WebURL: "http://replica1"}}},
 			},
 		}
 

@@ -55,5 +55,7 @@ jobs:
         run: ./testdata/e2e/bin/show-sync-metrics.sh ${{ matrix.build.protocol }}
       - name: Test healthcheck CLI
         run: ./testdata/e2e/bin/test-healthcheck.sh ${{ matrix.build.mode }} ${{ matrix.build.protocol }}
+      - name: Test replica-specific features
+        run: ./testdata/e2e/bin/test-replica-features.sh ${{ matrix.build.mode }}
       - name: Read latest replica config
         run: ./testdata/e2e/bin/read-latest-replica-config.sh

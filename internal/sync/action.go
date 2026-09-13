@@ -8,10 +8,10 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/types"
 )
 
-func setupActions(cfg *types.Config) (actions []syncAction) {
-	if cfg.Features.GeneralSettings {
+func setupActions(features types.Features) (actions []syncAction) {
+	if features.GeneralSettings {
 		actions = append(actions, action("profile info", actionProfileInfo))
-		if cfg.Features.ProtectionStatus {
+		if features.ProtectionStatus {
 			actions = append(actions, action("protection", actionProtection))
 		}
 		actions = append(actions,
@@ -20,58 +20,58 @@ func setupActions(cfg *types.Config) (actions []syncAction) {
 			action("safe browsing", actionSafeBrowsing),
 		)
 	}
-	if cfg.Features.DNS.ServerConfig {
+	if features.DNS.ServerConfig {
 		actions = append(actions,
 			action("DNS server config", actionDNSServerConfig),
 		)
 	}
-	if cfg.Features.QueryLogConfig {
+	if features.QueryLogConfig {
 		actions = append(actions,
 			action("query log config", actionQueryLogConfig),
 		)
 	}
-	if cfg.Features.StatsConfig {
+	if features.StatsConfig {
 		actions = append(actions,
 			action("stats config", actionStatsConfig),
 		)
 	}
-	if cfg.Features.DNS.Rewrites {
+	if features.DNS.Rewrites {
 		actions = append(actions,
 			action("DNS rewrite settings", actionRewriteSettings),
 			action("DNS rewrite entries", actionRewriteEntries),
 		)
 	}
-	if cfg.Features.Filters.Blacklist || cfg.Features.Filters.Whitelist || cfg.Features.Filters.UserRules {
+	if features.Filters.Blacklist || features.Filters.Whitelist || features.Filters.UserRules {
 		actions = append(actions,
 			action("actionFilters", actionFilters),
 		)
 	}
-	if cfg.Features.Services {
+	if features.Services {
 		actions = append(actions,
 			action("blocked services schedule", actionBlockedServicesSchedule),
 		)
 	}
-	if cfg.Features.ClientSettings {
+	if features.ClientSettings {
 		actions = append(actions,
 			action("client settings", actionClientSettings),
 		)
 	}
-	if cfg.Features.DNS.AccessLists {
+	if features.DNS.AccessLists {
 		actions = append(actions,
 			action("DNS access lists", actionDNSAccessLists),
 		)
 	}
-	if cfg.Features.DHCP.ServerConfig {
+	if features.DHCP.ServerConfig {
 		actions = append(actions,
 			action("DHCP server config", actionDHCPServerConfig),
 		)
 	}
-	if cfg.Features.DHCP.StaticLeases {
+	if features.DHCP.StaticLeases {
 		actions = append(actions,
 			action("DHCP static leases", actionDHCPStaticLeases),
 		)
 	}
-	if cfg.Features.TLSConfig {
+	if features.TLSConfig {
 		actions = append(actions,
 			action("TLS config", tlsConfig),
 		)
@@ -89,8 +89,12 @@ type actionContext struct {
 	origin        *origin
 	client        client.Client
 	replicaStatus *model.ServerStatus
-	replica       types.AdGuardInstance
+	replica       types.Replica
 	cfg           *types.Config
+}
+
+func (ac *actionContext) features() types.Features {
+	return ac.replica.EffectiveFeatures(ac.cfg.Features)
 }
 
 type defaultAction struct {

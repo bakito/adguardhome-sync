@@ -13,7 +13,7 @@ var (
 	actionProfileInfo = func(ac *actionContext) error {
 		if pro, err := ac.client.ProfileInfo(); err != nil {
 			return err
-		} else if merged := pro.ShouldSyncFor(ac.origin.profileInfo, ac.cfg.Features.Theme); merged != nil {
+		} else if merged := pro.ShouldSyncFor(ac.origin.profileInfo, ac.features().Theme); merged != nil {
 			return ac.client.SetProfileInfo(merged)
 		}
 		return nil
@@ -109,7 +109,7 @@ var (
 			return err
 		}
 
-		if ac.cfg.Features.Filters.Blacklist {
+		if ac.features().Filters.Blacklist {
 			if err = syncFilterType(
 				ac.rl,
 				ac.origin.filters.Filters,
@@ -122,7 +122,7 @@ var (
 			}
 		}
 
-		if ac.cfg.Features.Filters.Whitelist {
+		if ac.features().Filters.Whitelist {
 			if err = syncFilterType(
 				ac.rl,
 				ac.origin.filters.WhitelistFilters,
@@ -135,7 +135,7 @@ var (
 			}
 		}
 
-		if ac.cfg.Features.Filters.UserRules {
+		if ac.features().Filters.UserRules {
 			if ptrToString(ac.origin.filters.UserRules) != ptrToString(rf.UserRules) {
 				if err = ac.client.SetCustomRules(ac.origin.filters.UserRules); err != nil {
 					return err
