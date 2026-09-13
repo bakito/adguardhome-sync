@@ -4,11 +4,13 @@ kind: Service
 metadata:
   name: service-replica-{{ $version | toString | replace "." "-" }}
 spec:
+  type: NodePort
   selector:
     app.kubernetes.io/name: adguardhome-replica-{{ $version | toString | replace "." "-" }}
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 3000
+      nodePort: {{ add 30001 $i }}
 ---
 {{- end }}

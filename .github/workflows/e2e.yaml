@@ -26,36 +26,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup jq
-        uses: dcarbone/install-jq-action@4fcb5062d7ce9bc4382d1a352d19ba3ba2c317c1 # v4.0.1
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: "go.mod"
 
       - name: Install kind with registry
         uses: bakito/kind-with-registry-action@b13dc5fd599a5c774e7ca721d6e7a34f7269d2d8 # v1.0.1
         with:
-          kind_cluster_name: e2e
+          kind_cluster_name: adguardhome-sync-e2e
 
       - name: Build image
         run: ./testdata/e2e/bin/build-image.sh
 
       - name: Install Helm Chart
         run: ./testdata/e2e/bin/install-chart.sh ${{ matrix.build.mode }}
-      - name: Wait for pod to start
-        run: ./testdata/e2e/bin/wait-for-start.sh ${{ matrix.build.protocol }}
-      - name: Show origin pre Logs
-        run: ./testdata/e2e/bin/show-origin-logs.sh pre
-      - name: Wait for sync to finish
-        run: ./testdata/e2e/bin/wait-for-sync.sh ${{ matrix.build.protocol }}
-      - name: Show origin post Logs
-        run: ./testdata/e2e/bin/show-origin-logs.sh post
-      - name: Show Replica Logs
-        run: ./testdata/e2e/bin/show-replica-logs.sh
-      - name: Show Sync Logs
-        run: ./testdata/e2e/bin/show-sync-logs.sh
-      - name: Show Sync Metrics
-        run: ./testdata/e2e/bin/show-sync-metrics.sh ${{ matrix.build.protocol }}
-      - name: Test healthcheck CLI
-        run: ./testdata/e2e/bin/test-healthcheck.sh ${{ matrix.build.mode }} ${{ matrix.build.protocol }}
-      - name: Test replica-specific features
-        run: ./testdata/e2e/bin/test-replica-features.sh ${{ matrix.build.mode }}
-      - name: Read latest replica config
-        run: ./testdata/e2e/bin/read-latest-replica-config.sh
+
+      - name: Run Go E2E Tests
+        env:
+          E2E_TARGET: k8s
+          E2E_MODE: ${{ matrix.build.mode }}
+          E2E_PROTOCOL: ${{ matrix.build.protocol }}
+        run: go test -v -tags=e2e ./test/e2e/...

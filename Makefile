@@ -6,24 +6,46 @@ AGH_SYNC_VERSION ?= main
 
 # Run go lint against code
 lint: tb.golangci-lint
-	$(TB_GOLANGCI_LINT) run --fix
+	$(TB_GOLANGCI_LINT) run --fix --build-tags e2e ./...
 
 # Run go mod tidy
 tidy:
 	go mod tidy
 
-generate: model mocks deepcopy-gen
+generate: model mocks deepcopy-gen update-e2e-versions docs
 deepcopy-gen: tb.controller-gen
 	@mkdir -p ./tmp
 	@touch ./tmp/deepcopy-gen-boilerplate.go.txt
 	$(TB_CONTROLLER_GEN) paths=./internal/types object
 
-.PHONY: docs
 docs:
 	go run cmd/docs/main.go
 
+.PHONY: docs test test-ci test-e2e test-e2e-external e2e-setup-k8s e2e-stop-k8s update-e2e-versions
+
 # Run tests
 test: generate lint test-ci
+
+# Run E2E tests
+test-e2e:
+	./testdata/e2e/bin/install-chart.sh $(MODE)
+	E2E_MODE=$(MODE) go test -v -tags=e2e ./test/e2e/...
+
+# Run E2E tests against an external / IDE-debugged sync process
+test-e2e-external:
+	E2E_EXTERNAL_SYNC=true E2E_MODE=$(MODE) go test -v -tags=e2e ./test/e2e/...
+
+KIND_CLUSTER_NAME ?= adguardhome-sync-e2e
+MODE ?= env
+SYNC_ENABLED ?= true
+
+e2e-setup-k8s:
+	kind create cluster --name $(KIND_CLUSTER_NAME) --config testdata/e2e/kind.yaml || true
+	KIND_CLUSTER_NAME=$(KIND_CLUSTER_NAME) ./testdata/e2e/bin/build-image.sh
+	SYNC_ENABLED=$(SYNC_ENABLED) ./testdata/e2e/bin/install-chart.sh $(MODE)
+
+e2e-stop-k8s:
+	kind delete cluster --name $(KIND_CLUSTER_NAME)
 
 fuzz:
 	 go test -fuzz=FuzzMask -v ./internal/types/ -fuzztime=60s
@@ -50,19 +72,6 @@ test-release: tb.goreleaser tb.syft
 check-vulnerabilities:
 	go run golang.org/x/vuln/cmd/govulncheck@latest -show verbose,color ./...
 
-start-replica:
-	docker rm -f adguardhome-replica
-	docker run --pull always --name adguardhome-replica -p 9091:3000 --rm adguard/adguardhome:latest
-#	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
-
-copy-replica-config:
-	docker cp adguardhome-replica:/opt/adguardhome/conf/AdGuardHome.yaml tmp/AdGuardHome.yaml
-
-start-replica2:
-	docker rm -f adguardhome-replica2
-	docker run --pull always --name adguardhome-replica2 -p 9093:3000 --rm adguard/adguardhome:latest
-#	docker run --pull always --name adguardhome-replica -p 9090:80 -p 9091:3000 --rm adguard/adguardhome:v0.107.13
-
 check_defined = \
     $(strip $(foreach 1,$1, \
         $(call __check_defined,$1,$(strip $(value 2)))))
@@ -79,14 +88,17 @@ build-image:
 		.
 
 kind-create:
-	kind delete cluster
-	kind create  cluster
+	kind delete cluster --name $(KIND_CLUSTER_NAME) 2>/dev/null || true
+	kind create cluster --name $(KIND_CLUSTER_NAME) --config testdata/e2e/kind.yaml
 
 kind-test:
-	@./testdata/e2e/bin/install-chart.sh
+	@./testdata/e2e/bin/install-chart.sh $(MODE)
 
 # renovate: packageName=AdguardTeam/AdGuardHome
 ADGUARD_HOME_VERSION ?= v0.107.79
+
+update-e2e-versions:
+	go run cmd/e2e/main.go $(ADGUARD_HOME_VERSION)
 
 model: tb.oapi-codegen
 	@mkdir -p tmp
