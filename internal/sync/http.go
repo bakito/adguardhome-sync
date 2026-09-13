@@ -76,7 +76,11 @@ func (w *worker) handleStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, w.status())
 }
 
-func (w *worker) handleHealthz(c *gin.Context) {
+func (*worker) handleLivez(c *gin.Context) {
+	c.Status(http.StatusOK)
+}
+
+func (w *worker) handleReadyz(c *gin.Context) {
 	status := w.status()
 
 	if status.Origin.Status != "success" {
@@ -108,8 +112,16 @@ func (w *worker) listenAndServe() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-	r.HEAD("/healthz", w.handleHealthz)
-	r.GET("/healthz", w.handleHealthz)
+	r.HEAD("/livez", w.handleLivez)
+	r.GET("/livez", w.handleLivez)
+	r.HEAD("/liveness", w.handleLivez)
+	r.GET("/liveness", w.handleLivez)
+	r.HEAD("/readyz", w.handleReadyz)
+	r.GET("/readyz", w.handleReadyz)
+	r.HEAD("/readiness", w.handleReadyz)
+	r.GET("/readiness", w.handleReadyz)
+	r.HEAD("/healthz", w.handleLivez)
+	r.GET("/healthz", w.handleLivez)
 
 	var group gin.IRouter = r
 	if w.cfg.API.Username != "" && w.cfg.API.Password != "" {
