@@ -1,0 +1,40 @@
+# Sample configuration for debugging adguardhome-sync locally from an IDE or CLI
+# while origin and replica instances are running in the Kubernetes (Kind) cluster.
+#
+# Quickstart:
+# 1. Start k8s cluster & deploy origin/replicas (without in-cluster sync):
+#      make e2e-setup-k8s SYNC_ENABLED=false
+# 2. Run/Debug adguardhome-sync in your IDE with program arguments:
+#      run --config testdata/e2e/local-config.yaml
+# 3. In another terminal, run the E2E test suite against your debugged sync instance:
+#      make test-e2e-external
+#
+origin:
+  url: 'http://localhost:3000'
+  username: username
+  password: password
+
+api:
+  port: 9090
+  metrics:
+    enabled: true
+    scrapeInterval: 30s
+
+replicas:
+  - url: 'http://localhost:9091'
+    username: username
+    password: password
+    autoSetup: true
+
+  - url: 'http://localhost:9092'
+    username: username
+    password: password
+    autoSetup: true
+    features:
+      dns:
+        serverConfig: false
+
+  - url: 'http://localhost:9093'
+    username: username
+    password: password
+    autoSetup: true

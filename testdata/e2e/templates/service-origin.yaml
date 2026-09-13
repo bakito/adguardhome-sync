@@ -4,9 +4,11 @@ metadata:
   name: service-origin
   namespace: {{ $.Release.Namespace }}
 spec:
+  type: NodePort
   selector:
     app.kubernetes.io/name: adguardhome-origin
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 3000
+      nodePort: 30000

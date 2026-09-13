@@ -1,9 +1,11 @@
-{{- if eq .Values.mode "file" }}
+{{- if and .Values.sync.enabled (eq .Values.mode "file") }}
 apiVersion: v1
 kind: Pod
 metadata:
   name: adguardhome-sync
   namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: adguardhome-sync
 spec:
   serviceAccountName: agh-e2e
   initContainers:
