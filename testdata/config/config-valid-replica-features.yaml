@@ -1,0 +1,19 @@
+origin:
+  url: https://origin-file:443
+  apiPath: /control
+replicas:
+  - url: https://replica1:443
+    apiPath: /control
+  - url: https://replica2:443
+    apiPath: /control
+    features:
+      dns:
+        serverConfig: false
+        accessLists: false
+      clientSettings: true
+      filters:
+        userRules: true
+features:
+  dns:
+    serverConfig: true
+  clientSettings: true

@@ -647,19 +647,19 @@ func TestConfig_UniqueReplicas(t *testing.T) {
 		},
 		{
 			name: "should be empty if replica url is not set",
-			cfg:  types.Config{Replica: &types.AdGuardInstance{URL: ""}},
+			cfg:  types.Config{Replica: &types.Replica{URL: ""}},
 			want: 0,
 		},
 		{
 			name: "should be empty if replicas url is not set",
-			cfg:  types.Config{Replicas: []types.AdGuardInstance{{URL: ""}}},
+			cfg:  types.Config{Replicas: []types.Replica{{URL: ""}}},
 			want: 0,
 		},
 		{
 			name: "should return only one replica if same url and apiPath",
 			cfg: types.Config{
-				Replica: &types.AdGuardInstance{URL: url, APIPath: apiPath},
-				Replicas: []types.AdGuardInstance{
+				Replica: &types.Replica{URL: url, APIPath: apiPath},
+				Replicas: []types.Replica{
 					{URL: url, APIPath: apiPath},
 					{URL: url, APIPath: apiPath},
 				},
@@ -669,8 +669,8 @@ func TestConfig_UniqueReplicas(t *testing.T) {
 		{
 			name: "should return 3 one replicas if urls are different",
 			cfg: types.Config{
-				Replica: &types.AdGuardInstance{URL: url, APIPath: apiPath},
-				Replicas: []types.AdGuardInstance{
+				Replica: &types.Replica{URL: url, APIPath: apiPath},
+				Replicas: []types.Replica{
 					{URL: url + "1", APIPath: apiPath},
 					{URL: url, APIPath: apiPath + "1"},
 				},
@@ -690,8 +690,8 @@ func TestConfig_UniqueReplicas(t *testing.T) {
 
 	t.Run("should set default api apiPath if not set", func(t *testing.T) {
 		cfg := types.Config{
-			Replica:  &types.AdGuardInstance{URL: url},
-			Replicas: []types.AdGuardInstance{{URL: url + "1"}},
+			Replica:  &types.Replica{URL: url},
+			Replicas: []types.Replica{{URL: url + "1"}},
 		}
 		r := cfg.UniqueReplicas()
 		if len(r) != 2 {

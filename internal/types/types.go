@@ -29,11 +29,11 @@ type Config struct {
 	// Origin adguardhome instance
 	Origin *AdGuardInstance `docs:"Origin instance" json:"origin" yaml:"origin"`
 	// One single replica adguardhome instance
-	Replica *AdGuardInstance `docs:"Single or replica instance (don't use in combination with replicas')" json:"replica,omitempty" yaml:"replica,omitempty"`
+	Replica *Replica `docs:"Single or replica instance (don't use in combination with replicas')" json:"replica,omitempty" yaml:"replica,omitempty"`
 	// Multiple replica instances
-	Replicas []AdGuardInstance `docs:"List or replica instances (don't use in combination with replicas')" faker:"slice_len=2"       json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	API      API               `json:"api,omitempty"                                                       yaml:"api,omitempty"`
-	Features Features          `json:"features,omitempty"                                                  yaml:"features,omitempty"`
+	Replicas []Replica `docs:"List or replica instances (don't use in combination with replicas')" faker:"slice_len=2"       json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	API      API       `json:"api,omitempty"                                                       yaml:"api,omitempty"`
+	Features Features  `json:"features,omitempty"                                                  yaml:"features,omitempty"`
 }
 
 // API configuration.
@@ -84,8 +84,8 @@ func (a *API) Mask() {
 }
 
 // UniqueReplicas get unique replication instances.
-func (cfg *Config) UniqueReplicas() []AdGuardInstance {
-	dedup := make(map[string]AdGuardInstance)
+func (cfg *Config) UniqueReplicas() []Replica {
+	dedup := make(map[string]Replica)
 	if cfg.Replica != nil && cfg.Replica.URL != "" {
 		if cfg.Replica.APIPath == "" {
 			cfg.Replica.APIPath = DefaultAPIPath
@@ -101,11 +101,39 @@ func (cfg *Config) UniqueReplicas() []AdGuardInstance {
 		}
 	}
 
-	var r []AdGuardInstance
+	var r []Replica
 	for _, replica := range dedup {
 		r = append(r, replica)
 	}
 	return r
+}
+
+// HasDHCPFeature checks whether DHCP syncing is needed by global config or any replica.
+func (cfg *Config) HasDHCPFeature() bool {
+	if cfg.Features.DHCP.ServerConfig || cfg.Features.DHCP.StaticLeases {
+		return true
+	}
+	for _, replica := range cfg.UniqueReplicas() {
+		f := replica.EffectiveFeatures(cfg.Features)
+		if f.DHCP.ServerConfig || f.DHCP.StaticLeases {
+			return true
+		}
+	}
+	return false
+}
+
+// HasTLSFeature checks whether TLS syncing is needed by global config or any replica.
+func (cfg *Config) HasTLSFeature() bool {
+	if cfg.Features.TLSConfig {
+		return true
+	}
+	for _, replica := range cfg.UniqueReplicas() {
+		f := replica.EffectiveFeatures(cfg.Features)
+		if f.TLSConfig {
+			return true
+		}
+	}
+	return false
 }
 
 // Log the current config.
@@ -161,6 +189,29 @@ type AdGuardInstance struct {
 
 	Host    string `json:"-" yaml:"-"`
 	WebHost string `json:"-" yaml:"-"`
+}
+
+// Replica AdguardHome replica instance
+// +k8s:deepcopy-gen=true
+type Replica struct {
+	AdGuardInstance `json:",inline"                        yaml:",inline"`
+	Features        *Features `docs:"Feature flags for this replica" json:"features,omitempty" yaml:"features,omitempty"`
+}
+
+// Instance converts Replica to AdGuardInstance.
+func (r *Replica) Instance() AdGuardInstance {
+	if r == nil {
+		return AdGuardInstance{}
+	}
+	return r.AdGuardInstance
+}
+
+// EffectiveFeatures returns the effective features for this replica, falling back to global features if not set.
+func (r *Replica) EffectiveFeatures(global Features) Features {
+	if r != nil && r.Features != nil {
+		return *r.Features
+	}
+	return global
 }
 
 // Key AdGuardInstance key.

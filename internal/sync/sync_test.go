@@ -56,7 +56,7 @@ func newTestEnv(t *testing.T) *testEnv {
 				QueryLogConfig:  true,
 				Theme:           true,
 			},
-			Replicas: []types.AdGuardInstance{
+			Replicas: []types.Replica{
 				{},
 			},
 		},
@@ -470,7 +470,7 @@ func TestSync(t *testing.T) {
 
 		t.Run("statusWithSetup", func(t *testing.T) {
 			status := &model.ServerStatus{}
-			inst := types.AdGuardInstance{
+			inst := types.Replica{
 				AutoSetup: true,
 			}
 			t.Run("should get the replica status", func(t *testing.T) {
@@ -1020,7 +1020,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.w.cfg = &types.Config{
 					Origin:  &types.AdGuardInstance{},
-					Replica: &types.AdGuardInstance{URL: "foo"},
+					Replica: &types.Replica{URL: "foo"},
 					Features: types.Features{
 						DHCP: types.DHCP{
 							ServerConfig: true,
@@ -1089,7 +1089,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.w.cfg = &types.Config{
 					Origin:  &types.AdGuardInstance{},
-					Replica: &types.AdGuardInstance{URL: "foo"},
+					Replica: &types.Replica{URL: "foo"},
 					Features: types.Features{
 						DHCP: types.DHCP{
 							ServerConfig: false,
@@ -1156,7 +1156,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.w.cfg = &types.Config{
 					Origin:  &types.AdGuardInstance{},
-					Replica: &types.AdGuardInstance{URL: "foo"},
+					Replica: &types.Replica{URL: "foo"},
 				}
 				// origin
 				env.cl.EXPECT().Host()
@@ -1167,7 +1167,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.w.cfg = &types.Config{
 					Origin:  &types.AdGuardInstance{},
-					Replica: &types.AdGuardInstance{URL: "foo"},
+					Replica: &types.Replica{URL: "foo"},
 					Features: types.Features{
 						DHCP: types.DHCP{
 							ServerConfig: true,
@@ -1233,7 +1233,7 @@ func TestSync(t *testing.T) {
 			t.Run("should fail on invalid cron", func(t *testing.T) {
 				cfg := &types.Config{
 					Origin:   &types.AdGuardInstance{URL: "http://origin"},
-					Replicas: []types.AdGuardInstance{{URL: "http://replica"}},
+					Replicas: []types.Replica{{URL: "http://replica"}},
 					Cron:     "invalid",
 				}
 				err := Sync(cfg)
@@ -1253,7 +1253,7 @@ func TestSync(t *testing.T) {
 			t.Run("should return status", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin", WebHost: "origin"}
-				env.w.cfg.Replicas = []types.AdGuardInstance{{URL: "http://replica", WebHost: "replica"}}
+				env.w.cfg.Replicas = []types.Replica{{URL: "http://replica", WebHost: "replica"}}
 
 				env.cl.EXPECT().Status().Return(&model.ServerStatus{ProtectionEnabled: true}, nil).Times(2)
 				env.cl.EXPECT().Host().Return("origin").AnyTimes()
@@ -1322,6 +1322,57 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().ProfileInfo().Return(nil, errors.New("profile error"))
 				env.w.sync()
 			})
+			t.Run("should prefetch DHCP and TLS if replica enables them even if global disabled", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.w.cfg.Features.DHCP.ServerConfig = false
+				env.w.cfg.Features.DHCP.StaticLeases = false
+				env.w.cfg.Features.TLSConfig = false
+
+				replicaFeat := types.NewFeatures(false)
+				replicaFeat.DHCP.ServerConfig = true
+				replicaFeat.TLSConfig = true
+
+				env.w.cfg.Origin = &types.AdGuardInstance{URL: "http://origin"}
+				env.w.cfg.Replicas = []types.Replica{{
+					URL:      "http://replica",
+					Features: &replicaFeat,
+				}}
+
+				clOrigin := clientmock.NewMockClient(env.mockCtrl)
+				clReplica := clientmock.NewMockClient(env.mockCtrl)
+
+				env.w.createClient = func(instance types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+					if instance.URL == "http://origin" {
+						return clOrigin, nil
+					}
+					return clReplica, nil
+				}
+
+				clOrigin.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil).AnyTimes()
+				clOrigin.EXPECT().Host().Return("origin").AnyTimes()
+				clOrigin.EXPECT().ProfileInfo().Return(&model.ProfileInfo{}, nil)
+				clOrigin.EXPECT().Parental().Return(false, nil)
+				clOrigin.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
+				clOrigin.EXPECT().SafeBrowsing().Return(false, nil)
+				clOrigin.EXPECT().RewriteSettings().Return(&model.RewriteSettings{}, nil)
+				clOrigin.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
+				clOrigin.EXPECT().BlockedServicesSchedule().Return(&model.BlockedServicesSchedule{}, nil)
+				clOrigin.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
+				clOrigin.EXPECT().Clients().Return(&model.Clients{}, nil)
+				clOrigin.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				clOrigin.EXPECT().StatsConfig().Return(&model.GetStatsConfigResponse{}, nil)
+				clOrigin.EXPECT().AccessList().Return(&model.AccessList{}, nil)
+				clOrigin.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				// DHCP and TLS should be fetched from origin because replica enabled them!
+				clOrigin.EXPECT().DhcpConfig().Return(&model.DhcpStatus{}, nil)
+				clOrigin.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+
+				clReplica.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil).AnyTimes()
+				clReplica.EXPECT().Host().Return("replica").AnyTimes()
+				clReplica.EXPECT().TLSConfig().Return(&model.TlsConfig{}, nil)
+
+				env.w.sync()
+			})
 		})
 		t.Run("worker.syncTo", func(t *testing.T) {
 			t.Run("should handle client creation error", func(t *testing.T) {
@@ -1329,19 +1380,39 @@ func TestSync(t *testing.T) {
 				env.w.createClient = func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
 					return nil, errors.New("creation error")
 				}
-				env.w.syncTo(l, &origin{status: &model.ServerStatus{}}, types.AdGuardInstance{})
+				env.w.syncTo(l, &origin{status: &model.ServerStatus{}}, types.Replica{})
 			})
 			t.Run("should handle status error", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.cl.EXPECT().Status().Return(nil, errors.New("status error"))
 				env.cl.EXPECT().Host().Return("replica").AnyTimes()
-				env.w.syncTo(l, &origin{status: &model.ServerStatus{}}, types.AdGuardInstance{})
+				env.w.syncTo(l, &origin{status: &model.ServerStatus{}}, types.Replica{})
 			})
 			t.Run("should handle version mismatch", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: "v0.107.0"}, nil)
 				env.cl.EXPECT().Host().Return("replica").AnyTimes()
-				env.w.syncTo(l, &origin{status: &model.ServerStatus{Version: "v0.108.0"}}, types.AdGuardInstance{})
+				env.w.syncTo(l, &origin{status: &model.ServerStatus{Version: "v0.108.0"}}, types.Replica{})
+			})
+			t.Run("should only execute actions enabled for replica with custom features", func(t *testing.T) {
+				env := newTestEnv(t)
+				replicaFeatures := types.NewFeatures(false)
+				replicaFeatures.ClientSettings = true
+
+				replicaInst := types.Replica{
+					URL:      "http://replica",
+					Features: &replicaFeatures,
+				}
+				env.cl.EXPECT().Status().Return(&model.ServerStatus{Version: versions.MinAgh}, nil)
+				env.cl.EXPECT().Host().Return("replica").AnyTimes()
+				// Only ClientSettings should be synced
+				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
+
+				originData := &origin{
+					status:  &model.ServerStatus{Version: versions.MinAgh},
+					clients: &model.Clients{},
+				}
+				env.w.syncTo(l, originData, replicaInst)
 			})
 		})
 		t.Run("runOnStartAsync", func(t *testing.T) {

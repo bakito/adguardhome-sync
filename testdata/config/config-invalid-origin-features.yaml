@@ -1,0 +1,7 @@
+origin:
+  url: "http://localhost:3000"
+  features:
+    dns:
+      serverConfig: false
+replica:
+  url: "http://localhost:3001"

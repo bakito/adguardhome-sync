@@ -95,7 +95,6 @@ type worker struct {
 	running      bool
 	cron         *cron.Cron
 	createClient func(instance types.AdGuardInstance, timeout time.Duration) (client.Client, error)
-	actions      []syncAction
 }
 
 func (w *worker) status() *syncStatus {
@@ -104,7 +103,7 @@ func (w *worker) status() *syncStatus {
 	}
 
 	for _, replica := range w.cfg.Replicas {
-		st := w.getStatus(replica)
+		st := w.getStatus(replica.Instance())
 		if w.running {
 			st.Status = "info"
 		}
@@ -267,7 +266,7 @@ func (w *worker) sync() {
 		return
 	}
 
-	if w.cfg.Features.DHCP.ServerConfig || w.cfg.Features.DHCP.StaticLeases {
+	if w.cfg.HasDHCPFeature() {
 		o.dhcpServerConfig, err = oc.DhcpConfig()
 		if err != nil {
 			sl.With("error", err).Error("Error getting dhcp server config")
@@ -275,7 +274,7 @@ func (w *worker) sync() {
 		}
 	}
 
-	if w.cfg.Features.TLSConfig {
+	if w.cfg.HasTLSFeature() {
 		o.tlsConfig, err = oc.TLSConfig()
 		if err != nil {
 			sl.With("error", err).Error("Error getting tls config")
@@ -283,16 +282,14 @@ func (w *worker) sync() {
 		}
 	}
 
-	w.actions = setupActions(w.cfg)
-
 	replicas := w.cfg.UniqueReplicas()
 	for _, replica := range replicas {
 		w.syncTo(sl, o, replica)
 	}
 }
 
-func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardInstance) {
-	rc, err := w.createClient(replica, w.cfg.ClientTimeout)
+func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.Replica) {
+	rc, err := w.createClient(replica.Instance(), w.cfg.ClientTimeout)
 	if err != nil {
 		l.With("error", err, "url", replica.URL).Error("Error creating replica client")
 		return
@@ -334,6 +331,11 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 			Warn("Versions do not match")
 	}
 
+	effectiveFeatures := replica.EffectiveFeatures(w.cfg.Features)
+	if replica.Features != nil {
+		replica.Features.LogDisabled(rl)
+	}
+
 	ac := &actionContext{
 		cfg:           w.cfg,
 		rl:            rl,
@@ -343,7 +345,8 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 		replica:       replica,
 	}
 
-	for _, action := range w.actions {
+	actions := setupActions(effectiveFeatures)
+	for _, action := range actions {
 		if err := action.sync(ac); err != nil {
 			rl.With("error", err).Errorf("Error syncing %s", action.name())
 			withError = true
@@ -356,7 +359,7 @@ func (w *worker) syncTo(l *zap.SugaredLogger, o *origin, replica types.AdGuardIn
 
 func (*worker) statusWithSetup(
 	rl *zap.SugaredLogger,
-	replica types.AdGuardInstance,
+	replica types.Replica,
 	rc client.Client,
 ) (*model.ServerStatus, error) {
 	rs, err := rc.Status()

@@ -30,7 +30,7 @@ func (w *worker) scrape() {
 
 	iml.Metrics = append(iml.Metrics, w.getMetrics(*w.cfg.Origin))
 	for _, replica := range w.cfg.Replicas {
-		iml.Metrics = append(iml.Metrics, w.getMetrics(replica))
+		iml.Metrics = append(iml.Metrics, w.getMetrics(replica.Instance()))
 	}
 	metrics.UpdateInstances(iml)
 }
