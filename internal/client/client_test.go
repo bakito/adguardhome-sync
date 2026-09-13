@@ -471,6 +471,39 @@ func TestClient_StatsConfig(t *testing.T) {
 	})
 }
 
+func TestClient_DhcpStaticLease(t *testing.T) {
+	t.Run("should add static lease", func(t *testing.T) {
+		ts, cl := ClientPost(t, "/dhcp/add_static_lease",
+			`{"hostname":"host1","ip":"1.1.1.1","mac":"mac1"}`,
+		)
+		defer ts.Close()
+		err := cl.AddDHCPStaticLease(model.DhcpStaticLease{Hostname: "host1", Ip: "1.1.1.1", Mac: "mac1"})
+		if err != nil {
+			t.Errorf("AddDHCPStaticLease() error = %v", err)
+		}
+	})
+	t.Run("should update static lease", func(t *testing.T) {
+		ts, cl := ClientPost(t, "/dhcp/update_static_lease",
+			`{"hostname":"host1","ip":"1.1.1.2","mac":"mac1"}`,
+		)
+		defer ts.Close()
+		err := cl.UpdateDHCPStaticLease(model.DhcpStaticLease{Hostname: "host1", Ip: "1.1.1.2", Mac: "mac1"})
+		if err != nil {
+			t.Errorf("UpdateDHCPStaticLease() error = %v", err)
+		}
+	})
+	t.Run("should delete static lease", func(t *testing.T) {
+		ts, cl := ClientPost(t, "/dhcp/remove_static_lease",
+			`{"hostname":"host1","ip":"1.1.1.1","mac":"mac1"}`,
+		)
+		defer ts.Close()
+		err := cl.DeleteDHCPStaticLease(model.DhcpStaticLease{Hostname: "host1", Ip: "1.1.1.1", Mac: "mac1"})
+		if err != nil {
+			t.Errorf("DeleteDHCPStaticLease() error = %v", err)
+		}
+	})
+}
+
 func TestClient_HelperFunctions(t *testing.T) {
 	t.Run("doGet", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {

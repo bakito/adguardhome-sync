@@ -813,11 +813,11 @@ func TestSync(t *testing.T) {
 			t.Run("should have no changes", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
-					V4: &model.DhcpConfigV4{
-						GatewayIp:  new("1.2.3.4"),
-						RangeStart: new("1.2.3.5"),
-						RangeEnd:   new("1.2.3.6"),
-						SubnetMask: new("255.255.255.0"),
+					V4: model.DhcpConfigV4{
+						GatewayIp:  "1.2.3.4",
+						RangeStart: "1.2.3.5",
+						RangeEnd:   "1.2.3.6",
+						SubnetMask: "255.255.255.0",
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
@@ -831,15 +831,15 @@ func TestSync(t *testing.T) {
 			t.Run("should have changes", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
-					V4: &model.DhcpConfigV4{
-						GatewayIp:  new("1.2.3.4"),
-						RangeStart: new("1.2.3.5"),
-						RangeEnd:   new("1.2.3.6"),
-						SubnetMask: new("255.255.255.0"),
+					V4: model.DhcpConfigV4{
+						GatewayIp:  "1.2.3.4",
+						RangeStart: "1.2.3.5",
+						RangeEnd:   "1.2.3.6",
+						SubnetMask: "255.255.255.0",
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
-				rscLocal := &model.DhcpStatus{Enabled: new(true)}
+				rscLocal := &model.DhcpStatus{Enabled: true}
 				env.cl.EXPECT().DhcpConfig().Return(rscLocal, nil)
 				env.cl.EXPECT().SetDhcpConfig(env.ac.origin.dhcpServerConfig)
 				err := actionDHCPServerConfig(env.ac)
@@ -850,11 +850,11 @@ func TestSync(t *testing.T) {
 			t.Run("should use replica interface name", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
-					V4: &model.DhcpConfigV4{
-						GatewayIp:  new("1.2.3.4"),
-						RangeStart: new("1.2.3.5"),
-						RangeEnd:   new("1.2.3.6"),
-						SubnetMask: new("255.255.255.0"),
+					V4: model.DhcpConfigV4{
+						GatewayIp:  "1.2.3.4",
+						RangeStart: "1.2.3.5",
+						RangeEnd:   "1.2.3.6",
+						SubnetMask: "255.255.255.0",
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
@@ -862,7 +862,7 @@ func TestSync(t *testing.T) {
 				rsc := &model.DhcpStatus{}
 				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := env.ac.origin.dhcpServerConfig.Clone()
-				oscClone.InterfaceName = new("foo")
+				oscClone.InterfaceName = "foo"
 				env.cl.EXPECT().SetDhcpConfig(oscClone)
 				err := actionDHCPServerConfig(env.ac)
 				if err != nil {
@@ -872,11 +872,11 @@ func TestSync(t *testing.T) {
 			t.Run("should enable the target dhcp server", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
-					V4: &model.DhcpConfigV4{
-						GatewayIp:  new("1.2.3.4"),
-						RangeStart: new("1.2.3.5"),
-						RangeEnd:   new("1.2.3.6"),
-						SubnetMask: new("255.255.255.0"),
+					V4: model.DhcpConfigV4{
+						GatewayIp:  "1.2.3.4",
+						RangeStart: "1.2.3.5",
+						RangeEnd:   "1.2.3.6",
+						SubnetMask: "255.255.255.0",
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
@@ -884,7 +884,7 @@ func TestSync(t *testing.T) {
 				rsc := &model.DhcpStatus{}
 				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
 				oscClone := env.ac.origin.dhcpServerConfig.Clone()
-				oscClone.Enabled = new(true)
+				oscClone.Enabled = true
 				env.cl.EXPECT().SetDhcpConfig(oscClone)
 				err := actionDHCPServerConfig(env.ac)
 				if err != nil {
@@ -894,21 +894,123 @@ func TestSync(t *testing.T) {
 			t.Run("should not sync empty IPv4", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
-					V4: &model.DhcpConfigV4{
-						GatewayIp:  new("1.2.3.4"),
-						RangeStart: new("1.2.3.5"),
-						RangeEnd:   new("1.2.3.6"),
-						SubnetMask: new("255.255.255.0"),
+					V4: model.DhcpConfigV4{
+						GatewayIp:  "1.2.3.4",
+						RangeStart: "1.2.3.5",
+						RangeEnd:   "1.2.3.6",
+						SubnetMask: "255.255.255.0",
 					},
 				}
 				env.w.cfg.Features.DHCP.StaticLeases = false
 				env.ac.replica.DHCPServerEnabled = new(false)
-				env.ac.origin.dhcpServerConfig.V4 = &model.DhcpConfigV4{
-					GatewayIp: new(""),
+				env.ac.origin.dhcpServerConfig.V4 = model.DhcpConfigV4{
+					GatewayIp: "",
 				}
 				err := actionDHCPServerConfig(env.ac)
 				if err != nil {
 					t.Errorf("actionDHCPServerConfig() error = %v, want nil", err)
+				}
+			})
+		})
+
+		t.Run("actionDHCPStaticLeases", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{
+						{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"},
+					},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{
+						{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"},
+					},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should add static lease", func(t *testing.T) {
+				env := newTestEnv(t)
+				lease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{lease},
+				}
+				rsc := &model.DhcpStatus{}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().AddDHCPStaticLease(lease).Return(nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should update static lease", func(t *testing.T) {
+				env := newTestEnv(t)
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				newLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.5", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{newLease},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().UpdateDHCPStaticLease(newLease).Return(nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should delete static lease", func(t *testing.T) {
+				env := newTestEnv(t)
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().DeleteDHCPStaticLease(oldLease).Return(nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should handle update error with continueOnError", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = true
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				newLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.5", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{newLease},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().UpdateDHCPStaticLease(newLease).Return(errors.New("update error"))
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should fail on update error without continueOnError", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = false
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				newLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.5", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{newLease},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().UpdateDHCPStaticLease(newLease).Return(errors.New("update error"))
+				err := actionDHCPStaticLeases(env.ac)
+				if err == nil {
+					t.Error("actionDHCPStaticLeases() error = nil, want error")
 				}
 			})
 		})

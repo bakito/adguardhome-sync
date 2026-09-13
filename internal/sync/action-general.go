@@ -235,11 +235,11 @@ var (
 			origClone := ac.origin.dhcpServerConfig.Clone()
 			if ac.replica.InterfaceName != "" {
 				// overwrite interface name
-				origClone.InterfaceName = new(ac.replica.InterfaceName)
+				origClone.InterfaceName = ac.replica.InterfaceName
 			}
 			if ac.replica.DHCPServerEnabled != nil {
 				// overwrite dhcp enabled
-				origClone.Enabled = ac.replica.DHCPServerEnabled
+				origClone.Enabled = *ac.replica.DHCPServerEnabled
 			}
 
 			if !sc.CleanAndEquals(origClone) {
@@ -254,7 +254,7 @@ var (
 			return err
 		}
 
-		a, r := model.MergeDhcpStaticLeases(sc.StaticLeases, ac.origin.dhcpServerConfig.StaticLeases)
+		a, u, r := model.MergeDhcpStaticLeases(sc.StaticLeases, ac.origin.dhcpServerConfig.StaticLeases)
 
 		for _, lease := range r {
 			if err := ac.client.DeleteDHCPStaticLease(lease); err != nil {
@@ -268,6 +268,15 @@ var (
 		for _, lease := range a {
 			if err := ac.client.AddDHCPStaticLease(lease); err != nil {
 				ac.rl.With("hostname", lease.Hostname, "error", err).Error("error adding dhcp static lease")
+				if !ac.cfg.ContinueOnError {
+					return err
+				}
+			}
+		}
+
+		for _, lease := range u {
+			if err := ac.client.UpdateDHCPStaticLease(lease); err != nil {
+				ac.rl.With("hostname", lease.Hostname, "error", err).Error("error updating dhcp static lease")
 				if !ac.cfg.ContinueOnError {
 					return err
 				}

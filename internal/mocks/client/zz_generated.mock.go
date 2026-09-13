@@ -698,6 +698,20 @@ func (mr *MockClientMockRecorder) UpdateClient(client any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateClient", reflect.TypeOf((*MockClient)(nil).UpdateClient), client)
 }
 
+// UpdateDHCPStaticLease mocks base method.
+func (m *MockClient) UpdateDHCPStaticLease(lease model.DhcpStaticLease) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDHCPStaticLease", lease)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDHCPStaticLease indicates an expected call of UpdateDHCPStaticLease.
+func (mr *MockClientMockRecorder) UpdateDHCPStaticLease(lease any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDHCPStaticLease", reflect.TypeOf((*MockClient)(nil).UpdateDHCPStaticLease), lease)
+}
+
 // UpdateFilter mocks base method.
 func (m *MockClient) UpdateFilter(whitelist bool, f model.Filter) error {
 	m.ctrl.T.Helper()

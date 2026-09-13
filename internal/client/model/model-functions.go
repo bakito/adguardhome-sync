@@ -19,16 +19,22 @@ func (c *DhcpStatus) Clone() *DhcpStatus {
 }
 
 func (c *DhcpStatus) cleanV4V6() {
-	if c.V4 != nil && !c.V4.isValid() {
-		c.V4 = nil
+	if !c.V4.isValid() {
+		c.V4 = DhcpConfigV4{}
 	}
-	if c.V6 != nil && !c.V6.isValid() {
-		c.V6 = nil
+	if !c.V6.isValid() {
+		c.V6 = DhcpConfigV6{}
 	}
 }
 
 // CleanAndEquals dhcp server config equal check where V4 and V6 are cleaned in advance.
 func (c *DhcpStatus) CleanAndEquals(o *DhcpStatus) bool {
+	if c == nil && o == nil {
+		return true
+	}
+	if c == nil || o == nil {
+		return false
+	}
 	c.cleanV4V6()
 	o.cleanV4V6()
 	return c.Equals(o)
@@ -40,14 +46,14 @@ func (c *DhcpStatus) Equals(o *DhcpStatus) bool {
 }
 
 func (c *DhcpStatus) HasConfig() bool {
-	return (c.V4 != nil && c.V4.isValid()) || (c.V6 != nil && c.V6.isValid())
+	return c.V4.isValid() || c.V6.isValid()
 }
 
 func (j DhcpConfigV4) isValid() bool {
-	return j.GatewayIp != nil && *j.GatewayIp != "" &&
-		j.SubnetMask != nil && *j.SubnetMask != "" &&
-		j.RangeStart != nil && *j.RangeStart != "" &&
-		j.RangeEnd != nil && *j.RangeEnd != ""
+	return j.GatewayIp != "" &&
+		j.SubnetMask != "" &&
+		j.RangeStart != "" &&
+		j.RangeEnd != ""
 }
 
 func (j DhcpConfigV6) isValid() bool {
@@ -57,24 +63,18 @@ func (j DhcpConfigV6) isValid() bool {
 type DhcpStaticLeases []DhcpStaticLease
 
 // MergeDhcpStaticLeases the leases.
-func MergeDhcpStaticLeases(l, other *[]DhcpStaticLease) (adds, removes DhcpStaticLeases) {
-	var thisLeases []DhcpStaticLease
-	var otherLeases []DhcpStaticLease
-
-	if l != nil {
-		thisLeases = *l
-	}
-	if other != nil {
-		otherLeases = *other
-	}
+func MergeDhcpStaticLeases(l, other []DhcpStaticLease) (adds, updates, removes DhcpStaticLeases) {
 	current := make(map[string]DhcpStaticLease)
 
-	for _, le := range thisLeases {
+	for _, le := range l {
 		current[le.Mac] = le
 	}
 
-	for _, le := range otherLeases {
-		if _, ok := current[le.Mac]; ok {
+	for _, le := range other {
+		if cur, ok := current[le.Mac]; ok {
+			if !cur.Equals(le) {
+				updates = append(updates, le)
+			}
 			delete(current, le.Mac)
 		} else {
 			adds = append(adds, le)
@@ -85,7 +85,12 @@ func MergeDhcpStaticLeases(l, other *[]DhcpStaticLease) (adds, removes DhcpStati
 		removes = append(removes, rr)
 	}
 
-	return adds, removes
+	return adds, updates, removes
+}
+
+// Equals DhcpStaticLease equal check.
+func (l DhcpStaticLease) Equals(o DhcpStaticLease) bool {
+	return l.Mac == o.Mac && l.Ip == o.Ip && l.Hostname == o.Hostname
 }
 
 // Equals dns config equal check.
