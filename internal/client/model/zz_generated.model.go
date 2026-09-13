@@ -67,22 +67,22 @@ func (e DNSConfigBlockingMode) Valid() bool {
 
 // Defines values for DNSConfigUpstreamMode.
 const (
-	MapConstDeprecatedTrueDescriptionUseloadBalanceInstead DNSConfigUpstreamMode = "map[const: deprecated:true description:Use `load_balance` instead.]"
-	MapConstFastestAddr                                    DNSConfigUpstreamMode = "map[const:fastest_addr]"
-	MapConstLoadBalance                                    DNSConfigUpstreamMode = "map[const:load_balance]"
-	MapConstParallel                                       DNSConfigUpstreamMode = "map[const:parallel]"
+	DNSConfigUpstreamModeEmpty       DNSConfigUpstreamMode = ""
+	DNSConfigUpstreamModeFastestAddr DNSConfigUpstreamMode = "fastest_addr"
+	DNSConfigUpstreamModeLoadBalance DNSConfigUpstreamMode = "load_balance"
+	DNSConfigUpstreamModeParallel    DNSConfigUpstreamMode = "parallel"
 )
 
 // Valid indicates whether the value is a known member of the DNSConfigUpstreamMode enum.
 func (e DNSConfigUpstreamMode) Valid() bool {
 	switch e {
-	case MapConstDeprecatedTrueDescriptionUseloadBalanceInstead:
+	case DNSConfigUpstreamModeEmpty:
 		return true
-	case MapConstFastestAddr:
+	case DNSConfigUpstreamModeFastestAddr:
 		return true
-	case MapConstLoadBalance:
+	case DNSConfigUpstreamModeLoadBalance:
 		return true
-	case MapConstParallel:
+	case DNSConfigUpstreamModeParallel:
 		return true
 	default:
 		return false
@@ -179,6 +179,126 @@ func (e FilteringReason) Valid() bool {
 	}
 }
 
+// Defines values for Lang.
+const (
+	LangAr   Lang = "ar"
+	LangBe   Lang = "be"
+	LangBg   Lang = "bg"
+	LangCs   Lang = "cs"
+	LangDa   Lang = "da"
+	LangDe   Lang = "de"
+	LangEn   Lang = "en"
+	LangEs   Lang = "es"
+	LangFa   Lang = "fa"
+	LangFi   Lang = "fi"
+	LangFr   Lang = "fr"
+	LangHr   Lang = "hr"
+	LangHu   Lang = "hu"
+	LangId   Lang = "id"
+	LangIt   Lang = "it"
+	LangJa   Lang = "ja"
+	LangKo   Lang = "ko"
+	LangNl   Lang = "nl"
+	LangNo   Lang = "no"
+	LangPl   Lang = "pl"
+	LangPtBr Lang = "pt-br"
+	LangPtPt Lang = "pt-pt"
+	LangRo   Lang = "ro"
+	LangRu   Lang = "ru"
+	LangSiLk Lang = "si-lk"
+	LangSk   Lang = "sk"
+	LangSl   Lang = "sl"
+	LangSrCs Lang = "sr-cs"
+	LangSv   Lang = "sv"
+	LangTh   Lang = "th"
+	LangTr   Lang = "tr"
+	LangUk   Lang = "uk"
+	LangVi   Lang = "vi"
+	LangZhCn Lang = "zh-cn"
+	LangZhHk Lang = "zh-hk"
+	LangZhTw Lang = "zh-tw"
+)
+
+// Valid indicates whether the value is a known member of the Lang enum.
+func (e Lang) Valid() bool {
+	switch e {
+	case LangAr:
+		return true
+	case LangBe:
+		return true
+	case LangBg:
+		return true
+	case LangCs:
+		return true
+	case LangDa:
+		return true
+	case LangDe:
+		return true
+	case LangEn:
+		return true
+	case LangEs:
+		return true
+	case LangFa:
+		return true
+	case LangFi:
+		return true
+	case LangFr:
+		return true
+	case LangHr:
+		return true
+	case LangHu:
+		return true
+	case LangId:
+		return true
+	case LangIt:
+		return true
+	case LangJa:
+		return true
+	case LangKo:
+		return true
+	case LangNl:
+		return true
+	case LangNo:
+		return true
+	case LangPl:
+		return true
+	case LangPtBr:
+		return true
+	case LangPtPt:
+		return true
+	case LangRo:
+		return true
+	case LangRu:
+		return true
+	case LangSiLk:
+		return true
+	case LangSk:
+		return true
+	case LangSl:
+		return true
+	case LangSrCs:
+		return true
+	case LangSv:
+		return true
+	case LangTh:
+		return true
+	case LangTr:
+		return true
+	case LangUk:
+		return true
+	case LangVi:
+		return true
+	case LangZhCn:
+		return true
+	case LangZhHk:
+		return true
+	case LangZhTw:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ProfileInfoTheme.
 const (
 	Auto  ProfileInfoTheme = "auto"
@@ -229,25 +349,25 @@ func (e QueryLogConfigInterval) Valid() bool {
 
 // Defines values for QueryLogItemClientProto.
 const (
-	Dnscrypt QueryLogItemClientProto = "dnscrypt"
-	Doh      QueryLogItemClientProto = "doh"
-	Doq      QueryLogItemClientProto = "doq"
-	Dot      QueryLogItemClientProto = "dot"
-	Empty    QueryLogItemClientProto = ""
+	QueryLogItemClientProtoDnscrypt QueryLogItemClientProto = "dnscrypt"
+	QueryLogItemClientProtoDoh      QueryLogItemClientProto = "doh"
+	QueryLogItemClientProtoDoq      QueryLogItemClientProto = "doq"
+	QueryLogItemClientProtoDot      QueryLogItemClientProto = "dot"
+	QueryLogItemClientProtoEmpty    QueryLogItemClientProto = ""
 )
 
 // Valid indicates whether the value is a known member of the QueryLogItemClientProto enum.
 func (e QueryLogItemClientProto) Valid() bool {
 	switch e {
-	case Dnscrypt:
+	case QueryLogItemClientProtoDnscrypt:
 		return true
-	case Doh:
+	case QueryLogItemClientProtoDoh:
 		return true
-	case Doq:
+	case QueryLogItemClientProtoDoq:
 		return true
-	case Dot:
+	case QueryLogItemClientProtoDot:
 		return true
-	case Empty:
+	case QueryLogItemClientProtoEmpty:
 		return true
 	default:
 		return false
@@ -379,35 +499,24 @@ type AddUrlRequest struct {
 	Name *string `json:"name,omitempty"`
 
 	// Url URL or an absolute path to the file containing filtering rules.
-	//
-	//
-	// Example: https://filters.adtidy.org/windows/filters/15.txt
 	Url       *string `json:"url,omitempty"`
 	Whitelist *bool   `json:"whitelist,omitempty"`
 }
 
 // AddressInfo Port information
 type AddressInfo struct {
-	// Ip Example: 127.0.0.1
-	Ip string `json:"ip"`
-
-	// Port Example: 53
+	Ip   string `json:"ip"`
 	Port uint16 `json:"port"`
 }
 
 // AddressesInfo AdGuard Home addresses configuration
 type AddressesInfo struct {
-	// DnsPort Example: 53
 	DnsPort uint16 `json:"dns_port"`
 
 	// Interfaces Network interfaces dictionary, keys are interface names.
 	Interfaces NetInterfaces `json:"interfaces"`
-
-	// Version Example: v0.123.4
-	Version string `json:"version"`
-
-	// WebPort Example: 80
-	WebPort uint16 `json:"web_port"`
+	Version    string        `json:"version"`
+	WebPort    uint16        `json:"web_port"`
 }
 
 // BlockedService defines model for BlockedService.
@@ -450,33 +559,29 @@ type BlockedServicesSchedule struct {
 type CheckConfigRequest struct {
 	Dns *CheckConfigRequestInfo `json:"dns,omitempty"`
 
-	// SetStaticIp Example: false
+	// Language Language code.
+	Language    *Lang                   `json:"language,omitempty"`
 	SetStaticIp *bool                   `json:"set_static_ip,omitempty"`
 	Web         *CheckConfigRequestInfo `json:"web,omitempty"`
 }
 
 // CheckConfigRequestInfo defines model for CheckConfigRequestInfo.
 type CheckConfigRequestInfo struct {
-	// Autofix Example: false
-	Autofix *bool `json:"autofix,omitempty"`
-
-	// Ip Example: 127.0.0.1
-	Ip *string `json:"ip,omitempty"`
-
-	// Port Example: 53
-	Port *uint16 `json:"port,omitempty"`
+	Autofix *bool   `json:"autofix,omitempty"`
+	Ip      *string `json:"ip,omitempty"`
+	Port    *uint16 `json:"port,omitempty"`
 }
 
 // CheckConfigResponse defines model for CheckConfigResponse.
 type CheckConfigResponse struct {
 	Dns      CheckConfigResponseInfo `json:"dns"`
+	Language CheckConfigResponseInfo `json:"language"`
 	StaticIp CheckConfigStaticIpInfo `json:"static_ip"`
 	Web      CheckConfigResponseInfo `json:"web"`
 }
 
 // CheckConfigResponseInfo defines model for CheckConfigResponseInfo.
 type CheckConfigResponseInfo struct {
-	// CanAutofix Example: false
 	CanAutofix bool   `json:"can_autofix"`
 	Status     string `json:"status"`
 }
@@ -487,19 +592,13 @@ type CheckConfigStaticIpInfo struct {
 	Error *string `json:"error,omitempty"`
 
 	// Ip Current dynamic IP address. Set if static=no
-	//
-	// Example: 192.168.1.1
 	Ip *string `json:"ip,omitempty"`
 
 	// Static Can be: yes, no, error
-	//
-	// Example: no
 	Static *CheckConfigStaticIpInfoStatic `json:"static,omitempty"`
 }
 
 // CheckConfigStaticIpInfoStatic Can be: yes, no, error
-//
-// Example: no
 type CheckConfigStaticIpInfoStatic string
 
 // Client Client information.
@@ -532,8 +631,6 @@ type Client struct {
 	IgnoreStatistics *bool `json:"ignore_statistics,omitempty"`
 
 	// Name Name
-	//
-	// Example: localhost
 	Name            *string `json:"name,omitempty"`
 	ParentalEnabled *bool   `json:"parental_enabled,omitempty"`
 
@@ -568,18 +665,12 @@ type Client struct {
 // ClientAuto Auto-Client information
 type ClientAuto struct {
 	// Ip IP address
-	//
-	// Example: 127.0.0.1
 	Ip *string `json:"ip,omitempty"`
 
 	// Name Name
-	//
-	// Example: localhost
 	Name *string `json:"name,omitempty"`
 
 	// Source The source of this information
-	//
-	// Example: etc/hosts
 	Source    *string    `json:"source,omitempty"`
 	WhoisInfo *WhoisInfo `json:"whois_info,omitempty"`
 }
@@ -606,8 +697,6 @@ type ClientFindSubEntry struct {
 	IgnoreStatistics *bool     `json:"ignore_statistics,omitempty"`
 
 	// Name Name
-	//
-	// Example: localhost
 	Name            *string `json:"name,omitempty"`
 	ParentalEnabled *bool   `json:"parental_enabled,omitempty"`
 
@@ -649,8 +738,6 @@ type ClientsAutoArray = []ClientAuto
 type ClientsFindEntry map[string]ClientFindSubEntry
 
 // ClientsFindResponse Client search results.
-//
-// Example: [{"cli42":{"blocked_services":[],"disallowed":false,"disallowed_rule":"","filtering_enabled":true,"ids":["cli42"],"ignore_querylog":false,"ignore_statistics":false,"name":"Client 42","parental_enabled":true,"safe_search":{},"safebrowsing_enabled":true,"safesearch_enabled":true,"upstreams":[],"use_global_blocked_services":true,"use_global_settings":true,"whois_info":{}}},{"1.2.3.4":{"blocked_services":[],"disallowed":false,"disallowed_rule":"","filtering_enabled":true,"ids":["1.2.3.4"],"ignore_querylog":false,"ignore_statistics":false,"name":"Client 1-2-3-4","parental_enabled":true,"safe_search":{},"safebrowsing_enabled":true,"safesearch_enabled":true,"upstreams":[],"use_global_blocked_services":true,"use_global_settings":true,"whois_info":{}}}]
 type ClientsFindResponse = []ClientsFindEntry
 
 // ClientsSearchRequest Client search request
@@ -664,6 +751,26 @@ type ClientsSearchRequestItem struct {
 	Id *string `json:"id,omitempty"`
 }
 
+// DHCPNetInterface DHCP network interface info
+type DHCPNetInterface struct {
+	// Flags Flags could be any combination of the following values, divided by the "|" character: "up", "broadcast", "loopback", "pointtopoint" and "multicast".
+	Flags string `json:"flags"`
+
+	// GatewayIp The IP address of the gateway.
+	GatewayIp       string `json:"gateway_ip"`
+	HardwareAddress string `json:"hardware_address"`
+
+	// Ipv4Addresses The addresses of the interface of v4 family.
+	Ipv4Addresses []string `json:"ipv4_addresses"`
+
+	// Ipv6Addresses The addresses of the interface of v6 family.
+	Ipv6Addresses []string `json:"ipv6_addresses"`
+	Name          string   `json:"name"`
+}
+
+// DHCPNetInterfaces DHCP network interfaces dictionary, keys are interface names.
+type DHCPNetInterfaces map[string]DHCPNetInterface
+
 // DNSConfig DNS server configuration
 type DNSConfig struct {
 	// BlockedResponseTtl TTL for blocked responses.
@@ -672,10 +779,7 @@ type DNSConfig struct {
 	BlockingIpv6       *string                `json:"blocking_ipv6,omitempty"`
 	BlockingMode       *DNSConfigBlockingMode `json:"blocking_mode,omitempty"`
 
-	// BootstrapDns Bootstrap servers, port is optional after colon.  Empty value will reset it to default values.
-	//
-	//
-	// Example: ["8.8.8.8:53","1.1.1.1:53"]
+	// BootstrapDns Bootstrap servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
 	BootstrapDns *[]string `json:"bootstrap_dns,omitempty"`
 
 	// CacheEnabled Enables or disables the DNS response cache.
@@ -694,43 +798,32 @@ type DNSConfig struct {
 	EdnsCsEnabled   *bool   `json:"edns_cs_enabled,omitempty"`
 	EdnsCsUseCustom *bool   `json:"edns_cs_use_custom,omitempty"`
 
-	// FallbackDns List of fallback DNS servers used when upstream DNS servers are not responding.  Empty value will clear the list.
-	//
-	//
-	// Example: ["8.8.8.8","1.1.1.1:53"]
+	// FallbackDns List of fallback DNS servers used when upstream DNS servers are not responding.  Empty value will clear the list.  Comments are allowed, a comment line starts with a `#` symbol.
 	FallbackDns *[]string `json:"fallback_dns,omitempty"`
 
-	// LocalPtrUpstreams Upstream servers, port is optional after colon.  Empty value will reset it to default values.
-	//
-	//
-	// Example: ["tls://1.1.1.1","tls://1.0.0.1"]
+	// LocalPtrUpstreams Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
 	LocalPtrUpstreams *[]string `json:"local_ptr_upstreams,omitempty"`
 
 	// ProtectionDisabledUntil Protection is pause until this time.  Nullable.
-	//
-	// Example: 2018-11-26T00:02:41+03:00
 	ProtectionDisabledUntil *string `json:"protection_disabled_until,omitempty"`
 	ProtectionEnabled       *bool   `json:"protection_enabled,omitempty"`
 	Ratelimit               *int    `json:"ratelimit,omitempty"`
 
-	// RatelimitSubnetSubnetLenIpv4 Length of the subnet mask for IPv4 addresses.
-	RatelimitSubnetSubnetLenIpv4 *int `json:"ratelimit_subnet_subnet_len_ipv4,omitempty"`
+	// RatelimitSubnetLenIpv4 Length of the subnet mask for IPv4 addresses.
+	RatelimitSubnetLenIpv4 *int `json:"ratelimit_subnet_len_ipv4,omitempty"`
 
-	// RatelimitSubnetSubnetLenIpv6 Length of the subnet mask for IPv6 addresses.
-	RatelimitSubnetSubnetLenIpv6 *int `json:"ratelimit_subnet_subnet_len_ipv6,omitempty"`
+	// RatelimitSubnetLenIpv6 Length of the subnet mask for IPv6 addresses.
+	RatelimitSubnetLenIpv6 *int `json:"ratelimit_subnet_len_ipv6,omitempty"`
 
 	// RatelimitWhitelist List of IP addresses excluded from rate limiting.
 	RatelimitWhitelist *[]string `json:"ratelimit_whitelist,omitempty"`
 	ResolveClients     *bool     `json:"resolve_clients,omitempty"`
 
-	// UpstreamDns Upstream servers, port is optional after colon.  Empty value will reset it to default values.
-	//
-	//
-	// Example: ["tls://1.1.1.1","tls://1.0.0.1"]
+	// UpstreamDns Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
 	UpstreamDns     *[]string `json:"upstream_dns,omitempty"`
 	UpstreamDnsFile *string   `json:"upstream_dns_file,omitempty"`
 
-	// UpstreamMode Upstream modes enumeration.
+	// UpstreamMode Upstream modes enumeration. The empty string value is deprecated; use `load_balance` instead.
 	UpstreamMode *DNSConfigUpstreamMode `json:"upstream_mode,omitempty"`
 
 	// UpstreamTimeout The number of seconds to wait for a response from the upstream server
@@ -741,7 +834,7 @@ type DNSConfig struct {
 // DNSConfigBlockingMode defines model for DNSConfig.BlockingMode.
 type DNSConfigBlockingMode string
 
-// DNSConfigUpstreamMode Upstream modes enumeration.
+// DNSConfigUpstreamMode Upstream modes enumeration. The empty string value is deprecated; use `load_balance` instead.
 type DNSConfigUpstreamMode string
 
 // DayRange The single interval within a day.  It begins at the `start` and ends before the `end`.
@@ -763,18 +856,11 @@ type DhcpConfig struct {
 
 // DhcpConfigV4 defines model for DhcpConfigV4.
 type DhcpConfigV4 struct {
-	// GatewayIp Example: 192.168.1.1
-	GatewayIp     *string `json:"gateway_ip,omitempty"`
-	LeaseDuration *int    `json:"lease_duration,omitempty"`
-
-	// RangeEnd Example: 192.168.10.50
-	RangeEnd *string `json:"range_end,omitempty"`
-
-	// RangeStart Example: 192.168.1.2
-	RangeStart *string `json:"range_start,omitempty"`
-
-	// SubnetMask Example: 255.255.255.0
-	SubnetMask *string `json:"subnet_mask,omitempty"`
+	GatewayIp     string `json:"gateway_ip"`
+	LeaseDuration int    `json:"lease_duration"`
+	RangeEnd      string `json:"range_end"`
+	RangeStart    string `json:"range_start"`
+	SubnetMask    string `json:"subnet_mask"`
 }
 
 // DhcpConfigV6 defines model for DhcpConfigV6.
@@ -786,24 +872,15 @@ type DhcpConfigV6 struct {
 // DhcpFindActiveReq Request for checking for other DHCP servers in the network.
 type DhcpFindActiveReq struct {
 	// Interface The name of the network interface
-	//
-	// Example: eth0
 	Interface *string `json:"interface,omitempty"`
 }
 
 // DhcpLease DHCP lease information
 type DhcpLease struct {
-	// Expires Example: 2017-07-21T17:32:28Z
-	Expires string `json:"expires"`
-
-	// Hostname Example: dell
+	Expires  string `json:"expires"`
 	Hostname string `json:"hostname"`
-
-	// Ip Example: 192.168.1.22
-	Ip string `json:"ip"`
-
-	// Mac Example: 00:11:09:b3:b3:b8
-	Mac string `json:"mac"`
+	Ip       string `json:"ip"`
+	Mac      string `json:"mac"`
 }
 
 // DhcpSearchResult Information about a DHCP server discovered in the current network.
@@ -815,39 +892,25 @@ type DhcpSearchResult struct {
 // DhcpSearchResultOtherServer defines model for DhcpSearchResultOtherServer.
 type DhcpSearchResultOtherServer struct {
 	// Error Set if found=error
-	//
-	// Example:
 	Error *string `json:"error,omitempty"`
 
 	// Found The result of searching the other DHCP server.
-	//
-	//
-	// Example: no
 	Found *DhcpSearchResultOtherServerFound `json:"found,omitempty"`
 }
 
 // DhcpSearchResultOtherServerFound The result of searching the other DHCP server.
-//
-// Example: no
 type DhcpSearchResultOtherServerFound string
 
 // DhcpSearchResultStaticIP defines model for DhcpSearchResultStaticIP.
 type DhcpSearchResultStaticIP struct {
 	// Ip Set if static=no
-	//
-	// Example:
 	Ip *string `json:"ip,omitempty"`
 
 	// Static The result of determining static IP address.
-	//
-	//
-	// Example: yes
 	Static *DhcpSearchResultStaticIPStatic `json:"static,omitempty"`
 }
 
 // DhcpSearchResultStaticIPStatic The result of determining static IP address.
-//
-// Example: yes
 type DhcpSearchResultStaticIPStatic string
 
 // DhcpSearchV4 defines model for DhcpSearchV4.
@@ -863,50 +926,33 @@ type DhcpSearchV6 struct {
 
 // DhcpStaticLease DHCP static lease information
 type DhcpStaticLease struct {
-	// Hostname Example: dell
 	Hostname string `json:"hostname"`
-
-	// Ip Example: 192.168.1.22
-	Ip string `json:"ip"`
-
-	// Mac Example: 00:11:09:b3:b3:b8
-	Mac string `json:"mac"`
+	Ip       string `json:"ip"`
+	Mac      string `json:"mac"`
 }
 
 // DhcpStatus Built-in DHCP server configuration and status
 type DhcpStatus struct {
-	Enabled       *bool              `json:"enabled,omitempty"`
-	InterfaceName *string            `json:"interface_name,omitempty"`
-	Leases        []DhcpLease        `json:"leases"`
-	StaticLeases  *[]DhcpStaticLease `json:"static_leases,omitempty"`
-	V4            *DhcpConfigV4      `json:"v4,omitempty"`
-	V6            *DhcpConfigV6      `json:"v6,omitempty"`
+	Enabled       bool              `json:"enabled"`
+	InterfaceName string            `json:"interface_name"`
+	Leases        []DhcpLease       `json:"leases"`
+	StaticLeases  []DhcpStaticLease `json:"static_leases"`
+	V4            DhcpConfigV4      `json:"v4"`
+	V6            DhcpConfigV6      `json:"v6"`
 }
 
 // DnsAnswer DNS answer section
 type DnsAnswer struct {
-	// Ttl Example: 55
-	Ttl *uint32 `json:"ttl,omitempty"`
-
-	// Type Example: A
-	Type *string `json:"type,omitempty"`
-
-	// Value Example: 217.69.139.201
+	Ttl   *uint32 `json:"ttl,omitempty"`
+	Type  *string `json:"type,omitempty"`
 	Value *string `json:"value,omitempty"`
 }
 
 // DnsQuestion DNS question section
 type DnsQuestion struct {
-	// Class Example: IN
-	Class *string `json:"class,omitempty"`
-
-	// Name Example: xn--d1abbgf6aiiy.xn--p1ai
-	Name *string `json:"name,omitempty"`
-
-	// Type Example: A
-	Type *string `json:"type,omitempty"`
-
-	// UnicodeName Example: президент.рф
+	Class       *string `json:"class,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Type        *string `json:"type,omitempty"`
 	UnicodeName *string `json:"unicode_name,omitempty"`
 }
 
@@ -918,22 +964,12 @@ type Error struct {
 
 // Filter Filter subscription info
 type Filter struct {
-	Enabled bool `json:"enabled"`
-
-	// Id Example: 1234
-	Id int64 `json:"id"`
-
-	// LastUpdated Example: 2018-10-30T12:18:57+03:00
+	Enabled     bool       `json:"enabled"`
+	Id          int64      `json:"id"`
 	LastUpdated *time.Time `json:"last_updated,omitempty"`
-
-	// Name Example: AdGuard Simplified Domain Names filter
-	Name string `json:"name"`
-
-	// RulesCount Example: 5912
-	RulesCount uint32 `json:"rules_count"`
-
-	// Url Example: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
-	Url string `json:"url"`
+	Name        string     `json:"name"`
+	RulesCount  uint32     `json:"rules_count"`
+	Url         string     `json:"url"`
 }
 
 // FilterCheckHostResponse Check Host Result
@@ -954,9 +990,6 @@ type FilterCheckHostResponse struct {
 
 	// Rule Filtering rule applied to the request (if any).
 	// Deprecated: use `rules[*].text` instead.
-	//
-	//
-	// Example: ||example.org^
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Rule *string `json:"rule,omitempty"`
 
@@ -993,13 +1026,9 @@ type FilterSetUrl struct {
 
 // FilterSetUrlData Filter update data
 type FilterSetUrlData struct {
-	Enabled bool `json:"enabled"`
-
-	// Name Example: AdGuard Simplified Domain Names filter
-	Name string `json:"name"`
-
-	// Url Example: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
-	Url string `json:"url"`
+	Enabled bool   `json:"enabled"`
+	Name    string `json:"name"`
+	Url     string `json:"url"`
 }
 
 // FilterStatus Filtering settings
@@ -1058,24 +1087,26 @@ type InitialConfiguration struct {
 	// Dns Port information
 	Dns AddressInfo `json:"dns"`
 
+	// Language Language code.
+	Language *Lang `json:"language,omitempty"`
+
 	// Password Basic auth password
-	//
-	// Example: password
 	Password string `json:"password"`
 
 	// Username Basic auth username
-	//
-	// Example: admin
 	Username string `json:"username"`
 
 	// Web Port information
 	Web AddressInfo `json:"web"`
 }
 
+// Lang Language code.
+type Lang string
+
 // LanguageSettings Language settings object.
 type LanguageSettings struct {
-	// Language The current language or the language to set.
-	Language string `json:"language"`
+	// Language Language code.
+	Language Lang `json:"language"`
 }
 
 // Login Login request data
@@ -1090,26 +1121,14 @@ type Login struct {
 // NetInterface Network interface info
 type NetInterface struct {
 	// Flags Flags could be any combination of the following values, divided by the "|" character: "up", "broadcast", "loopback", "pointtopoint" and "multicast".
-	//
-	//
-	// Example: up|broadcast|multicast
-	Flags string `json:"flags"`
-
-	// GatewayIp The IP address of the gateway.
-	//
-	// Example: 192.0.2.0
-	GatewayIp string `json:"gateway_ip"`
-
-	// HardwareAddress Example: 52:54:00:11:09:ba
+	Flags           string `json:"flags"`
 	HardwareAddress string `json:"hardware_address"`
 
-	// Ipv4Addresses The addresses of the interface of v4 family.
-	Ipv4Addresses []string `json:"ipv4_addresses"`
+	// IpAddresses The addresses of the interface.
+	IpAddresses []string `json:"ip_addresses"`
 
-	// Ipv6Addresses The addresses of the interface of v6 family.
-	Ipv6Addresses []string `json:"ipv6_addresses"`
-
-	// Name Example: eth0
+	// Mtu MTU value of the interface.
+	Mtu  int    `json:"mtu"`
 	Name string `json:"name"`
 }
 
@@ -1118,7 +1137,8 @@ type NetInterfaces map[string]NetInterface
 
 // ProfileInfo Information about the current user
 type ProfileInfo struct {
-	Language string `json:"language"`
+	// Language Language code.
+	Language Lang   `json:"language"`
 	Name     string `json:"name"`
 
 	// Theme Interface theme
@@ -1136,10 +1156,8 @@ type PutStatsConfigUpdateRequest = GetStatsConfigResponse
 
 // QueryLog Query log
 type QueryLog struct {
-	Data *[]QueryLogItem `json:"data,omitempty"`
-
-	// Oldest Example: 2018-11-26T00:02:41+03:00
-	Oldest *string `json:"oldest,omitempty"`
+	Data   *[]QueryLogItem `json:"data,omitempty"`
+	Oldest *string         `json:"oldest,omitempty"`
 }
 
 // QueryLogConfig Query log configuration
@@ -1168,15 +1186,9 @@ type QueryLogItem struct {
 	Cached *bool `json:"cached,omitempty"`
 
 	// Client The client's IP address.
-	//
-	//
-	// Example: 192.168.0.1
 	Client *string `json:"client,omitempty"`
 
 	// ClientId The ClientID, if provided in DoH, DoQ, or DoT.
-	//
-	//
-	// Example: cli123
 	ClientId *string `json:"client_id,omitempty"`
 
 	// ClientInfo Client information for a query log item.
@@ -1184,19 +1196,11 @@ type QueryLogItem struct {
 	ClientProto *QueryLogItemClientProto `json:"client_proto,omitempty"`
 
 	// Ecs The IP network defined by an EDNS Client-Subnet option in the request message if any.
-	//
-	//
-	// Example: 192.168.0.0/16
-	Ecs *string `json:"ecs,omitempty"`
-
-	// ElapsedMs Example: 54.023928
+	Ecs       *string `json:"ecs,omitempty"`
 	ElapsedMs *string `json:"elapsedMs,omitempty"`
 
 	// FilterId In case if there's a rule applied to this DNS request, this is ID of the filter list that the rule belongs to.
 	// Deprecated: use `rules[*].filter_list_id` instead.
-	//
-	//
-	// Example: 123123
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	FilterId *int `json:"filterId,omitempty"`
 
@@ -1211,9 +1215,6 @@ type QueryLogItem struct {
 
 	// Rule Filtering rule applied to the request (if any).
 	// Deprecated: use `rules[*].text` instead.
-	//
-	//
-	// Example: ||example.org^
 	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Rule *string `json:"rule,omitempty"`
 
@@ -1224,13 +1225,9 @@ type QueryLogItem struct {
 	ServiceName *string `json:"service_name,omitempty"`
 
 	// Status DNS response status
-	//
-	// Example: NOERROR
 	Status *string `json:"status,omitempty"`
 
 	// Time DNS request processing start time
-	//
-	// Example: 2018-11-26T00:02:41+03:00
 	Time *string `json:"time,omitempty"`
 
 	// Upstream Upstream URL starting with tcp://, tls://, https://, or with an IP address.
@@ -1270,8 +1267,6 @@ type QueryLogItemClientWhois struct {
 // RemoveUrlRequest /remove_url request data
 type RemoveUrlRequest struct {
 	// Url Previously added URL containing filtering rules
-	//
-	// Example: https://filters.adtidy.org/windows/filters/15.txt
 	Url       *string `json:"url,omitempty"`
 	Whitelist *bool   `json:"whitelist,omitempty"`
 }
@@ -1279,34 +1274,21 @@ type RemoveUrlRequest struct {
 // ResultRule Applied rule.
 type ResultRule struct {
 	// FilterListId In case if there's a rule applied to this DNS request, this is ID of the filter list that the rule belongs to.
-	//
-	//
-	// Example: 123123
 	FilterListId *int64 `json:"filter_list_id,omitempty"`
 
 	// Text The text of the filtering rule applied to the request (if any).
-	//
-	//
-	// Example: ||example.org^
 	Text *string `json:"text,omitempty"`
 }
 
 // RewriteEntry Rewrite rule
 type RewriteEntry struct {
 	// Answer value of A, AAAA or CNAME DNS record
-	//
-	// Example: 127.0.0.1
 	Answer *string `json:"answer,omitempty"`
 
 	// Domain Domain name
-	//
-	// Example: example.org
 	Domain *string `json:"domain,omitempty"`
 
 	// Enabled Optional. If omitted on add, defaults to `true`. On update, omitted preserves previous value.
-	//
-	//
-	// Example: true
 	Enabled *bool `json:"enabled,omitempty"`
 }
 
@@ -1316,8 +1298,6 @@ type RewriteList = []RewriteEntry
 // RewriteSettings DNS rewrite settings
 type RewriteSettings struct {
 	// Enabled indicates whether rewrites are applied
-	//
-	// Example: true
 	Enabled bool `json:"enabled"`
 }
 
@@ -1371,30 +1351,20 @@ type Schedule struct {
 
 // ServerStatus AdGuard Home server status and configuration
 type ServerStatus struct {
-	DhcpAvailable *bool `json:"dhcp_available,omitempty"`
+	DhcpAvailable *bool    `json:"dhcp_available,omitempty"`
+	DnsAddresses  []string `json:"dns_addresses"`
+	DnsPort       uint16   `json:"dns_port"`
+	HttpPort      uint16   `json:"http_port"`
 
-	// DnsAddresses Example: ["127.0.0.1"]
-	DnsAddresses []string `json:"dns_addresses"`
-
-	// DnsPort Example: 53
-	DnsPort uint16 `json:"dns_port"`
-
-	// HttpPort Example: 80
-	HttpPort uint16 `json:"http_port"`
-
-	// Language Example: en
-	Language                   string `json:"language"`
-	ProtectionDisabledDuration *int64 `json:"protection_disabled_duration,omitempty"`
-	ProtectionEnabled          bool   `json:"protection_enabled"`
-	Running                    bool   `json:"running"`
+	// Language Language code.
+	Language                   Lang  `json:"language"`
+	ProtectionDisabledDuration int64 `json:"protection_disabled_duration"`
+	ProtectionEnabled          bool  `json:"protection_enabled"`
+	Running                    bool  `json:"running"`
 
 	// StartTime Start time of the web API server (Unix time in milliseconds).
-	//
-	// Example: 1700000000000
 	StartTime *float64 `json:"start_time,omitempty"`
-
-	// Version Example: v0.123.4
-	Version string `json:"version"`
+	Version   string   `json:"version"`
 }
 
 // ServiceGroup defines model for ServiceGroup.
@@ -1411,8 +1381,6 @@ type SetProtectionRequest struct {
 }
 
 // SetRulesRequest Custom filtering rules setting request.
-//
-// Example: {"rules":["||example.com^","# comment","@@||www.example.com^"]}
 type SetRulesRequest struct {
 	Rules *[]string `json:"rules,omitempty"`
 }
@@ -1420,42 +1388,28 @@ type SetRulesRequest struct {
 // Stats Server statistics data
 type Stats struct {
 	// AvgProcessingTime Average time in seconds on processing a DNS request
-	//
-	// Example: 0.34
 	AvgProcessingTime *float32 `json:"avg_processing_time,omitempty"`
 	BlockedFiltering  *[]int   `faker:"slice_len=24" json:"blocked_filtering,omitempty"`
 	DnsQueries        *[]int   `faker:"slice_len=24" json:"dns_queries,omitempty"`
 
 	// NumBlockedFiltering Number of requests blocked by filtering rules
-	//
-	// Example: 50
 	NumBlockedFiltering *int `json:"num_blocked_filtering,omitempty"`
 
 	// NumDnsQueries Total number of DNS queries
-	//
-	// Example: 123
 	NumDnsQueries *int `json:"num_dns_queries,omitempty"`
 
 	// NumReplacedParental Number of blocked adult websites
-	//
-	// Example: 15
 	NumReplacedParental *int `json:"num_replaced_parental,omitempty"`
 
 	// NumReplacedSafebrowsing Number of requests blocked by safebrowsing module
-	//
-	// Example: 5
 	NumReplacedSafebrowsing *int `json:"num_replaced_safebrowsing,omitempty"`
 
 	// NumReplacedSafesearch Number of requests blocked by safesearch module
-	//
-	// Example: 5
 	NumReplacedSafesearch *int   `json:"num_replaced_safesearch,omitempty"`
 	ReplacedParental      *[]int `faker:"slice_len=24" json:"replaced_parental,omitempty"`
 	ReplacedSafebrowsing  *[]int `faker:"slice_len=24" json:"replaced_safebrowsing,omitempty"`
 
 	// TimeUnits Time units
-	//
-	// Example: hours
 	TimeUnits         *StatsTimeUnits  `json:"time_units,omitempty"`
 	TopBlockedDomains *[]TopArrayEntry `json:"top_blocked_domains,omitempty"`
 	TopClients        *[]TopArrayEntry `json:"top_clients,omitempty"`
@@ -1469,8 +1423,6 @@ type Stats struct {
 }
 
 // StatsTimeUnits Time units
-//
-// Example: hours
 type StatsTimeUnits string
 
 // StatsConfig Statistics configuration
@@ -1491,56 +1443,39 @@ type TlsConfig struct {
 	CertificatePath *string `json:"certificate_path,omitempty"`
 
 	// DnsNames The value of SubjectAltNames field of the first certificate in the chain.
-	//
-	//
-	// Example: ["*.example.org"]
 	DnsNames *[]string `json:"dns_names,omitempty"`
 
+	// DnscryptConfigFile Path to the DNSCrypt configuration file.
+	DnscryptConfigFile *string `json:"dnscrypt_config_file,omitempty"`
+
 	// Enabled enabled is the encryption (DoT/DoH/HTTPS) status
-	//
-	// Example: true
 	Enabled *bool `json:"enabled,omitempty"`
 
 	// ForceHttps if true, forces HTTP->HTTPS redirect
-	//
-	// Example: true
 	ForceHttps *bool `json:"force_https,omitempty"`
 
 	// Issuer The issuer of the first certificate in the chain.
-	//
-	// Example: CN=Let's Encrypt Authority X3,O=Let's Encrypt,C=US
 	Issuer *string `json:"issuer,omitempty"`
 
 	// KeyType Key type.
-	//
-	// Example: RSA
 	KeyType *TlsConfigKeyType `json:"key_type,omitempty"`
 
 	// NotAfter The NotAfter field of the first certificate in the chain.
-	//
-	//
-	// Example: 2019-05-01T10:47:32Z
 	NotAfter *string `json:"not_after,omitempty"`
 
 	// NotBefore The NotBefore field of the first certificate in the chain.
-	//
-	//
-	// Example: 2019-01-31T10:47:32Z
 	NotBefore *string `json:"not_before,omitempty"`
 
 	// PortDnsOverQuic DNS-over-QUIC port. If 0, DoQ will be disabled.
-	//
-	// Example: 784
 	PortDnsOverQuic *uint16 `json:"port_dns_over_quic,omitempty"`
 
 	// PortDnsOverTls DNS-over-TLS port. If 0, DoT will be disabled.
-	//
-	// Example: 853
 	PortDnsOverTls *uint16 `json:"port_dns_over_tls,omitempty"`
 
+	// PortDnscrypt DNS-over-HTTPS port. If 0, DNSCrypt will be disabled.
+	PortDnscrypt *uint16 `json:"port_dnscrypt,omitempty"`
+
 	// PortHttps HTTPS port. If 0, HTTPS will be disabled.
-	//
-	// Example: 443
 	PortHttps *uint16 `json:"port_https,omitempty"`
 
 	// PrivateKey Base64 string with PEM-encoded private key
@@ -1550,60 +1485,34 @@ type TlsConfig struct {
 	PrivateKeyPath *string `json:"private_key_path,omitempty"`
 
 	// PrivateKeySaved Set to true if the user has previously saved a private key as a string.  This is used so that the server and the client don't have to send the private key between each other every time, which might lead to security issues.
-	//
-	//
-	// Example: true
 	PrivateKeySaved *bool `json:"private_key_saved,omitempty"`
 
 	// ServePlainDns Set to true if plain DNS is allowed for incoming requests.
-	//
-	//
-	// Example: true
 	ServePlainDns *bool `json:"serve_plain_dns,omitempty"`
 
 	// ServerName server_name is the hostname of your HTTPS/TLS server
-	//
-	// Example: example.org
 	ServerName *string `json:"server_name,omitempty"`
 
 	// Subject The subject of the first certificate in the chain.
-	//
-	// Example: CN=example.org
 	Subject *string `json:"subject,omitempty"`
 
 	// ValidCert Set to true if the specified certificates chain is a valid chain of X509 certificates.
-	//
-	//
-	// Example: true
 	ValidCert *bool `json:"valid_cert,omitempty"`
 
 	// ValidChain Set to true if the specified certificates chain is verified and issued by a known CA.
-	//
-	//
-	// Example: true
 	ValidChain *bool `json:"valid_chain,omitempty"`
 
 	// ValidKey Set to true if the key is a valid private key.
-	//
-	// Example: true
 	ValidKey *bool `json:"valid_key,omitempty"`
 
 	// ValidPair Set to true if both certificate and private key are correct.
-	//
-	//
-	// Example: true
 	ValidPair *bool `json:"valid_pair,omitempty"`
 
 	// WarningValidation A validation warning message with the issue description.
-	//
-	//
-	// Example: You have specified an empty certificate
 	WarningValidation *string `json:"warning_validation,omitempty"`
 }
 
 // TlsConfigKeyType Key type.
-//
-// Example: RSA
 type TlsConfigKeyType string
 
 // TopArrayEntry Represent the number of hits or time duration per key (url, domain, or client IP).
@@ -1615,27 +1524,15 @@ type TopArrayEntry struct {
 // UpstreamsConfig Upstream configuration to be tested
 type UpstreamsConfig struct {
 	// BootstrapDns Bootstrap DNS servers, port is optional after colon.
-	//
-	//
-	// Example: ["8.8.8.8:53","1.1.1.1:53"]
 	BootstrapDns []string `json:"bootstrap_dns"`
 
 	// FallbackDns Fallback DNS servers, port is optional after colon.
-	//
-	//
-	// Example: ["8.8.8.8","1.1.1.1:53"]
 	FallbackDns *[]string `json:"fallback_dns,omitempty"`
 
 	// PrivateUpstream Local PTR resolvers, port is optional after colon.
-	//
-	//
-	// Example: ["tls://1.1.1.1","tls://1.0.0.1"]
 	PrivateUpstream *[]string `json:"private_upstream,omitempty"`
 
 	// UpstreamDns Upstream DNS servers, port is optional after colon.
-	//
-	//
-	// Example: ["tls://1.1.1.1","tls://1.0.0.1"]
 	UpstreamDns []string `json:"upstream_dns"`
 }
 
@@ -1644,17 +1541,12 @@ type UpstreamsConfigResponse map[string]string
 
 // VersionInfo Information about the latest available version of AdGuard Home.
 type VersionInfo struct {
-	// Announcement Example: AdGuard Home v0.9 is now available!
-	Announcement *string `json:"announcement,omitempty"`
-
-	// AnnouncementUrl Example: https://github.com/AdguardTeam/AdGuardHome/releases/tag/v0.9
+	Announcement    *string `json:"announcement,omitempty"`
 	AnnouncementUrl *string `json:"announcement_url,omitempty"`
 	CanAutoupdate   *bool   `json:"can_autoupdate,omitempty"`
 
 	// Disabled If true then other fields doesn't appear.
-	Disabled bool `json:"disabled"`
-
-	// NewVersion Example: v0.9
+	Disabled   bool    `json:"disabled"`
 	NewVersion *string `json:"new_version,omitempty"`
 }
 
@@ -9455,13 +9347,13 @@ type DhcpInterfacesResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *NetInterfaces
+	JSON200 *DHCPNetInterfaces
 	// JSON500 the response for an HTTP 500 `application/json` response
 	JSON500 *Error
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r DhcpInterfacesResp) GetJSON200() *NetInterfaces {
+func (r DhcpInterfacesResp) GetJSON200() *DHCPNetInterfaces {
 	return r.JSON200
 }
 
@@ -10452,14 +10344,14 @@ type ParentalStatusResp struct {
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
 	JSON200 *struct {
-		Enable      *bool `json:"enable,omitempty"`
+		Enabled     *bool `json:"enabled,omitempty"`
 		Sensitivity *int  `json:"sensitivity,omitempty"`
 	}
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
 func (r ParentalStatusResp) GetJSON200() *struct {
-	Enable      *bool `json:"enable,omitempty"`
+	Enabled     *bool `json:"enabled,omitempty"`
 	Sensitivity *int  `json:"sensitivity,omitempty"`
 } {
 	return r.JSON200
@@ -13877,7 +13769,7 @@ func ParseDhcpInterfacesResp(rsp *http.Response) (*DhcpInterfacesResp, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest NetInterfaces
+		var dest DHCPNetInterfaces
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -14466,7 +14358,7 @@ func ParseParentalStatusResp(rsp *http.Response) (*ParentalStatusResp, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			Enable      *bool `json:"enable,omitempty"`
+			Enabled     *bool `json:"enabled,omitempty"`
 			Sensitivity *int  `json:"sensitivity,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

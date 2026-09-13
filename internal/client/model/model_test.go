@@ -15,8 +15,8 @@ import (
 func TestMergeDhcpStaticLeases(t *testing.T) {
 	tests := []struct {
 		name        string
-		l           *[]model.DhcpStaticLease
-		other       *[]model.DhcpStaticLease
+		l           []model.DhcpStaticLease
+		other       []model.DhcpStaticLease
 		wantAdds    int
 		wantRemoves int
 	}{
@@ -29,8 +29,8 @@ func TestMergeDhcpStaticLeases(t *testing.T) {
 		},
 		{
 			name: "add lease",
-			l:    &[]model.DhcpStaticLease{},
-			other: &[]model.DhcpStaticLease{
+			l:    []model.DhcpStaticLease{},
+			other: []model.DhcpStaticLease{
 				{Mac: "mac1"},
 			},
 			wantAdds:    1,
@@ -38,19 +38,19 @@ func TestMergeDhcpStaticLeases(t *testing.T) {
 		},
 		{
 			name: "remove lease",
-			l: &[]model.DhcpStaticLease{
+			l: []model.DhcpStaticLease{
 				{Mac: "mac1"},
 			},
-			other:       &[]model.DhcpStaticLease{},
+			other:       []model.DhcpStaticLease{},
 			wantAdds:    0,
 			wantRemoves: 1,
 		},
 		{
 			name: "no change",
-			l: &[]model.DhcpStaticLease{
+			l: []model.DhcpStaticLease{
 				{Mac: "mac1"},
 			},
-			other: &[]model.DhcpStaticLease{
+			other: []model.DhcpStaticLease{
 				{Mac: "mac1"},
 			},
 			wantAdds:    0,
@@ -821,28 +821,28 @@ func TestDNSConfig_Equals(t *testing.T) {
 func TestDHCPServerConfig(t *testing.T) {
 	t.Run("Equals", func(t *testing.T) {
 		dc1 := &model.DhcpStatus{
-			V4: &model.DhcpConfigV4{
-				GatewayIp:     new("1.2.3.4"),
-				LeaseDuration: new(123),
-				RangeStart:    new("1.2.3.5"),
-				RangeEnd:      new("1.2.3.6"),
-				SubnetMask:    new("255.255.255.0"),
+			V4: model.DhcpConfigV4{
+				GatewayIp:     "1.2.3.4",
+				LeaseDuration: 123,
+				RangeStart:    "1.2.3.5",
+				RangeEnd:      "1.2.3.6",
+				SubnetMask:    "255.255.255.0",
 			},
 		}
 		dc2 := &model.DhcpStatus{
-			V4: &model.DhcpConfigV4{
-				GatewayIp:     new("1.2.3.4"),
-				LeaseDuration: new(123),
-				RangeStart:    new("1.2.3.5"),
-				RangeEnd:      new("1.2.3.6"),
-				SubnetMask:    new("255.255.255.0"),
+			V4: model.DhcpConfigV4{
+				GatewayIp:     "1.2.3.4",
+				LeaseDuration: 123,
+				RangeStart:    "1.2.3.5",
+				RangeEnd:      "1.2.3.6",
+				SubnetMask:    "255.255.255.0",
 			},
 		}
 		if !dc1.Equals(dc2) {
 			t.Error("expected equal")
 		}
 
-		dc1.V4.GatewayIp = new("1.2.3.3")
+		dc1.V4.GatewayIp = "1.2.3.3"
 		if dc1.Equals(dc2) {
 			t.Error("expected not equal")
 		}
@@ -850,12 +850,12 @@ func TestDHCPServerConfig(t *testing.T) {
 
 	t.Run("Clone should be equal", func(t *testing.T) {
 		dc1 := &model.DhcpStatus{
-			V4: &model.DhcpConfigV4{
-				GatewayIp:     new("1.2.3.4"),
-				LeaseDuration: new(123),
-				RangeStart:    new("1.2.3.5"),
-				RangeEnd:      new("1.2.3.6"),
-				SubnetMask:    new("255.255.255.0"),
+			V4: model.DhcpConfigV4{
+				GatewayIp:     "1.2.3.4",
+				LeaseDuration: 123,
+				RangeStart:    "1.2.3.5",
+				RangeEnd:      "1.2.3.6",
+				SubnetMask:    "255.255.255.0",
 			},
 		}
 		if !dc1.Clone().Equals(dc1) {
@@ -865,8 +865,8 @@ func TestDHCPServerConfig(t *testing.T) {
 
 	t.Run("HasConfig", func(t *testing.T) {
 		dc1 := &model.DhcpStatus{
-			V4: &model.DhcpConfigV4{},
-			V6: &model.DhcpConfigV6{},
+			V4: model.DhcpConfigV4{},
+			V6: model.DhcpConfigV6{},
 		}
 		if dc1.HasConfig() {
 			t.Error("expected no config")
@@ -877,20 +877,20 @@ func TestDHCPServerConfig(t *testing.T) {
 			t.Error("expected config")
 		}
 
-		dc1.V4.GatewayIp = new("")
+		dc1.V4.GatewayIp = ""
 		if !dc1.HasConfig() {
 			t.Error("expected config")
 		}
 
 		dc1 = &model.DhcpStatus{
-			V4: &model.DhcpConfigV4{
-				GatewayIp:     new("1.2.3.4"),
-				LeaseDuration: new(123),
-				RangeStart:    new("1.2.3.5"),
-				RangeEnd:      new("1.2.3.6"),
-				SubnetMask:    new("255.255.255.0"),
+			V4: model.DhcpConfigV4{
+				GatewayIp:     "1.2.3.4",
+				LeaseDuration: 123,
+				RangeStart:    "1.2.3.5",
+				RangeEnd:      "1.2.3.6",
+				SubnetMask:    "255.255.255.0",
 			},
-			V6: &model.DhcpConfigV6{},
+			V6: model.DhcpConfigV6{},
 		}
 		if !dc1.HasConfig() {
 			t.Error("expected config")
@@ -899,12 +899,12 @@ func TestDHCPServerConfig(t *testing.T) {
 
 	t.Run("CleanAndEquals", func(t *testing.T) {
 		ds1 := &model.DhcpStatus{
-			V4: &model.DhcpConfigV4{},
+			V4: model.DhcpConfigV4{},
 		}
 		ds2 := &model.DhcpStatus{
-			V6: &model.DhcpConfigV6{},
+			V6: model.DhcpConfigV6{},
 		}
-		// both should be cleaned to nil and then be equal
+		// both should be cleaned to empty and then be equal
 		if !ds1.CleanAndEquals(ds2) {
 			t.Error("expected CleanAndEquals to be true")
 		}

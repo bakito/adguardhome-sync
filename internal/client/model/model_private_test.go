@@ -14,84 +14,54 @@ func TestDhcpConfigV4_isValid(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "When GatewayIp is nil",
-			v4: DhcpConfigV4{
-				GatewayIp:  nil,
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			},
-			want: false,
-		},
-		{
 			name: "When GatewayIp is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  new(""),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			},
-			want: false,
-		},
-		{
-			name: "When SubnetMask is nil",
-			v4: DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: nil,
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
+				GatewayIp:  "",
+				SubnetMask: "2.2.2.2",
+				RangeStart: "3.3.3.3",
+				RangeEnd:   "4.4.4.4",
 			},
 			want: false,
 		},
 		{
 			name: "When SubnetMask is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new(""),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new("4.4.4.4"),
-			},
-			want: false,
-		},
-		{
-			name: "When RangeStart is nil",
-			v4: DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: nil,
-				RangeEnd:   new("4.4.4.4"),
+				GatewayIp:  "1.1.1.1",
+				SubnetMask: "",
+				RangeStart: "3.3.3.3",
+				RangeEnd:   "4.4.4.4",
 			},
 			want: false,
 		},
 		{
 			name: "When RangeStart is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new(""),
-				RangeEnd:   new("4.4.4.4"),
-			},
-			want: false,
-		},
-		{
-			name: "When RangeEnd is nil",
-			v4: DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   nil,
+				GatewayIp:  "1.1.1.1",
+				SubnetMask: "2.2.2.2",
+				RangeStart: "",
+				RangeEnd:   "4.4.4.4",
 			},
 			want: false,
 		},
 		{
 			name: "When RangeEnd is \"\"",
 			v4: DhcpConfigV4{
-				GatewayIp:  new("1.1.1.1"),
-				SubnetMask: new("2.2.2.2"),
-				RangeStart: new("3.3.3.3"),
-				RangeEnd:   new(""),
+				GatewayIp:  "1.1.1.1",
+				SubnetMask: "2.2.2.2",
+				RangeStart: "3.3.3.3",
+				RangeEnd:   "",
 			},
 			want: false,
+		},
+		{
+			name: "When all fields are valid",
+			v4: DhcpConfigV4{
+				GatewayIp:  "1.1.1.1",
+				SubnetMask: "2.2.2.2",
+				RangeStart: "3.3.3.3",
+				RangeEnd:   "4.4.4.4",
+			},
+			want: true,
 		},
 	}
 
@@ -165,10 +135,10 @@ func TestDhcpStatus_cleanV4V6(t *testing.T) {
 		checkV6 bool
 	}{
 		{
-			name: "should set V4 and V6 to nil if they are invalid",
+			name: "should set V4 and V6 to empty if they are invalid",
 			ds: &DhcpStatus{
-				V4: &DhcpConfigV4{},
-				V6: &DhcpConfigV6{},
+				V4: DhcpConfigV4{},
+				V6: DhcpConfigV6{},
 			},
 			checkV4: false,
 			checkV6: false,
@@ -176,13 +146,13 @@ func TestDhcpStatus_cleanV4V6(t *testing.T) {
 		{
 			name: "should keep V4 and V6 if they are valid",
 			ds: &DhcpStatus{
-				V4: &DhcpConfigV4{
-					GatewayIp:  new("1.1.1.1"),
-					SubnetMask: new("255.255.255.0"),
-					RangeStart: new("1.1.1.2"),
-					RangeEnd:   new("1.1.1.10"),
+				V4: DhcpConfigV4{
+					GatewayIp:  "1.1.1.1",
+					SubnetMask: "255.255.255.0",
+					RangeStart: "1.1.1.2",
+					RangeEnd:   "1.1.1.10",
 				},
-				V6: &DhcpConfigV6{
+				V6: DhcpConfigV6{
 					RangeStart: new("2001:db8::1"),
 				},
 			},
@@ -193,11 +163,11 @@ func TestDhcpStatus_cleanV4V6(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.ds.cleanV4V6()
-			if (tt.ds.V4 != nil) != tt.checkV4 {
-				t.Errorf("V4 nil check failed, got %v, want %v", tt.ds.V4 != nil, tt.checkV4)
+			if tt.ds.V4.isValid() != tt.checkV4 {
+				t.Errorf("V4 valid check failed, got %v, want %v", tt.ds.V4.isValid(), tt.checkV4)
 			}
-			if (tt.ds.V6 != nil) != tt.checkV6 {
-				t.Errorf("V6 nil check failed, got %v, want %v", tt.ds.V6 != nil, tt.checkV6)
+			if tt.ds.V6.isValid() != tt.checkV6 {
+				t.Errorf("V6 valid check failed, got %v, want %v", tt.ds.V6.isValid(), tt.checkV6)
 			}
 		})
 	}

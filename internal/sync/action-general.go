@@ -235,11 +235,11 @@ var (
 			origClone := ac.origin.dhcpServerConfig.Clone()
 			if ac.replica.InterfaceName != "" {
 				// overwrite interface name
-				origClone.InterfaceName = new(ac.replica.InterfaceName)
+				origClone.InterfaceName = ac.replica.InterfaceName
 			}
 			if ac.replica.DHCPServerEnabled != nil {
 				// overwrite dhcp enabled
-				origClone.Enabled = ac.replica.DHCPServerEnabled
+				origClone.Enabled = *ac.replica.DHCPServerEnabled
 			}
 
 			if !sc.CleanAndEquals(origClone) {
