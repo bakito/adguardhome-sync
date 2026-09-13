@@ -18,6 +18,7 @@ func TestMergeDhcpStaticLeases(t *testing.T) {
 		l           []model.DhcpStaticLease
 		other       []model.DhcpStaticLease
 		wantAdds    int
+		wantUpdates int
 		wantRemoves int
 	}{
 		{
@@ -25,43 +26,74 @@ func TestMergeDhcpStaticLeases(t *testing.T) {
 			l:           nil,
 			other:       nil,
 			wantAdds:    0,
+			wantUpdates: 0,
 			wantRemoves: 0,
 		},
 		{
 			name: "add lease",
 			l:    []model.DhcpStaticLease{},
 			other: []model.DhcpStaticLease{
-				{Mac: "mac1"},
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host1"},
 			},
 			wantAdds:    1,
+			wantUpdates: 0,
 			wantRemoves: 0,
 		},
 		{
 			name: "remove lease",
 			l: []model.DhcpStaticLease{
-				{Mac: "mac1"},
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host1"},
 			},
 			other:       []model.DhcpStaticLease{},
 			wantAdds:    0,
+			wantUpdates: 0,
 			wantRemoves: 1,
 		},
 		{
 			name: "no change",
 			l: []model.DhcpStaticLease{
-				{Mac: "mac1"},
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host1"},
 			},
 			other: []model.DhcpStaticLease{
-				{Mac: "mac1"},
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host1"},
 			},
 			wantAdds:    0,
+			wantUpdates: 0,
+			wantRemoves: 0,
+		},
+		{
+			name: "update IP",
+			l: []model.DhcpStaticLease{
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host1"},
+			},
+			other: []model.DhcpStaticLease{
+				{Mac: "mac1", Ip: "1.1.1.2", Hostname: "host1"},
+			},
+			wantAdds:    0,
+			wantUpdates: 1,
+			wantRemoves: 0,
+		},
+		{
+			name: "update Hostname",
+			l: []model.DhcpStaticLease{
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host1"},
+			},
+			other: []model.DhcpStaticLease{
+				{Mac: "mac1", Ip: "1.1.1.1", Hostname: "host2"},
+			},
+			wantAdds:    0,
+			wantUpdates: 1,
 			wantRemoves: 0,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			adds, removes := model.MergeDhcpStaticLeases(tt.l, tt.other)
+			adds, updates, removes := model.MergeDhcpStaticLeases(tt.l, tt.other)
 			if len(adds) != tt.wantAdds {
 				t.Errorf("adds length = %d, want %d", len(adds), tt.wantAdds)
+			}
+			if len(updates) != tt.wantUpdates {
+				t.Errorf("updates length = %d, want %d", len(updates), tt.wantUpdates)
 			}
 			if len(removes) != tt.wantRemoves {
 				t.Errorf("removes length = %d, want %d", len(removes), tt.wantRemoves)

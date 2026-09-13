@@ -153,6 +153,7 @@ type Client interface {
 	DhcpConfig() (*model.DhcpStatus, error)
 	SetDhcpConfig(status *model.DhcpStatus) error
 	AddDHCPStaticLease(lease model.DhcpStaticLease) error
+	UpdateDHCPStaticLease(lease model.DhcpStaticLease) error
 	DeleteDHCPStaticLease(lease model.DhcpStaticLease) error
 	TLSConfig() (*model.TlsConfig, error)
 	SetTLSConfig(tls *model.TlsConfig) error
@@ -463,6 +464,15 @@ func (cl *client) SetDhcpConfig(config *model.DhcpStatus) error {
 func (cl *client) AddDHCPStaticLease(l model.DhcpStaticLease) error {
 	cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Add static dhcp lease")
 	err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/add_static_lease")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (cl *client) UpdateDHCPStaticLease(l model.DhcpStaticLease) error {
+	cl.log.With("mac", l.Mac, "ip", l.Ip, "hostname", l.Hostname).Info("Update static dhcp lease")
+	err := cl.doPost(cl.client.R().EnableTrace().SetBody(l), "/dhcp/update_static_lease")
 	if err != nil {
 		return err
 	}

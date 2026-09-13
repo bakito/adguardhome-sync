@@ -913,6 +913,108 @@ func TestSync(t *testing.T) {
 			})
 		})
 
+		t.Run("actionDHCPStaticLeases", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{
+						{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"},
+					},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{
+						{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"},
+					},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should add static lease", func(t *testing.T) {
+				env := newTestEnv(t)
+				lease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{lease},
+				}
+				rsc := &model.DhcpStatus{}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().AddDHCPStaticLease(lease).Return(nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should update static lease", func(t *testing.T) {
+				env := newTestEnv(t)
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				newLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.5", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{newLease},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().UpdateDHCPStaticLease(newLease).Return(nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should delete static lease", func(t *testing.T) {
+				env := newTestEnv(t)
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().DeleteDHCPStaticLease(oldLease).Return(nil)
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should handle update error with continueOnError", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = true
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				newLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.5", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{newLease},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().UpdateDHCPStaticLease(newLease).Return(errors.New("update error"))
+				err := actionDHCPStaticLeases(env.ac)
+				if err != nil {
+					t.Errorf("actionDHCPStaticLeases() error = %v, want nil", err)
+				}
+			})
+			t.Run("should fail on update error without continueOnError", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = false
+				oldLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.4", Hostname: "host1"}
+				newLease := model.DhcpStaticLease{Mac: "mac1", Ip: "1.2.3.5", Hostname: "host1"}
+				env.ac.origin.dhcpServerConfig = &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{newLease},
+				}
+				rsc := &model.DhcpStatus{
+					StaticLeases: []model.DhcpStaticLease{oldLease},
+				}
+				env.cl.EXPECT().DhcpConfig().Return(rsc, nil)
+				env.cl.EXPECT().UpdateDHCPStaticLease(newLease).Return(errors.New("update error"))
+				err := actionDHCPStaticLeases(env.ac)
+				if err == nil {
+					t.Error("actionDHCPStaticLeases() error = nil, want error")
+				}
+			})
+		})
+
 		t.Run("sync", func(t *testing.T) {
 			t.Run("should have no changes", func(t *testing.T) {
 				env := newTestEnv(t)
