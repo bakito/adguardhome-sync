@@ -413,6 +413,11 @@ services:
     ports:
       - 8080:8080
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/opt/go/adguardhome-sync", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 ```
 
 ## Easypanel
@@ -483,23 +488,48 @@ https://localhost:<port>  (if TLS enabled)
 - **Type**: Basic Authentication (optional)
 - **Username**: Configured via `API.Username`
 - **Password**: Configured via `API.Password`
-- **Note**: Authentication is applied to all endpoints except `/healthz` and the root path `/`
+- **Note**: Authentication is applied to all endpoints except `/livez`, `/readyz`, `/healthz`, `/liveness`, `/readiness`, and the root path `/`
 
 ### Endpoints
 
-#### Health Check
+#### Liveness Check
 
-**`GET /healthz`** | **`HEAD /healthz`**
+**`GET /livez`** | **`HEAD /livez`** (aliases: `/liveness`, `/healthz`)
 
-Health check endpoint to verify API and replica status.
+Liveness check endpoint to verify that the application process is running and responsive.
+
+- **Authentication**: Not required
+- **Response**: `200 OK`
+
+```bash
+curl http://localhost:5000/livez
+```
+
+You can also use the built-in CLI command for container health checks:
+
+```bash
+adguardhome-sync healthcheck
+```
+
+#### Readiness Check
+
+**`GET /readyz`** | **`HEAD /readyz`** (alias: `/readiness`)
+
+Readiness check endpoint to verify that origin and all replica instances are reachable and in sync.
 
 - **Authentication**: Not required
 - **Response**:
-  - `200 OK` - API and all replicas are healthy
+  - `200 OK` - Origin and all replicas are in "success" status
   - `503 Service Unavailable` - Origin or any replica is not in "success" status
 
 ```bash
-curl http://localhost:5000/healthz
+curl http://localhost:5000/readyz
+```
+
+You can check readiness with the CLI command using the `--ready` (or `-r`) flag:
+
+```bash
+adguardhome-sync healthcheck --ready
 ```
 
 #### Synchronization

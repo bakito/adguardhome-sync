@@ -30,6 +30,21 @@ spec:
       volumeMounts:
         - name: certs
           mountPath: /certs
+      livenessProbe:
+        exec:
+          command:
+            - /opt/go/adguardhome-sync
+            - healthcheck
+        initialDelaySeconds: 5
+        periodSeconds: 10
+      readinessProbe:
+        exec:
+          command:
+            - /opt/go/adguardhome-sync
+            - healthcheck
+            - --ready
+        initialDelaySeconds: 5
+        periodSeconds: 10
   restartPolicy: Never
   volumes:
     - name: certs

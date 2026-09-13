@@ -29,6 +29,25 @@ spec:
       volumeMounts:
         - name: config
           mountPath: /etc/go/adguardhome-sync/
+      livenessProbe:
+        exec:
+          command:
+            - /opt/go/adguardhome-sync
+            - healthcheck
+            - --config
+            - /etc/go/adguardhome-sync/config.yaml
+        initialDelaySeconds: 5
+        periodSeconds: 10
+      readinessProbe:
+        exec:
+          command:
+            - /opt/go/adguardhome-sync
+            - healthcheck
+            - --ready
+            - --config
+            - /etc/go/adguardhome-sync/config.yaml
+        initialDelaySeconds: 5
+        periodSeconds: 10
   volumes:
     - name: config
       configMap:
