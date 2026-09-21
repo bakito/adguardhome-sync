@@ -29,7 +29,7 @@ func TestE2E(t *testing.T) {
 				logs, _ := k8s.Logs(ctx, cfg.SyncPod)
 				WriteStepSummary(cfg.StepSummaryFile, "Sync Pod Describe on Failure", desc)
 				WriteStepSummary(cfg.StepSummaryFile, "Sync Pod Logs on Failure", logs)
-				t.Fatalf("Sync pod did not start running: %v", err)
+				t.Fatalf("Sync pod did not start running: %v\nPod describe:\n%s\nPod logs:\n%s", err, desc, logs)
 			}
 		})
 
@@ -78,13 +78,13 @@ func TestE2E(t *testing.T) {
 		}
 
 		if status.SyncRunning {
-			t.Error("Expected SyncRunning=false, got true")
+			t.Errorf("Expected SyncRunning=false, got true (status: %+v)", status)
 		}
 
 		// Ensure origin had no fatal error
 		if status.Origin.Error != "" {
 			t.Logf("Origin status: %s (error: %s)", status.Origin.Status, status.Origin.Error)
-			t.Errorf("Origin reported error: %s", status.Origin.Error)
+			t.Errorf("Origin reported error: %s (status: %+v)", status.Origin.Error, status.Origin)
 		} else {
 			t.Logf("Origin status: %s", status.Origin.Status)
 		}
@@ -93,7 +93,7 @@ func TestE2E(t *testing.T) {
 		for _, replica := range status.Replicas {
 			if replica.Error != "" {
 				t.Logf("Replica %s status: %s (error: %s)", replica.Host, replica.Status, replica.Error)
-				t.Errorf("Replica %s reported error: %s", replica.Host, replica.Error)
+				t.Errorf("Replica %s reported error: %s (status: %+v)", replica.Host, replica.Error, replica)
 			} else {
 				t.Logf("Replica %s status: %s", replica.Host, replica.Status)
 			}
@@ -149,11 +149,15 @@ func TestE2E(t *testing.T) {
 
 				totalErrors := len(errorRe.FindAllStringIndex(logs, -1))
 				var filteredLines []string
+				var unignoredErrorLines []string
 				for line := range strings.Lines(logs) {
 					if deleteFilterRe.MatchString(line) || panicRecoverRe.MatchString(line) {
 						continue
 					}
 					filteredLines = append(filteredLines, line)
+					if errorRe.MatchString(line) {
+						unignoredErrorLines = append(unignoredErrorLines, line)
+					}
 				}
 				filteredLogs := strings.Join(filteredLines, "\n")
 				unignoredErrors := len(errorRe.FindAllStringIndex(filteredLogs, -1))
@@ -169,7 +173,12 @@ func TestE2E(t *testing.T) {
 				WriteStepSummary(cfg.StepSummaryFile, fmt.Sprintf("Pod %s logs", pod), summary)
 
 				if unignoredErrors > 0 {
-					t.Errorf("Replica pod %s has %d unignored error(s)", pod, unignoredErrors)
+					t.Errorf(
+						"Replica pod %s has %d unignored error(s):\n%s",
+						pod,
+						unignoredErrors,
+						strings.Join(unignoredErrorLines, "\n"),
+					)
 				}
 			}
 		}
@@ -188,16 +197,16 @@ func TestE2E(t *testing.T) {
 
 			WriteStepSummary(cfg.StepSummaryFile, "Pod adguardhome-sync logs", logs)
 
-			errorCount := 0
+			var errorLines []string
 			for line := range strings.Lines(logs) {
 				if strings.Contains(line, "Error") || strings.Contains(line, "\"level\":\"error\"") ||
 					strings.Contains(line, "[ERROR]") {
-					errorCount++
+					errorLines = append(errorLines, line)
 				}
 			}
 
-			if errorCount > 0 {
-				t.Errorf("Found %d error(s) in sync pod logs", errorCount)
+			if len(errorLines) > 0 {
+				t.Errorf("Found %d error(s) in sync pod logs:\n%s", len(errorLines), strings.Join(errorLines, "\n"))
 			}
 		} else {
 			t.Log("Sync process executed externally / in IDE, skipping sync pod log check")
@@ -224,7 +233,7 @@ func TestE2E(t *testing.T) {
 		}
 		for _, m := range expectedMetrics {
 			if !strings.Contains(metricsContent, m) {
-				t.Errorf("Expected metric %q not found in /metrics output", m)
+				t.Errorf("Expected metric %q not found in /metrics output:\n%s", m, metricsContent)
 			}
 		}
 	})
@@ -335,7 +344,11 @@ func TestE2E(t *testing.T) {
 				if len(cfg.ReplicaVersions) > 1 {
 					replicaVer = cfg.ReplicaVersions[1]
 				}
-				t.Errorf("Expected 'Disabled features' logged for replica 2 (%s), but found none", replicaVer)
+				t.Errorf(
+					"Expected 'Disabled features' logged for replica 2 (%s), but found none in sync pod logs:\n%s",
+					replicaVer,
+					logs,
+				)
 			}
 		} else {
 			t.Log("Sync executed externally, replica features verified")

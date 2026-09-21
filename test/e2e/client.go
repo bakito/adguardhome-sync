@@ -127,17 +127,35 @@ func WaitForSync(ctx context.Context, baseURL string, insecure bool, timeout tim
 	defer ticker.Stop()
 
 	timeoutChan := time.After(timeout)
+	var (
+		lastStatus *SyncStatus
+		lastErr    error
+	)
 	for {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-timeoutChan:
+			if lastErr != nil {
+				return nil, fmt.Errorf("timed out waiting for synchronization to complete (last error: %w)", lastErr)
+			}
+			if lastStatus != nil {
+				return nil, fmt.Errorf(
+					"timed out waiting for synchronization to complete (last status: SyncRunning=%v, Origin=%+v, Replicas=%+v)",
+					lastStatus.SyncRunning,
+					lastStatus.Origin,
+					lastStatus.Replicas,
+				)
+			}
 			return nil, errors.New("timed out waiting for synchronization to complete")
 		case <-ticker.C:
 			status, err := GetStatus(ctx, baseURL, insecure)
 			if err != nil {
+				lastErr = err
 				continue
 			}
+			lastStatus = status
+			lastErr = nil
 			if !status.SyncRunning {
 				return status, nil
 			}
