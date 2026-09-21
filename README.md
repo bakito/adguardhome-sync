@@ -134,6 +134,38 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | FEATURES_TLS_CONFIG (bool)                                   | bool   | Sync the TLS config                                                            |
 <!-- env-doc-end -->
 
+### Docker secrets (`_FILE`)
+
+Every variable in the table above can also be set with a `_FILE` suffix. The value is then read from the file the
+variable points to (trailing newlines are removed). This works with Docker / Compose secrets.
+Setting a variable and its `_FILE` variant at the same time is an error.
+
+```yaml
+services:
+  adguardhome-sync:
+    image: ghcr.io/bakito/adguardhome-sync
+    environment:
+      ORIGIN_URL: http://192.168.1.2:3000
+      ORIGIN_USERNAME_FILE: /run/secrets/origin_username
+      ORIGIN_PASSWORD_FILE: /run/secrets/origin_password
+      REPLICA1_URL: http://192.168.1.3
+      REPLICA1_COOKIE_FILE: /run/secrets/replica1_cookie
+    secrets:
+      - origin_username
+      - origin_password
+      - replica1_cookie
+
+secrets:
+  origin_username:
+    file: ./secrets/origin_username.txt
+  origin_password:
+    file: ./secrets/origin_password.txt
+  replica1_cookie:
+    file: ./secrets/replica1_cookie.txt
+```
+
+`LOG_LEVEL`, `LOG_FORMAT` and `REDIRECT_POLICY_NO_OF_REDIRECTS` are not part of the table and do not support `_FILE`.
+
 ### YAML Configuration file
 
 location: $HOME/.adguardhome-sync.yaml
