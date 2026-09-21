@@ -72,6 +72,11 @@ func Get(configFile string, flags Flags) (*AppConfig, error) {
 	origin := cfg.Origin
 	cfg.Origin = nil
 
+	// resolve *_FILE env vars (docker secrets)
+	if err := resolveEnvFiles(); err != nil {
+		return nil, err
+	}
+
 	// overwrite from env vars
 	if err := env.Parse(cfg); err != nil {
 		return nil, err
