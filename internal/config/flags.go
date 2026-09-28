@@ -93,7 +93,7 @@ func (fr *flagReader) readReplicaFlags() error {
 }
 
 func (fr *flagReader) readOriginFlags() error {
-	ierr := fr.setStringFlag(FlagOriginURL, func(_ *types.Config, value string) {
+	err := fr.setStringFlag(FlagOriginURL, func(_ *types.Config, value string) {
 		fr.cfg.Origin.URL = value
 	})
 	if err != nil {
