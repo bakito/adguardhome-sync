@@ -110,27 +110,29 @@ var (
 		}
 
 		if ac.features().Filters.Blacklist {
-			if err = syncFilterType(
+			err = syncFilterType(
 				ac.rl,
 				ac.origin.filters.Filters,
 				rf.Filters,
 				false,
 				ac.client,
 				ac.cfg.ContinueOnError,
-			); err != nil {
+			)
+			if err != nil {
 				return err
 			}
 		}
 
 		if ac.features().Filters.Whitelist {
-			if err = syncFilterType(
+			err = syncFilterType(
 				ac.rl,
 				ac.origin.filters.WhitelistFilters,
 				rf.WhitelistFilters,
 				true,
 				ac.client,
 				ac.cfg.ContinueOnError,
-			); err != nil {
+			)
+			if err != nil {
 				return err
 			}
 		}
