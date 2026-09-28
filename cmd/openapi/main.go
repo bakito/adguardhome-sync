@@ -105,7 +105,7 @@ func addFakeTags(schema map[string]any) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err := unstructured.SetNestedMap(
+	err = unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
