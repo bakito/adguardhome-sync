@@ -33,7 +33,7 @@ func Test_addFakeTags(t *testing.T) {
 
 	for _, prop := range properties {
 		t.Run(prop, func(t *testing.T) {
-			if val, ok, _ := unstructured.NestedString(
+			val, ok, _ := unstructured.NestedString(
 				schema,
 				"components",
 				"schemas",
@@ -42,7 +42,8 @@ func Test_addFakeTags(t *testing.T) {
 				prop,
 				"x-oapi-codegen-extra-tags",
 				"faker",
-			); !ok ||
+			)
+			if !ok ||
 				val != "slice_len=24" {
 				t.Errorf("addFakeTags() did not set expected faker tag for property %s, got %v", prop, val)
 			}

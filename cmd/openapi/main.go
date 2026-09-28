@@ -56,13 +56,16 @@ func main() {
 		}
 	}
 
-	if dnsInfo, ok, _ := unstructured.NestedMap(schema,
-		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); ok {
-		if allOf, ok, _ := unstructured.NestedSlice(dnsInfo, "allOf"); ok && len(allOf) == 2 {
+	dnsInfo, ok, _ := unstructured.NestedMap(schema,
+		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema")
+	if ok {
+		allOf, okn, _ := unstructured.NestedSlice(dnsInfo, "allOf")
+		if okn && len(allOf) == 2 {
 			delete(dnsInfo, "allOf")
 			//nolint:forcetypeassert
-			if err := unstructured.SetNestedMap(schema, allOf[0].(map[string]any),
-				"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); err != nil {
+			err = unstructured.SetNestedMap(schema, allOf[0].(map[string]any),
+				"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema")
+			if err != nil {
 				log.Println(err)
 				return
 			}
@@ -91,7 +94,7 @@ func correctEntries(map[string]any) {
 
 func addFakeTags(schema map[string]any) {
 	fake := map[string]any{"faker": `slice_len=24`}
-	if err := unstructured.SetNestedMap(
+	err := unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -100,10 +103,11 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"blocked_filtering",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(
+	err = unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -112,10 +116,11 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"dns_queries",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(
+	err = unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -124,10 +129,11 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"replaced_parental",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(
+	err = unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -136,7 +142,8 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"replaced_safebrowsing",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
 }
