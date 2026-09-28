@@ -39,44 +39,52 @@ type flagReader struct {
 }
 
 func (fr *flagReader) readReplicaFlags() error {
-	if err := fr.setStringFlag(FlagReplicaURL, func(_ *types.Config, value string) {
+	err := fr.setStringFlag(FlagReplicaURL, func(_ *types.Config, value string) {
 		fr.cfg.Replica.URL = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaWebURL, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagReplicaWebURL, func(_ *types.Config, value string) {
 		fr.cfg.Replica.WebURL = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaAPIPath, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagReplicaAPIPath, func(_ *types.Config, value string) {
 		fr.cfg.Replica.APIPath = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaUsername, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagReplicaUsername, func(_ *types.Config, value string) {
 		fr.cfg.Replica.Username = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaPassword, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagReplicaPassword, func(_ *types.Config, value string) {
 		fr.cfg.Replica.Password = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagReplicaCookie, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagReplicaCookie, func(_ *types.Config, value string) {
 		fr.cfg.Replica.Cookie = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagReplicaISV, func(_ *types.Config, value bool) {
+	err = fr.setBoolFlag(FlagReplicaISV, func(_ *types.Config, value bool) {
 		fr.cfg.Replica.InsecureSkipVerify = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagReplicaAutoSetup, func(_ *types.Config, value bool) {
+	err = fr.setBoolFlag(FlagReplicaAutoSetup, func(_ *types.Config, value bool) {
 		fr.cfg.Replica.AutoSetup = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	return fr.setStringFlag(FlagReplicaInterfaceName, func(_ *types.Config, value string) {
@@ -85,34 +93,40 @@ func (fr *flagReader) readReplicaFlags() error {
 }
 
 func (fr *flagReader) readOriginFlags() error {
-	if err := fr.setStringFlag(FlagOriginURL, func(_ *types.Config, value string) {
+	ierr := fr.setStringFlag(FlagOriginURL, func(_ *types.Config, value string) {
 		fr.cfg.Origin.URL = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginWebURL, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagOriginWebURL, func(_ *types.Config, value string) {
 		fr.cfg.Origin.WebURL = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginAPIPath, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagOriginAPIPath, func(_ *types.Config, value string) {
 		fr.cfg.Origin.APIPath = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginUsername, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagOriginUsername, func(_ *types.Config, value string) {
 		fr.cfg.Origin.Username = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginPassword, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagOriginPassword, func(_ *types.Config, value string) {
 		fr.cfg.Origin.Password = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
-	if err := fr.setStringFlag(FlagOriginCookie, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagOriginCookie, func(_ *types.Config, value string) {
 		fr.cfg.Origin.Cookie = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	return fr.setBoolFlag(FlagOriginISV, func(_ *types.Config, value bool) {
