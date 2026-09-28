@@ -241,7 +241,7 @@ func (fr *flagReader) readAPIFlags() error {
 	if err != nil {
 		return err
 	}
-	ierr = fr.setStringFlag(FlagAPIUsername, func(_ *types.Config, value string) {
+	err = fr.setStringFlag(FlagAPIUsername, func(_ *types.Config, value string) {
 		fr.cfg.API.Username = value
 	})
 	if err != nil {
@@ -249,7 +249,7 @@ func (fr *flagReader) readAPIFlags() error {
 	}
 	err = fr.setStringFlag(FlagAPIPassword, func(_ *types.Config, value string) {
 		fr.cfg.API.Password = value
-	});l
+	})
 	if err != nil {
 		return err
 	}
