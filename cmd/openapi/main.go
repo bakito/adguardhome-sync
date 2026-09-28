@@ -103,7 +103,7 @@ func addFakeTags(schema map[string]any) {
 	); err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(
+	err := unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -112,10 +112,11 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"dns_queries",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(
+	err = unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -124,10 +125,11 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"replaced_parental",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if err := unstructured.SetNestedMap(
+	err = unstructured.SetNestedMap(
 		schema,
 		fake,
 		"components",
@@ -136,7 +138,8 @@ func addFakeTags(schema map[string]any) {
 		"properties",
 		"replaced_safebrowsing",
 		"x-oapi-codegen-extra-tags",
-	); err != nil {
+	)
+	if err != nil {
 		log.Fatalln(err)
 	}
 }
