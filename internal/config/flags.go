@@ -176,12 +176,13 @@ func (fr *flagReader) readFeatureFlags() error {
 	err = fr.setBoolFlag(FlagFeatureQueryLog, func(_ *types.Config, value bool) {
 		fr.cfg.Features.QueryLogConfig = value
 	})
-	err != nil {
+	if err != nil {
 		return err
 	}
-	if err := fr.setBoolFlag(FlagFeatureStats, func(_ *types.Config, value bool) {
+	err = fr.setBoolFlag(FlagFeatureStats, func(_ *types.Config, value bool) {
 		fr.cfg.Features.StatsConfig = value
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	err = fr.setBoolFlag(FlagFeatureClient, func(_ *types.Config, value bool) {
