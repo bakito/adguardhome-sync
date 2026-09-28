@@ -274,7 +274,7 @@ func (fr *flagReader) readRootFlags() error {
 	err = fr.setBoolFlag(FlagPrintConfigOnly, func(_ *types.Config, value bool) {
 		fr.cfg.PrintConfigOnly = value
 	})
-	err != nil {
+	if err != nil {
 		return err
 	}
 	return fr.setBoolFlag(FlagContinueOnError, func(_ *types.Config, value bool) {
