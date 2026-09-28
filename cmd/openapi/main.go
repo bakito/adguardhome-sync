@@ -56,9 +56,11 @@ func main() {
 		}
 	}
 
-	if dnsInfo, ok, _ := unstructured.NestedMap(schema,
-		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema"); ok {
-		if allOf, ok, _ := unstructured.NestedSlice(dnsInfo, "allOf"); ok && len(allOf) == 2 {
+	dnsInfo, ok, _ := unstructured.NestedMap(schema,
+		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema")
+	if ok {
+		allOf, okn, _ := unstructured.NestedSlice(dnsInfo, "allOf")
+		if okn && len(allOf) == 2 {
 			delete(dnsInfo, "allOf")
 			//nolint:forcetypeassert
 			err = unstructured.SetNestedMap(schema, allOf[0].(map[string]any),
