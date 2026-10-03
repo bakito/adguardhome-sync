@@ -34,17 +34,17 @@ func NewFeatures(enabled bool) Features {
 
 // Features feature flags.
 type Features struct {
-	DNS              DNS         `json:"dns"                                                                  yaml:"dns"`
-	DHCP             DHCP        `json:"dhcp"                                                                 yaml:"dhcp"`
-	GeneralSettings  bool        `docs:"Sync general settings"                                                env:"FEATURES_GENERAL_SETTINGS"  json:"generalSettings"  yaml:"generalSettings"`
-	ProtectionStatus bool        `docs:"Sync the protection status (disabled if generalSettings is disabled)" env:"FEATURES_PROTECTION_STATUS" json:"protectionStatus" yaml:"protectionStatus"`
-	QueryLogConfig   bool        `docs:"Sync query log config"                                                env:"FEATURES_QUERY_LOG_CONFIG"  json:"queryLogConfig"   yaml:"queryLogConfig"`
-	StatsConfig      bool        `docs:"Sync stats config"                                                    env:"FEATURES_STATS_CONFIG"      json:"statsConfig"      yaml:"statsConfig"`
-	ClientSettings   bool        `docs:"Sync client settings"                                                 env:"FEATURES_CLIENT_SETTINGS"   json:"clientSettings"   yaml:"clientSettings"`
-	Services         bool        `docs:"Sync services"                                                        env:"FEATURES_SERVICES"          json:"services"         yaml:"services"`
-	Filters          FiltersType `docs:"Sync filters (use sub-fields for granular control)"                   env:"FEATURES_FILTERS"           json:"filters"          yaml:"filters"`
-	Theme            bool        `docs:"Sync the web UI theme"                                                env:"FEATURES_THEME"             json:"theme"            yaml:"theme"`
-	TLSConfig        bool        `docs:"Sync the TLS config"                                                  env:"FEATURES_TLS_CONFIG"        json:"tlsConfig"        yaml:"tlsConfig"`
+	DNS              DNS         `json:"dns"                                                                                                  yaml:"dns"`
+	DHCP             DHCP        `json:"dhcp"                                                                                                 yaml:"dhcp"`
+	GeneralSettings  bool        `docs:"Sync general settings"                                                                                env:"FEATURES_GENERAL_SETTINGS"  json:"generalSettings"  yaml:"generalSettings"`
+	ProtectionStatus bool        `docs:"Sync the protection status (disabled if generalSettings is disabled)"                                 env:"FEATURES_PROTECTION_STATUS" json:"protectionStatus" yaml:"protectionStatus"`
+	QueryLogConfig   bool        `docs:"Sync query log config"                                                                                env:"FEATURES_QUERY_LOG_CONFIG"  json:"queryLogConfig"   yaml:"queryLogConfig"`
+	StatsConfig      bool        `docs:"Sync stats config"                                                                                    env:"FEATURES_STATS_CONFIG"      json:"statsConfig"      yaml:"statsConfig"`
+	ClientSettings   bool        `docs:"Sync client settings"                                                                                 env:"FEATURES_CLIENT_SETTINGS"   json:"clientSettings"   yaml:"clientSettings"`
+	Services         bool        `docs:"Sync services"                                                                                        env:"FEATURES_SERVICES"          json:"services"         yaml:"services"`
+	Filters          FiltersType `docs:"Sync filters (use sub-fields for granular control)"                                                   env:"FEATURES_FILTERS"           json:"filters"          yaml:"filters"`
+	Theme            bool        `docs:"Sync the web UI theme"                                                                                env:"FEATURES_THEME"             json:"theme"            yaml:"theme"`
+	TLSConfig        bool        `docs:"Sync the TLS config (Note: cannot sync inline private keys, only settings and certificate/key paths)" env:"FEATURES_TLS_CONFIG"        json:"tlsConfig"        yaml:"tlsConfig"`
 }
 
 // UnmarshalYAML implements custom unmarshalling for Features.

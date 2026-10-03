@@ -504,6 +504,104 @@ func TestClient_DhcpStaticLease(t *testing.T) {
 	})
 }
 
+func TestClient_TLS(t *testing.T) {
+	t.Run("should read TLSConfig", func(t *testing.T) {
+		ts, cl := ClientGet(t, "tls-status.json", "/tls/status")
+		defer ts.Close()
+		tlsc, err := cl.TLSConfig()
+		if err != nil {
+			t.Fatalf("TLSConfig() error = %v", err)
+		}
+		if tlsc.Enabled == nil || *tlsc.Enabled {
+			t.Errorf("Enabled = %v, want false", tlsc.Enabled)
+		}
+	})
+	t.Run("should set TLSConfig when disabled", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != types.DefaultAPIPath+"/tls/configure" {
+				t.Errorf("Path = %s, want %s", r.URL.Path, types.DefaultAPIPath+"/tls/configure")
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"valid_pair": false}`))
+		}))
+		defer ts.Close()
+		cl, err := client.New(types.AdGuardInstance{URL: ts.URL}, 0)
+		if err != nil {
+			t.Fatalf("client.New error = %v", err)
+		}
+		err = cl.SetTLSConfig(&model.TlsConfig{Enabled: new(false)})
+		if err != nil {
+			t.Errorf("SetTLSConfig() error = %v", err)
+		}
+	})
+	t.Run("should set TLSConfig when enabled and valid pair", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != types.DefaultAPIPath+"/tls/configure" {
+				t.Errorf("Path = %s, want %s", r.URL.Path, types.DefaultAPIPath+"/tls/configure")
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"valid_pair": true}`))
+		}))
+		defer ts.Close()
+		cl, err := client.New(types.AdGuardInstance{URL: ts.URL}, 0)
+		if err != nil {
+			t.Fatalf("client.New error = %v", err)
+		}
+		err = cl.SetTLSConfig(&model.TlsConfig{Enabled: new(true)})
+		if err != nil {
+			t.Errorf("SetTLSConfig() error = %v", err)
+		}
+	})
+	t.Run("should return error when enabled and replica rejected with warning", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != types.DefaultAPIPath+"/tls/configure" {
+				t.Errorf("Path = %s, want %s", r.URL.Path, types.DefaultAPIPath+"/tls/configure")
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(
+				[]byte(
+					`{"valid_pair": false, "warning_validation": "validating certificate pair: tls: private key does not match public key"}`,
+				),
+			)
+		}))
+		defer ts.Close()
+		cl, err := client.New(types.AdGuardInstance{URL: ts.URL}, 0)
+		if err != nil {
+			t.Fatalf("client.New error = %v", err)
+		}
+		err = cl.SetTLSConfig(&model.TlsConfig{Enabled: new(true)})
+		if err == nil {
+			t.Fatal("expected error, got nil")
+		}
+		expectedMsg := "replica rejected TLS config: validating certificate pair: tls: private key does not match public key"
+		if err.Error() != expectedMsg {
+			t.Errorf("error = %q, want %q", err.Error(), expectedMsg)
+		}
+	})
+	t.Run("should return error when enabled and replica rejected without warning", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != types.DefaultAPIPath+"/tls/configure" {
+				t.Errorf("Path = %s, want %s", r.URL.Path, types.DefaultAPIPath+"/tls/configure")
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"valid_pair": false}`))
+		}))
+		defer ts.Close()
+		cl, err := client.New(types.AdGuardInstance{URL: ts.URL}, 0)
+		if err != nil {
+			t.Fatalf("client.New error = %v", err)
+		}
+		err = cl.SetTLSConfig(&model.TlsConfig{Enabled: new(true)})
+		if err == nil {
+			t.Fatal("expected error, got nil")
+		}
+		expectedMsg := "replica rejected TLS config: certificate/key pair is not valid"
+		if err.Error() != expectedMsg {
+			t.Errorf("error = %q, want %q", err.Error(), expectedMsg)
+		}
+	})
+}
+
 func TestClient_HelperFunctions(t *testing.T) {
 	t.Run("doGet", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {

@@ -75,7 +75,8 @@ func init() {
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersBlacklist, true, "Enable blacklist filters sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersWhitelist, true, "Enable whitelist filters sync feature")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureFiltersUserRules, true, "Enable user rules sync feature")
-	doCmd.PersistentFlags().Bool(config.FlagFeatureTLSConfig, false, "Enable TLS config sync feature")
+	doCmd.PersistentFlags().
+		Bool(config.FlagFeatureTLSConfig, false, "Enable TLS config sync feature (Note: cannot sync inline private keys, only settings and certificate/key paths)")
 	doCmd.PersistentFlags().Bool(config.FlagFeatureProtectionStatus, true, "Enable protections status sync")
 
 	doCmd.PersistentFlags().String(config.FlagOriginURL, "", "Origin instance url")

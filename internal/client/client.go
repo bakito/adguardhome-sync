@@ -518,5 +518,17 @@ func (cl *client) TLSConfig() (*model.TlsConfig, error) {
 
 func (cl *client) SetTLSConfig(tlsc *model.TlsConfig) error {
 	cl.log.With("enabled", tlsc.Enabled).Info("Set TLS config")
-	return cl.doPost(cl.client.R().EnableTrace().SetBody(tlsc), "/tls/configure")
+	res := &model.TlsConfig{}
+	if err := cl.doPost(cl.client.R().EnableTrace().SetBody(tlsc).SetResult(res), "/tls/configure"); err != nil {
+		return err
+	}
+	enabled := tlsc.Enabled != nil && *tlsc.Enabled
+	if enabled && (res.ValidPair == nil || !*res.ValidPair) {
+		msg := "certificate/key pair is not valid"
+		if res.WarningValidation != nil && *res.WarningValidation != "" {
+			msg = *res.WarningValidation
+		}
+		return fmt.Errorf("replica rejected TLS config: %s", msg)
+	}
+	return nil
 }
