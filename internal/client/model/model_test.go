@@ -848,6 +848,34 @@ func TestDNSConfig_Equals(t *testing.T) {
 			t.Error("expected not equal")
 		}
 	})
+	t.Run("should be equal when EdnsCsUseCustom is false even if EdnsCsCustomIp differs", func(t *testing.T) {
+		dc1 := &model.DNSConfig{EdnsCsUseCustom: new(false), EdnsCsCustomIp: new("1.1.1.1")}
+		dc2 := &model.DNSConfig{EdnsCsUseCustom: new(false), EdnsCsCustomIp: new("8.8.8.8")}
+		if !dc1.Equals(dc2) {
+			t.Error("expected equal")
+		}
+	})
+	t.Run("should be equal when EdnsCsUseCustom is nil even if EdnsCsCustomIp differs", func(t *testing.T) {
+		dc1 := &model.DNSConfig{EdnsCsCustomIp: new("1.1.1.1")}
+		dc2 := &model.DNSConfig{EdnsCsCustomIp: new("8.8.8.8")}
+		if !dc1.Equals(dc2) {
+			t.Error("expected equal")
+		}
+	})
+	t.Run("should not be equal when EdnsCsUseCustom is true and EdnsCsCustomIp differs", func(t *testing.T) {
+		dc1 := &model.DNSConfig{EdnsCsUseCustom: new(true), EdnsCsCustomIp: new("1.1.1.1")}
+		dc2 := &model.DNSConfig{EdnsCsUseCustom: new(true), EdnsCsCustomIp: new("8.8.8.8")}
+		if dc1.Equals(dc2) {
+			t.Error("expected not equal")
+		}
+	})
+	t.Run("should be equal when EdnsCsUseCustom is true and EdnsCsCustomIp is the same", func(t *testing.T) {
+		dc1 := &model.DNSConfig{EdnsCsUseCustom: new(true), EdnsCsCustomIp: new("1.1.1.1")}
+		dc2 := &model.DNSConfig{EdnsCsUseCustom: new(true), EdnsCsCustomIp: new("1.1.1.1")}
+		if !dc1.Equals(dc2) {
+			t.Error("expected equal")
+		}
+	})
 }
 
 func TestDHCPServerConfig(t *testing.T) {

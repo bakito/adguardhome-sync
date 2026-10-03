@@ -97,10 +97,18 @@ func (l DhcpStaticLease) Equals(o DhcpStaticLease) bool {
 func (c *DNSConfig) Equals(o *DNSConfig) bool {
 	cc := c.Clone()
 	oo := o.Clone()
+	cc.clean()
+	oo.clean()
 	cc.Sort()
 	oo.Sort()
 
 	return utils.JSONEquals(cc, oo)
+}
+
+func (c *DNSConfig) clean() {
+	if c.EdnsCsUseCustom == nil || !*c.EdnsCsUseCustom {
+		c.EdnsCsCustomIp = nil
+	}
 }
 
 func (c *DNSConfig) Clone() *DNSConfig {
@@ -113,11 +121,11 @@ func (c *DNSConfig) Sort() {
 		slices.Sort(*c.UpstreamDns)
 	}
 
-	if c.UpstreamDns != nil {
+	if c.BootstrapDns != nil {
 		slices.Sort(*c.BootstrapDns)
 	}
 
-	if c.UpstreamDns != nil {
+	if c.LocalPtrUpstreams != nil {
 		slices.Sort(*c.LocalPtrUpstreams)
 	}
 }
@@ -451,6 +459,8 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 		)
 		c.UsePrivatePtrResolvers = new(false)
 	}
+
+	c.clean()
 }
 
 // Equals GetStatsConfigResponse equal check.

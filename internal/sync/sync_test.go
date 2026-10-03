@@ -796,6 +796,22 @@ func TestSync(t *testing.T) {
 					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
 				}
 			})
+			t.Run("should have no changes when EdnsCsUseCustom is false and EdnsCsCustomIp differs", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dnsConfig = &model.DNSConfig{
+					EdnsCsUseCustom: new(false),
+					EdnsCsCustomIp:  new("1.1.1.1"),
+				}
+				rdcLocal := &model.DNSConfig{
+					EdnsCsUseCustom: new(false),
+					EdnsCsCustomIp:  new("8.8.8.8"),
+				}
+				env.cl.EXPECT().DNSConfig().Return(rdcLocal, nil)
+				err := actionDNSServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
+				}
+			})
 			t.Run("should have dns config changes", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dnsConfig = &model.DNSConfig{}
