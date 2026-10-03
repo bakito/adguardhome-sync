@@ -1015,6 +1015,50 @@ func TestSync(t *testing.T) {
 			})
 		})
 
+		t.Run("tlsConfig", func(t *testing.T) {
+			t.Run("should have no changes", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.tlsConfig = &model.TlsConfig{ServerName: new("example.com")}
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{ServerName: new("example.com")}, nil)
+				err := tlsConfig(env.ac)
+				if err != nil {
+					t.Errorf("tlsConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should update TLSConfig", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.tlsConfig = &model.TlsConfig{ServerName: new("example.com")}
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{ServerName: new("other.com")}, nil)
+				env.cl.EXPECT().SetTLSConfig(env.ac.origin.tlsConfig).Return(nil)
+				err := tlsConfig(env.ac)
+				if err != nil {
+					t.Errorf("tlsConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should continue on update error with continueOnError", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = true
+				env.ac.origin.tlsConfig = &model.TlsConfig{ServerName: new("example.com")}
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{ServerName: new("other.com")}, nil)
+				env.cl.EXPECT().SetTLSConfig(env.ac.origin.tlsConfig).Return(errors.New("update error"))
+				err := tlsConfig(env.ac)
+				if err != nil {
+					t.Errorf("tlsConfig() error = %v, want nil", err)
+				}
+			})
+			t.Run("should fail on update error without continueOnError", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.cfg.ContinueOnError = false
+				env.ac.origin.tlsConfig = &model.TlsConfig{ServerName: new("example.com")}
+				env.cl.EXPECT().TLSConfig().Return(&model.TlsConfig{ServerName: new("other.com")}, nil)
+				env.cl.EXPECT().SetTLSConfig(env.ac.origin.tlsConfig).Return(errors.New("update error"))
+				err := tlsConfig(env.ac)
+				if err == nil {
+					t.Error("tlsConfig() error = nil, want error")
+				}
+			})
+		})
+
 		t.Run("sync", func(t *testing.T) {
 			t.Run("should have no changes", func(t *testing.T) {
 				env := newTestEnv(t)
