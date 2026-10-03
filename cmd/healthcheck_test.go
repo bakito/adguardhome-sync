@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"slices"
 	"strconv"
 	"testing"
 	"time"
@@ -20,13 +21,7 @@ func Test_HealthcheckCommand_Flags(t *testing.T) {
 		t.Errorf("healthcheckCmd.Use = %v, want healthcheck", healthcheckCmd.Use)
 	}
 
-	foundAlias := false
-	for _, alias := range healthcheckCmd.Aliases {
-		if alias == "health" {
-			foundAlias = true
-			break
-		}
-	}
+	foundAlias := slices.Contains(healthcheckCmd.Aliases, "health")
 	if !foundAlias {
 		t.Errorf("healthcheckCmd.Aliases = %v, want to contain 'health'", healthcheckCmd.Aliases)
 	}

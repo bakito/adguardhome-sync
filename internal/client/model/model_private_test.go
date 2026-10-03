@@ -125,6 +125,38 @@ func TestDNSConfig_Sanitize(t *testing.T) {
 			t.Errorf("expected UsePrivatePtrResolvers to be false, got %v", cfg.UsePrivatePtrResolvers)
 		}
 	})
+
+	t.Run("should clear EdnsCsCustomIp if EdnsCsUseCustom is false", func(t *testing.T) {
+		cfg := &DNSConfig{
+			EdnsCsUseCustom: new(false),
+			EdnsCsCustomIp:  new("1.1.1.1"),
+		}
+		cfg.Sanitize(l)
+		if cfg.EdnsCsCustomIp != nil {
+			t.Errorf("expected EdnsCsCustomIp to be nil, got %v", *cfg.EdnsCsCustomIp)
+		}
+	})
+
+	t.Run("should clear EdnsCsCustomIp if EdnsCsUseCustom is nil", func(t *testing.T) {
+		cfg := &DNSConfig{
+			EdnsCsCustomIp: new("1.1.1.1"),
+		}
+		cfg.Sanitize(l)
+		if cfg.EdnsCsCustomIp != nil {
+			t.Errorf("expected EdnsCsCustomIp to be nil, got %v", *cfg.EdnsCsCustomIp)
+		}
+	})
+
+	t.Run("should keep EdnsCsCustomIp if EdnsCsUseCustom is true", func(t *testing.T) {
+		cfg := &DNSConfig{
+			EdnsCsUseCustom: new(true),
+			EdnsCsCustomIp:  new("1.1.1.1"),
+		}
+		cfg.Sanitize(l)
+		if cfg.EdnsCsCustomIp == nil || *cfg.EdnsCsCustomIp != "1.1.1.1" {
+			t.Errorf("expected EdnsCsCustomIp to be 1.1.1.1, got %v", cfg.EdnsCsCustomIp)
+		}
+	})
 }
 
 func TestDhcpStatus_cleanV4V6(t *testing.T) {
@@ -287,21 +319,38 @@ func TestPtrEquals(t *testing.T) {
 }
 
 func TestDNSConfig_Sort_Private(t *testing.T) {
-	cfg := &DNSConfig{
-		UpstreamDns:       new([]string{"b", "a"}),
-		BootstrapDns:      new([]string{"d", "c"}),
-		LocalPtrUpstreams: new([]string{"f", "e"}),
-	}
-	cfg.Sort()
-	if !reflect.DeepEqual(*cfg.UpstreamDns, []string{"a", "b"}) {
-		t.Errorf("UpstreamDns sort failed, got %v", *cfg.UpstreamDns)
-	}
-	if !reflect.DeepEqual(*cfg.BootstrapDns, []string{"c", "d"}) {
-		t.Errorf("BootstrapDns sort failed, got %v", *cfg.BootstrapDns)
-	}
-	if !reflect.DeepEqual(*cfg.LocalPtrUpstreams, []string{"e", "f"}) {
-		t.Errorf("LocalPtrUpstreams sort failed, got %v", *cfg.LocalPtrUpstreams)
-	}
+	t.Run("should sort all slices when present", func(t *testing.T) {
+		cfg := &DNSConfig{
+			UpstreamDns:       new([]string{"b", "a"}),
+			BootstrapDns:      new([]string{"d", "c"}),
+			LocalPtrUpstreams: new([]string{"f", "e"}),
+		}
+		cfg.Sort()
+		if !reflect.DeepEqual(*cfg.UpstreamDns, []string{"a", "b"}) {
+			t.Errorf("UpstreamDns sort failed, got %v", *cfg.UpstreamDns)
+		}
+		if !reflect.DeepEqual(*cfg.BootstrapDns, []string{"c", "d"}) {
+			t.Errorf("BootstrapDns sort failed, got %v", *cfg.BootstrapDns)
+		}
+		if !reflect.DeepEqual(*cfg.LocalPtrUpstreams, []string{"e", "f"}) {
+			t.Errorf("LocalPtrUpstreams sort failed, got %v", *cfg.LocalPtrUpstreams)
+		}
+	})
+
+	t.Run("should sort BootstrapDns and LocalPtrUpstreams when UpstreamDns is nil", func(t *testing.T) {
+		cfg := &DNSConfig{
+			UpstreamDns:       nil,
+			BootstrapDns:      new([]string{"d", "c"}),
+			LocalPtrUpstreams: new([]string{"f", "e"}),
+		}
+		cfg.Sort()
+		if !reflect.DeepEqual(*cfg.BootstrapDns, []string{"c", "d"}) {
+			t.Errorf("BootstrapDns sort failed, got %v", *cfg.BootstrapDns)
+		}
+		if !reflect.DeepEqual(*cfg.LocalPtrUpstreams, []string{"e", "f"}) {
+			t.Errorf("LocalPtrUpstreams sort failed, got %v", *cfg.LocalPtrUpstreams)
+		}
+	})
 }
 
 func TestClient_Sort_Private(t *testing.T) {
