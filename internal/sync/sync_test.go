@@ -1342,7 +1342,7 @@ func TestSync(t *testing.T) {
 					return nil, errors.New("creation error")
 				}
 				st := env.w.getStatus(types.AdGuardInstance{WebHost: "host", WebURL: "url"})
-				if st.Status != "danger" || st.Error != "creation error" {
+				if st.Status != StatusDanger || st.Error != "creation error" {
 					t.Errorf("getStatus() status = %s, error = %s", st.Status, st.Error)
 				}
 			})
@@ -1350,7 +1350,7 @@ func TestSync(t *testing.T) {
 				env := newTestEnv(t)
 				env.cl.EXPECT().Status().Return(nil, client.ErrSetupNeeded)
 				st := env.w.getStatus(types.AdGuardInstance{WebHost: "host", WebURL: "url"})
-				if st.Status != "warning" || st.Error != client.ErrSetupNeeded.Error() {
+				if st.Status != StatusWarning || st.Error != client.ErrSetupNeeded.Error() {
 					t.Errorf("getStatus() status = %s, error = %s", st.Status, st.Error)
 				}
 			})
