@@ -56,6 +56,9 @@ func (cl *client) doPost(req *resty.Request, url string) error {
 		b, _ := json.Marshal(req.Body)
 		rl.With("body", string(b), "content-type", req.Header.Get("Content-Type")).Debug("do post")
 	} else {
+		// no body: adguard home rejects a content type here (AdGuardHome#4970),
+		// and resty would otherwise send an empty chunked body (ContentLength -1)
+		req.SetContentLength(true)
 		rl.Debug("do post")
 	}
 	resp, err := req.Post(url)
@@ -88,6 +91,9 @@ func (cl *client) doPut(req *resty.Request, url string) error {
 		b, _ := json.Marshal(req.Body)
 		rl.With("body", string(b), "content-type", req.Header.Get("Content-Type")).Debug("do put")
 	} else {
+		// no body: adguard home rejects a content type here (AdGuardHome#4970),
+		// and resty would otherwise send an empty chunked body (ContentLength -1)
+		req.SetContentLength(true)
 		rl.Debug("do put")
 	}
 	resp, err := req.Put(url)
