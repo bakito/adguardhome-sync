@@ -666,6 +666,18 @@ func ClientPost(t *testing.T, path string, content ...string) (*httptest.Server,
 		if string(body) != content[index] {
 			t.Errorf("Body = %s, want %s", string(body), content[index])
 		}
+		if content[index] == "" {
+			if ct := r.Header.Get("Content-Type"); ct != "" {
+				t.Errorf("Content-Type = %s, want empty", ct)
+			}
+			if r.ContentLength != 0 {
+				t.Errorf("Content-Length = %d, want 0", r.ContentLength)
+			}
+		} else {
+			if ct := r.Header.Get("Content-Type"); ct != "application/json" {
+				t.Errorf("Content-Type = %s, want application/json", ct)
+			}
+		}
 		index++
 	}))
 
@@ -686,6 +698,18 @@ func ClientPut(t *testing.T, path string, content ...string) (*httptest.Server, 
 		body, _ := io.ReadAll(r.Body)
 		if string(body) != content[index] {
 			t.Errorf("Body = %s, want %s", string(body), content[index])
+		}
+		if content[index] == "" {
+			if ct := r.Header.Get("Content-Type"); ct != "" {
+				t.Errorf("Content-Type = %s, want empty", ct)
+			}
+			if r.ContentLength != 0 {
+				t.Errorf("Content-Length = %d, want 0", r.ContentLength)
+			}
+		} else {
+			if ct := r.Header.Get("Content-Type"); ct != "application/json" {
+				t.Errorf("Content-Type = %s, want application/json", ct)
+			}
 		}
 		index++
 	}))
