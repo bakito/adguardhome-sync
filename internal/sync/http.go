@@ -83,13 +83,13 @@ func (*worker) handleLivez(c *gin.Context) {
 func (w *worker) handleReadyz(c *gin.Context) {
 	status := w.status()
 
-	if status.Origin.Status != "success" {
+	if status.Origin.Status != StatusSuccess {
 		c.Status(http.StatusServiceUnavailable)
 		return
 	}
 
 	for _, replica := range status.Replicas {
-		if replica.Status != "success" {
+		if replica.Status != StatusSuccess && replica.Status != StatusInfo {
 			c.Status(http.StatusServiceUnavailable)
 			return
 		}
@@ -198,6 +198,15 @@ func (w *worker) listenAndServe() {
 	cancel()
 }
 
+type Status string
+
+const (
+	StatusDanger  Status = "danger"
+	StatusWarning Status = "warning"
+	StatusSuccess Status = "success"
+	StatusInfo    Status = "info"
+)
+
 type syncStatus struct {
 	SyncRunning bool            `json:"syncRunning"`
 	Origin      replicaStatus   `json:"origin"`
@@ -207,7 +216,7 @@ type syncStatus struct {
 type replicaStatus struct {
 	Host              string `json:"host"`
 	URL               string `json:"url"`
-	Status            string `json:"status"`
+	Status            Status `json:"status"`
 	Error             string `json:"error,omitempty"`
 	ProtectionEnabled *bool  `json:"protection_enabled"`
 }

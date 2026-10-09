@@ -166,4 +166,65 @@ func TestWorker_handleReadyz(t *testing.T) {
 			t.Errorf("GET /readyz status = %v, want %v", rec.Code, http.StatusServiceUnavailable)
 		}
 	})
+
+	t.Run("should handle sync in progress with allowSync parameter", func(t *testing.T) {
+		ctrl := gm.NewController(t)
+		cl := clientmock.NewMockClient(ctrl)
+		cl.EXPECT().Status().Return(&model.ServerStatus{ProtectionEnabled: true}, nil).AnyTimes()
+
+		w := &worker{
+			running: true,
+			createClient: func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+				return cl, nil
+			},
+			cfg: &types.Config{
+				Origin:   &types.AdGuardInstance{WebURL: "http://origin"},
+				Replicas: []types.Replica{{WebURL: "http://replica1"}},
+			},
+		}
+
+		r := gin.New()
+		r.GET("/readyz", w.handleReadyz)
+		r.GET("/readiness", w.handleReadyz)
+
+		t.Run("should return 200 on /readyz and /readiness", func(t *testing.T) {
+			for _, ep := range []string{"/readyz", "/readiness", "/readyz", "/readyz"} {
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, ep, http.NoBody)
+				rec := httptest.NewRecorder()
+				r.ServeHTTP(rec, req)
+
+				if rec.Code != http.StatusOK {
+					t.Errorf("GET %s status = %v, want %v", ep, rec.Code, http.StatusOK)
+				}
+			}
+		})
+	})
+
+	t.Run("should return 503 when origin fails even if allowSync=true", func(t *testing.T) {
+		ctrl := gm.NewController(t)
+		cl := clientmock.NewMockClient(ctrl)
+		cl.EXPECT().Status().Return(nil, errors.New("connection refused")).AnyTimes()
+
+		w := &worker{
+			running: true,
+			createClient: func(_ types.AdGuardInstance, _ time.Duration) (client.Client, error) {
+				return cl, nil
+			},
+			cfg: &types.Config{
+				Origin:   &types.AdGuardInstance{WebURL: "http://origin"},
+				Replicas: []types.Replica{{WebURL: "http://replica1"}},
+			},
+		}
+
+		r := gin.New()
+		r.GET("/readyz", w.handleReadyz)
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/readyz?allowSync=true", http.NoBody)
+		rec := httptest.NewRecorder()
+		r.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusServiceUnavailable {
+			t.Errorf("GET /readyz?allowSync=true status = %v, want %v", rec.Code, http.StatusServiceUnavailable)
+		}
+	})
 }

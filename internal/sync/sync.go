@@ -105,7 +105,7 @@ func (w *worker) status() *syncStatus {
 	for _, replica := range w.cfg.Replicas {
 		st := w.getStatus(replica.Instance())
 		if w.running {
-			st.Status = "info"
+			st.Status = StatusInfo
 		}
 		syncStatus.Replicas = append(syncStatus.Replicas, st)
 	}
@@ -131,7 +131,7 @@ func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 	oc, err := w.createClient(inst, w.cfg.ClientTimeout)
 	if err != nil {
 		l.With("error", err, "url", w.cfg.Origin.URL).Error("Error creating origin client")
-		st.Status = "danger"
+		st.Status = StatusDanger
 		st.Error = err.Error()
 		return st
 	}
@@ -139,16 +139,16 @@ func (w *worker) getStatus(inst types.AdGuardInstance) replicaStatus {
 	status, err := oc.Status()
 	if err != nil {
 		if errors.Is(err, client.ErrSetupNeeded) {
-			st.Status = "warning"
+			st.Status = StatusWarning
 			st.Error = err.Error()
 			return st
 		}
 		sl.With("error", err).Error("Error getting origin status")
-		st.Status = "danger"
+		st.Status = StatusDanger
 		st.Error = err.Error()
 		return st
 	}
-	st.Status = "success"
+	st.Status = StatusSuccess
 	st.ProtectionEnabled = new(status.ProtectionEnabled)
 	return st
 }

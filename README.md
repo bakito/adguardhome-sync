@@ -647,8 +647,8 @@ Readiness check endpoint to verify that origin and all replica instances are rea
 
 - **Authentication**: Not required
 - **Response**:
-  - `200 OK` - Origin and all replicas are in "success" status
-  - `503 Service Unavailable` - Origin or any replica is not in "success" status
+  - `200 OK` - Origin and all replicas are in "success" of "info"
+  - `503 Service Unavailable` - Origin or any replica is not in status "success" or "info"
 
 ```bash
 curl http://localhost:5000/readyz
