@@ -83,7 +83,7 @@ func (k *K8sHelper) GetPodsByLabel(ctx context.Context, labelSelector string) ([
 	return names, nil
 }
 
-// WaitForPodRunning waits for a pod to transition to Running phase.
+// WaitForPodRunning waits for a pod to become Ready.
 func (k *K8sHelper) WaitForPodRunning(ctx context.Context, pod string, timeout time.Duration) error {
 	timeoutStr := fmt.Sprintf("%ds", int(timeout.Seconds()))
 	cmd := exec.CommandContext(
@@ -92,7 +92,7 @@ func (k *K8sHelper) WaitForPodRunning(ctx context.Context, pod string, timeout t
 		"wait",
 		"-n",
 		k.Namespace,
-		"--for=jsonpath={.status.phase}=Running",
+		"--for=condition=Ready",
 		"pod/"+pod,
 		"--timeout="+timeoutStr,
 	)
@@ -132,6 +132,8 @@ func (k *K8sHelper) StartPortForward(ctx context.Context, pod string, localPort,
 		time.Sleep(200 * time.Millisecond)
 	}
 
-	// Return stopFunc even if dial timed out, so caller can clean up
-	return stopFunc, nil
+	// Port did not open in time — clean up and return an error
+	cancel()
+	_ = cmd.Wait()
+	return nil, fmt.Errorf("port-forward to %s did not open within 10s", addr)
 }

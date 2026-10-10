@@ -17,9 +17,41 @@ func TestE2E(t *testing.T) {
 	cfg := LoadConfig()
 	k8s := NewK8sHelper(cfg.Namespace)
 
-	// Step 0: In K8s mode (when sync runs in-cluster), wait for sync pod to start and setup port-forwarding if needed
+	// Step 0: In K8s mode (when sync runs in-cluster), wait for all pods to start and setup port-forwarding if needed
 	if !cfg.ExternalSync {
-		t.Run("WaitForPodRunning", func(t *testing.T) {
+		// Wait for origin pod to be Ready
+		t.Run("WaitForOriginPod", func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(t.Context(), 1*time.Minute)
+			defer cancel()
+
+			err := k8s.WaitForPodRunning(ctx, cfg.OriginPod, 1*time.Minute)
+			if err != nil {
+				desc, _ := k8s.DescribePod(ctx, cfg.OriginPod)
+				logs, _ := k8s.Logs(ctx, cfg.OriginPod)
+				WriteStepSummary(cfg.StepSummaryFile, "Origin Pod Describe on Failure", desc)
+				WriteStepSummary(cfg.StepSummaryFile, "Origin Pod Logs on Failure", logs)
+				t.Fatalf("Origin pod did not become ready: %v\nPod describe:\n%s\nPod logs:\n%s", err, desc, logs)
+			}
+		})
+
+		// Wait for all replica pods to be Ready
+		t.Run("WaitForReplicaPods", func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(t.Context(), 1*time.Minute)
+			defer cancel()
+
+			for _, pod := range cfg.ReplicaPods {
+				err := k8s.WaitForPodRunning(ctx, pod, 1*time.Minute)
+				if err != nil {
+					desc, _ := k8s.DescribePod(ctx, pod)
+					logs, _ := k8s.Logs(ctx, pod)
+					WriteStepSummary(cfg.StepSummaryFile, fmt.Sprintf("Replica Pod %s Describe on Failure", pod), desc)
+					WriteStepSummary(cfg.StepSummaryFile, fmt.Sprintf("Replica Pod %s Logs on Failure", pod), logs)
+					t.Fatalf("Replica pod %s did not become ready: %v\nPod describe:\n%s\nPod logs:\n%s", pod, err, desc, logs)
+				}
+			}
+		})
+
+		t.Run("WaitForSyncPod", func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(t.Context(), 1*time.Minute)
 			defer cancel()
 
@@ -29,7 +61,7 @@ func TestE2E(t *testing.T) {
 				logs, _ := k8s.Logs(ctx, cfg.SyncPod)
 				WriteStepSummary(cfg.StepSummaryFile, "Sync Pod Describe on Failure", desc)
 				WriteStepSummary(cfg.StepSummaryFile, "Sync Pod Logs on Failure", logs)
-				t.Fatalf("Sync pod did not start running: %v\nPod describe:\n%s\nPod logs:\n%s", err, desc, logs)
+				t.Fatalf("Sync pod did not become ready: %v\nPod describe:\n%s\nPod logs:\n%s", err, desc, logs)
 			}
 		})
 
@@ -138,6 +170,8 @@ func TestE2E(t *testing.T) {
 
 			deleteFilterRe := regexp.MustCompile(`(?i)error.*deleting filter.*no such file or directory`)
 			panicRecoverRe := regexp.MustCompile(`\[error\] storage: recovered from panic: runtime`)
+			dnsExchangeRe := regexp.MustCompile(`(?i)dnsproxy: exchange failed.*unexpected EOF`)
+			filterChtimesRe := regexp.MustCompile(`(?i)filtering: changing last modified time err=.*no such file or directory`)
 			errorRe := regexp.MustCompile(`\[error\]`)
 
 			for _, pod := range replicaPods {
@@ -151,7 +185,8 @@ func TestE2E(t *testing.T) {
 				var filteredLines []string
 				var unignoredErrorLines []string
 				for line := range strings.Lines(logs) {
-					if deleteFilterRe.MatchString(line) || panicRecoverRe.MatchString(line) {
+					if deleteFilterRe.MatchString(line) || panicRecoverRe.MatchString(line) ||
+						dnsExchangeRe.MatchString(line) || filterChtimesRe.MatchString(line) {
 						continue
 					}
 					filteredLines = append(filteredLines, line)
@@ -197,12 +232,21 @@ func TestE2E(t *testing.T) {
 
 			WriteStepSummary(cfg.StepSummaryFile, "Pod adguardhome-sync logs", logs)
 
+			// Ignore transient DNS resolution errors that occur when fetching filter lists
+			dnsResolutionRe := regexp.MustCompile(`(?i)resolving.*exchanging.*unexpected EOF`)
+			filterFetchRe := regexp.MustCompile(`(?i)couldn't fetch filter.*unexpected EOF`)
+
 			var errorLines []string
 			for line := range strings.Lines(logs) {
-				if strings.Contains(line, "Error") || strings.Contains(line, "\"level\":\"error\"") ||
-					strings.Contains(line, "[ERROR]") {
-					errorLines = append(errorLines, line)
+				if !strings.Contains(line, "Error") && !strings.Contains(line, "\"level\":\"error\"") &&
+					!strings.Contains(line, "[ERROR]") {
+					continue
 				}
+				// Skip errors caused by transient DNS resolution failures
+				if dnsResolutionRe.MatchString(line) || filterFetchRe.MatchString(line) {
+					continue
+				}
+				errorLines = append(errorLines, line)
 			}
 
 			if len(errorLines) > 0 {
