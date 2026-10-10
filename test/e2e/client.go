@@ -122,7 +122,11 @@ func CheckEndpoint(ctx context.Context, targetURL string, insecure bool) (int, e
 }
 
 // WaitForSync polls /api/v1/status until SyncRunning is false, returning the final status.
+// It waits for an initial delay before the first poll to allow the API server to initialize.
 func WaitForSync(ctx context.Context, baseURL string, insecure bool, timeout time.Duration) (*SyncStatus, error) {
+	// Initial delay to allow the API server to start up before the first poll
+	time.Sleep(2 * time.Second)
+
 	ticker := time.NewTicker(3 * time.Second)
 	defer ticker.Stop()
 
