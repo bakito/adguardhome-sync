@@ -14,3 +14,6 @@ config*.yaml
 !testdata/config/config*.yaml
 *.log
 wiki
+cosign.key
+cosign.pub
+cosign.password

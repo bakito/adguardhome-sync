@@ -1,0 +1,58 @@
+name: Scorecard supply-chain security
+on:
+  # For Branch-Protection check.
+  branch_protection_rule:
+  # To guarantee Maintained check sees recently mergedPRs.
+  push:
+    branches:
+      - main
+  schedule:
+    # Weekly on Monday at 00:00 UTC.
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual run"
+        required: false
+        default: "Manual trigger"
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed for Code scanning upload.
+      security-events: write
+      # Needed for GitHub OIDC token when publishing results.
+      id-token: write
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: "Run analysis"
+        uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publish the results for public repositories to enable
+          # GitHub Security Tab integration.
+          publish_results: true
+
+      # Upload the results as artifacts.
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: SARIF file
+          path: results.sarif
+          retention-days: 5
+
+      # Upload the results to GitHub's code scanning dashboard.
+      - name: "Upload to code-scanning"
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: results.sarif

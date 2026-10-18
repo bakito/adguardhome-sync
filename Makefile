@@ -48,7 +48,11 @@ e2e-stop-k8s:
 	kind delete cluster --name $(KIND_CLUSTER_NAME)
 
 fuzz:
-	 go test -fuzz=FuzzMask -v ./internal/types/ -fuzztime=60s
+	go test -fuzz=FuzzMask -fuzztime=10s ./internal/types/
+	go test -fuzz=FuzzAdGuardInstance_Init -fuzztime=10s ./internal/types/
+	go test -fuzz=FuzzConfig_Init -fuzztime=10s ./internal/types/
+	go test -fuzz=FuzzYAMLConfigParsing -fuzztime=10s ./internal/config/
+	go test -fuzz=FuzzClientNew -fuzztime=10s ./internal/client/
 
 # Run ci tests
 test-ci: mocks tidy
@@ -112,3 +116,9 @@ model-diff:
 
 zellij:
 	zellij -l ./testdata/test-layout.kdl
+
+# Run OSSF Scorecard locally via Docker (requires GITHUB_AUTH_TOKEN)
+.PHONY: scorecard
+scorecard:
+	@if [ -z "$$GITHUB_TOKEN" ]; then echo "Error: GITHUB_TOKEN is not set" && exit 1; fi
+	docker run --rm -e GITHUB_AUTH_TOKEN="$$GITHUB_TOKEN" ghcr.io/ossf/scorecard/v5 --show-details --repo=github.com/bakito/adguardhome-sync
