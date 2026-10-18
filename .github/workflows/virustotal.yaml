@@ -4,6 +4,8 @@ on:
   release:
     types: [released]
 
+permissions: read-all
+
 jobs:
   scan_release:
     runs-on: ubuntu-latest

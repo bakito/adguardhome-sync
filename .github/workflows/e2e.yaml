@@ -12,6 +12,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions: read-all
+
 jobs:
   e2e:
     runs-on: ubuntu-latest

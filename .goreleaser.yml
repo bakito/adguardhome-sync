@@ -77,3 +77,15 @@ homebrew_casks:
     repository:
       owner: "bakito"
       name: "homebrew-tap"
+
+signs:
+  - id: default
+    cmd: cosign
+    args:
+      - "sign-blob"
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+    signature: "${artifact}.sigstore.json"
+    artifacts: checksum
+    output: true
