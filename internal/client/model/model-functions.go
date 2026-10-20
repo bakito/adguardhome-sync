@@ -193,7 +193,7 @@ func (cl *Client) PrepareDiff() *string {
 
 // AfterDiff reset after diff.
 func (cl *Client) AfterDiff(tz *string) {
-	if cl.BlockedServicesSchedule != nil {
+	if cl.BlockedServicesSchedule != nil && tz != nil {
 		cl.BlockedServicesSchedule.TimeZone = tz
 	}
 }

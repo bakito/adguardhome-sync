@@ -809,6 +809,72 @@ func TestClient_Equals(t *testing.T) {
 	}
 }
 
+func TestClient_Equals_withScheduleDays(t *testing.T) {
+	t.Run("should equal when schedule has days and same timezone", func(t *testing.T) {
+		start := float32(25200000)
+		end := float32(86400000)
+		mon := &model.DayRange{Start: &start, End: &end}
+
+		cl1 := &model.Client{
+			Name: new("foo"),
+			BlockedServicesSchedule: &model.Schedule{
+				Mon:      mon,
+				TimeZone: new("Europe/Berlin"),
+			},
+		}
+		cl2 := &model.Client{
+			Name: new("foo"),
+			BlockedServicesSchedule: &model.Schedule{
+				Mon:      mon,
+				TimeZone: new("Europe/Berlin"),
+			},
+		}
+
+		if !cl1.Equals(cl2) {
+			t.Error("should equal when schedule has days and same timezone")
+		}
+		// Verify time zone is preserved after Equals
+		if cl1.BlockedServicesSchedule.TimeZone == nil || *cl1.BlockedServicesSchedule.TimeZone != "Europe/Berlin" {
+			t.Error("cl1 timezone should be preserved after Equals")
+		}
+		if cl2.BlockedServicesSchedule.TimeZone == nil || *cl2.BlockedServicesSchedule.TimeZone != "Europe/Berlin" {
+			t.Error("cl2 timezone should be preserved after Equals")
+		}
+	})
+
+	t.Run("should not equal when schedule has days and different timezone", func(t *testing.T) {
+		start := float32(25200000)
+		end := float32(86400000)
+		mon := &model.DayRange{Start: &start, End: &end}
+
+		cl1 := &model.Client{
+			Name: new("foo"),
+			BlockedServicesSchedule: &model.Schedule{
+				Mon:      mon,
+				TimeZone: new("Europe/Berlin"),
+			},
+		}
+		cl2 := &model.Client{
+			Name: new("foo"),
+			BlockedServicesSchedule: &model.Schedule{
+				Mon:      mon,
+				TimeZone: new("UTC"),
+			},
+		}
+
+		if cl1.Equals(cl2) {
+			t.Error("should not equal when schedule has days and different timezone")
+		}
+		// Verify time zones are preserved after Equals
+		if cl1.BlockedServicesSchedule.TimeZone == nil || *cl1.BlockedServicesSchedule.TimeZone != "Europe/Berlin" {
+			t.Error("cl1 timezone should be preserved after Equals")
+		}
+		if cl2.BlockedServicesSchedule.TimeZone == nil || *cl2.BlockedServicesSchedule.TimeZone != "UTC" {
+			t.Error("cl2 timezone should be preserved after Equals")
+		}
+	})
+}
+
 func TestBlockedServices_Equals(t *testing.T) {
 	t.Run("should be equal", func(t *testing.T) {
 		s1 := &model.BlockedServicesArray{"a", "b"}
