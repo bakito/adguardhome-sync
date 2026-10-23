@@ -807,6 +807,27 @@ func TestClient_Equals(t *testing.T) {
 	if !cl1.Equals(cl2) {
 		t.Error("should equal if only timezone differs on empty blocked service schedule")
 	}
+
+	cl3 := &model.Client{
+		Name: new("foo"),
+		BlockedServicesSchedule: &model.Schedule{
+			TimeZone: new("Europe/Berlin"),
+			Mon:      &model.DayRange{Start: new(float32(1)), End: new(float32(99))},
+		},
+	}
+	cl4 := &model.Client{
+		Name: new("foo"),
+		BlockedServicesSchedule: &model.Schedule{
+			TimeZone: new("Europe/Berlin"),
+			Mon:      &model.DayRange{Start: new(float32(1)), End: new(float32(99))},
+		},
+	}
+	if !cl3.Equals(cl4) {
+		t.Error("expected equal")
+	}
+	if tz := cl3.BlockedServicesSchedule.TimeZone; tz == nil || *tz != "Europe/Berlin" {
+		t.Errorf("time zone = %v, want Europe/Berlin", tz)
+	}
 }
 
 func TestBlockedServices_Equals(t *testing.T) {
