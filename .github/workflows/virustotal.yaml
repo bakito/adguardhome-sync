@@ -1,18 +1,45 @@
-name: Scan GitHub Release with VirusTotal
+name: Scan Release with VirusTotal
+
+permissions: {}
 
 on:
-  release:
-    types: [released]
-
-permissions: read-all
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to scan (optional, defaults to latest)'
+        required: false
+        default: ''
+  workflow_call:
+    inputs:
+      release_tag:
+        description: 'Release tag to scan'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   scan_release:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
+      - name: Get Latest Release Tag
+        id: latest_release
+        run: |
+          RELEASE_TAG=${INPUTS_RELEASE_TAG}
+          if [ -z "$RELEASE_TAG" ]; then
+            RELEASE_TAG=${GITHUB_EVENT_INPUTS_RELEASE_TAG}
+          fi
+          if [ -z "$RELEASE_TAG" ]; then
+            RELEASE_TAG=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          fi
+          echo "tag_name=$RELEASE_TAG" >> $GITHUB_OUTPUT
+        env:
+          INPUTS_RELEASE_TAG: ${{ inputs.release_tag }}
+          GITHUB_EVENT_INPUTS_RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+
       - name: Analyze Build Assets
-        uses: bakito/virustotal-action@37c98d3e05c6b9fffd2bff30a0fba2db72d3458a # V1.0.4
+        uses: bakito/virustotal-action@336abda806a77344443c4411d653b3f947c1349e # v2.0.2
         with:
-          release_name: ${{github.event.release.tag_name}}
+          release_name: ${{ steps.latest_release.outputs.tag_name }}
           vt_api_key: ${{secrets.VT_API_KEY}}
