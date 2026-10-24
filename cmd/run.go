@@ -47,6 +47,8 @@ func init() {
 		"Can be used to debug the config E.g: when having authentication issues.")
 	doCmd.PersistentFlags().Bool(config.FlagContinueOnError, false, "If enabled, the synchronization task "+
 		"will not fail on single errors, but will log the errors and continue.")
+	doCmd.PersistentFlags().
+		String(config.FlagSyncTriggerFile, "", "Path to a file to watch; when modified, a re-sync is triggered")
 
 	doCmd.PersistentFlags().
 		Int(config.FlagAPIPort, 8080, "Sync API Port, the API endpoint will be started to enable remote triggering; if 0 port API is disabled.")

@@ -247,6 +247,9 @@
     },
     "runOnStart": {
       "type": "boolean"
+    },
+    "syncTriggerFile": {
+      "type": "string"
     }
   },
   "title": "adguardhome-sync Configuration",

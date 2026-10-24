@@ -277,8 +277,14 @@ func (fr *flagReader) readRootFlags() error {
 	if err != nil {
 		return err
 	}
-	return fr.setBoolFlag(FlagContinueOnError, func(_ *types.Config, value bool) {
+	err = fr.setBoolFlag(FlagContinueOnError, func(_ *types.Config, value bool) {
 		fr.cfg.ContinueOnError = value
+	})
+	if err != nil {
+		return err
+	}
+	return fr.setStringFlag(FlagSyncTriggerFile, func(_ *types.Config, value string) {
+		fr.cfg.SyncTriggerFile = value
 	})
 }
 

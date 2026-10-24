@@ -25,6 +25,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dlclark/regexp2 v1.11.0 h1:G/nrcoOa7ZXlpoa/91N3X7mM3r8eIlMBBJZvsz/mxKI=
 github.com/dlclark/regexp2 v1.11.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
+github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
+github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
 github.com/fxamacker/cbor/v2 v2.9.6 h1:NHZPxuUjJXQjX9itA785y/5NKSlI4HQ+S7noZsmI7hs=
 github.com/fxamacker/cbor/v2 v2.9.6/go.mod h1:4EaZp6ClVunETjQ4GHmGNzysDK91Lr+r6Yz6tJqzVCw=
 github.com/gabriel-vasile/mimetype v1.4.15 h1:05iP/CYtZ/w455R/KZM6rZ5ieAdh99UPtd+d3YzLmaI=

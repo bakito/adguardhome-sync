@@ -46,6 +46,20 @@ func Sync(cfg *types.Config) error {
 		cfg:          cfg,
 		createClient: client.New,
 	}
+	// Set up file watcher if configured
+	var fileWatch *FileWatcher
+	if cfg.SyncTriggerFile != "" {
+		fw, err := NewFileWatcher(cfg.SyncTriggerFile, time.Second, func() {
+			w.sync()
+		})
+		if err != nil {
+			l.With("error", err).Error("Error creating file watcher")
+			return err
+		}
+		fileWatch = fw
+		l.With("file", cfg.SyncTriggerFile).Info("File watcher configured")
+	}
+
 	if cfg.Cron != "" {
 		w.cron = cron.New()
 		cl := l.With("cron", cfg.Cron)
@@ -65,17 +79,44 @@ func Sync(cfg *types.Config) error {
 		cl.Info("Setup cronjob")
 		if cfg.API.Port != 0 {
 			w.cron.Start()
+			if fileWatch != nil {
+				go func() {
+					if err := fileWatch.Start(); err != nil {
+						l.With("error", err).Error("File watcher error")
+					}
+				}()
+			}
 		} else {
 			runOnStartAsync(cfg, w)
+			if fileWatch != nil {
+				// Run file watcher in a goroutine, block on cron
+				go func() {
+					if err := fileWatch.Start(); err != nil {
+						l.With("error", err).Error("File watcher error")
+					}
+				}()
+			}
 			w.cron.Run()
 		}
 	}
 	if cfg.API.Port != 0 {
 		runOnStartAsync(cfg, w)
+		if fileWatch != nil {
+			go func() {
+				if err := fileWatch.Start(); err != nil {
+					l.With("error", err).Error("File watcher error")
+				}
+			}()
+		}
 		w.listenAndServe()
 	} else if cfg.RunOnStart {
 		l.Info("Running sync on startup")
 		w.sync()
+	}
+
+	// Clean up file watcher on exit
+	if fileWatch != nil {
+		fileWatch.Stop()
 	}
 
 	return nil

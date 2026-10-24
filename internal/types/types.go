@@ -24,6 +24,7 @@ type Config struct {
 	RunOnStart          bool          `docs:"Run the sync on startup"                                                         env:"RUN_ON_START"        json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"`
 	PrintConfigOnly     bool          `docs:"Print current config only and stop the application"                              env:"PRINT_CONFIG_ONLY"   json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
 	ContinueOnError     bool          `docs:"Continue sync on errors"                                                         env:"CONTINUE_ON_ERROR"   json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
+	SyncTriggerFile     string        `docs:"Path to a file to watch; when modified, a re-sync is triggered"                  env:"SYNC_TRIGGER_FILE"   json:"syncTriggerFile,omitempty" yaml:"syncTriggerFile,omitempty"`
 	ClientTimeoutString string        `docs:"Define a custom http client timeout ^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"  env:"HTTP_CLIENT_TIMEOUT" faker:"oneof: 30s, 5m"           json:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty"`
 	ClientTimeout       time.Duration `json:"-"                                                                               yaml:"-"`
 	// Origin adguardhome instance
