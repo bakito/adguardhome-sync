@@ -203,6 +203,7 @@ func (w *worker) sync() {
 	defer func() {
 		w.running = false
 	}()
+	metrics.IncrementSyncCount()
 
 	oc, err := w.createClient(*w.cfg.Origin, w.cfg.ClientTimeout)
 	if err != nil {

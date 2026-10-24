@@ -31,6 +31,8 @@ test-e2e:
 	./testdata/e2e/bin/install-chart.sh $(MODE)
 	E2E_MODE=$(MODE) go test -v -tags=e2e ./test/e2e/...
 
+e2e-run: test-e2e
+
 # Run E2E tests against an external / IDE-debugged sync process
 test-e2e-external:
 	E2E_EXTERNAL_SYNC=true E2E_MODE=$(MODE) go test -v -tags=e2e ./test/e2e/...

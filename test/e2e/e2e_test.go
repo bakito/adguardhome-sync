@@ -273,6 +273,7 @@ func TestE2E(t *testing.T) {
 		expectedMetrics := []string{
 			"adguard_home_sync_sync_successful",
 			"adguard_home_sync_sync_duration_seconds",
+			"adguard_home_sync_sync_count",
 			"adguard_running",
 		}
 		for _, m := range expectedMetrics {
@@ -409,17 +410,19 @@ func TestE2E(t *testing.T) {
 			return
 		}
 
+		time.Sleep(1 * time.Second)
+
 		// Get the current successful sync count from metrics
 		metricsBefore, err := GetMetrics(ctx, cfg.SyncURL, cfg.InsecureSkipVerify)
 		if err != nil {
 			t.Fatalf("Failed to get metrics before trigger: %v", err)
 		}
 
-		// Extract the sync_successful count from metrics
+		// Extract the sync_count from metrics
 		syncCountBefore := 0
 		for line := range strings.Lines(metricsBefore) {
-			if strings.Contains(line, "adguard_home_sync_sync_successful") && !strings.Contains(line, "#") {
-				// Format: adguard_home_sync_sync_successful 42
+			if strings.Contains(line, "adguard_home_sync_sync_count") && !strings.Contains(line, "#") {
+				// Format: adguard_home_sync_sync_count 42
 				parts := strings.Fields(line)
 				if len(parts) >= 2 {
 					_, _ = fmt.Sscanf(parts[1], "%d", &syncCountBefore)
@@ -438,6 +441,12 @@ func TestE2E(t *testing.T) {
 		}
 		t.Logf("Trigger ConfigMap patched with value: %s", timestamp)
 
+		// Add a label to the sync pod to trigger ConfigMap reload
+		reloadLabel := fmt.Sprintf("sync-reload-%d", time.Now().Unix())
+		if err := k8s.PatchPodLabel(ctx, cfg.SyncPod, "bakito.net/sync-reload", reloadLabel); err != nil {
+			t.Logf("Warning: failed to patch sync pod label: %v", err)
+		}
+
 		// Wait for kubelet to update the mounted file (debounce 1s + sync duration)
 		time.Sleep(3 * time.Second)
 
@@ -445,13 +454,15 @@ func TestE2E(t *testing.T) {
 		var syncCountAfter int
 		for range 20 {
 			time.Sleep(3 * time.Second)
-			metricsAfter, err := GetMetrics(ctx, cfg.SyncURL, cfg.InsecureSkipVerify)
+			pollCtx, pollCancel := context.WithTimeout(ctx, 10*time.Second)
+			metricsAfter, err := GetMetrics(pollCtx, cfg.SyncURL, cfg.InsecureSkipVerify)
+			pollCancel()
 			if err != nil {
 				t.Logf("Failed to get metrics during poll: %v", err)
 				continue
 			}
 			for line := range strings.Lines(metricsAfter) {
-				if strings.Contains(line, "adguard_home_sync_sync_successful") && !strings.Contains(line, "#") {
+				if strings.Contains(line, "adguard_home_sync_sync_count") && !strings.Contains(line, "#") {
 					parts := strings.Fields(line)
 					if len(parts) >= 2 {
 						_, _ = fmt.Sscanf(parts[1], "%d", &syncCountAfter)

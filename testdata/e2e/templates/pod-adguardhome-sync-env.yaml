@@ -25,7 +25,7 @@ spec:
         - run
       env:
         - name: LOG_LEVEL
-          value: 'debug'
+          value: 'info'
       envFrom:
         - configMapRef:
             name: sync-conf

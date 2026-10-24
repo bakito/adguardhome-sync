@@ -27,7 +27,7 @@ spec:
         - /etc/go/adguardhome-sync/config.yaml
       env:
         - name: LOG_LEVEL
-          value: 'debug'
+          value: 'info'
       volumeMounts:
         - name: config
           mountPath: /etc/go/adguardhome-sync/

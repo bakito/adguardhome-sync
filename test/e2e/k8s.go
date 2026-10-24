@@ -127,6 +127,26 @@ func (k *K8sHelper) PatchConfigMap(ctx context.Context, name string, data map[st
 	return nil
 }
 
+// PatchPodLabel adds or updates a label on a pod using kubectl label.
+func (k *K8sHelper) PatchPodLabel(ctx context.Context, pod string, labelKey, labelValue string) error {
+	cmd := exec.CommandContext(
+		ctx,
+		"kubectl",
+		"label",
+		"pod",
+		pod,
+		"-n",
+		k.Namespace,
+		"--overwrite",
+		fmt.Sprintf("%s=%s", labelKey, labelValue),
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("kubectl label pod failed: %w, output: %s", err, string(out))
+	}
+	return nil
+}
+
 // marshalMap converts a map to a JSON string.
 func marshalMap(m map[string]string) string {
 	b, _ := json.Marshal(m)
