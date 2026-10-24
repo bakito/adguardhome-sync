@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"regexp"
+
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/bakito/adguardhome-sync/internal/client/model"
@@ -160,6 +162,24 @@ var (
 	stats = OverallStats{}
 )
 
+var allMetrics = []prometheus.Collector{
+	avgProcessingTime,
+	dnsQueries,
+	blockedFiltering,
+	parentalFiltering,
+	safeBrowsingFiltering,
+	safeSearchFiltering,
+	topQueries,
+	topBlocked,
+	topClients,
+	queryTypes,
+	running,
+	protectionEnabled,
+	aghsSyncDuration,
+	aghsSyncSuccessful,
+	aghsSyncCount,
+}
+
 // Init initializes all Prometheus metrics made available by AdGuard  exporter.
 func Init() {
 	initMetric("avg_processing_time", avgProcessingTime)
@@ -307,4 +327,24 @@ func getStats() OverallStats {
 
 func (os OverallStats) Total() *model.Stats {
 	return os[StatsTotal]
+}
+
+var descRe = regexp.MustCompile(`Desc\{fqName: "([^"]+)", help: "([^"]*)"`)
+
+// MetricsDoc returns a map of every emitted OTLP metric key to its
+// description. This can be used to generate documentation automatically.
+func MetricsDoc() map[string]string {
+	docs := make(map[string]string, len(allMetrics))
+	for _, m := range allMetrics {
+		ch := make(chan *prometheus.Desc, 10)
+		m.Describe(ch)
+		close(ch)
+		for desc := range ch {
+			matches := descRe.FindStringSubmatch(desc.String())
+			if len(matches) == 3 {
+				docs[matches[1]] = matches[2]
+			}
+		}
+	}
+	return docs
 }

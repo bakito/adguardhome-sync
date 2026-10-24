@@ -755,6 +755,30 @@ Serve the web dashboard with DNS statistics, sync status, and metrics (if enable
 - **Authentication**: Required (if configured)
 - **Response** (`200 OK`): HTML dashboard
 
+## Metrics
+
+If enabled, the following metrics are available:
+
+<!-- metrics-doc-start -->
+| Metric | Description |
+| ------ | ----------- |
+| adguard_avg_processing_time | This represent the average processing time for a DNS query in s |
+| adguard_home_sync_sync_count_total | Total number of started sync runs |
+| adguard_home_sync_sync_duration_seconds | This represents the duration of the last sync in seconds |
+| adguard_home_sync_sync_successful | This represents the whether the last sync was successful |
+| adguard_num_blocked_filtering | This represent the number of domains blocked |
+| adguard_num_dns_queries | Number of DNS queries |
+| adguard_num_replaced_parental | This represent the number of domains blocked (parental) |
+| adguard_num_replaced_safebrowsing | This represent the number of domains blocked (safe browsing) |
+| adguard_num_replaced_safesearch | This represent the number of domains blocked (safe search) |
+| adguard_protection_enabled | This represent if Adguard Protection is enabled |
+| adguard_query_types | This represent the DNS query types |
+| adguard_running | This represent if Adguard is running |
+| adguard_top_blocked_domains | This represent the top bloacked domains |
+| adguard_top_clients | This represent the top clients |
+| adguard_top_queried_domains | This represent the top queried domains |
+<!-- metrics-doc-end -->
+
 ## Video Tutorials
 
 - [Como replicar la configuración de tu servidor DNS Adguard automáticamente - Tu servidor Part #12](https://www.youtube.com/watch?v=1LPeu_JG064) (
