@@ -5,6 +5,7 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os/exec"
@@ -99,6 +100,55 @@ func (k *K8sHelper) WaitForPodRunning(ctx context.Context, pod string, timeout t
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("kubectl wait failed: %w, output: %s", err, string(out))
+	}
+	return nil
+}
+
+// PatchConfigMap updates a ConfigMap's data field using kubectl patch (merge strategy).
+func (k *K8sHelper) PatchConfigMap(ctx context.Context, name string, data map[string]string) error {
+	// Build a JSON patch payload
+	patch := fmt.Sprintf(`{"data":%s}`, marshalMap(data))
+	cmd := exec.CommandContext(
+		ctx,
+		"kubectl",
+		"patch",
+		"configmap",
+		name,
+		"-n",
+		k.Namespace,
+		"--type=merge",
+		"-p",
+		patch,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("kubectl patch configmap failed: %w, output: %s", err, string(out))
+	}
+	return nil
+}
+
+// marshalMap converts a map to a JSON string.
+func marshalMap(m map[string]string) string {
+	b, _ := json.Marshal(m)
+	return string(b)
+}
+
+// AnnotatePod adds an annotation to a pod.
+func (k *K8sHelper) AnnotatePod(ctx context.Context, pod, key, value string) error {
+	cmd := exec.CommandContext(
+		ctx,
+		"kubectl",
+		"annotate",
+		"--overwrite",
+		"pod",
+		pod,
+		"-n",
+		k.Namespace,
+		fmt.Sprintf("%s=%s", key, value),
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("kubectl annotate pod failed: %w, output: %s", err, string(out))
 	}
 	return nil
 }

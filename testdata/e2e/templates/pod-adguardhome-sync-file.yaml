@@ -16,15 +16,6 @@ spec:
         - -c
         - |
           {{- .Files.Get "bin/wait-for-agh-pods.sh" | nindent 10}}
-    - name: init-trigger-file
-      image: {{ .Values.kubectl.repository }}:{{ .Values.kubectl.tag }}
-      command:
-        - /bin/bash
-        - -c
-        - echo trigger > /tmp/sync-trigger
-      volumeMounts:
-        - name: trigger
-          mountPath: /tmp
   containers:
     - name: adguardhome-sync
       image: adguardhome-sync:e2e
@@ -41,7 +32,8 @@ spec:
         - name: config
           mountPath: /etc/go/adguardhome-sync/
         - name: trigger
-          mountPath: /tmp
+          mountPath: /config
+          readOnly: true
       livenessProbe:
         exec:
           command:
@@ -66,6 +58,10 @@ spec:
       configMap:
         name: sync-conf
     - name: trigger
-      emptyDir: {}
+      configMap:
+        name: sync-conf
+        items:
+          - key: sync-trigger
+            path: sync-trigger
   restartPolicy: Never
 {{- end }}

@@ -428,14 +428,23 @@ func TestE2E(t *testing.T) {
 		}
 		t.Logf("Sync count before trigger: %d", syncCountBefore)
 
-		// Write to the trigger file to initiate a sync
-		out, err := k8s.Exec(ctx, cfg.SyncPod, "sh", "-c", "echo trigger-$(date +%s) >> /tmp/sync-trigger")
+		// Update the ConfigMap trigger file to initiate a sync
+		// Changing the ConfigMap data causes kubelet to update the mounted file,
+		// which triggers the fsnotify watcher
+		timestamp := fmt.Sprintf("trigger-%d", time.Now().Unix())
+		err = k8s.PatchConfigMap(ctx, "sync-conf", map[string]string{"sync-trigger": timestamp})
 		if err != nil {
-			t.Fatalf("Failed to write to trigger file: %v (output: %s)", err, out)
+			t.Fatalf("Failed to patch ConfigMap: %v", err)
 		}
-		t.Log("Trigger file written, waiting for sync...")
+		t.Logf("ConfigMap patched with trigger value: %s", timestamp)
 
-		// Wait for the sync to complete (debounce 1s + sync duration)
+		// Also annotate the pod to help kubelet detect the ConfigMap change faster
+		err = k8s.AnnotatePod(ctx, cfg.SyncPod, "e2e.adguardhome-sync/trigger", timestamp)
+		if err != nil {
+			t.Logf("Warning: failed to annotate pod: %v", err)
+		}
+
+		// Wait for kubelet to update the mounted file (debounce 1s + sync duration)
 		time.Sleep(3 * time.Second)
 
 		// Poll for the sync count to increase
