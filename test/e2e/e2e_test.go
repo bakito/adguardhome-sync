@@ -273,7 +273,7 @@ func TestE2E(t *testing.T) {
 		expectedMetrics := []string{
 			"adguard_home_sync_sync_successful",
 			"adguard_home_sync_sync_duration_seconds",
-			"adguard_home_sync_sync_count",
+			"adguard_home_sync_sync_count_total",
 			"adguard_running",
 		}
 		for _, m := range expectedMetrics {
@@ -421,8 +421,8 @@ func TestE2E(t *testing.T) {
 		// Extract the sync_count from metrics
 		syncCountBefore := 0
 		for line := range strings.Lines(metricsBefore) {
-			if strings.Contains(line, "adguard_home_sync_sync_count") && !strings.Contains(line, "#") {
-				// Format: adguard_home_sync_sync_count 42
+			if strings.Contains(line, "adguard_home_sync_sync_count_total") && !strings.Contains(line, "#") {
+				// Format: adguard_home_sync_sync_count_total 42
 				parts := strings.Fields(line)
 				if len(parts) >= 2 {
 					_, _ = fmt.Sscanf(parts[1], "%d", &syncCountBefore)
@@ -462,7 +462,7 @@ func TestE2E(t *testing.T) {
 				continue
 			}
 			for line := range strings.Lines(metricsAfter) {
-				if strings.Contains(line, "adguard_home_sync_sync_count") && !strings.Contains(line, "#") {
+				if strings.Contains(line, "adguard_home_sync_sync_count_total") && !strings.Contains(line, "#") {
 					parts := strings.Fields(line)
 					if len(parts) >= 2 {
 						_, _ = fmt.Sscanf(parts[1], "%d", &syncCountAfter)

@@ -152,7 +152,7 @@ var (
 	// aghsSyncCount - total number of started sync runs.
 	aghsSyncCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name:      "sync_count",
+			Name:      "sync_count_total",
 			Namespace: "adguard_home_sync",
 			Help:      "Total number of started sync runs",
 		},
@@ -176,7 +176,7 @@ func Init() {
 	initMetric("protection_enabled", protectionEnabled)
 	initMetric("sync_duration_seconds", aghsSyncDuration)
 	initMetric("sync_successful", aghsSyncSuccessful)
-	initMetric("sync_count", aghsSyncCount)
+	initMetric("sync_count_total", aghsSyncCount)
 }
 
 func initMetric(name string, metric prometheus.Collector) {

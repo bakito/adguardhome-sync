@@ -1,3 +1,6 @@
+# Force all Go toolchain-dependent commands to use the project's Go version
+export GOTOOLCHAIN ?= $(shell go version | awk '{print $$3}')
+
 # Include toolbox tasks
 include ./.toolbox.mk
 

@@ -7,9 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bakito/adguardhome-sync/internal/log"
 	"github.com/fsnotify/fsnotify"
 	"go.uber.org/zap"
+
+	"github.com/bakito/adguardhome-sync/internal/log"
 )
 
 // FileWatcher monitors a file for changes and triggers a callback with debounce.
@@ -47,7 +48,6 @@ func NewFileWatcher(path string, debounce time.Duration, onChange func()) (*File
 // Kubernetes ConfigMap updates that remove and recreate the file.
 // If the path is a symlink, it also watches the target file's parent directory.
 func (fw *FileWatcher) Start() error {
-
 	fw.l.Info("starting file watcher")
 
 	// Watch the parent directory if the path is a file or symlink, to handle
@@ -86,7 +86,8 @@ func (fw *FileWatcher) Start() error {
 	}
 
 	if symlinkTarget != "" {
-		fw.l.With("watch", watchPath, "target", symlinkTarget, "targetWatch", targetWatchPath, "debounce", fw.debounce).Info("watching file for changes")
+		fw.l.With("watch", watchPath, "target", symlinkTarget, "targetWatch", targetWatchPath, "debounce", fw.debounce).
+			Info("watching file for changes")
 	} else {
 		fw.l.With("watch", watchPath, "debounce", fw.debounce).Info("watching file for changes")
 	}
@@ -108,7 +109,8 @@ func (fw *FileWatcher) Start() error {
 			// kubelet may create temp files there during atomic symlink replacement.
 			if watchPath != fw.path {
 				eventDir := filepath.Dir(event.Name)
-				if event.Name != fw.path && event.Name != symlinkTarget && eventDir != targetWatchPath && eventDir != watchPath {
+				if event.Name != fw.path && event.Name != symlinkTarget && eventDir != targetWatchPath &&
+					eventDir != watchPath {
 					fw.l.With("event", event.Name, "operation", event.Op).Debug("ignoring event for unrelated path")
 					continue
 				}

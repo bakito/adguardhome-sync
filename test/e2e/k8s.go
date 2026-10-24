@@ -128,7 +128,7 @@ func (k *K8sHelper) PatchConfigMap(ctx context.Context, name string, data map[st
 }
 
 // PatchPodLabel adds or updates a label on a pod using kubectl label.
-func (k *K8sHelper) PatchPodLabel(ctx context.Context, pod string, labelKey, labelValue string) error {
+func (k *K8sHelper) PatchPodLabel(ctx context.Context, pod, labelKey, labelValue string) error {
 	cmd := exec.CommandContext(
 		ctx,
 		"kubectl",
