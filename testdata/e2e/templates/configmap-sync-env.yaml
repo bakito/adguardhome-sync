@@ -9,6 +9,7 @@ data:
   API_METRICS_ENABLED: 'true'
   API_METRICS_SCRAPE_INTERVAL: '30s'
   API_TLS_CERT_DIR: '/certs'
+  SYNC_TRIGGER_FILE: '/tmp/sync-trigger'
   API_TLS_CERT_NAME: 'my.crt'
   API_TLS_KEY_NAME: 'my.key'
   LOG_FORMAT: 'json'

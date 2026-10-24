@@ -182,6 +182,8 @@ runOnStart:
 printConfigOnly:
 # Continue sync on errors (bool)
 continueOnError:
+# Path to a file to watch; when modified, a re-sync is triggered (string)
+syncTriggerFile:
 # Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$ (string)
 httpClientTimeout:
 # Origin instance (struct)
