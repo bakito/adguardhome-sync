@@ -192,8 +192,10 @@ func (cl *Client) PrepareDiff() *string {
 }
 
 // AfterDiff reset after diff.
+// PrepareDiff returns a time zone only when it cleared one from an empty schedule.
+// A nil tz means the schedule was left unchanged and must not be overwritten.
 func (cl *Client) AfterDiff(tz *string) {
-	if cl.BlockedServicesSchedule != nil {
+	if cl.BlockedServicesSchedule != nil && tz != nil {
 		cl.BlockedServicesSchedule.TimeZone = tz
 	}
 }
