@@ -70,8 +70,13 @@ release: tb.semver tb.goreleaser tb.syft
 	git push origin $$version
 	PATH=$(TB_LOCALBIN):$${PATH} $(TB_GORELEASER) --clean --parallelism 2
 
+GORELEASER_SKIP_SIGN ?=
+ifeq ($(GORELEASER_SKIP_SIGN),true)
+GORELEASER_SKIP_FLAGS := --skip=sign
+endif
+
 test-release: tb.goreleaser tb.syft
-	PATH=$(TB_LOCALBIN):$${PATH} $(TB_GORELEASER) --skip=publish --snapshot --clean --parallelism 2
+	PATH=$(TB_LOCALBIN):$${PATH} $(TB_GORELEASER) --skip=publish --snapshot $(GORELEASER_SKIP_FLAGS) --clean --parallelism 2
 
 check-vulnerabilities:
 	go run golang.org/x/vuln/cmd/govulncheck@latest -show verbose,color ./...
