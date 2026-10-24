@@ -68,6 +68,7 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | RUN_ON_START (bool)                                          | bool   | Run the sync on startup                                                                              |
 | PRINT_CONFIG_ONLY (bool)                                     | bool   | Print current config only and stop the application                                                   |
 | CONTINUE_ON_ERROR (bool)                                     | bool   | Continue sync on errors                                                                              |
+| SYNC_TRIGGER_FILE (string)                                   | string | Path to a file to watch; when modified, a re-sync is triggered                                       |
 | HTTP_CLIENT_TIMEOUT (string)                                 | string | Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$                        |
 | ORIGIN_URL (string)                                          | string | URL of adguardhome instance                                                                          |
 | ORIGIN_WEB_URL (string)                                      | string | Web URL of adguardhome instance                                                                      |
@@ -181,6 +182,8 @@ runOnStart:
 printConfigOnly:
 # Continue sync on errors (bool)
 continueOnError:
+# Path to a file to watch; when modified, a re-sync is triggered (string)
+syncTriggerFile:
 # Define a custom http client timeout ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$ (string)
 httpClientTimeout:
 # Origin instance (struct)

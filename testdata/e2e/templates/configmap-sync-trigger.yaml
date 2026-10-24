@@ -1,0 +1,9 @@
+{{- if .Values.sync.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sync-trigger
+  namespace: {{ .Release.Namespace }}
+data:
+  trigger: 'initial'
+{{- end }}

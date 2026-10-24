@@ -1,3 +1,6 @@
+# Force all Go toolchain-dependent commands to use the project's Go version
+export GOTOOLCHAIN ?= $(shell go version | awk '{print $$3}')
+
 # Include toolbox tasks
 include ./.toolbox.mk
 
@@ -30,6 +33,8 @@ test: generate lint test-ci
 test-e2e:
 	./testdata/e2e/bin/install-chart.sh $(MODE)
 	E2E_MODE=$(MODE) go test -v -tags=e2e ./test/e2e/...
+
+e2e-run: test-e2e
 
 # Run E2E tests against an external / IDE-debugged sync process
 test-e2e-external:

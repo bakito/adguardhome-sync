@@ -36,7 +36,7 @@ RUN CGO_ENABLED=0 \
 RUN go version && upx -q adguardhome-sync
 
 # application image
-FROM scratch
+FROM golang:1.27-alpine
 ARG VERSION=main
 ARG BUILD="N/A"
 WORKDIR /opt/go

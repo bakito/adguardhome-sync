@@ -149,6 +149,14 @@ var (
 		},
 		[]string{"hostname"},
 	)
+	// aghsSyncCount - total number of started sync runs.
+	aghsSyncCount = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name:      "sync_count_total",
+			Namespace: "adguard_home_sync",
+			Help:      "Total number of started sync runs",
+		},
+	)
 	stats = OverallStats{}
 )
 
@@ -168,9 +176,10 @@ func Init() {
 	initMetric("protection_enabled", protectionEnabled)
 	initMetric("sync_duration_seconds", aghsSyncDuration)
 	initMetric("sync_successful", aghsSyncSuccessful)
+	initMetric("sync_count_total", aghsSyncCount)
 }
 
-func initMetric(name string, metric *prometheus.GaugeVec) {
+func initMetric(name string, metric prometheus.Collector) {
 	prometheus.MustRegister(metric)
 	l.With("name", name).Info("New Prometheus metric registered")
 }
@@ -191,6 +200,10 @@ func UpdateResult(host string, ok bool, duration float64) {
 		aghsSyncSuccessful.WithLabelValues(host).Set(0)
 	}
 	aghsSyncDuration.WithLabelValues(host).Set(duration)
+}
+
+func IncrementSyncCount() {
+	aghsSyncCount.Inc()
 }
 
 func updateMetrics(im InstanceMetrics) {

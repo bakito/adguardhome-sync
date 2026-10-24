@@ -5,6 +5,7 @@ const (
 	FlagRunOnStart      = "runOnStart"
 	FlagPrintConfigOnly = "printConfigOnly"
 	FlagContinueOnError = "continueOnError"
+	FlagSyncTriggerFile = "sync-trigger-file"
 
 	FlagAPIPort     = "api-port"
 	FlagAPIUsername = "api-username"

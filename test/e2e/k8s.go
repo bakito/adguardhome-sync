@@ -5,6 +5,7 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os/exec"
@@ -101,6 +102,55 @@ func (k *K8sHelper) WaitForPodRunning(ctx context.Context, pod string, timeout t
 		return fmt.Errorf("kubectl wait failed: %w, output: %s", err, string(out))
 	}
 	return nil
+}
+
+// PatchConfigMap updates a ConfigMap's data field using kubectl patch (merge strategy).
+func (k *K8sHelper) PatchConfigMap(ctx context.Context, name string, data map[string]string) error {
+	// Build a JSON patch payload
+	patch := fmt.Sprintf(`{"data":%s}`, marshalMap(data))
+	cmd := exec.CommandContext(
+		ctx,
+		"kubectl",
+		"patch",
+		"configmap",
+		name,
+		"-n",
+		k.Namespace,
+		"--type=merge",
+		"-p",
+		patch,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("kubectl patch configmap failed: %w, output: %s", err, string(out))
+	}
+	return nil
+}
+
+// PatchPodLabel adds or updates a label on a pod using kubectl label.
+func (k *K8sHelper) PatchPodLabel(ctx context.Context, pod, labelKey, labelValue string) error {
+	cmd := exec.CommandContext(
+		ctx,
+		"kubectl",
+		"label",
+		"pod",
+		pod,
+		"-n",
+		k.Namespace,
+		"--overwrite",
+		fmt.Sprintf("%s=%s", labelKey, labelValue),
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("kubectl label pod failed: %w, output: %s", err, string(out))
+	}
+	return nil
+}
+
+// marshalMap converts a map to a JSON string.
+func marshalMap(m map[string]string) string {
+	b, _ := json.Marshal(m)
+	return string(b)
 }
 
 // StartPortForward spawns a kubectl port-forward process in the background and returns a cleanup func.

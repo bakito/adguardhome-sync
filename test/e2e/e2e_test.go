@@ -273,6 +273,7 @@ func TestE2E(t *testing.T) {
 		expectedMetrics := []string{
 			"adguard_home_sync_sync_successful",
 			"adguard_home_sync_sync_duration_seconds",
+			"adguard_home_sync_sync_count_total",
 			"adguard_running",
 		}
 		for _, m := range expectedMetrics {
@@ -399,7 +400,112 @@ func TestE2E(t *testing.T) {
 		}
 	})
 
-	// 8. Latest Replica Configuration Inspection & Sync Accuracy Verification
+	// 8. File Watch Sync Trigger Verification
+	t.Run("FileWatchTrigger", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(t.Context(), 60*time.Second)
+		defer cancel()
+
+		if cfg.ExternalSync {
+			t.Log("Sync executed externally, skipping file watch trigger test")
+			return
+		}
+
+		time.Sleep(1 * time.Second)
+
+		// Get the current successful sync count from metrics
+		metricsBefore, err := GetMetrics(ctx, cfg.SyncURL, cfg.InsecureSkipVerify)
+		if err != nil {
+			t.Fatalf("Failed to get metrics before trigger: %v", err)
+		}
+
+		// Extract the sync_count from metrics
+		syncCountBefore := 0
+		for line := range strings.Lines(metricsBefore) {
+			if strings.Contains(line, "adguard_home_sync_sync_count_total") && !strings.Contains(line, "#") {
+				// Format: adguard_home_sync_sync_count_total 42
+				parts := strings.Fields(line)
+				if len(parts) >= 2 {
+					_, _ = fmt.Sscanf(parts[1], "%d", &syncCountBefore)
+				}
+			}
+		}
+		t.Logf("Sync count before trigger: %d", syncCountBefore)
+
+		// Update the dedicated trigger ConfigMap to initiate a sync
+		// Changing the ConfigMap data causes kubelet to update the mounted file,
+		// which triggers the fsnotify watcher
+		timestamp := fmt.Sprintf("trigger-%d", time.Now().Unix())
+		err = k8s.PatchConfigMap(ctx, "sync-trigger", map[string]string{"trigger": timestamp})
+		if err != nil {
+			t.Fatalf("Failed to patch trigger ConfigMap: %v", err)
+		}
+		t.Logf("Trigger ConfigMap patched with value: %s", timestamp)
+
+		// Add a label to the sync pod to trigger ConfigMap reload
+		reloadLabel := fmt.Sprintf("sync-reload-%d", time.Now().Unix())
+		if err := k8s.PatchPodLabel(ctx, cfg.SyncPod, "bakito.net/sync-reload", reloadLabel); err != nil {
+			t.Logf("Warning: failed to patch sync pod label: %v", err)
+		}
+
+		// Wait for kubelet to update the mounted file (debounce 1s + sync duration)
+		time.Sleep(3 * time.Second)
+
+		// Poll for the sync count to increase
+		var syncCountAfter int
+		for range 20 {
+			time.Sleep(3 * time.Second)
+			pollCtx, pollCancel := context.WithTimeout(ctx, 10*time.Second)
+			metricsAfter, err := GetMetrics(pollCtx, cfg.SyncURL, cfg.InsecureSkipVerify)
+			pollCancel()
+			if err != nil {
+				t.Logf("Failed to get metrics during poll: %v", err)
+				continue
+			}
+			for line := range strings.Lines(metricsAfter) {
+				if strings.Contains(line, "adguard_home_sync_sync_count_total") && !strings.Contains(line, "#") {
+					parts := strings.Fields(line)
+					if len(parts) >= 2 {
+						_, _ = fmt.Sscanf(parts[1], "%d", &syncCountAfter)
+					}
+				}
+			}
+			if syncCountAfter > syncCountBefore {
+				break
+			}
+		}
+
+		t.Logf("Sync count after trigger: %d (was %d)", syncCountAfter, syncCountBefore)
+		if syncCountAfter <= syncCountBefore {
+			// Check logs for file watcher evidence
+			logs, _ := k8s.Logs(ctx, cfg.SyncPod)
+			WriteStepSummary(cfg.StepSummaryFile, "File Watch Trigger Logs", logs)
+			t.Errorf("Expected sync count to increase after file trigger, got %d (was %d)", syncCountAfter, syncCountBefore)
+		} else {
+			t.Logf("File watch trigger successfully initiated a sync (count: %d -> %d)", syncCountBefore, syncCountAfter)
+		}
+
+		// Verify sync pod logs show the file watcher activity
+		logs, err := k8s.Logs(ctx, cfg.SyncPod)
+		if err != nil {
+			t.Fatalf("Failed to get sync pod logs: %v", err)
+		}
+
+		fileChangedFound := false
+		for line := range strings.Lines(logs) {
+			if strings.Contains(line, "file changed") && strings.Contains(line, "/trigger") {
+				fileChangedFound = true
+				break
+			}
+		}
+		if !fileChangedFound {
+			t.Log("Warning: 'file changed' log not found in sync pod logs")
+		}
+
+		WriteStepSummary(cfg.StepSummaryFile, "File Watch Trigger",
+			fmt.Sprintf("Sync count: %d -> %d, File changed detected: %v", syncCountBefore, syncCountAfter, fileChangedFound))
+	})
+
+	// 9. Latest Replica Configuration Inspection & Sync Accuracy Verification
 	t.Run("LatestReplicaConfig", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
 		defer cancel()
