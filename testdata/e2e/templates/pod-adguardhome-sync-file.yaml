@@ -32,7 +32,7 @@ spec:
         - name: config
           mountPath: /etc/go/adguardhome-sync/
         - name: trigger
-          mountPath: /config
+          mountPath: /trigger
           readOnly: true
       livenessProbe:
         exec:
@@ -59,9 +59,6 @@ spec:
         name: sync-conf
     - name: trigger
       configMap:
-        name: sync-conf
-        items:
-          - key: sync-trigger
-            path: sync-trigger
+        name: sync-trigger
   restartPolicy: Never
 {{- end }}

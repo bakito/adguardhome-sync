@@ -33,7 +33,7 @@ spec:
         - name: certs
           mountPath: /certs
         - name: trigger
-          mountPath: /config
+          mountPath: /trigger
           readOnly: true
       livenessProbe:
         exec:
@@ -57,8 +57,5 @@ spec:
         name: certs
     - name: trigger
       configMap:
-        name: sync-conf
-        items:
-          - key: sync-trigger
-            path: sync-trigger
+        name: sync-trigger
   {{- end }}

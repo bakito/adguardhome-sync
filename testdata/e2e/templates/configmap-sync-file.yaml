@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   config.yaml: |
-    syncTriggerFile: '/config/sync-trigger'
+    syncTriggerFile: '/trigger/trigger'
     origin:
       url: 'http://service-origin.{{ $.Release.Namespace }}.svc.cluster.local:3000'
       username: username
@@ -28,5 +28,4 @@ data:
             serverConfig: false
         {{- end }}
       {{- end }}
-  sync-trigger: 'initial'
 {{- end }}

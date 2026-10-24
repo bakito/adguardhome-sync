@@ -133,26 +133,6 @@ func marshalMap(m map[string]string) string {
 	return string(b)
 }
 
-// AnnotatePod adds an annotation to a pod.
-func (k *K8sHelper) AnnotatePod(ctx context.Context, pod, key, value string) error {
-	cmd := exec.CommandContext(
-		ctx,
-		"kubectl",
-		"annotate",
-		"--overwrite",
-		"pod",
-		pod,
-		"-n",
-		k.Namespace,
-		fmt.Sprintf("%s=%s", key, value),
-	)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("kubectl annotate pod failed: %w, output: %s", err, string(out))
-	}
-	return nil
-}
-
 // StartPortForward spawns a kubectl port-forward process in the background and returns a cleanup func.
 func (k *K8sHelper) StartPortForward(ctx context.Context, pod string, localPort, remotePort int) (func(), error) {
 	portMapping := fmt.Sprintf("%d:%d", localPort, remotePort)
