@@ -29,7 +29,7 @@ TB_MOCKGEN_VERSION ?= v0.6.0
 # renovate: packageName=github.com/oapi-codegen/oapi-codegen/v2
 TB_OAPI_CODEGEN_VERSION ?= v2.8.1
 # renovate: packageName=github.com/bakito/semver
-TB_SEMVER_VERSION ?= v1.1.10
+TB_SEMVER_VERSION ?= v1.1.13
 # renovate: packageName=github.com/anchore/syft/cmd/syft
 TB_SYFT_VERSION ?= v1.55.0
 
