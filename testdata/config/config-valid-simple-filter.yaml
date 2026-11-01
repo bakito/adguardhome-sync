@@ -1,4 +1,4 @@
-# cron expression to run in daemon mode. (default; "" = runs only once)
+# Cron expression for scheduled syncs; leave empty for one-shot mode (see runOnStart and api.port).
 cron: "*/10 * * * *"
 
 # runs the synchronisation on startup

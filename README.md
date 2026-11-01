@@ -64,8 +64,8 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 <!-- env-doc-start -->
 | Name                                                         | Type   | Description                                                                                          |
 | :----------------------------------------------------------- | ------ | :--------------------------------------------------------------------------------------------------- |
-| CRON (string)                                                | string | Cron expression for the sync interval                                                                |
-| RUN_ON_START (bool)                                          | bool   | Run the sync on startup                                                                              |
+| CRON (string)                                                | string | Cron expression for the sync interval (leave empty for one-shot mode; see runOnStart and api.port)   |
+| RUN_ON_START (bool)                                          | bool   | Run the sync on startup (required for one-shot mode with empty cron and api.port=0)                  |
 | PRINT_CONFIG_ONLY (bool)                                     | bool   | Print current config only and stop the application                                                   |
 | CONTINUE_ON_ERROR (bool)                                     | bool   | Continue sync on errors                                                                              |
 | SYNC_TRIGGER_FILE (string)                                   | string | Path to a file to watch; when modified, a re-sync is triggered                                       |
@@ -108,7 +108,7 @@ For Replicas replace `#` with the index number for the replica. E.g.: `REPLICA#_
 | REPLICA#_FEATURES_FILTERS_FEATURES_FILTERS_USER_RULES (bool) | bool   | Sync user rules                                                                                      |
 | REPLICA#_FEATURES_THEME (bool)                               | bool   | Sync the web UI theme                                                                                |
 | REPLICA#_FEATURES_TLS_CONFIG (bool)                          | bool   | Sync the TLS config (Note: cannot sync inline private keys, only settings and certificate/key paths) |
-| API_PORT (int)                                               | int    | API port (API is disabled if port is set to 0)                                                       |
+| API_PORT (int)                                               | int    | API port (disabled if 0; set to 0 for one-shot mode with empty cron and runOnStart=true)             |
 | API_USERNAME (string)                                        | string | API username                                                                                         |
 | API_PASSWORD (string)                                        | string | API password                                                                                         |
 | API_DARK_MODE (bool)                                         | bool   | API dark mode                                                                                        |
@@ -174,9 +174,9 @@ location: $HOME/.adguardhome-sync.yaml
 
 <!-- yaml-doc-start -->
 ```yaml
-# Cron expression for the sync interval (string)
+# Cron expression for the sync interval (leave empty for one-shot mode; see runOnStart and api.port) (string)
 cron:
-# Run the sync on startup (bool)
+# Run the sync on startup (required for one-shot mode with empty cron and api.port=0) (bool)
 runOnStart:
 # Print current config only and stop the application (bool)
 printConfigOnly:
@@ -340,7 +340,7 @@ replicas:
       tlsConfig:
 #  (struct)
 api:
-  # API port (API is disabled if port is set to 0) (int)
+  # API port (disabled if 0; set to 0 for one-shot mode with empty cron and runOnStart=true) (int)
   port:
   # API username (string)
   username:
@@ -420,6 +420,19 @@ instance behind its own authentication, the cookie from an authenticated request
 
 See [wiki](https://github.com/bakito/adguardhome-sync/wiki/Integration%E2%80%90GL.iNet)
 
+## Run modes
+
+The sync behavior depends on the cron expression, `runOnStart`, and the API port:
+
+- **Run once and exit:** leave `cron` empty, set `runOnStart: true`, and set `api.port: 0`. The sync runs on startup and the process exits afterward.
+- **Keep the API server running:** with the default API port (`8080`), the API server starts even when `cron` is empty. If `runOnStart` is enabled, a sync also runs asynchronously on startup; the process does not exit after that sync.
+- **Run on a schedule:** set a cron expression. Scheduled syncs keep the process running, with or without the API server. `runOnStart` controls whether an additional sync runs at startup.
+- **Do not sync on startup:** when `cron` is empty and `api.port` is `0`, setting `runOnStart: false` exits without running a sync.
+
+A configured `syncTriggerFile` is watched while the API server or cron keeps the process running; the one-shot path does not start the file watcher.
+
+The `--api-port 0` option is therefore required for the one-shot command examples below; for environment-based configuration, set `API_PORT=0`. `runOnStart` defaults to `true`.
+
 ## Run Linux/Mac
 
 ```bash
@@ -434,8 +447,8 @@ export REPLICA1_USERNAME=username
 export REPLICA1_PASSWORD=password
 # export REPLICA_COOKIE=Replica-Cookie-Name=CCCOOOKKKIIIEEE
 
-# run once
-adguardhome-sync run
+# run once (requires runOnStart=true, empty cron, and api.port=0)
+adguardhome-sync run --api-port 0
 
 # run as daemon
 adguardhome-sync run --cron "0 */2 * * *"
@@ -510,8 +523,8 @@ set REPLICA1_PASSWORD=password
 set FEATURES_DHCP_SERVER_CONFIG=false
 set FEATURES_DHCP_STATIC_LEASES=false
 
-# run once
-adguardhome-sync run
+# run once (requires runOnStart=true, empty cron, and api.port=0)
+adguardhome-sync run --api-port 0
 
 # run as daemon
 adguardhome-sync run --cron "0 */2 * * *"
