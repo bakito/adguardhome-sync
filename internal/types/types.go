@@ -20,13 +20,13 @@ const (
 // Config application configuration struct
 // +k8s:deepcopy-gen=true
 type Config struct {
-	Cron                string        `docs:"Cron expression for the sync interval"                                           env:"CRON"                json:"cron,omitempty"            yaml:"cron,omitempty"`
-	RunOnStart          bool          `docs:"Run the sync on startup"                                                         env:"RUN_ON_START"        json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"`
-	PrintConfigOnly     bool          `docs:"Print current config only and stop the application"                              env:"PRINT_CONFIG_ONLY"   json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
-	ContinueOnError     bool          `docs:"Continue sync on errors"                                                         env:"CONTINUE_ON_ERROR"   json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
-	SyncTriggerFile     string        `docs:"Path to a file to watch; when modified, a re-sync is triggered"                  env:"SYNC_TRIGGER_FILE"   json:"syncTriggerFile,omitempty" yaml:"syncTriggerFile,omitempty"`
-	ClientTimeoutString string        `docs:"Define a custom http client timeout ^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"  env:"HTTP_CLIENT_TIMEOUT" faker:"oneof: 30s, 5m"           json:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty"`
-	ClientTimeout       time.Duration `json:"-"                                                                               yaml:"-"`
+	Cron                string        `docs:"Cron expression for the sync interval (leave empty for one-shot mode; see runOnStart and api.port)" env:"CRON"                json:"cron,omitempty"            yaml:"cron,omitempty"`
+	RunOnStart          bool          `docs:"Run the sync on startup (required for one-shot mode with empty cron and api.port=0)"                env:"RUN_ON_START"        json:"runOnStart,omitempty"      yaml:"runOnStart,omitempty"`
+	PrintConfigOnly     bool          `docs:"Print current config only and stop the application"                                                 env:"PRINT_CONFIG_ONLY"   json:"printConfigOnly,omitempty" yaml:"printConfigOnly,omitempty"`
+	ContinueOnError     bool          `docs:"Continue sync on errors"                                                                            env:"CONTINUE_ON_ERROR"   json:"continueOnError,omitempty" yaml:"continueOnError,omitempty"`
+	SyncTriggerFile     string        `docs:"Path to a file to watch; when modified, a re-sync is triggered"                                     env:"SYNC_TRIGGER_FILE"   json:"syncTriggerFile,omitempty" yaml:"syncTriggerFile,omitempty"`
+	ClientTimeoutString string        `docs:"Define a custom http client timeout ^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"                     env:"HTTP_CLIENT_TIMEOUT" faker:"oneof: 30s, 5m"           json:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty"`
+	ClientTimeout       time.Duration `json:"-"                                                                                                  yaml:"-"`
 	// Origin adguardhome instance
 	Origin *AdGuardInstance `docs:"Origin instance" json:"origin" yaml:"origin"`
 	// One single replica adguardhome instance
@@ -39,12 +39,12 @@ type Config struct {
 
 // API configuration.
 type API struct {
-	Port     int     `docs:"API port (API is disabled if port is set to 0)" env:"API_PORT"           json:"port,omitempty"     yaml:"port,omitempty"`
-	Username string  `docs:"API username"                                   env:"API_USERNAME"       json:"username,omitempty" yaml:"username,omitempty"`
-	Password string  `docs:"API password"                                   env:"API_PASSWORD"       json:"password,omitempty" yaml:"password,omitempty"`
-	DarkMode bool    `docs:"API dark mode"                                  env:"API_DARK_MODE"      json:"darkMode,omitempty" yaml:"darkMode,omitempty"`
-	Metrics  Metrics `json:"metrics,omitempty"                              yaml:"metrics,omitempty"`
-	TLS      TLS     `json:"tls,omitempty"                                  yaml:"tls,omitempty"`
+	Port     int     `docs:"API port (disabled if 0; set to 0 for one-shot mode with empty cron and runOnStart=true)" env:"API_PORT"           json:"port,omitempty"     yaml:"port,omitempty"`
+	Username string  `docs:"API username"                                                                             env:"API_USERNAME"       json:"username,omitempty" yaml:"username,omitempty"`
+	Password string  `docs:"API password"                                                                             env:"API_PASSWORD"       json:"password,omitempty" yaml:"password,omitempty"`
+	DarkMode bool    `docs:"API dark mode"                                                                            env:"API_DARK_MODE"      json:"darkMode,omitempty" yaml:"darkMode,omitempty"`
+	Metrics  Metrics `json:"metrics,omitempty"                                                                        yaml:"metrics,omitempty"`
+	TLS      TLS     `json:"tls,omitempty"                                                                            yaml:"tls,omitempty"`
 }
 
 // Metrics configuration.
