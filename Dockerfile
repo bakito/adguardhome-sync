@@ -1,11 +1,12 @@
+ARG BASE_IMAGE=scratch
+
 # Multi-stage build with explicit platform specification
 FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS builder
-
-WORKDIR /build
 
 ARG VERSION=main
 ARG TARGETOS=linux
 ARG TARGETARCH
+ARG TARGETVARIANT
 
 WORKDIR /go/src/app
 
@@ -26,7 +27,10 @@ COPY . .
 # Build args should be as late as possible so they don't bust the deps cache.
 ARG BUILD="N/A"
 
-RUN CGO_ENABLED=0 \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    if [ "$TARGETARCH" = "arm" ]; then export GOARM="${TARGETVARIANT#v}"; fi; \
+    CGO_ENABLED=0 \
     GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
     go build -a -installsuffix cgo \
@@ -36,7 +40,7 @@ RUN CGO_ENABLED=0 \
 RUN go version && upx -q adguardhome-sync
 
 # application image
-FROM scratch
+FROM ${BASE_IMAGE}
 ARG VERSION=main
 ARG BUILD="N/A"
 WORKDIR /opt/go

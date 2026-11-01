@@ -66,10 +66,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Modify Dockerfile
-        run: |
-          sed -i -e "s|FROM scratch|FROM ${{ matrix.build.fromImage }}|g" Dockerfile
-
       - name: Build release images ${{ github.event.release.tag_name }}
         id: docker_build_release
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -79,9 +75,10 @@ jobs:
           pull: true
           push: true
           tags: quay.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}latest,quay.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}${{ github.event.release.tag_name }},ghcr.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}latest,ghcr.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}${{ github.event.release.tag_name }}
-          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/arm64,linux/ppc64le
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le
           provenance: false
           build-args: |
+            BASE_IMAGE=${{ matrix.build.fromImage }}
             VERSION=${{ github.event.release.tag_name }}
             BUILD=${{ env.curr_date }}
 
@@ -105,9 +102,10 @@ jobs:
           pull: true
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: quay.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}main,ghcr.io/bakito/adguardhome-sync:${{ matrix.build.tagPrefix }}main
-          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/arm64,linux/ppc64le
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le
           provenance: false
           build-args: |
+            BASE_IMAGE=${{ matrix.build.fromImage }}
             VERSION=main
             BUILD=${{ env.curr_date }}
 
