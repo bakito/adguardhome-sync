@@ -99,7 +99,7 @@ func Sync(cfg *types.Config) error {
 			w.cron.Run()
 		}
 	}
-	if cfg.API.Port != 0 {
+	if cfg.API.Port != 0 && cfg.Cron != "" {
 		runOnStartAsync(cfg, w)
 		if fileWatch != nil {
 			go func() {

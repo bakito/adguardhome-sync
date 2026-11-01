@@ -1,7 +1,13 @@
 package sync
 
 import (
+	"context"
 	"errors"
+	"net"
+	"os"
+	"os/exec"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -22,6 +28,45 @@ type testEnv struct {
 	w        *worker
 	ac       *actionContext
 	te       error
+}
+
+// A subprocess isolates the server's fatal bind error on the old one-shot path.
+func TestSyncOneShotDoesNotStartAPI(t *testing.T) {
+	if port := os.Getenv("ADGUARD_SYNC_ONESHOT_TEST_PORT"); port != "" {
+		apiPort, err := strconv.Atoi(port)
+		if err != nil {
+			t.Fatal(err)
+		}
+		cfg := &types.Config{
+			Origin:        &types.AdGuardInstance{URL: "http://127.0.0.1:1"},
+			Replicas:      []types.Replica{{URL: "http://127.0.0.1:1"}},
+			RunOnStart:    true,
+			ClientTimeout: time.Second,
+			API:           types.API{Port: apiPort},
+		}
+		if err := Sync(cfg); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	port := listener.Addr().(*net.TCPAddr).Port
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestSyncOneShotDoesNotStartAPI$")
+	cmd.Env = append(os.Environ(), "ADGUARD_SYNC_ONESHOT_TEST_PORT="+strconv.Itoa(port))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("one-shot sync started or blocked on API (port occupied): %v\n%s", err, output)
+	}
+	if !strings.Contains(string(output), "Error getting origin status") {
+		t.Fatalf("one-shot sync did not attempt to contact origin:\n%s", output)
+	}
 }
 
 func newTestEnv(t *testing.T) *testEnv {
