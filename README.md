@@ -13,6 +13,8 @@ Please check the wiki
 for [FAQ](https://github.com/bakito/adguardhome-sync/wiki/FAQ)
 and [Deprecations](https://github.com/bakito/adguardhome-sync/wiki/Deprecations).
 
+The [guide to shared statistics in native panels](docs/shared-native-panel-stats.md) describes an external gateway for combined statistics and query history.
+
 ## Current sync features
 
 - General Settings
