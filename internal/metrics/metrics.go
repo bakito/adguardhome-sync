@@ -104,6 +104,26 @@ var (
 		[]string{"hostname", "client"},
 	)
 
+	// topUpstreams - The number of responses per top upstream.
+	topUpstreams = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name:      "top_upstreams",
+			Namespace: "adguard",
+			Help:      "This represent the top upstreams",
+		},
+		[]string{"hostname", "upstream"},
+	)
+
+	// avgUpstreamResponseTime - The average response time per upstream.
+	avgUpstreamResponseTime = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name:      "average_upstream_response_time",
+			Namespace: "adguard",
+			Help:      "This represent the average response time of each upstream in s",
+		},
+		[]string{"hostname", "upstream"},
+	)
+
 	// queryTypes - The type of DNS Queries (A, AAAA...)
 	queryTypes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -172,6 +192,8 @@ var allMetrics = []prometheus.Collector{
 	topQueries,
 	topBlocked,
 	topClients,
+	topUpstreams,
+	avgUpstreamResponseTime,
 	queryTypes,
 	running,
 	protectionEnabled,
@@ -191,6 +213,8 @@ func Init() {
 	initMetric("top_queried_domains", topQueries)
 	initMetric("top_blocked_domains", topBlocked)
 	initMetric("top_clients", topClients)
+	initMetric("top_upstreams", topUpstreams)
+	initMetric("average_upstream_response_time", avgUpstreamResponseTime)
 	initMetric("query_types", queryTypes)
 	initMetric("running", running)
 	initMetric("protection_enabled", protectionEnabled)
@@ -266,6 +290,20 @@ func updateMetrics(im InstanceMetrics) {
 		for _, tc := range *im.Stats.TopClients {
 			for source, value := range tc.AdditionalProperties {
 				topClients.WithLabelValues(im.HostName, source).Set(float64(value))
+			}
+		}
+	}
+	if im.Stats.TopUpstreamsResponses != nil {
+		for _, tu := range *im.Stats.TopUpstreamsResponses {
+			for upstream, value := range tu.AdditionalProperties {
+				topUpstreams.WithLabelValues(im.HostName, upstream).Set(float64(value))
+			}
+		}
+	}
+	if im.Stats.TopUpstreamsAvgTime != nil {
+		for _, tu := range *im.Stats.TopUpstreamsAvgTime {
+			for upstream, value := range tu.AdditionalProperties {
+				avgUpstreamResponseTime.WithLabelValues(im.HostName, upstream).Set(float64(value))
 			}
 		}
 	}
