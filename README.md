@@ -775,6 +775,7 @@ If enabled, the following metrics are available:
 <!-- metrics-doc-start -->
 | Metric | Description |
 | ------ | ----------- |
+| adguard_average_upstream_response_time | This represent the average response time of each upstream in s |
 | adguard_avg_processing_time | This represent the average processing time for a DNS query in s |
 | adguard_home_sync_sync_count_total | Total number of started sync runs |
 | adguard_home_sync_sync_duration_seconds | This represents the duration of the last sync in seconds |
@@ -790,6 +791,7 @@ If enabled, the following metrics are available:
 | adguard_top_blocked_domains | This represent the top bloacked domains |
 | adguard_top_clients | This represent the top clients |
 | adguard_top_queried_domains | This represent the top queried domains |
+| adguard_top_upstreams | This represent the top upstreams |
 <!-- metrics-doc-end -->
 
 ## Video Tutorials

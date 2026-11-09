@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-faker/faker/v4"
 	"github.com/google/go-cmp/cmp"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 )
@@ -67,6 +68,61 @@ func TestUpdateInstances_getStats(t *testing.T) {
 	}
 	if *aaa.NumDnsQueries != 300 {
 		t.Errorf("aaa.NumDnsQueries = %v, want 300", *aaa.NumDnsQueries)
+	}
+}
+
+func TestUpdateInstances_topUpstreams(t *testing.T) {
+	stats = make(OverallStats)
+	topUpstreams.Reset()
+	avgUpstreamResponseTime.Reset()
+
+	UpdateInstances(InstanceMetricsList{Metrics: []InstanceMetrics{
+		{HostName: "foo", Status: &model.ServerStatus{}, Stats: &model.Stats{
+			TopUpstreamsResponses: &[]model.TopArrayEntry{
+				{AdditionalProperties: map[string]float32{"https://dns.example.com/dns-query": 1234}},
+				{AdditionalProperties: map[string]float32{"1.1.1.1:53": 56}},
+			},
+			TopUpstreamsAvgTime: &[]model.TopArrayEntry{
+				{AdditionalProperties: map[string]float32{"https://dns.example.com/dns-query": 0.25}},
+				{AdditionalProperties: map[string]float32{"1.1.1.1:53": 0.5}},
+			},
+		}},
+		{HostName: "bar", Status: &model.ServerStatus{}, Stats: &model.Stats{}},
+	}})
+
+	tests := []struct {
+		name     string
+		got      float64
+		expected float64
+	}{
+		{
+			"top_upstreams doh",
+			testutil.ToFloat64(topUpstreams.WithLabelValues("foo", "https://dns.example.com/dns-query")),
+			1234,
+		},
+		{"top_upstreams dns", testutil.ToFloat64(topUpstreams.WithLabelValues("foo", "1.1.1.1:53")), 56},
+		{
+			"average_upstream_response_time doh",
+			testutil.ToFloat64(avgUpstreamResponseTime.WithLabelValues("foo", "https://dns.example.com/dns-query")),
+			0.25,
+		},
+		{
+			"average_upstream_response_time dns",
+			testutil.ToFloat64(avgUpstreamResponseTime.WithLabelValues("foo", "1.1.1.1:53")),
+			0.5,
+		},
+	}
+	for _, tt := range tests {
+		if tt.got != tt.expected {
+			t.Errorf("%s = %v, want %v", tt.name, tt.got, tt.expected)
+		}
+	}
+
+	if c := testutil.CollectAndCount(topUpstreams); c != 2 {
+		t.Errorf("top_upstreams count = %d, want 2", c)
+	}
+	if c := testutil.CollectAndCount(avgUpstreamResponseTime); c != 2 {
+		t.Errorf("average_upstream_response_time count = %d, want 2", c)
 	}
 }
 
