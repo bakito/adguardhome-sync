@@ -109,7 +109,7 @@ kind-test:
 	@./testdata/e2e/bin/install-chart.sh $(MODE)
 
 # renovate: packageName=AdguardTeam/AdGuardHome
-ADGUARD_HOME_VERSION ?= v0.107.79
+ADGUARD_HOME_VERSION ?= v0.107.80
 
 update-e2e-versions:
 	go run cmd/e2e/main.go $(ADGUARD_HOME_VERSION)
