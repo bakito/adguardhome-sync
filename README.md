@@ -798,3 +798,5 @@ If enabled, the following metrics are available:
 
 - [Como replicar la configuración de tu servidor DNS Adguard automáticamente - Tu servidor Part #12](https://www.youtube.com/watch?v=1LPeu_JG064) (
   Spanish) by [Jonatan Castro](https://github.com/jcastro)
+- [Dual AdGuard Home Tutorial/Walkthrough for High Availability ](https://www.youtube.com/watch?v=lhj-dp2EcEk) (English) by [Dad, the engineer](https://www.youtube.com/@Dad-The-Engineer)
+- [100% Ausfallsicherheit für dein Homelab: AdGuard & NetBird Failover ](https://www.youtube.com/watch?v=JzzrlgpAO_o) (German) by [Smart Home Nerd](https://www.youtube.com/@SmartHomeNerd)
