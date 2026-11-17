@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	github.com/bakito/docs-gen v0.0.8
-	github.com/caarlos0/env/v11 v11.4.1
+	github.com/caarlos0/env/v11 v11.4.2
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-faker/faker/v4 v4.12.0
