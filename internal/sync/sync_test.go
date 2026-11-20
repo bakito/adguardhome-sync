@@ -823,6 +823,20 @@ func TestSync(t *testing.T) {
 					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
 				}
 			})
+			t.Run("should normalize an empty upstream mode before posting", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dnsConfig = &model.DNSConfig{
+					UpstreamMode: new(model.DNSConfigUpstreamModeEmpty),
+				}
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
+				env.cl.EXPECT().SetDNSConfig(&model.DNSConfig{
+					UpstreamMode: new(model.DNSConfigUpstreamModeLoadBalance),
+				})
+				err := actionDNSServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
+				}
+			})
 		})
 
 		t.Run("actionDHCPServerConfig", func(t *testing.T) {
