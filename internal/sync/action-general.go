@@ -9,6 +9,14 @@ import (
 	"github.com/bakito/adguardhome-sync/internal/client/model"
 )
 
+// normalizeUpstreamMode maps the legacy empty load-balancing API value to
+// the explicit value accepted by AdGuard Home 1.0.0 and recent 0.107 releases.
+func normalizeUpstreamMode(config *model.DNSConfig) {
+	if config != nil && config.UpstreamMode == "" {
+		config.UpstreamMode = "load_balance"
+	}
+}
+
 var (
 	actionProfileInfo = func(ac *actionContext) error {
 		if pro, err := ac.client.ProfileInfo(); err != nil {
@@ -219,11 +227,7 @@ var (
 		}
 
 		desired := ac.origin.dnsConfig.Clone()
-		// AdGuard Home 0.107.x reports load balancing as an empty string,
-		// which AdGuard Home 1.0.0 no longer accepts in /dns_config.
-		if desired.UpstreamMode == "" {
-			desired.UpstreamMode = "load_balance"
-		}
+		normalizeUpstreamMode(desired)
 		desired.Sanitize(ac.rl)
 
 		if !dc.Equals(desired) {
