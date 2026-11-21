@@ -219,6 +219,11 @@ var (
 		}
 
 		desired := ac.origin.dnsConfig.Clone()
+		// AdGuard Home 0.107.x reports load balancing as an empty string,
+		// which AdGuard Home 1.0.0 no longer accepts in /dns_config.
+		if desired.UpstreamMode == "" {
+			desired.UpstreamMode = "load_balance"
+		}
 		desired.Sanitize(ac.rl)
 
 		if !dc.Equals(desired) {
