@@ -141,8 +141,8 @@ type Client interface {
 	AddClient(client *model.Client) error
 	UpdateClient(client *model.Client) error
 	DeleteClient(client *model.Client) error
-	QueryLogConfig() (*model.QueryLogConfigWithIgnored, error)
-	SetQueryLogConfig(ql *model.QueryLogConfigWithIgnored) error
+	QueryLogConfig() (*model.GetQueryLogConfigResponse, error)
+	SetQueryLogConfig(ql *model.PutQueryLogConfigUpdateRequest) error
 	StatsConfig() (*model.GetStatsConfigResponse, error)
 	SetStatsConfig(sc *model.PutStatsConfigUpdateRequest) error
 	Setup() error
@@ -379,14 +379,14 @@ func (cl *client) DeleteClient(client *model.Client) error {
 	return cl.doPost(cl.client.R().EnableTrace().SetBody(client), "/clients/delete")
 }
 
-func (cl *client) QueryLogConfig() (*model.QueryLogConfigWithIgnored, error) {
-	qlc := &model.QueryLogConfigWithIgnored{}
+func (cl *client) QueryLogConfig() (*model.GetQueryLogConfigResponse, error) {
+	qlc := &model.GetQueryLogConfigResponse{}
 	err := cl.doGet(cl.client.R().EnableTrace().SetResult(qlc), "/querylog/config")
 	return qlc, err
 }
 
-func (cl *client) SetQueryLogConfig(qlc *model.QueryLogConfigWithIgnored) error {
-	cl.log.With("enabled", *qlc.Enabled, "interval", *qlc.Interval, "anonymizeClientIP", *qlc.AnonymizeClientIp).
+func (cl *client) SetQueryLogConfig(qlc *model.PutQueryLogConfigUpdateRequest) error {
+	cl.log.With("enabled", qlc.Enabled, "interval", qlc.Interval, "anonymizeClientIP", qlc.AnonymizeClientIp).
 		Info("Set query log config")
 	return cl.doPut(cl.client.R().EnableTrace().SetBody(qlc), "/querylog/config/update")
 }

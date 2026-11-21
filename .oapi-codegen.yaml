@@ -1,3 +1,5 @@
 output-options:
   client-type-name: AdguardHomeClient
   response-type-suffix: Resp
+compatibility:
+  always-prefix-enum-values: true

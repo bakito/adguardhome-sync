@@ -50,8 +50,3 @@ func Test_addFakeTags(t *testing.T) {
 		})
 	}
 }
-
-func Test_correctEntries(_ *testing.T) {
-	// Currently empty, but let's test that it doesn't panic
-	correctEntries(make(map[string]any))
-}

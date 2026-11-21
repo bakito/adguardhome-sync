@@ -40,25 +40,25 @@ func (e CheckConfigStaticIpInfoStatic) Valid() bool {
 
 // Defines values for DNSConfigBlockingMode.
 const (
-	CustomIp DNSConfigBlockingMode = "custom_ip"
-	Default  DNSConfigBlockingMode = "default"
-	NullIp   DNSConfigBlockingMode = "null_ip"
-	Nxdomain DNSConfigBlockingMode = "nxdomain"
-	Refused  DNSConfigBlockingMode = "refused"
+	DNSConfigBlockingModeCustomIp DNSConfigBlockingMode = "custom_ip"
+	DNSConfigBlockingModeDefault  DNSConfigBlockingMode = "default"
+	DNSConfigBlockingModeNullIp   DNSConfigBlockingMode = "null_ip"
+	DNSConfigBlockingModeNxdomain DNSConfigBlockingMode = "nxdomain"
+	DNSConfigBlockingModeRefused  DNSConfigBlockingMode = "refused"
 )
 
 // Valid indicates whether the value is a known member of the DNSConfigBlockingMode enum.
 func (e DNSConfigBlockingMode) Valid() bool {
 	switch e {
-	case CustomIp:
+	case DNSConfigBlockingModeCustomIp:
 		return true
-	case Default:
+	case DNSConfigBlockingModeDefault:
 		return true
-	case NullIp:
+	case DNSConfigBlockingModeNullIp:
 		return true
-	case Nxdomain:
+	case DNSConfigBlockingModeNxdomain:
 		return true
-	case Refused:
+	case DNSConfigBlockingModeRefused:
 		return true
 	default:
 		return false
@@ -67,7 +67,6 @@ func (e DNSConfigBlockingMode) Valid() bool {
 
 // Defines values for DNSConfigUpstreamMode.
 const (
-	DNSConfigUpstreamModeEmpty       DNSConfigUpstreamMode = ""
 	DNSConfigUpstreamModeFastestAddr DNSConfigUpstreamMode = "fastest_addr"
 	DNSConfigUpstreamModeLoadBalance DNSConfigUpstreamMode = "load_balance"
 	DNSConfigUpstreamModeParallel    DNSConfigUpstreamMode = "parallel"
@@ -76,8 +75,6 @@ const (
 // Valid indicates whether the value is a known member of the DNSConfigUpstreamMode enum.
 func (e DNSConfigUpstreamMode) Valid() bool {
 	switch e {
-	case DNSConfigUpstreamModeEmpty:
-		return true
 	case DNSConfigUpstreamModeFastestAddr:
 		return true
 	case DNSConfigUpstreamModeLoadBalance:
@@ -133,46 +130,46 @@ func (e DhcpSearchResultStaticIPStatic) Valid() bool {
 
 // Defines values for FilteringReason.
 const (
-	FilteredBlackList      FilteringReason = "FilteredBlackList"
-	FilteredBlockedService FilteringReason = "FilteredBlockedService"
-	FilteredInvalid        FilteringReason = "FilteredInvalid"
-	FilteredParental       FilteringReason = "FilteredParental"
-	FilteredSafeBrowsing   FilteringReason = "FilteredSafeBrowsing"
-	FilteredSafeSearch     FilteringReason = "FilteredSafeSearch"
-	NotFilteredError       FilteringReason = "NotFilteredError"
-	NotFilteredNotFound    FilteringReason = "NotFilteredNotFound"
-	NotFilteredWhiteList   FilteringReason = "NotFilteredWhiteList"
-	Rewrite                FilteringReason = "Rewrite"
-	RewriteEtcHosts        FilteringReason = "RewriteEtcHosts"
-	RewriteRule            FilteringReason = "RewriteRule"
+	FilteringReasonFilteredBlackList      FilteringReason = "FilteredBlackList"
+	FilteringReasonFilteredBlockedService FilteringReason = "FilteredBlockedService"
+	FilteringReasonFilteredInvalid        FilteringReason = "FilteredInvalid"
+	FilteringReasonFilteredParental       FilteringReason = "FilteredParental"
+	FilteringReasonFilteredSafeBrowsing   FilteringReason = "FilteredSafeBrowsing"
+	FilteringReasonFilteredSafeSearch     FilteringReason = "FilteredSafeSearch"
+	FilteringReasonNotFilteredError       FilteringReason = "NotFilteredError"
+	FilteringReasonNotFilteredNotFound    FilteringReason = "NotFilteredNotFound"
+	FilteringReasonNotFilteredWhiteList   FilteringReason = "NotFilteredWhiteList"
+	FilteringReasonRewrite                FilteringReason = "Rewrite"
+	FilteringReasonRewriteEtcHosts        FilteringReason = "RewriteEtcHosts"
+	FilteringReasonRewriteRule            FilteringReason = "RewriteRule"
 )
 
 // Valid indicates whether the value is a known member of the FilteringReason enum.
 func (e FilteringReason) Valid() bool {
 	switch e {
-	case FilteredBlackList:
+	case FilteringReasonFilteredBlackList:
 		return true
-	case FilteredBlockedService:
+	case FilteringReasonFilteredBlockedService:
 		return true
-	case FilteredInvalid:
+	case FilteringReasonFilteredInvalid:
 		return true
-	case FilteredParental:
+	case FilteringReasonFilteredParental:
 		return true
-	case FilteredSafeBrowsing:
+	case FilteringReasonFilteredSafeBrowsing:
 		return true
-	case FilteredSafeSearch:
+	case FilteringReasonFilteredSafeSearch:
 		return true
-	case NotFilteredError:
+	case FilteringReasonNotFilteredError:
 		return true
-	case NotFilteredNotFound:
+	case FilteringReasonNotFilteredNotFound:
 		return true
-	case NotFilteredWhiteList:
+	case FilteringReasonNotFilteredWhiteList:
 		return true
-	case Rewrite:
+	case FilteringReasonRewrite:
 		return true
-	case RewriteEtcHosts:
+	case FilteringReasonRewriteEtcHosts:
 		return true
-	case RewriteRule:
+	case FilteringReasonRewriteRule:
 		return true
 	default:
 		return false
@@ -301,46 +298,19 @@ func (e Lang) Valid() bool {
 
 // Defines values for ProfileInfoTheme.
 const (
-	Auto  ProfileInfoTheme = "auto"
-	Dark  ProfileInfoTheme = "dark"
-	Light ProfileInfoTheme = "light"
+	ProfileInfoThemeAuto  ProfileInfoTheme = "auto"
+	ProfileInfoThemeDark  ProfileInfoTheme = "dark"
+	ProfileInfoThemeLight ProfileInfoTheme = "light"
 )
 
 // Valid indicates whether the value is a known member of the ProfileInfoTheme enum.
 func (e ProfileInfoTheme) Valid() bool {
 	switch e {
-	case Auto:
+	case ProfileInfoThemeAuto:
 		return true
-	case Dark:
+	case ProfileInfoThemeDark:
 		return true
-	case Light:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for QueryLogConfigInterval.
-const (
-	QueryLogConfigIntervalN025 QueryLogConfigInterval = 0.25
-	QueryLogConfigIntervalN1   QueryLogConfigInterval = 1
-	QueryLogConfigIntervalN30  QueryLogConfigInterval = 30
-	QueryLogConfigIntervalN7   QueryLogConfigInterval = 7
-	QueryLogConfigIntervalN90  QueryLogConfigInterval = 90
-)
-
-// Valid indicates whether the value is a known member of the QueryLogConfigInterval enum.
-func (e QueryLogConfigInterval) Valid() bool {
-	switch e {
-	case QueryLogConfigIntervalN025:
-		return true
-	case QueryLogConfigIntervalN1:
-		return true
-	case QueryLogConfigIntervalN30:
-		return true
-	case QueryLogConfigIntervalN7:
-		return true
-	case QueryLogConfigIntervalN90:
+	case ProfileInfoThemeLight:
 		return true
 	default:
 		return false
@@ -376,43 +346,16 @@ func (e QueryLogItemClientProto) Valid() bool {
 
 // Defines values for StatsTimeUnits.
 const (
-	Days  StatsTimeUnits = "days"
-	Hours StatsTimeUnits = "hours"
+	StatsTimeUnitsDays  StatsTimeUnits = "days"
+	StatsTimeUnitsHours StatsTimeUnits = "hours"
 )
 
 // Valid indicates whether the value is a known member of the StatsTimeUnits enum.
 func (e StatsTimeUnits) Valid() bool {
 	switch e {
-	case Days:
+	case StatsTimeUnitsDays:
 		return true
-	case Hours:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for StatsConfigInterval.
-const (
-	StatsConfigIntervalN0  StatsConfigInterval = 0
-	StatsConfigIntervalN1  StatsConfigInterval = 1
-	StatsConfigIntervalN30 StatsConfigInterval = 30
-	StatsConfigIntervalN7  StatsConfigInterval = 7
-	StatsConfigIntervalN90 StatsConfigInterval = 90
-)
-
-// Valid indicates whether the value is a known member of the StatsConfigInterval enum.
-func (e StatsConfigInterval) Valid() bool {
-	switch e {
-	case StatsConfigIntervalN0:
-		return true
-	case StatsConfigIntervalN1:
-		return true
-	case StatsConfigIntervalN30:
-		return true
-	case StatsConfigIntervalN7:
-		return true
-	case StatsConfigIntervalN90:
+	case StatsTimeUnitsHours:
 		return true
 	default:
 		return false
@@ -421,55 +364,64 @@ func (e StatsConfigInterval) Valid() bool {
 
 // Defines values for TlsConfigKeyType.
 const (
-	ECDSA TlsConfigKeyType = "ECDSA"
-	RSA   TlsConfigKeyType = "RSA"
+	TlsConfigKeyTypeECDSA TlsConfigKeyType = "ECDSA"
+	TlsConfigKeyTypeRSA   TlsConfigKeyType = "RSA"
 )
 
 // Valid indicates whether the value is a known member of the TlsConfigKeyType enum.
 func (e TlsConfigKeyType) Valid() bool {
 	switch e {
-	case ECDSA:
+	case TlsConfigKeyTypeECDSA:
 		return true
-	case RSA:
+	case TlsConfigKeyTypeRSA:
 		return true
 	default:
 		return false
 	}
 }
 
-// Defines values for QueryLogParamsResponseStatus.
+// Defines values for DnsInfo200JSONResponseBodyBlockingMode.
 const (
-	All                 QueryLogParamsResponseStatus = "all"
-	Blocked             QueryLogParamsResponseStatus = "blocked"
-	BlockedParental     QueryLogParamsResponseStatus = "blocked_parental"
-	BlockedSafebrowsing QueryLogParamsResponseStatus = "blocked_safebrowsing"
-	Filtered            QueryLogParamsResponseStatus = "filtered"
-	Processed           QueryLogParamsResponseStatus = "processed"
-	Rewritten           QueryLogParamsResponseStatus = "rewritten"
-	SafeSearch          QueryLogParamsResponseStatus = "safe_search"
-	Whitelisted         QueryLogParamsResponseStatus = "whitelisted"
+	DnsInfo200JSONResponseBodyBlockingModeCustomIp DnsInfo200JSONResponseBodyBlockingMode = "custom_ip"
+	DnsInfo200JSONResponseBodyBlockingModeDefault  DnsInfo200JSONResponseBodyBlockingMode = "default"
+	DnsInfo200JSONResponseBodyBlockingModeNullIp   DnsInfo200JSONResponseBodyBlockingMode = "null_ip"
+	DnsInfo200JSONResponseBodyBlockingModeNxdomain DnsInfo200JSONResponseBodyBlockingMode = "nxdomain"
+	DnsInfo200JSONResponseBodyBlockingModeRefused  DnsInfo200JSONResponseBodyBlockingMode = "refused"
 )
 
-// Valid indicates whether the value is a known member of the QueryLogParamsResponseStatus enum.
-func (e QueryLogParamsResponseStatus) Valid() bool {
+// Valid indicates whether the value is a known member of the DnsInfo200JSONResponseBodyBlockingMode enum.
+func (e DnsInfo200JSONResponseBodyBlockingMode) Valid() bool {
 	switch e {
-	case All:
+	case DnsInfo200JSONResponseBodyBlockingModeCustomIp:
 		return true
-	case Blocked:
+	case DnsInfo200JSONResponseBodyBlockingModeDefault:
 		return true
-	case BlockedParental:
+	case DnsInfo200JSONResponseBodyBlockingModeNullIp:
 		return true
-	case BlockedSafebrowsing:
+	case DnsInfo200JSONResponseBodyBlockingModeNxdomain:
 		return true
-	case Filtered:
+	case DnsInfo200JSONResponseBodyBlockingModeRefused:
 		return true
-	case Processed:
+	default:
+		return false
+	}
+}
+
+// Defines values for DnsInfo200JSONResponseBodyUpstreamMode.
+const (
+	DnsInfo200JSONResponseBodyUpstreamModeFastestAddr DnsInfo200JSONResponseBodyUpstreamMode = "fastest_addr"
+	DnsInfo200JSONResponseBodyUpstreamModeLoadBalance DnsInfo200JSONResponseBodyUpstreamMode = "load_balance"
+	DnsInfo200JSONResponseBodyUpstreamModeParallel    DnsInfo200JSONResponseBodyUpstreamMode = "parallel"
+)
+
+// Valid indicates whether the value is a known member of the DnsInfo200JSONResponseBodyUpstreamMode enum.
+func (e DnsInfo200JSONResponseBodyUpstreamMode) Valid() bool {
+	switch e {
+	case DnsInfo200JSONResponseBodyUpstreamModeFastestAddr:
 		return true
-	case Rewritten:
+	case DnsInfo200JSONResponseBodyUpstreamModeLoadBalance:
 		return true
-	case SafeSearch:
-		return true
-	case Whitelisted:
+	case DnsInfo200JSONResponseBodyUpstreamModeParallel:
 		return true
 	default:
 		return false
@@ -542,9 +494,6 @@ type BlockedServicesAll struct {
 	BlockedServices []BlockedService `json:"blocked_services"`
 	Groups          interface{}      `json:"groups"`
 }
-
-// BlockedServicesArray defines model for BlockedServicesArray.
-type BlockedServicesArray = []string
 
 // BlockedServicesSchedule defines model for BlockedServicesSchedule.
 type BlockedServicesSchedule struct {
@@ -637,10 +586,8 @@ type Client struct {
 	// SafeSearch Safe search settings.
 	SafeSearch          *SafeSearchConfig `json:"safe_search,omitempty"`
 	SafebrowsingEnabled *bool             `json:"safebrowsing_enabled,omitempty"`
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	SafesearchEnabled *bool     `json:"safesearch_enabled,omitempty"`
-	Tags              *[]string `json:"tags,omitempty"`
-	Upstreams         *[]string `json:"upstreams,omitempty"`
+	Tags                *[]string         `json:"tags,omitempty"`
+	Upstreams           *[]string         `json:"upstreams,omitempty"`
 
 	// UpstreamsCacheEnabled NOTE: If `upstreams_cache_enabled` is not set in HTTP API
 	// `GET /clients/add` request then default value (false) will be used.
@@ -701,14 +648,12 @@ type ClientFindSubEntry struct {
 	ParentalEnabled *bool   `json:"parental_enabled,omitempty"`
 
 	// SafeSearch Safe search settings.
-	SafeSearch          *SafeSearchConfig `json:"safe_search,omitempty"`
-	SafebrowsingEnabled *bool             `json:"safebrowsing_enabled,omitempty"`
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	SafesearchEnabled        *bool      `json:"safesearch_enabled,omitempty"`
-	Upstreams                *[]string  `json:"upstreams,omitempty"`
-	UseGlobalBlockedServices *bool      `json:"use_global_blocked_services,omitempty"`
-	UseGlobalSettings        *bool      `json:"use_global_settings,omitempty"`
-	WhoisInfo                *WhoisInfo `json:"whois_info,omitempty"`
+	SafeSearch               *SafeSearchConfig `json:"safe_search,omitempty"`
+	SafebrowsingEnabled      *bool             `json:"safebrowsing_enabled,omitempty"`
+	Upstreams                *[]string         `json:"upstreams,omitempty"`
+	UseGlobalBlockedServices *bool             `json:"use_global_blocked_services,omitempty"`
+	UseGlobalSettings        *bool             `json:"use_global_settings,omitempty"`
+	WhoisInfo                *WhoisInfo        `json:"whois_info,omitempty"`
 }
 
 // ClientUpdate Client update request
@@ -823,7 +768,7 @@ type DNSConfig struct {
 	UpstreamDns     *[]string `json:"upstream_dns,omitempty"`
 	UpstreamDnsFile *string   `json:"upstream_dns_file,omitempty"`
 
-	// UpstreamMode Upstream modes enumeration. The empty string value is deprecated; use `load_balance` instead.
+	// UpstreamMode Upstream modes enumeration.
 	UpstreamMode *DNSConfigUpstreamMode `json:"upstream_mode,omitempty"`
 
 	// UpstreamTimeout The number of seconds to wait for a response from the upstream server
@@ -834,7 +779,7 @@ type DNSConfig struct {
 // DNSConfigBlockingMode defines model for DNSConfig.BlockingMode.
 type DNSConfigBlockingMode string
 
-// DNSConfigUpstreamMode Upstream modes enumeration. The empty string value is deprecated; use `load_balance` instead.
+// DNSConfigUpstreamMode Upstream modes enumeration.
 type DNSConfigUpstreamMode string
 
 // DayRange The single interval within a day.  It begins at the `start` and ends before the `end`.
@@ -977,21 +922,11 @@ type FilterCheckHostResponse struct {
 	// Cname Set if reason=Rewrite
 	Cname *string `json:"cname,omitempty"`
 
-	// FilterId In case if there's a rule applied to this DNS request, this is ID of the filter list that the rule belongs to.
-	// Deprecated: use `rules[*].filter_list_id` instead.
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	FilterId *int `json:"filter_id,omitempty"`
-
 	// IpAddrs Set if reason=Rewrite
 	IpAddrs *[]string `json:"ip_addrs,omitempty"`
 
 	// Reason Request filtering status.
 	Reason *FilteringReason `json:"reason,omitempty"`
-
-	// Rule Filtering rule applied to the request (if any).
-	// Deprecated: use `rules[*].text` instead.
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	Rule *string `json:"rule,omitempty"`
 
 	// Rules Applied rules.
 	Rules *[]ResultRule `json:"rules,omitempty"`
@@ -1103,12 +1038,6 @@ type InitialConfiguration struct {
 // Lang Language code.
 type Lang string
 
-// LanguageSettings Language settings object.
-type LanguageSettings struct {
-	// Language Language code.
-	Language Lang `json:"language"`
-}
-
 // Login Login request data
 type Login struct {
 	// Name User name
@@ -1160,21 +1089,6 @@ type QueryLog struct {
 	Oldest *string         `json:"oldest,omitempty"`
 }
 
-// QueryLogConfig Query log configuration
-type QueryLogConfig struct {
-	// AnonymizeClientIp Anonymize clients' IP addresses
-	AnonymizeClientIp *bool `json:"anonymize_client_ip,omitempty"`
-
-	// Enabled Is query log enabled
-	Enabled *bool `json:"enabled,omitempty"`
-
-	// Interval Time period for query log rotation.
-	Interval *QueryLogConfigInterval `json:"interval,omitempty"`
-}
-
-// QueryLogConfigInterval Time period for query log rotation.
-type QueryLogConfigInterval float32
-
 // QueryLogItem Query log item
 type QueryLogItem struct {
 	Answer *[]DnsAnswer `json:"answer,omitempty"`
@@ -1199,11 +1113,6 @@ type QueryLogItem struct {
 	Ecs       *string `json:"ecs,omitempty"`
 	ElapsedMs *string `json:"elapsedMs,omitempty"`
 
-	// FilterId In case if there's a rule applied to this DNS request, this is ID of the filter list that the rule belongs to.
-	// Deprecated: use `rules[*].filter_list_id` instead.
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	FilterId *int `json:"filterId,omitempty"`
-
 	// OriginalAnswer Answer from upstream server (optional)
 	OriginalAnswer *[]DnsAnswer `json:"original_answer,omitempty"`
 
@@ -1212,11 +1121,6 @@ type QueryLogItem struct {
 
 	// Reason Request filtering status.
 	Reason *FilteringReason `json:"reason,omitempty"`
-
-	// Rule Filtering rule applied to the request (if any).
-	// Deprecated: use `rules[*].text` instead.
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	Rule *string `json:"rule,omitempty"`
 
 	// Rules Applied rules.
 	Rules *[]ResultRule `json:"rules,omitempty"`
@@ -1425,15 +1329,6 @@ type Stats struct {
 // StatsTimeUnits Time units
 type StatsTimeUnits string
 
-// StatsConfig Statistics configuration
-type StatsConfig struct {
-	// Interval Time period to keep the data.  `0` means that the statistics is disabled.
-	Interval *StatsConfigInterval `json:"interval,omitempty"`
-}
-
-// StatsConfigInterval Time period to keep the data.  `0` means that the statistics is disabled.
-type StatsConfigInterval int
-
 // TlsConfig TLS configuration settings and status
 type TlsConfig struct {
 	// CertificateChain Base64 string with PEM-encoded certificates chain
@@ -1553,21 +1448,6 @@ type VersionInfo struct {
 // WhoisInfo defines model for WhoisInfo.
 type WhoisInfo map[string]string
 
-// DhcpStaticLeaseBody DHCP static lease information
-type DhcpStaticLeaseBody = DhcpStaticLease
-
-// RewriteEntryBody Rewrite rule
-type RewriteEntryBody = RewriteEntry
-
-// RewriteSettingsBody DNS rewrite settings
-type RewriteSettingsBody = RewriteSettings
-
-// RewriteUpdateBody Rewrite rule update object
-type RewriteUpdateBody = RewriteUpdate
-
-// TlsConfigBody TLS configuration settings and status
-type TlsConfigBody = TlsConfig
-
 // MobileConfigDoHParams defines parameters for MobileConfigDoH.
 type MobileConfigDoHParams struct {
 	// Host Host for which the config is generated.  If no host is provided, `tls.server_name` from the configuration file is used.  If `tls.server_name` is not set, the API returns an error with a 500 status.
@@ -1586,12 +1466,11 @@ type MobileConfigDoTParams struct {
 	ClientId *string `form:"client_id,omitempty" json:"client_id,omitempty"`
 }
 
-// ClientsFindParams defines parameters for ClientsFind.
-type ClientsFindParams struct {
-	// Ip0 Filter by IP address or ClientIDs.  Parameters with names `ip1`, `ip2`, and so on are also accepted and interpreted as "ip0 OR ip1 OR ip2".
-	// TODO(a.garipov): Replace with a better query API.
-	Ip0 *string `form:"ip0,omitempty" json:"ip0,omitempty"`
-}
+// DnsInfo200JSONResponseBodyBlockingMode defines parameters for DnsInfo.
+type DnsInfo200JSONResponseBodyBlockingMode string
+
+// DnsInfo200JSONResponseBodyUpstreamMode defines parameters for DnsInfo.
+type DnsInfo200JSONResponseBodyUpstreamMode string
 
 // FilteringCheckHostParams defines parameters for FilteringCheckHost.
 type FilteringCheckHostParams struct {
@@ -1619,18 +1498,9 @@ type QueryLogParams struct {
 	// Search Filter by domain name or client IP
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
 
-	// ResponseStatus Deprecated: Use 'reason' parameter instead Filter by response status
-	// NOTE: This parameter cannot be used with 'reason' parameter.
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ResponseStatus *QueryLogParamsResponseStatus `form:"response_status,omitempty" json:"response_status,omitempty"`
-
 	// Reason Filter by response filtering reason.  Multiple reasons can be provided.
-	// NOTE: This parameter cannot be used with 'response_status' parameter.
 	Reason *[]FilteringReason `form:"reason,omitempty" json:"reason,omitempty"`
 }
-
-// QueryLogParamsResponseStatus defines parameters for QueryLog.
-type QueryLogParamsResponseStatus string
 
 // StatsParams defines parameters for Stats.
 type StatsParams struct {
@@ -1642,11 +1512,6 @@ type StatsParams struct {
 
 // AccessSetJSONRequestBody defines body for AccessSet for application/json ContentType.
 type AccessSetJSONRequestBody = AccessSetRequest
-
-// BlockedServicesSetJSONRequestBody defines body for BlockedServicesSet for application/json ContentType.
-//
-// Deprecated: this type has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-type BlockedServicesSetJSONRequestBody = BlockedServicesArray
 
 // BlockedServicesScheduleUpdateJSONRequestBody defines body for BlockedServicesScheduleUpdate for application/json ContentType.
 type BlockedServicesScheduleUpdateJSONRequestBody = BlockedServicesSchedule
@@ -1699,11 +1564,6 @@ type FilteringSetRulesJSONRequestBody = SetRulesRequest
 // FilteringSetURLJSONRequestBody defines body for FilteringSetURL for application/json ContentType.
 type FilteringSetURLJSONRequestBody = FilterSetUrl
 
-// ChangeLanguageJSONRequestBody defines body for ChangeLanguage for application/json ContentType.
-//
-// Deprecated: this type has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-type ChangeLanguageJSONRequestBody = LanguageSettings
-
 // InstallCheckConfigJSONRequestBody defines body for InstallCheckConfig for application/json ContentType.
 type InstallCheckConfigJSONRequestBody = CheckConfigRequest
 
@@ -1722,11 +1582,6 @@ type SetProtectionJSONRequestBody = SetProtectionRequest
 // PutQueryLogConfigJSONRequestBody defines body for PutQueryLogConfig for application/json ContentType.
 type PutQueryLogConfigJSONRequestBody = PutQueryLogConfigUpdateRequest
 
-// QueryLogConfigJSONRequestBody defines body for QueryLogConfig for application/json ContentType.
-//
-// Deprecated: this type has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-type QueryLogConfigJSONRequestBody = QueryLogConfig
-
 // RewriteAddJSONRequestBody defines body for RewriteAdd for application/json ContentType.
 type RewriteAddJSONRequestBody = RewriteEntry
 
@@ -1744,11 +1599,6 @@ type SafesearchSettingsJSONRequestBody = SafeSearchConfig
 
 // PutStatsConfigJSONRequestBody defines body for PutStatsConfig for application/json ContentType.
 type PutStatsConfigJSONRequestBody = PutStatsConfigUpdateRequest
-
-// StatsConfigJSONRequestBody defines body for StatsConfig for application/json ContentType.
-//
-// Deprecated: this type has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-type StatsConfigJSONRequestBody = StatsConfig
 
 // TestUpstreamDNSJSONRequestBody defines body for TestUpstreamDNS for application/json ContentType.
 type TestUpstreamDNSJSONRequestBody = UpstreamsConfig
@@ -1943,46 +1793,6 @@ type ClientInterface interface {
 	// Corresponds with GET /blocked_services/get (the `BlockedServicesSchedule` operationId).
 	BlockedServicesSchedule(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// BlockedServicesList Get blocked services list
-	//
-	// Deprecated: Use `GET /blocked_services/get` instead.
-	//
-	// Corresponds with GET /blocked_services/list (the `BlockedServicesList` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// BlockedServicesAvailableServices Get available services to use for blocking
-	//
-	// Deprecated: Use `GET /blocked_services/all` instead.
-	//
-	// Corresponds with GET /blocked_services/services (the `BlockedServicesAvailableServices` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesAvailableServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// BlockedServicesSetWithBody Set blocked services list
-	//
-	// Deprecated: Use `PUT /blocked_services/update` instead.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesSetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// BlockedServicesSet Set blocked services list
-	//
-	// Deprecated: Use `PUT /blocked_services/update` instead.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesSet(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// BlockedServicesScheduleUpdateWithBody Update blocked services
 	//
 	// Takes any type of body and a specified content type.
@@ -2034,15 +1844,6 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /clients/delete (the `ClientsDelete` operationId).
 	ClientsDelete(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ClientsFind Get information about clients by their IP addresses or ClientIDs.
-	//
-	// Deprecated: Use `POST /clients/search` instead.
-	//
-	// Corresponds with GET /clients/find (the `ClientsFind` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ClientsFind(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ClientsSearchWithBody Retrieve information about clients by performing an exact match search using IP addresses, CIDRs, MAC addresses, or ClientIDs.
 	//
@@ -2279,37 +2080,6 @@ type ClientInterface interface {
 	// Corresponds with GET /filtering/status (the `FilteringStatus` operationId).
 	FilteringStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ChangeLanguageWithBody Change current language.  Argument must be an ISO 639-1 two-letter code.
-	//
-	// Deprecated: Use `PUT /control/profile` instead.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ChangeLanguageWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ChangeLanguage Change current language.  Argument must be an ISO 639-1 two-letter code.
-	//
-	// Deprecated: Use `PUT /control/profile` instead.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ChangeLanguage(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CurrentLanguage Get currently set language.  Result is ISO 639-1 two-letter code.  Empty result means default language.
-	//
-	// Deprecated: Use `GET /control/profile` instead.
-	//
-	// Corresponds with GET /i18n/current_language (the `CurrentLanguage` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	CurrentLanguage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// InstallCheckConfigWithBody Checks configuration
 	//
 	// Takes any type of body and a specified content type.
@@ -2437,42 +2207,6 @@ type ClientInterface interface {
 	// Corresponds with POST /querylog_clear (the `QuerylogClear` operationId).
 	QuerylogClear(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// QueryLogConfigWithBody Set query log parameters
-	//
-	// Deprecated: Use `PUT /querylog/config/update` instead.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	QueryLogConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// QueryLogConfig Set query log parameters
-	//
-	// Deprecated: Use `PUT /querylog/config/update` instead.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	QueryLogConfig(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// QueryLogInfo Get query log parameters
-	//
-	// Deprecated: Use `GET /querylog/config` instead.
-	//
-	// NOTE: If `interval` was configured by editing configuration file or new
-	// HTTP API call `PUT /querylog/config/update` and it's not equal to
-	// previous allowed enum values then it will be equal to `90` days for
-	// compatibility reasons.
-	//
-	// Corresponds with GET /querylog_info (the `QueryLogInfo` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	QueryLogInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// RewriteAddWithBody Add a new Rewrite rule
 	//
 	// Takes any type of body and a specified content type.
@@ -2554,20 +2288,6 @@ type ClientInterface interface {
 	// Corresponds with GET /safebrowsing/status (the `SafebrowsingStatus` operationId).
 	SafebrowsingStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SafesearchDisable Disable safesearch
-	//
-	// Corresponds with POST /safesearch/disable (the `SafesearchDisable` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	SafesearchDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// SafesearchEnable Enable safesearch
-	//
-	// Corresponds with POST /safesearch/enable (the `SafesearchEnable` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	SafesearchEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// SafesearchSettingsWithBody Update safesearch settings
 	//
 	// Takes any type of body and a specified content type.
@@ -2610,42 +2330,6 @@ type ClientInterface interface {
 	//
 	// Corresponds with PUT /stats/config/update (the `PutStatsConfig` operationId).
 	PutStatsConfig(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// StatsConfigWithBody Set statistics parameters
-	//
-	// Deprecated: Use `PUT /stats/config/update` instead.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	StatsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// StatsConfig Set statistics parameters
-	//
-	// Deprecated: Use `PUT /stats/config/update` instead.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	StatsConfig(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// StatsInfo Get statistics parameters
-	//
-	// Deprecated: Use `GET /stats/config` instead.
-	//
-	// NOTE: If `interval` was configured by editing configuration file or new
-	// HTTP API call `PUT /stats/config/update` and it's not equal to
-	// previous allowed enum values then it will be equal to `90` days for
-	// compatibility reasons.
-	//
-	// Corresponds with GET /stats_info (the `StatsInfo` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	StatsInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// StatsReset Reset all statistics to zeroes
 	//
@@ -2833,82 +2517,6 @@ func (c *AdguardHomeClient) BlockedServicesSchedule(ctx context.Context, reqEdit
 	return c.Client.Do(req)
 }
 
-// BlockedServicesList Get blocked services list
-//
-// Deprecated: Use `GET /blocked_services/get` instead.
-//
-// Corresponds with GET /blocked_services/list (the `BlockedServicesList` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) BlockedServicesList(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewBlockedServicesListRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// BlockedServicesAvailableServices Get available services to use for blocking
-//
-// Deprecated: Use `GET /blocked_services/all` instead.
-//
-// Corresponds with GET /blocked_services/services (the `BlockedServicesAvailableServices` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) BlockedServicesAvailableServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewBlockedServicesAvailableServicesRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// BlockedServicesSetWithBody Set blocked services list
-//
-// Deprecated: Use `PUT /blocked_services/update` instead.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) BlockedServicesSetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewBlockedServicesSetRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// BlockedServicesSet Set blocked services list
-//
-// Deprecated: Use `PUT /blocked_services/update` instead.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) BlockedServicesSet(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewBlockedServicesSetRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // BlockedServicesScheduleUpdateWithBody Update blocked services
 //
 // Takes any type of body and a specified content type.
@@ -3031,24 +2639,6 @@ func (c *AdguardHomeClient) ClientsDeleteWithBody(ctx context.Context, contentTy
 // Corresponds with POST /clients/delete (the `ClientsDelete` operationId).
 func (c *AdguardHomeClient) ClientsDelete(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewClientsDeleteRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// ClientsFind Get information about clients by their IP addresses or ClientIDs.
-//
-// Deprecated: Use `POST /clients/search` instead.
-//
-// Corresponds with GET /clients/find (the `ClientsFind` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) ClientsFind(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewClientsFindRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3644,64 +3234,6 @@ func (c *AdguardHomeClient) FilteringStatus(ctx context.Context, reqEditors ...R
 	return c.Client.Do(req)
 }
 
-// ChangeLanguageWithBody Change current language.  Argument must be an ISO 639-1 two-letter code.
-//
-// Deprecated: Use `PUT /control/profile` instead.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) ChangeLanguageWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewChangeLanguageRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// ChangeLanguage Change current language.  Argument must be an ISO 639-1 two-letter code.
-//
-// Deprecated: Use `PUT /control/profile` instead.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) ChangeLanguage(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewChangeLanguageRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// CurrentLanguage Get currently set language.  Result is ISO 639-1 two-letter code.  Empty result means default language.
-//
-// Deprecated: Use `GET /control/profile` instead.
-//
-// Corresponds with GET /i18n/current_language (the `CurrentLanguage` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) CurrentLanguage(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCurrentLanguageRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // InstallCheckConfigWithBody Checks configuration
 //
 // Takes any type of body and a specified content type.
@@ -4039,69 +3571,6 @@ func (c *AdguardHomeClient) QuerylogClear(ctx context.Context, reqEditors ...Req
 	return c.Client.Do(req)
 }
 
-// QueryLogConfigWithBody Set query log parameters
-//
-// Deprecated: Use `PUT /querylog/config/update` instead.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) QueryLogConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewQueryLogConfigRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// QueryLogConfig Set query log parameters
-//
-// Deprecated: Use `PUT /querylog/config/update` instead.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) QueryLogConfig(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewQueryLogConfigRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// QueryLogInfo Get query log parameters
-//
-// Deprecated: Use `GET /querylog/config` instead.
-//
-// NOTE: If `interval` was configured by editing configuration file or new
-// HTTP API call `PUT /querylog/config/update` and it's not equal to
-// previous allowed enum values then it will be equal to `90` days for
-// compatibility reasons.
-//
-// Corresponds with GET /querylog_info (the `QueryLogInfo` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) QueryLogInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewQueryLogInfoRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // RewriteAddWithBody Add a new Rewrite rule
 //
 // Takes any type of body and a specified content type.
@@ -4313,38 +3782,6 @@ func (c *AdguardHomeClient) SafebrowsingStatus(ctx context.Context, reqEditors .
 	return c.Client.Do(req)
 }
 
-// SafesearchDisable Disable safesearch
-//
-// Corresponds with POST /safesearch/disable (the `SafesearchDisable` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) SafesearchDisable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSafesearchDisableRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// SafesearchEnable Enable safesearch
-//
-// Corresponds with POST /safesearch/enable (the `SafesearchEnable` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) SafesearchEnable(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSafesearchEnableRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // SafesearchSettingsWithBody Update safesearch settings
 //
 // Takes any type of body and a specified content type.
@@ -4448,69 +3885,6 @@ func (c *AdguardHomeClient) PutStatsConfigWithBody(ctx context.Context, contentT
 // Corresponds with PUT /stats/config/update (the `PutStatsConfig` operationId).
 func (c *AdguardHomeClient) PutStatsConfig(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPutStatsConfigRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// StatsConfigWithBody Set statistics parameters
-//
-// Deprecated: Use `PUT /stats/config/update` instead.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) StatsConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewStatsConfigRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// StatsConfig Set statistics parameters
-//
-// Deprecated: Use `PUT /stats/config/update` instead.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) StatsConfig(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewStatsConfigRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// StatsInfo Get statistics parameters
-//
-// Deprecated: Use `GET /stats/config` instead.
-//
-// NOTE: If `interval` was configured by editing configuration file or new
-// HTTP API call `PUT /stats/config/update` and it's not equal to
-// previous allowed enum values then it will be equal to `90` days for
-// compatibility reasons.
-//
-// Corresponds with GET /stats_info (the `StatsInfo` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *AdguardHomeClient) StatsInfo(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewStatsInfoRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -4962,100 +4336,6 @@ func NewBlockedServicesScheduleRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewBlockedServicesListRequest constructs an http.Request for the BlockedServicesList method
-func NewBlockedServicesListRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/blocked_services/list")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewBlockedServicesAvailableServicesRequest constructs an http.Request for the BlockedServicesAvailableServices method
-func NewBlockedServicesAvailableServicesRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/blocked_services/services")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewBlockedServicesSetRequest calls the generic BlockedServicesSet builder with application/json body
-func NewBlockedServicesSetRequest(server string, body BlockedServicesSetJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewBlockedServicesSetRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewBlockedServicesSetRequestWithBody constructs an http.Request for the BlockedServicesSet method, with any body, and a specified content type
-func NewBlockedServicesSetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/blocked_services/set")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewBlockedServicesScheduleUpdateRequest calls the generic BlockedServicesScheduleUpdate builder with application/json body
 func NewBlockedServicesScheduleUpdateRequest(server string, body BlockedServicesScheduleUpdateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -5226,60 +4506,6 @@ func NewClientsDeleteRequestWithBody(server string, contentType string, body io.
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewClientsFindRequest constructs an http.Request for the ClientsFind method
-func NewClientsFindRequest(server string, params *ClientsFindParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/clients/find")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.Ip0 != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "ip0", *params.Ip0, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -6080,73 +5306,6 @@ func NewFilteringStatusRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewChangeLanguageRequest calls the generic ChangeLanguage builder with application/json body
-func NewChangeLanguageRequest(server string, body ChangeLanguageJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewChangeLanguageRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewChangeLanguageRequestWithBody constructs an http.Request for the ChangeLanguage method, with any body, and a specified content type
-func NewChangeLanguageRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/i18n/change_language")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewCurrentLanguageRequest constructs an http.Request for the CurrentLanguage method
-func NewCurrentLanguageRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/i18n/current_language")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewInstallCheckConfigRequest calls the generic InstallCheckConfig builder with application/json body
 func NewInstallCheckConfigRequest(server string, body InstallCheckConfigJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -6585,18 +5744,6 @@ func NewQueryLogRequest(server string, params *QueryLogParams) (*http.Request, e
 
 		}
 
-		if params.ResponseStatus != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "response_status", *params.ResponseStatus, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
 		if params.Reason != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "reason", *params.Reason, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
@@ -6710,73 +5857,6 @@ func NewQuerylogClearRequest(server string) (*http.Request, error) {
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewQueryLogConfigRequest calls the generic QueryLogConfig builder with application/json body
-func NewQueryLogConfigRequest(server string, body QueryLogConfigJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewQueryLogConfigRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewQueryLogConfigRequestWithBody constructs an http.Request for the QueryLogConfig method, with any body, and a specified content type
-func NewQueryLogConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/querylog_config")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewQueryLogInfoRequest constructs an http.Request for the QueryLogInfo method
-func NewQueryLogInfoRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/querylog_info")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7079,60 +6159,6 @@ func NewSafebrowsingStatusRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewSafesearchDisableRequest constructs an http.Request for the SafesearchDisable method
-func NewSafesearchDisableRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/safesearch/disable")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewSafesearchEnableRequest constructs an http.Request for the SafesearchEnable method
-func NewSafesearchEnableRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/safesearch/enable")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewSafesearchSettingsRequest calls the generic SafesearchSettings builder with application/json body
 func NewSafesearchSettingsRequest(server string, body SafesearchSettingsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -7317,73 +6343,6 @@ func NewPutStatsConfigRequestWithBody(server string, contentType string, body io
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewStatsConfigRequest calls the generic StatsConfig builder with application/json body
-func NewStatsConfigRequest(server string, body StatsConfigJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewStatsConfigRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewStatsConfigRequestWithBody constructs an http.Request for the StatsConfig method, with any body, and a specified content type
-func NewStatsConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/stats_config")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewStatsInfoRequest constructs an http.Request for the StatsInfo method
-func NewStatsInfoRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/stats_info")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -7749,50 +6708,6 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /blocked_services/get (the `BlockedServicesSchedule` operationId).
 	BlockedServicesScheduleWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesScheduleResp, error)
 
-	// BlockedServicesListWithResponse Get blocked services list
-	//
-	// Deprecated: Use `GET /blocked_services/get` instead.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /blocked_services/list (the `BlockedServicesList` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesListResp, error)
-
-	// BlockedServicesAvailableServicesWithResponse Get available services to use for blocking
-	//
-	// Deprecated: Use `GET /blocked_services/all` instead.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /blocked_services/services (the `BlockedServicesAvailableServices` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesAvailableServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesAvailableServicesResp, error)
-
-	// BlockedServicesSetWithBodyWithResponse Set blocked services list
-	//
-	// Deprecated: Use `PUT /blocked_services/update` instead.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesSetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error)
-
-	// BlockedServicesSetWithResponse Set blocked services list
-	//
-	// Deprecated: Use `PUT /blocked_services/update` instead.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	BlockedServicesSetWithResponse(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error)
-
 	// BlockedServicesScheduleUpdateWithBodyWithResponse Update blocked services
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -7848,17 +6763,6 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /clients/delete (the `ClientsDelete` operationId).
 	ClientsDeleteWithResponse(ctx context.Context, body ClientsDeleteJSONRequestBody, reqEditors ...RequestEditorFn) (*ClientsDeleteResp, error)
-
-	// ClientsFindWithResponse Get information about clients by their IP addresses or ClientIDs.
-	//
-	// Deprecated: Use `POST /clients/search` instead.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /clients/find (the `ClientsFind` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ClientsFindWithResponse(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*ClientsFindResp, error)
 
 	// ClientsSearchWithBodyWithResponse Retrieve information about clients by performing an exact match search using IP addresses, CIDRs, MAC addresses, or ClientIDs.
 	//
@@ -8109,39 +7013,6 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /filtering/status (the `FilteringStatus` operationId).
 	FilteringStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*FilteringStatusResp, error)
 
-	// ChangeLanguageWithBodyWithResponse Change current language.  Argument must be an ISO 639-1 two-letter code.
-	//
-	// Deprecated: Use `PUT /control/profile` instead.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ChangeLanguageWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error)
-
-	// ChangeLanguageWithResponse Change current language.  Argument must be an ISO 639-1 two-letter code.
-	//
-	// Deprecated: Use `PUT /control/profile` instead.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	ChangeLanguageWithResponse(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error)
-
-	// CurrentLanguageWithResponse Get currently set language.  Result is ISO 639-1 two-letter code.  Empty result means default language.
-	//
-	// Deprecated: Use `GET /control/profile` instead.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /i18n/current_language (the `CurrentLanguage` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	CurrentLanguageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CurrentLanguageResp, error)
-
 	// InstallCheckConfigWithBodyWithResponse Checks configuration
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -8287,44 +7158,6 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /querylog_clear (the `QuerylogClear` operationId).
 	QuerylogClearWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QuerylogClearResp, error)
 
-	// QueryLogConfigWithBodyWithResponse Set query log parameters
-	//
-	// Deprecated: Use `PUT /querylog/config/update` instead.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	QueryLogConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error)
-
-	// QueryLogConfigWithResponse Set query log parameters
-	//
-	// Deprecated: Use `PUT /querylog/config/update` instead.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	QueryLogConfigWithResponse(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error)
-
-	// QueryLogInfoWithResponse Get query log parameters
-	//
-	// Deprecated: Use `GET /querylog/config` instead.
-	//
-	// NOTE: If `interval` was configured by editing configuration file or new
-	// HTTP API call `PUT /querylog/config/update` and it's not equal to
-	// previous allowed enum values then it will be equal to `90` days for
-	// compatibility reasons.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /querylog_info (the `QueryLogInfo` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	QueryLogInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QueryLogInfoResp, error)
-
 	// RewriteAddWithBodyWithResponse Add a new Rewrite rule
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -8416,24 +7249,6 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /safebrowsing/status (the `SafebrowsingStatus` operationId).
 	SafebrowsingStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafebrowsingStatusResp, error)
 
-	// SafesearchDisableWithResponse Disable safesearch
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /safesearch/disable (the `SafesearchDisable` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	SafesearchDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchDisableResp, error)
-
-	// SafesearchEnableWithResponse Enable safesearch
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /safesearch/enable (the `SafesearchEnable` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	SafesearchEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchEnableResp, error)
-
 	// SafesearchSettingsWithBodyWithResponse Update safesearch settings
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -8482,44 +7297,6 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PUT /stats/config/update (the `PutStatsConfig` operationId).
 	PutStatsConfigWithResponse(ctx context.Context, body PutStatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutStatsConfigResp, error)
-
-	// StatsConfigWithBodyWithResponse Set statistics parameters
-	//
-	// Deprecated: Use `PUT /stats/config/update` instead.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	StatsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StatsConfigResp, error)
-
-	// StatsConfigWithResponse Set statistics parameters
-	//
-	// Deprecated: Use `PUT /stats/config/update` instead.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	StatsConfigWithResponse(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*StatsConfigResp, error)
-
-	// StatsInfoWithResponse Get statistics parameters
-	//
-	// Deprecated: Use `GET /stats/config` instead.
-	//
-	// NOTE: If `interval` was configured by editing configuration file or new
-	// HTTP API call `PUT /stats/config/update` and it's not equal to
-	// previous allowed enum values then it will be equal to `90` days for
-	// compatibility reasons.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /stats_info (the `StatsInfo` operationId).
-	//
-	// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	StatsInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsInfoResp, error)
 
 	// StatsResetWithResponse Reset all statistics to zeroes
 	//
@@ -8845,122 +7622,6 @@ func (r BlockedServicesScheduleResp) ContentType() string {
 	return ""
 }
 
-type BlockedServicesListResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *BlockedServicesArray
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r BlockedServicesListResp) GetJSON200() *BlockedServicesArray {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r BlockedServicesListResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r BlockedServicesListResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r BlockedServicesListResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r BlockedServicesListResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type BlockedServicesAvailableServicesResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *BlockedServicesArray
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r BlockedServicesAvailableServicesResp) GetJSON200() *BlockedServicesArray {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r BlockedServicesAvailableServicesResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r BlockedServicesAvailableServicesResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r BlockedServicesAvailableServicesResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r BlockedServicesAvailableServicesResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type BlockedServicesSetResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r BlockedServicesSetResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r BlockedServicesSetResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r BlockedServicesSetResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r BlockedServicesSetResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
 type BlockedServicesScheduleUpdateResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -9132,47 +7793,6 @@ func (r ClientsDeleteResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r ClientsDeleteResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type ClientsFindResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ClientsFindResponse
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r ClientsFindResp) GetJSON200() *ClientsFindResponse {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r ClientsFindResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r ClientsFindResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ClientsFindResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ClientsFindResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -9682,11 +8302,127 @@ type DnsInfoResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *DNSConfig
+	JSON200 *struct {
+		// BlockedResponseTtl TTL for blocked responses.
+		BlockedResponseTtl *int                                    `json:"blocked_response_ttl,omitempty"`
+		BlockingIpv4       *string                                 `json:"blocking_ipv4,omitempty"`
+		BlockingIpv6       *string                                 `json:"blocking_ipv6,omitempty"`
+		BlockingMode       *DnsInfo200JSONResponseBodyBlockingMode `json:"blocking_mode,omitempty"`
+
+		// BootstrapDns Bootstrap servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+		BootstrapDns *[]string `json:"bootstrap_dns,omitempty"`
+
+		// CacheEnabled Enables or disables the DNS response cache.
+		//
+		// If `cache_enabled` is `true`, the companion field `cache_size` must
+		// be present and greater than 0, or the `dns.cache_size` setting in
+		// the configuration file must already be greater than 0.
+		CacheEnabled             *bool     `json:"cache_enabled,omitempty"`
+		CacheOptimistic          *bool     `json:"cache_optimistic,omitempty"`
+		CacheSize                *int      `json:"cache_size,omitempty"`
+		CacheTtlMax              *int      `json:"cache_ttl_max,omitempty"`
+		CacheTtlMin              *int      `json:"cache_ttl_min,omitempty"`
+		DefaultLocalPtrUpstreams *[]string `json:"default_local_ptr_upstreams,omitempty"`
+		DisableIpv6              *bool     `json:"disable_ipv6,omitempty"`
+		DnssecEnabled            *bool     `json:"dnssec_enabled,omitempty"`
+		EdnsCsCustomIp           *string   `json:"edns_cs_custom_ip,omitempty"`
+		EdnsCsEnabled            *bool     `json:"edns_cs_enabled,omitempty"`
+		EdnsCsUseCustom          *bool     `json:"edns_cs_use_custom,omitempty"`
+
+		// FallbackDns List of fallback DNS servers used when upstream DNS servers are not responding.  Empty value will clear the list.  Comments are allowed, a comment line starts with a `#` symbol.
+		FallbackDns *[]string `json:"fallback_dns,omitempty"`
+
+		// LocalPtrUpstreams Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+		LocalPtrUpstreams *[]string `json:"local_ptr_upstreams,omitempty"`
+
+		// ProtectionDisabledUntil Protection is pause until this time.  Nullable.
+		ProtectionDisabledUntil *string `json:"protection_disabled_until,omitempty"`
+		ProtectionEnabled       *bool   `json:"protection_enabled,omitempty"`
+		Ratelimit               *int    `json:"ratelimit,omitempty"`
+
+		// RatelimitSubnetLenIpv4 Length of the subnet mask for IPv4 addresses.
+		RatelimitSubnetLenIpv4 *int `json:"ratelimit_subnet_len_ipv4,omitempty"`
+
+		// RatelimitSubnetLenIpv6 Length of the subnet mask for IPv6 addresses.
+		RatelimitSubnetLenIpv6 *int `json:"ratelimit_subnet_len_ipv6,omitempty"`
+
+		// RatelimitWhitelist List of IP addresses excluded from rate limiting.
+		RatelimitWhitelist *[]string `json:"ratelimit_whitelist,omitempty"`
+		ResolveClients     *bool     `json:"resolve_clients,omitempty"`
+
+		// UpstreamDns Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+		UpstreamDns     *[]string `json:"upstream_dns,omitempty"`
+		UpstreamDnsFile *string   `json:"upstream_dns_file,omitempty"`
+
+		// UpstreamMode Upstream modes enumeration.
+		UpstreamMode *DnsInfo200JSONResponseBodyUpstreamMode `json:"upstream_mode,omitempty"`
+
+		// UpstreamTimeout The number of seconds to wait for a response from the upstream server
+		UpstreamTimeout        *int  `json:"upstream_timeout,omitempty"`
+		UsePrivatePtrResolvers *bool `json:"use_private_ptr_resolvers,omitempty"`
+	}
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r DnsInfoResp) GetJSON200() *DNSConfig {
+func (r DnsInfoResp) GetJSON200() *struct {
+	// BlockedResponseTtl TTL for blocked responses.
+	BlockedResponseTtl *int                                    `json:"blocked_response_ttl,omitempty"`
+	BlockingIpv4       *string                                 `json:"blocking_ipv4,omitempty"`
+	BlockingIpv6       *string                                 `json:"blocking_ipv6,omitempty"`
+	BlockingMode       *DnsInfo200JSONResponseBodyBlockingMode `json:"blocking_mode,omitempty"`
+
+	// BootstrapDns Bootstrap servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+	BootstrapDns *[]string `json:"bootstrap_dns,omitempty"`
+
+	// CacheEnabled Enables or disables the DNS response cache.
+	//
+	// If `cache_enabled` is `true`, the companion field `cache_size` must
+	// be present and greater than 0, or the `dns.cache_size` setting in
+	// the configuration file must already be greater than 0.
+	CacheEnabled             *bool     `json:"cache_enabled,omitempty"`
+	CacheOptimistic          *bool     `json:"cache_optimistic,omitempty"`
+	CacheSize                *int      `json:"cache_size,omitempty"`
+	CacheTtlMax              *int      `json:"cache_ttl_max,omitempty"`
+	CacheTtlMin              *int      `json:"cache_ttl_min,omitempty"`
+	DefaultLocalPtrUpstreams *[]string `json:"default_local_ptr_upstreams,omitempty"`
+	DisableIpv6              *bool     `json:"disable_ipv6,omitempty"`
+	DnssecEnabled            *bool     `json:"dnssec_enabled,omitempty"`
+	EdnsCsCustomIp           *string   `json:"edns_cs_custom_ip,omitempty"`
+	EdnsCsEnabled            *bool     `json:"edns_cs_enabled,omitempty"`
+	EdnsCsUseCustom          *bool     `json:"edns_cs_use_custom,omitempty"`
+
+	// FallbackDns List of fallback DNS servers used when upstream DNS servers are not responding.  Empty value will clear the list.  Comments are allowed, a comment line starts with a `#` symbol.
+	FallbackDns *[]string `json:"fallback_dns,omitempty"`
+
+	// LocalPtrUpstreams Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+	LocalPtrUpstreams *[]string `json:"local_ptr_upstreams,omitempty"`
+
+	// ProtectionDisabledUntil Protection is pause until this time.  Nullable.
+	ProtectionDisabledUntil *string `json:"protection_disabled_until,omitempty"`
+	ProtectionEnabled       *bool   `json:"protection_enabled,omitempty"`
+	Ratelimit               *int    `json:"ratelimit,omitempty"`
+
+	// RatelimitSubnetLenIpv4 Length of the subnet mask for IPv4 addresses.
+	RatelimitSubnetLenIpv4 *int `json:"ratelimit_subnet_len_ipv4,omitempty"`
+
+	// RatelimitSubnetLenIpv6 Length of the subnet mask for IPv6 addresses.
+	RatelimitSubnetLenIpv6 *int `json:"ratelimit_subnet_len_ipv6,omitempty"`
+
+	// RatelimitWhitelist List of IP addresses excluded from rate limiting.
+	RatelimitWhitelist *[]string `json:"ratelimit_whitelist,omitempty"`
+	ResolveClients     *bool     `json:"resolve_clients,omitempty"`
+
+	// UpstreamDns Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+	UpstreamDns     *[]string `json:"upstream_dns,omitempty"`
+	UpstreamDnsFile *string   `json:"upstream_dns_file,omitempty"`
+
+	// UpstreamMode Upstream modes enumeration.
+	UpstreamMode *DnsInfo200JSONResponseBodyUpstreamMode `json:"upstream_mode,omitempty"`
+
+	// UpstreamTimeout The number of seconds to wait for a response from the upstream server
+	UpstreamTimeout        *int  `json:"upstream_timeout,omitempty"`
+	UsePrivatePtrResolvers *bool `json:"use_private_ptr_resolvers,omitempty"`
+} {
 	return r.JSON200
 }
 
@@ -10006,81 +8742,6 @@ func (r FilteringStatusResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r FilteringStatusResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type ChangeLanguageResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r ChangeLanguageResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r ChangeLanguageResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ChangeLanguageResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ChangeLanguageResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type CurrentLanguageResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *LanguageSettings
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r CurrentLanguageResp) GetJSON200() *LanguageSettings {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r CurrentLanguageResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r CurrentLanguageResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CurrentLanguageResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r CurrentLanguageResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -10645,81 +9306,6 @@ func (r QuerylogClearResp) ContentType() string {
 	return ""
 }
 
-type QueryLogConfigResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r QueryLogConfigResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r QueryLogConfigResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r QueryLogConfigResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r QueryLogConfigResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type QueryLogInfoResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *QueryLogConfig
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r QueryLogInfoResp) GetJSON200() *QueryLogConfig {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r QueryLogInfoResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r QueryLogInfoResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r QueryLogInfoResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r QueryLogInfoResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
 type RewriteAddResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -11051,74 +9637,6 @@ func (r SafebrowsingStatusResp) ContentType() string {
 	return ""
 }
 
-type SafesearchDisableResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r SafesearchDisableResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r SafesearchDisableResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r SafesearchDisableResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r SafesearchDisableResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type SafesearchEnableResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r SafesearchEnableResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r SafesearchEnableResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r SafesearchEnableResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r SafesearchEnableResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
 type SafesearchSettingsResp struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -11304,81 +9822,6 @@ func (r PutStatsConfigResp) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PutStatsConfigResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type StatsConfigResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r StatsConfigResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r StatsConfigResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r StatsConfigResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r StatsConfigResp) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type StatsInfoResp struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *StatsConfig
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r StatsInfoResp) GetJSON200() *StatsConfig {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r StatsInfoResp) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r StatsInfoResp) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r StatsInfoResp) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r StatsInfoResp) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -11790,73 +10233,6 @@ func (c *ClientWithResponses) BlockedServicesScheduleWithResponse(ctx context.Co
 	return ParseBlockedServicesScheduleResp(rsp)
 }
 
-// BlockedServicesListWithResponse Get blocked services list
-//
-// Deprecated: Use `GET /blocked_services/get` instead.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /blocked_services/list (the `BlockedServicesList` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) BlockedServicesListWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesListResp, error) {
-	rsp, err := c.BlockedServicesList(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseBlockedServicesListResp(rsp)
-}
-
-// BlockedServicesAvailableServicesWithResponse Get available services to use for blocking
-//
-// Deprecated: Use `GET /blocked_services/all` instead.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /blocked_services/services (the `BlockedServicesAvailableServices` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) BlockedServicesAvailableServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*BlockedServicesAvailableServicesResp, error) {
-	rsp, err := c.BlockedServicesAvailableServices(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseBlockedServicesAvailableServicesResp(rsp)
-}
-
-// BlockedServicesSetWithBodyWithResponse Set blocked services list
-//
-// Deprecated: Use `PUT /blocked_services/update` instead.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) BlockedServicesSetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error) {
-	rsp, err := c.BlockedServicesSetWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseBlockedServicesSetResp(rsp)
-}
-
-// BlockedServicesSetWithResponse Set blocked services list
-//
-// Deprecated: Use `PUT /blocked_services/update` instead.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /blocked_services/set (the `BlockedServicesSet` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) BlockedServicesSetWithResponse(ctx context.Context, body BlockedServicesSetJSONRequestBody, reqEditors ...RequestEditorFn) (*BlockedServicesSetResp, error) {
-	rsp, err := c.BlockedServicesSet(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseBlockedServicesSetResp(rsp)
-}
-
 // BlockedServicesScheduleUpdateWithBodyWithResponse Update blocked services
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -11959,23 +10335,6 @@ func (c *ClientWithResponses) ClientsDeleteWithResponse(ctx context.Context, bod
 		return nil, err
 	}
 	return ParseClientsDeleteResp(rsp)
-}
-
-// ClientsFindWithResponse Get information about clients by their IP addresses or ClientIDs.
-//
-// Deprecated: Use `POST /clients/search` instead.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /clients/find (the `ClientsFind` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) ClientsFindWithResponse(ctx context.Context, params *ClientsFindParams, reqEditors ...RequestEditorFn) (*ClientsFindResp, error) {
-	rsp, err := c.ClientsFind(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseClientsFindResp(rsp)
 }
 
 // ClientsSearchWithBodyWithResponse Retrieve information about clients by performing an exact match search using IP addresses, CIDRs, MAC addresses, or ClientIDs.
@@ -12437,56 +10796,6 @@ func (c *ClientWithResponses) FilteringStatusWithResponse(ctx context.Context, r
 	return ParseFilteringStatusResp(rsp)
 }
 
-// ChangeLanguageWithBodyWithResponse Change current language.  Argument must be an ISO 639-1 two-letter code.
-//
-// Deprecated: Use `PUT /control/profile` instead.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) ChangeLanguageWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error) {
-	rsp, err := c.ChangeLanguageWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseChangeLanguageResp(rsp)
-}
-
-// ChangeLanguageWithResponse Change current language.  Argument must be an ISO 639-1 two-letter code.
-//
-// Deprecated: Use `PUT /control/profile` instead.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /i18n/change_language (the `ChangeLanguage` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) ChangeLanguageWithResponse(ctx context.Context, body ChangeLanguageJSONRequestBody, reqEditors ...RequestEditorFn) (*ChangeLanguageResp, error) {
-	rsp, err := c.ChangeLanguage(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseChangeLanguageResp(rsp)
-}
-
-// CurrentLanguageWithResponse Get currently set language.  Result is ISO 639-1 two-letter code.  Empty result means default language.
-//
-// Deprecated: Use `GET /control/profile` instead.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /i18n/current_language (the `CurrentLanguage` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) CurrentLanguageWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CurrentLanguageResp, error) {
-	rsp, err := c.CurrentLanguage(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCurrentLanguageResp(rsp)
-}
-
 // InstallCheckConfigWithBodyWithResponse Checks configuration
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -12758,61 +11067,6 @@ func (c *ClientWithResponses) QuerylogClearWithResponse(ctx context.Context, req
 	return ParseQuerylogClearResp(rsp)
 }
 
-// QueryLogConfigWithBodyWithResponse Set query log parameters
-//
-// Deprecated: Use `PUT /querylog/config/update` instead.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) QueryLogConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error) {
-	rsp, err := c.QueryLogConfigWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseQueryLogConfigResp(rsp)
-}
-
-// QueryLogConfigWithResponse Set query log parameters
-//
-// Deprecated: Use `PUT /querylog/config/update` instead.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /querylog_config (the `QueryLogConfig` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) QueryLogConfigWithResponse(ctx context.Context, body QueryLogConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*QueryLogConfigResp, error) {
-	rsp, err := c.QueryLogConfig(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseQueryLogConfigResp(rsp)
-}
-
-// QueryLogInfoWithResponse Get query log parameters
-//
-// Deprecated: Use `GET /querylog/config` instead.
-//
-// NOTE: If `interval` was configured by editing configuration file or new
-// HTTP API call `PUT /querylog/config/update` and it's not equal to
-// previous allowed enum values then it will be equal to `90` days for
-// compatibility reasons.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /querylog_info (the `QueryLogInfo` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) QueryLogInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*QueryLogInfoResp, error) {
-	rsp, err := c.QueryLogInfo(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseQueryLogInfoResp(rsp)
-}
-
 // RewriteAddWithBodyWithResponse Add a new Rewrite rule
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -12982,36 +11236,6 @@ func (c *ClientWithResponses) SafebrowsingStatusWithResponse(ctx context.Context
 	return ParseSafebrowsingStatusResp(rsp)
 }
 
-// SafesearchDisableWithResponse Disable safesearch
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /safesearch/disable (the `SafesearchDisable` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) SafesearchDisableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchDisableResp, error) {
-	rsp, err := c.SafesearchDisable(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSafesearchDisableResp(rsp)
-}
-
-// SafesearchEnableWithResponse Enable safesearch
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /safesearch/enable (the `SafesearchEnable` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) SafesearchEnableWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SafesearchEnableResp, error) {
-	rsp, err := c.SafesearchEnable(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSafesearchEnableResp(rsp)
-}
-
 // SafesearchSettingsWithBodyWithResponse Update safesearch settings
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -13101,61 +11325,6 @@ func (c *ClientWithResponses) PutStatsConfigWithResponse(ctx context.Context, bo
 		return nil, err
 	}
 	return ParsePutStatsConfigResp(rsp)
-}
-
-// StatsConfigWithBodyWithResponse Set statistics parameters
-//
-// Deprecated: Use `PUT /stats/config/update` instead.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) StatsConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StatsConfigResp, error) {
-	rsp, err := c.StatsConfigWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseStatsConfigResp(rsp)
-}
-
-// StatsConfigWithResponse Set statistics parameters
-//
-// Deprecated: Use `PUT /stats/config/update` instead.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /stats_config (the `StatsConfig` operationId).
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) StatsConfigWithResponse(ctx context.Context, body StatsConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*StatsConfigResp, error) {
-	rsp, err := c.StatsConfig(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseStatsConfigResp(rsp)
-}
-
-// StatsInfoWithResponse Get statistics parameters
-//
-// Deprecated: Use `GET /stats/config` instead.
-//
-// NOTE: If `interval` was configured by editing configuration file or new
-// HTTP API call `PUT /stats/config/update` and it's not equal to
-// previous allowed enum values then it will be equal to `90` days for
-// compatibility reasons.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /stats_info (the `StatsInfo` operationId).
-//
-// Deprecated: this operation has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-func (c *ClientWithResponses) StatsInfoWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StatsInfoResp, error) {
-	rsp, err := c.StatsInfo(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseStatsInfoResp(rsp)
 }
 
 // StatsResetWithResponse Reset all statistics to zeroes
@@ -13466,74 +11635,6 @@ func ParseBlockedServicesScheduleResp(rsp *http.Response) (*BlockedServicesSched
 	return response, nil
 }
 
-// ParseBlockedServicesListResp parses an HTTP response from a BlockedServicesListWithResponse call
-func ParseBlockedServicesListResp(rsp *http.Response) (*BlockedServicesListResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &BlockedServicesListResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest BlockedServicesArray
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseBlockedServicesAvailableServicesResp parses an HTTP response from a BlockedServicesAvailableServicesWithResponse call
-func ParseBlockedServicesAvailableServicesResp(rsp *http.Response) (*BlockedServicesAvailableServicesResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &BlockedServicesAvailableServicesResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest BlockedServicesArray
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseBlockedServicesSetResp parses an HTTP response from a BlockedServicesSetWithResponse call
-func ParseBlockedServicesSetResp(rsp *http.Response) (*BlockedServicesSetResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &BlockedServicesSetResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseBlockedServicesScheduleUpdateResp parses an HTTP response from a BlockedServicesScheduleUpdateWithResponse call
 func ParseBlockedServicesScheduleUpdateResp(rsp *http.Response) (*BlockedServicesScheduleUpdateResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -13619,32 +11720,6 @@ func ParseClientsDeleteResp(rsp *http.Response) (*ClientsDeleteResp, error) {
 	response := &ClientsDeleteResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseClientsFindResp parses an HTTP response from a ClientsFindWithResponse call
-func ParseClientsFindResp(rsp *http.Response) (*ClientsFindResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ClientsFindResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ClientsFindResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	}
 
 	return response, nil
@@ -13996,7 +12071,65 @@ func ParseDnsInfoResp(rsp *http.Response) (*DnsInfoResp, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest DNSConfig
+		var dest struct {
+			// BlockedResponseTtl TTL for blocked responses.
+			BlockedResponseTtl *int                                    `json:"blocked_response_ttl,omitempty"`
+			BlockingIpv4       *string                                 `json:"blocking_ipv4,omitempty"`
+			BlockingIpv6       *string                                 `json:"blocking_ipv6,omitempty"`
+			BlockingMode       *DnsInfo200JSONResponseBodyBlockingMode `json:"blocking_mode,omitempty"`
+
+			// BootstrapDns Bootstrap servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+			BootstrapDns *[]string `json:"bootstrap_dns,omitempty"`
+
+			// CacheEnabled Enables or disables the DNS response cache.
+			//
+			// If `cache_enabled` is `true`, the companion field `cache_size` must
+			// be present and greater than 0, or the `dns.cache_size` setting in
+			// the configuration file must already be greater than 0.
+			CacheEnabled             *bool     `json:"cache_enabled,omitempty"`
+			CacheOptimistic          *bool     `json:"cache_optimistic,omitempty"`
+			CacheSize                *int      `json:"cache_size,omitempty"`
+			CacheTtlMax              *int      `json:"cache_ttl_max,omitempty"`
+			CacheTtlMin              *int      `json:"cache_ttl_min,omitempty"`
+			DefaultLocalPtrUpstreams *[]string `json:"default_local_ptr_upstreams,omitempty"`
+			DisableIpv6              *bool     `json:"disable_ipv6,omitempty"`
+			DnssecEnabled            *bool     `json:"dnssec_enabled,omitempty"`
+			EdnsCsCustomIp           *string   `json:"edns_cs_custom_ip,omitempty"`
+			EdnsCsEnabled            *bool     `json:"edns_cs_enabled,omitempty"`
+			EdnsCsUseCustom          *bool     `json:"edns_cs_use_custom,omitempty"`
+
+			// FallbackDns List of fallback DNS servers used when upstream DNS servers are not responding.  Empty value will clear the list.  Comments are allowed, a comment line starts with a `#` symbol.
+			FallbackDns *[]string `json:"fallback_dns,omitempty"`
+
+			// LocalPtrUpstreams Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+			LocalPtrUpstreams *[]string `json:"local_ptr_upstreams,omitempty"`
+
+			// ProtectionDisabledUntil Protection is pause until this time.  Nullable.
+			ProtectionDisabledUntil *string `json:"protection_disabled_until,omitempty"`
+			ProtectionEnabled       *bool   `json:"protection_enabled,omitempty"`
+			Ratelimit               *int    `json:"ratelimit,omitempty"`
+
+			// RatelimitSubnetLenIpv4 Length of the subnet mask for IPv4 addresses.
+			RatelimitSubnetLenIpv4 *int `json:"ratelimit_subnet_len_ipv4,omitempty"`
+
+			// RatelimitSubnetLenIpv6 Length of the subnet mask for IPv6 addresses.
+			RatelimitSubnetLenIpv6 *int `json:"ratelimit_subnet_len_ipv6,omitempty"`
+
+			// RatelimitWhitelist List of IP addresses excluded from rate limiting.
+			RatelimitWhitelist *[]string `json:"ratelimit_whitelist,omitempty"`
+			ResolveClients     *bool     `json:"resolve_clients,omitempty"`
+
+			// UpstreamDns Upstream servers, port is optional after colon.  Empty value will reset it to default values.  Comments are allowed, a comment line starts with a `#` symbol.
+			UpstreamDns     *[]string `json:"upstream_dns,omitempty"`
+			UpstreamDnsFile *string   `json:"upstream_dns_file,omitempty"`
+
+			// UpstreamMode Upstream modes enumeration.
+			UpstreamMode *DnsInfo200JSONResponseBodyUpstreamMode `json:"upstream_mode,omitempty"`
+
+			// UpstreamTimeout The number of seconds to wait for a response from the upstream server
+			UpstreamTimeout        *int  `json:"upstream_timeout,omitempty"`
+			UsePrivatePtrResolvers *bool `json:"use_private_ptr_resolvers,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -14155,48 +12288,6 @@ func ParseFilteringStatusResp(rsp *http.Response) (*FilteringStatusResp, error) 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest FilterStatus
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseChangeLanguageResp parses an HTTP response from a ChangeLanguageWithResponse call
-func ParseChangeLanguageResp(rsp *http.Response) (*ChangeLanguageResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ChangeLanguageResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseCurrentLanguageResp parses an HTTP response from a CurrentLanguageWithResponse call
-func ParseCurrentLanguageResp(rsp *http.Response) (*CurrentLanguageResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CurrentLanguageResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest LanguageSettings
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -14513,48 +12604,6 @@ func ParseQuerylogClearResp(rsp *http.Response) (*QuerylogClearResp, error) {
 	return response, nil
 }
 
-// ParseQueryLogConfigResp parses an HTTP response from a QueryLogConfigWithResponse call
-func ParseQueryLogConfigResp(rsp *http.Response) (*QueryLogConfigResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &QueryLogConfigResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseQueryLogInfoResp parses an HTTP response from a QueryLogInfoWithResponse call
-func ParseQueryLogInfoResp(rsp *http.Response) (*QueryLogInfoResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &QueryLogInfoResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest QueryLogConfig
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseRewriteAddResp parses an HTTP response from a RewriteAddWithResponse call
 func ParseRewriteAddResp(rsp *http.Response) (*RewriteAddResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -14731,38 +12780,6 @@ func ParseSafebrowsingStatusResp(rsp *http.Response) (*SafebrowsingStatusResp, e
 	return response, nil
 }
 
-// ParseSafesearchDisableResp parses an HTTP response from a SafesearchDisableWithResponse call
-func ParseSafesearchDisableResp(rsp *http.Response) (*SafesearchDisableResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &SafesearchDisableResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseSafesearchEnableResp parses an HTTP response from a SafesearchEnableWithResponse call
-func ParseSafesearchEnableResp(rsp *http.Response) (*SafesearchEnableResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &SafesearchEnableResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseSafesearchSettingsResp parses an HTTP response from a SafesearchSettingsWithResponse call
 func ParseSafesearchSettingsResp(rsp *http.Response) (*SafesearchSettingsResp, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -14871,48 +12888,6 @@ func ParsePutStatsConfigResp(rsp *http.Response) (*PutStatsConfigResp, error) {
 	response := &PutStatsConfigResp{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseStatsConfigResp parses an HTTP response from a StatsConfigWithResponse call
-func ParseStatsConfigResp(rsp *http.Response) (*StatsConfigResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &StatsConfigResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseStatsInfoResp parses an HTTP response from a StatsInfoWithResponse call
-func ParseStatsInfoResp(rsp *http.Response) (*StatsInfoResp, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &StatsInfoResp{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest StatsConfig
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	}
 
 	return response, nil

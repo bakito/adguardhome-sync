@@ -425,7 +425,7 @@ type origin struct {
 	blockedServicesSchedule *model.BlockedServicesSchedule
 	filters                 *model.FilterStatus
 	clients                 *model.Clients
-	queryLogConfig          *model.QueryLogConfigWithIgnored
+	queryLogConfig          *model.GetQueryLogConfigResponse
 	statsConfig             *model.GetStatsConfigResponse
 	accessList              *model.AccessList
 	dnsConfig               *model.DNSConfig

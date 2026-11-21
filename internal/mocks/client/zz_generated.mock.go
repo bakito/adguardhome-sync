@@ -312,10 +312,10 @@ func (mr *MockClientMockRecorder) QueryLog(limit any) *gomock.Call {
 }
 
 // QueryLogConfig mocks base method.
-func (m *MockClient) QueryLogConfig() (*model.QueryLogConfigWithIgnored, error) {
+func (m *MockClient) QueryLogConfig() (*model.GetQueryLogConfigResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueryLogConfig")
-	ret0, _ := ret[0].(*model.QueryLogConfigWithIgnored)
+	ret0, _ := ret[0].(*model.GetQueryLogConfigResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -485,7 +485,7 @@ func (mr *MockClientMockRecorder) SetProfileInfo(settings any) *gomock.Call {
 }
 
 // SetQueryLogConfig mocks base method.
-func (m *MockClient) SetQueryLogConfig(ql *model.QueryLogConfigWithIgnored) error {
+func (m *MockClient) SetQueryLogConfig(ql *model.PutQueryLogConfigUpdateRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetQueryLogConfig", ql)
 	ret0, _ := ret[0].(error)
