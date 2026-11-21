@@ -506,50 +506,41 @@ func TestRewriteEntry_Key(t *testing.T) {
 	}
 }
 
-func TestQueryLogConfigWithIgnored_Equals(t *testing.T) {
-	var interval1 model.QueryLogConfigInterval = 1.0
-	var interval2 model.QueryLogConfigInterval = 2.0
-
+func TestGetQueryLogConfigResponse_Equals(t *testing.T) {
 	tests := []struct {
 		name string
-		a    model.QueryLogConfigWithIgnored
-		b    model.QueryLogConfigWithIgnored
+		a    model.GetQueryLogConfigResponse
+		b    model.GetQueryLogConfigResponse
 		want bool
 	}{
 		{
 			name: "should be equal",
-			a: model.QueryLogConfigWithIgnored{
-				QueryLogConfig: model.QueryLogConfig{
-					Enabled:           new(true),
-					Interval:          &interval1,
-					AnonymizeClientIp: new(true),
-				},
-			},
-			b: model.QueryLogConfigWithIgnored{
-				QueryLogConfig: model.QueryLogConfig{
-					Enabled:           new(true),
-					Interval:          &interval1,
-					AnonymizeClientIp: new(true),
-				},
-			},
+			a:    model.GetQueryLogConfigResponse{Enabled: true, Interval: 1, AnonymizeClientIp: true},
+			b:    model.GetQueryLogConfigResponse{Enabled: true, Interval: 1, AnonymizeClientIp: true},
 			want: true,
 		},
 		{
 			name: "should not be equal when enabled differs",
-			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Enabled: new(true)}},
-			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Enabled: new(false)}},
+			a:    model.GetQueryLogConfigResponse{Enabled: true},
+			b:    model.GetQueryLogConfigResponse{Enabled: false},
 			want: false,
 		},
 		{
 			name: "should not be equal when interval differs",
-			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Interval: &interval1}},
-			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{Interval: &interval2}},
+			a:    model.GetQueryLogConfigResponse{Interval: 1},
+			b:    model.GetQueryLogConfigResponse{Interval: 2},
 			want: false,
 		},
 		{
 			name: "should not be equal when anonymizeClientIP differs",
-			a:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: new(true)}},
-			b:    model.QueryLogConfigWithIgnored{QueryLogConfig: model.QueryLogConfig{AnonymizeClientIp: new(false)}},
+			a:    model.GetQueryLogConfigResponse{AnonymizeClientIp: true},
+			b:    model.GetQueryLogConfigResponse{AnonymizeClientIp: false},
+			want: false,
+		},
+		{
+			name: "should not be equal when ignored differs",
+			a:    model.GetQueryLogConfigResponse{Ignored: []string{"a"}},
+			b:    model.GetQueryLogConfigResponse{Ignored: []string{"b"}},
 			want: false,
 		},
 	}
@@ -832,22 +823,22 @@ func TestClient_Equals(t *testing.T) {
 
 func TestBlockedServices_Equals(t *testing.T) {
 	t.Run("should be equal", func(t *testing.T) {
-		s1 := &model.BlockedServicesArray{"a", "b"}
-		s2 := &model.BlockedServicesArray{"b", "a"}
+		s1 := &[]string{"a", "b"}
+		s2 := &[]string{"b", "a"}
 		if !model.EqualsStringSlice(s1, s2, true) {
 			t.Error("expected equal")
 		}
 	})
 	t.Run("should not be equal different values", func(t *testing.T) {
-		s1 := &model.BlockedServicesArray{"a", "b"}
-		s2 := &model.BlockedServicesArray{"B", "a"}
+		s1 := &[]string{"a", "b"}
+		s2 := &[]string{"B", "a"}
 		if model.EqualsStringSlice(s1, s2, true) {
 			t.Error("expected not equal")
 		}
 	})
 	t.Run("should not be equal different length", func(t *testing.T) {
-		s1 := &model.BlockedServicesArray{"a", "b"}
-		s2 := &model.BlockedServicesArray{"b", "a", "c"}
+		s1 := &[]string{"a", "b"}
+		s2 := &[]string{"b", "a", "c"}
 		if model.EqualsStringSlice(s1, s2, true) {
 			t.Error("expected not equal")
 		}
@@ -1016,18 +1007,6 @@ func TestDHCPServerConfig(t *testing.T) {
 		a, u, r := model.MergeFilters(nil, nil)
 		if a != nil || u != nil || r != nil {
 			t.Error("expected nil results")
-		}
-	})
-
-	t.Run("QueryLogConfigInterval_Equals", func(t *testing.T) {
-		var i1 model.QueryLogConfigInterval = 1.0
-		var i2 model.QueryLogConfigInterval = 1.0
-		var i3 model.QueryLogConfigInterval = 2.0
-		if !i1.Equals(&i2) {
-			t.Error("expected true")
-		}
-		if i1.Equals(&i3) {
-			t.Error("expected false")
 		}
 	})
 

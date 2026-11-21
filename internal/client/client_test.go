@@ -420,25 +420,24 @@ func TestClient_QueryLogConfig(t *testing.T) {
 		if err != nil {
 			t.Fatalf("QueryLogConfig() error = %v", err)
 		}
-		if qlc.Enabled == nil || !*qlc.Enabled {
+		if !qlc.Enabled {
 			t.Error("expected querylog to be enabled")
 		}
-		if qlc.Interval == nil || *qlc.Interval != model.QueryLogConfigInterval(90) {
+		if qlc.Interval != 90 {
 			t.Errorf("Interval = %v, want 90", qlc.Interval)
 		}
 	})
 	t.Run("should set QueryLogConfig", func(t *testing.T) {
 		ts, cl := ClientPut(t,
 			"/querylog/config/update",
-			`{"anonymize_client_ip":true,"enabled":true,"interval":123,"ignored":["foo.bar"]}`,
+			`{"anonymize_client_ip":true,"enabled":true,"ignored":["foo.bar"],"interval":123}`,
 		)
 		defer ts.Close()
 
-		var interval model.QueryLogConfigInterval = 123
-		err := cl.SetQueryLogConfig(&model.QueryLogConfigWithIgnored{
-			AnonymizeClientIp: new(true),
-			Interval:          &interval,
-			Enabled:           new(true),
+		err := cl.SetQueryLogConfig(&model.PutQueryLogConfigUpdateRequest{
+			AnonymizeClientIp: true,
+			Interval:          123,
+			Enabled:           true,
 			Ignored:           []string{"foo.bar"},
 		})
 		if err != nil {

@@ -364,21 +364,9 @@ func (f *Filter) Equals(o *Filter) bool {
 	return f.Enabled == o.Enabled && f.Url == o.Url && f.Name == o.Name
 }
 
-type QueryLogConfigWithIgnored struct {
-	QueryLogConfig
-
-	// Ignored List of host names, which should not be written to log
-	Ignored []string `json:"ignored,omitempty"`
-}
-
-// Equals QueryLogConfig equal check.
-func (qlc *QueryLogConfigWithIgnored) Equals(o *QueryLogConfigWithIgnored) bool {
+// Equals GetQueryLogConfigResponse equal check.
+func (qlc *GetQueryLogConfigResponse) Equals(o *GetQueryLogConfigResponse) bool {
 	return utils.JSONEquals(qlc, o)
-}
-
-// Equals QueryLogConfigInterval equal check.
-func (qlc *QueryLogConfigInterval) Equals(o *QueryLogConfigInterval) bool {
-	return ptrEquals(qlc, o)
 }
 
 func ptrEquals[T comparable](a, b *T) bool {
@@ -455,7 +443,7 @@ func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
 	// AdGuard Home v1.0.0 removed the deprecated empty value for upstream_mode.
 	// Older origins still report "" for load balancing, which a v1.0.0 replica
 	// rejects, so normalize it before the config is posted.
-	if c.UpstreamMode != nil && *c.UpstreamMode == DNSConfigUpstreamModeEmpty {
+	if c.UpstreamMode != nil && *c.UpstreamMode == "" {
 		c.UpstreamMode = new(DNSConfigUpstreamModeLoadBalance)
 	}
 

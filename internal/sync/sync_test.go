@@ -73,7 +73,7 @@ func newTestEnv(t *testing.T) *testEnv {
 			},
 			status:          &model.ServerStatus{},
 			safeSearch:      &model.SafeSearchConfig{},
-			queryLogConfig:  &model.QueryLogConfigWithIgnored{},
+			queryLogConfig:  &model.GetQueryLogConfigResponse{},
 			statsConfig:     &model.PutStatsConfigUpdateRequest{},
 			rewriteSettings: &model.RewriteSettings{},
 		},
@@ -422,7 +422,7 @@ func TestSync(t *testing.T) {
 		})
 
 		t.Run("actionQueryLogConfig", func(t *testing.T) {
-			qlc := &model.QueryLogConfigWithIgnored{}
+			qlc := &model.GetQueryLogConfigResponse{}
 			t.Run("should have no changes", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.cl.EXPECT().QueryLogConfig().Return(qlc, nil)
@@ -433,11 +433,10 @@ func TestSync(t *testing.T) {
 			})
 			t.Run("should have QueryLogConfig changes", func(t *testing.T) {
 				env := newTestEnv(t)
-				var interval model.QueryLogConfigInterval = 123
-				env.ac.origin.queryLogConfig.Interval = &interval
+				env.ac.origin.queryLogConfig.Interval = 123
 				env.cl.EXPECT().QueryLogConfig().Return(qlc, nil)
 				env.cl.EXPECT().
-					SetQueryLogConfig(&model.QueryLogConfigWithIgnored{AnonymizeClientIp: nil, Interval: &interval, Enabled: nil})
+					SetQueryLogConfig(&model.GetQueryLogConfigResponse{Interval: 123})
 				err := actionQueryLogConfig(env.ac)
 				if err != nil {
 					t.Errorf("actionQueryLogConfig() error = %v, want nil", err)
@@ -826,7 +825,7 @@ func TestSync(t *testing.T) {
 			t.Run("should normalize an empty upstream mode before posting", func(t *testing.T) {
 				env := newTestEnv(t)
 				env.ac.origin.dnsConfig = &model.DNSConfig{
-					UpstreamMode: new(model.DNSConfigUpstreamModeEmpty),
+					UpstreamMode: new(model.DNSConfigUpstreamMode("")),
 				}
 				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
 				env.cl.EXPECT().SetDNSConfig(&model.DNSConfig{
@@ -1130,7 +1129,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().BlockedServicesSchedule()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
@@ -1144,7 +1143,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().Parental()
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				env.cl.EXPECT().SafeBrowsing()
-				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().AddRewriteEntries()
@@ -1199,7 +1198,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().BlockedServicesSchedule()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
@@ -1212,7 +1211,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().Parental()
 				env.cl.EXPECT().SafeSearchConfig().Return(&model.SafeSearchConfig{}, nil)
 				env.cl.EXPECT().SafeBrowsing()
-				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				env.cl.EXPECT().RewriteEntries().Return(&model.RewriteEntries{}, nil)
 				env.cl.EXPECT().AddRewriteEntries()
@@ -1277,7 +1276,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().BlockedServicesSchedule()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil)
-				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				env.cl.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil)
 				env.cl.EXPECT().StatsConfig().Return(&model.PutStatsConfigUpdateRequest{}, nil)
 				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
@@ -1433,7 +1432,7 @@ func TestSync(t *testing.T) {
 				clOrigin.EXPECT().BlockedServicesSchedule().Return(&model.BlockedServicesSchedule{}, nil)
 				clOrigin.EXPECT().Filtering().Return(&model.FilterStatus{}, nil)
 				clOrigin.EXPECT().Clients().Return(&model.Clients{}, nil)
-				clOrigin.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil)
+				clOrigin.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil)
 				clOrigin.EXPECT().StatsConfig().Return(&model.GetStatsConfigResponse{}, nil)
 				clOrigin.EXPECT().AccessList().Return(&model.AccessList{}, nil)
 				clOrigin.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil)
@@ -1505,7 +1504,7 @@ func TestSync(t *testing.T) {
 				env.cl.EXPECT().BlockedServicesSchedule().Return(&model.BlockedServicesSchedule{}, nil).AnyTimes()
 				env.cl.EXPECT().Filtering().Return(&model.FilterStatus{}, nil).AnyTimes()
 				env.cl.EXPECT().Clients().Return(&model.Clients{}, nil).AnyTimes()
-				env.cl.EXPECT().QueryLogConfig().Return(&model.QueryLogConfigWithIgnored{}, nil).AnyTimes()
+				env.cl.EXPECT().QueryLogConfig().Return(&model.GetQueryLogConfigResponse{}, nil).AnyTimes()
 				env.cl.EXPECT().StatsConfig().Return(&model.GetStatsConfigResponse{}, nil).AnyTimes()
 				env.cl.EXPECT().AccessList().Return(&model.AccessList{}, nil).AnyTimes()
 				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{}, nil).AnyTimes()

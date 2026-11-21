@@ -159,7 +159,7 @@ func TestDNSConfig_Sanitize(t *testing.T) {
 	})
 
 	t.Run("should normalize an empty upstream mode to load_balance", func(t *testing.T) {
-		cfg := &DNSConfig{UpstreamMode: new(DNSConfigUpstreamModeEmpty)}
+		cfg := &DNSConfig{UpstreamMode: new(DNSConfigUpstreamMode(""))}
 		cfg.Sanitize(l)
 		if cfg.UpstreamMode == nil || *cfg.UpstreamMode != DNSConfigUpstreamModeLoadBalance {
 			t.Errorf("expected UpstreamMode to be load_balance, got %v", cfg.UpstreamMode)

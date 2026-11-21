@@ -50,30 +50,6 @@ func main() {
 		return
 	}
 
-	if requestBodies, ok, _ := unstructured.NestedMap(schema, "components", "requestBodies"); ok {
-		for k := range requestBodies {
-			_ = unstructured.SetNestedField(schema, k+"Body", "components", "requestBodies", k, "x-go-name")
-		}
-	}
-
-	dnsInfo, ok, _ := unstructured.NestedMap(schema,
-		"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema")
-	if ok {
-		allOf, okn, _ := unstructured.NestedSlice(dnsInfo, "allOf")
-		if okn && len(allOf) == 2 {
-			delete(dnsInfo, "allOf")
-			//nolint:forcetypeassert
-			err = unstructured.SetNestedMap(schema, allOf[0].(map[string]any),
-				"paths", "/dns_info", "get", "responses", "200", "content", "application/json", "schema")
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		}
-	}
-
-	correctEntries(schema)
-
 	addFakeTags(schema)
 
 	b, err := yaml.Marshal(&schema)
@@ -87,9 +63,6 @@ func main() {
 		log.Println(err)
 		return
 	}
-}
-
-func correctEntries(map[string]any) {
 }
 
 func addFakeTags(schema map[string]any) {
