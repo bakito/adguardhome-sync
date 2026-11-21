@@ -452,6 +452,13 @@ func ArrayString(a *[]string) string {
 }
 
 func (c *DNSConfig) Sanitize(l *zap.SugaredLogger) {
+	// AdGuard Home v1.0.0 removed the deprecated empty value for upstream_mode.
+	// Older origins still report "" for load balancing, which a v1.0.0 replica
+	// rejects, so normalize it before the config is posted.
+	if c.UpstreamMode != nil && *c.UpstreamMode == DNSConfigUpstreamModeEmpty {
+		c.UpstreamMode = new(DNSConfigUpstreamModeLoadBalance)
+	}
+
 	// disable UsePrivatePtrResolvers if not configured
 	// https://github.com/AdguardTeam/AdGuardHome/issues/6820
 	if c.UsePrivatePtrResolvers != nil && *c.UsePrivatePtrResolvers &&

@@ -157,6 +157,30 @@ func TestDNSConfig_Sanitize(t *testing.T) {
 			t.Errorf("expected EdnsCsCustomIp to be 1.1.1.1, got %v", cfg.EdnsCsCustomIp)
 		}
 	})
+
+	t.Run("should normalize an empty upstream mode to load_balance", func(t *testing.T) {
+		cfg := &DNSConfig{UpstreamMode: new(DNSConfigUpstreamModeEmpty)}
+		cfg.Sanitize(l)
+		if cfg.UpstreamMode == nil || *cfg.UpstreamMode != DNSConfigUpstreamModeLoadBalance {
+			t.Errorf("expected UpstreamMode to be load_balance, got %v", cfg.UpstreamMode)
+		}
+	})
+
+	t.Run("should keep an explicit upstream mode", func(t *testing.T) {
+		cfg := &DNSConfig{UpstreamMode: new(DNSConfigUpstreamModeParallel)}
+		cfg.Sanitize(l)
+		if cfg.UpstreamMode == nil || *cfg.UpstreamMode != DNSConfigUpstreamModeParallel {
+			t.Errorf("expected UpstreamMode to be parallel, got %v", cfg.UpstreamMode)
+		}
+	})
+
+	t.Run("should keep an unset upstream mode", func(t *testing.T) {
+		cfg := &DNSConfig{}
+		cfg.Sanitize(l)
+		if cfg.UpstreamMode != nil {
+			t.Errorf("expected UpstreamMode to stay nil, got %v", *cfg.UpstreamMode)
+		}
+	})
 }
 
 func TestDhcpStatus_cleanV4V6(t *testing.T) {
