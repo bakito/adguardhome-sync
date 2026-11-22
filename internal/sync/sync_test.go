@@ -836,6 +836,19 @@ func TestSync(t *testing.T) {
 					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
 				}
 			})
+			t.Run("should not post if replica reports an empty upstream mode", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.dnsConfig = &model.DNSConfig{
+					UpstreamMode: new(model.DNSConfigUpstreamMode("")),
+				}
+				env.cl.EXPECT().DNSConfig().Return(&model.DNSConfig{
+					UpstreamMode: new(model.DNSConfigUpstreamMode("")),
+				}, nil)
+				err := actionDNSServerConfig(env.ac)
+				if err != nil {
+					t.Errorf("actionDNSServerConfig() error = %v, want nil", err)
+				}
+			})
 		})
 
 		t.Run("actionDHCPServerConfig", func(t *testing.T) {

@@ -174,6 +174,17 @@ func TestDNSConfig_Sanitize(t *testing.T) {
 		}
 	})
 
+	t.Run("should treat an empty upstream mode as load_balance in Equals", func(t *testing.T) {
+		a := &DNSConfig{UpstreamMode: new(DNSConfigUpstreamMode(""))}
+		b := &DNSConfig{UpstreamMode: new(DNSConfigUpstreamModeLoadBalance)}
+		if !a.Equals(b) || !b.Equals(a) {
+			t.Error("expected configs to be equal")
+		}
+		if *a.UpstreamMode != "" {
+			t.Error("expected Equals not to modify the receiver")
+		}
+	})
+
 	t.Run("should keep an unset upstream mode", func(t *testing.T) {
 		cfg := &DNSConfig{}
 		cfg.Sanitize(l)
