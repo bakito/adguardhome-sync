@@ -108,9 +108,9 @@ func TestConfig_mask(t *testing.T) {
 	cfg := Config{
 		Origin: &AdGuardInstance{},
 		Replicas: []Replica{
-			{URL: "a", Username: "user", Password: "pass"},
+			{URL: "a", Username: "user", Password: "pass", Cookie: "cookie"},
 		},
-		Replica: &Replica{URL: "a", Username: "user", Password: "pass"},
+		Replica: &Replica{URL: "a", Username: "user", Password: "pass", Cookie: "cookie"},
 		API:     API{Username: "user", Password: "pass"},
 	}
 	masked := cfg.mask()
@@ -125,6 +125,12 @@ func TestConfig_mask(t *testing.T) {
 	}
 	if masked.Replica.Password != "p**s" {
 		t.Errorf("masked.Replica.Password = %v, want p**s", masked.Replica.Password)
+	}
+	if masked.Replicas[0].Cookie != "c****e" {
+		t.Errorf("masked.Replicas[0].Cookie = %v, want c****e", masked.Replicas[0].Cookie)
+	}
+	if masked.Replica.Cookie != "c****e" {
+		t.Errorf("masked.Replica.Cookie = %v, want c****e", masked.Replica.Cookie)
 	}
 	if masked.API.Username != "u**r" {
 		t.Errorf("masked.API.Username = %v, want u**r", masked.API.Username)

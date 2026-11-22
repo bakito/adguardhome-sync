@@ -224,6 +224,7 @@ func (i *AdGuardInstance) Key() string {
 func (i *AdGuardInstance) Mask() {
 	i.Username = mask(i.Username)
 	i.Password = mask(i.Password)
+	i.Cookie = mask(i.Cookie)
 }
 
 func (i *AdGuardInstance) Init() error {
