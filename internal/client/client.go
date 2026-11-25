@@ -352,7 +352,9 @@ func (cl *client) BlockedServicesSchedule() (*model.BlockedServicesSchedule, err
 func (cl *client) SetBlockedServicesSchedule(schedule *model.BlockedServicesSchedule) error {
 	cl.log.With("services", schedule.ServicesString(), "timezone", schedule.Schedule.TimeZone).
 		Info("Set blocked services schedule")
-	return cl.doPut(cl.client.R().EnableTrace().SetBody(schedule), "/blocked_services/update")
+	// The ids are sent sorted, from a copy: the schedule passed in is the
+	// origin's, which is compared with the next replica after this one.
+	return cl.doPut(cl.client.R().EnableTrace().SetBody(schedule.WithSortedIDs()), "/blocked_services/update")
 }
 
 func (cl *client) Clients() (*model.Clients, error) {

@@ -428,8 +428,22 @@ func (pi *ProfileInfo) ShouldSyncFor(o *ProfileInfo, withTheme bool) *ProfileInf
 	return merged
 }
 
+// Equals compares two schedules, taking the blocked service IDs as a set: their
+// order carries no meaning, and an instance may hold them in a different order.
 func (bss *BlockedServicesSchedule) Equals(o *BlockedServicesSchedule) bool {
-	return utils.JSONEquals(bss, o)
+	return utils.JSONEquals(bss.WithSortedIDs(), o.WithSortedIDs())
+}
+
+// WithSortedIDs returns a copy of the schedule with its IDs sorted, leaving the
+// schedule itself unchanged.
+func (bss *BlockedServicesSchedule) WithSortedIDs() *BlockedServicesSchedule {
+	if bss == nil || bss.Ids == nil {
+		return bss
+	}
+	sorted := *bss
+	ids := slices.Sorted(slices.Values(*bss.Ids))
+	sorted.Ids = &ids
+	return &sorted
 }
 
 func (bss *BlockedServicesSchedule) ServicesString() string {
@@ -440,8 +454,9 @@ func ArrayString(a *[]string) string {
 	if a == nil {
 		return "[]"
 	}
-	sorted := *a
-	slices.Sort(sorted)
+	// Sort a copy: sorting *a in place reordered the caller's slice, such as the
+	// origin's schedule logged before it is sent to a replica (#1014).
+	sorted := slices.Sorted(slices.Values(*a))
 	return fmt.Sprintf("[%s]", strings.Join(sorted, ","))
 }
 

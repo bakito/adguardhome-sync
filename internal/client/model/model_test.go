@@ -266,13 +266,63 @@ func TestBlockedServicesSchedule_Equals(t *testing.T) {
 			o:    &model.BlockedServicesSchedule{Ids: &[]string{"b"}},
 			want: false,
 		},
+		{
+			name: "same ids in another order",
+			bss:  &model.BlockedServicesSchedule{Ids: &[]string{"youtube", "tiktok", "discord"}},
+			o:    &model.BlockedServicesSchedule{Ids: &[]string{"discord", "tiktok", "youtube"}},
+			want: true,
+		},
+		{
+			name: "same ids, other schedule",
+			bss: &model.BlockedServicesSchedule{
+				Ids:      &[]string{"b", "a"},
+				Schedule: &model.Schedule{TimeZone: new("Local")},
+			},
+			o: &model.BlockedServicesSchedule{
+				Ids:      &[]string{"a", "b"},
+				Schedule: &model.Schedule{TimeZone: new("UTC")},
+			},
+			want: false,
+		},
+		{
+			name: "nil ids and no ids",
+			bss:  &model.BlockedServicesSchedule{},
+			o:    &model.BlockedServicesSchedule{Ids: nil},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			bssIDs := idsOf(tt.bss)
+			oIDs := idsOf(tt.o)
 			if got := tt.bss.Equals(tt.o); got != tt.want {
 				t.Errorf("Equals() = %v, want %v", got, tt.want)
 			}
+			if !reflect.DeepEqual(idsOf(tt.bss), bssIDs) || !reflect.DeepEqual(idsOf(tt.o), oIDs) {
+				t.Errorf("Equals() reordered the ids: %v %v", idsOf(tt.bss), idsOf(tt.o))
+			}
 		})
+	}
+}
+
+func idsOf(bss *model.BlockedServicesSchedule) []string {
+	if bss == nil || bss.Ids == nil {
+		return nil
+	}
+	return append([]string(nil), *bss.Ids...)
+}
+
+// ServicesString is logged before the origin's schedule is sent to a replica.
+// Sorting the ids in place reordered the origin's own schedule, so the first
+// replica of every sync run saw a difference that the others did not (#1014).
+func TestBlockedServicesSchedule_ServicesStringLeavesIdsInOrder(t *testing.T) {
+	bss := &model.BlockedServicesSchedule{Ids: &[]string{"youtube", "discord", "tiktok"}}
+
+	if got := bss.ServicesString(); got != "[discord,tiktok,youtube]" {
+		t.Errorf("ServicesString() = %v, want [discord,tiktok,youtube]", got)
+	}
+	if want := []string{"youtube", "discord", "tiktok"}; !reflect.DeepEqual(*bss.Ids, want) {
+		t.Errorf("ServicesString() reordered the ids to %v, want %v", *bss.Ids, want)
 	}
 }
 

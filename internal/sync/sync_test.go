@@ -532,6 +532,20 @@ func TestSync(t *testing.T) {
 					t.Errorf("actionBlockedServicesSchedule() error = %v, want nil", err)
 				}
 			})
+			// The origin answers its ids in its own order and a replica holds them
+			// sorted: the first replica of every run was written again (#1014).
+			t.Run("should have no changes when only the order of the ids differs", func(t *testing.T) {
+				env := newTestEnv(t)
+				env.ac.origin.blockedServicesSchedule = &model.BlockedServicesSchedule{
+					Ids: new([]string{"youtube", "discord", "tiktok"}),
+				}
+				replica := &model.BlockedServicesSchedule{Ids: new([]string{"discord", "tiktok", "youtube"})}
+				env.cl.EXPECT().BlockedServicesSchedule().Return(replica, nil)
+				err := actionBlockedServicesSchedule(env.ac)
+				if err != nil {
+					t.Errorf("actionBlockedServicesSchedule() error = %v, want nil", err)
+				}
+			})
 		})
 
 		t.Run("actionFilters", func(t *testing.T) {
